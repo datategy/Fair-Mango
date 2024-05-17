@@ -5,6 +5,15 @@ import seaborn as sns
 
 
 def check_column_in_df(df: pd.DataFrame, columns: Sequence | None) -> None:
+    """validate the columns existance in the dataset
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        the dataframe
+    columns : Sequence | None
+        a list of column names
+    """
     if columns is not None:
         if isinstance(columns, str):
             if columns not in df.columns:
@@ -15,6 +24,20 @@ def check_column_in_df(df: pd.DataFrame, columns: Sequence | None) -> None:
                     raise(KeyError(f"{column} column does not exist in the dataframe provided"))
 
 def check_real_and_predicted_target_match(real_target: Sequence[str], predicted_target: Sequence[str]) -> None:
+    """check that number of real targets and number of predicted targets match
+
+    Parameters
+    ----------
+    real_target : Sequence[str]
+        real targets
+    predicted_target : Sequence[str]
+        predicted targets
+
+    Raises
+    ------
+    ValueError
+        if the number of targets and predicted targets does not match
+    """
     if isinstance(real_target, str) and isinstance(predicted_target, str):
         return None
     elif isinstance(real_target, str):
@@ -117,7 +140,7 @@ class Dataset:
         return result
     
     def get_real_target_for_all_groups(self) -> list[dict]:
-        """Retrieve data for all unique groups.
+        """Retrieve real target for all unique groups.
 
         Returns
         -------
@@ -133,7 +156,7 @@ class Dataset:
         return self.groups_real_target
     
     def get_real_target_for_one_group(self, sensitive:Sequence[str]) -> pd.DataFrame:
-        """Retrieve data for a specific group
+        """Retrieve real target for a specific group
 
         Parameters
         ----------
@@ -160,7 +183,7 @@ class Dataset:
         return result.squeeze()
     
     def get_predicted_target_for_all_groups(self) -> list[dict]:
-        """Retrieve data for all unique groups.
+        """Retrieve predicted target for all unique groups.
 
         Returns
         -------
@@ -178,7 +201,7 @@ class Dataset:
         return self.groups_predicted_target
     
     def get_predicted_target_for_one_group(self, sensitive:Sequence[str]) -> pd.DataFrame:
-        """Retrieve data for a specific group
+        """Retrieve predicted target for a specific group
 
         Parameters
         ----------
