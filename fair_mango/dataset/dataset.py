@@ -73,6 +73,20 @@ class Dataset:
         predicted_target: Sequence[str] = [],
         positive_target: Sequence[int | float | str | bool] | None = None,
     ):
+        """
+        Parameters
+        ----------
+        df : pd.DataFrame
+            input dataframe
+        sensitive : Sequence[str]
+            list of sensitive attributes (Ex: gender, race...)
+        real_target : Sequence[str]
+            list of column names of actual labels for target variables
+        predicted_target : Sequence[str], optional
+            list of column names of predicted labels for target variables, by default []
+        positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+            list of the positive labels corresponding to the provided targets , by default None
+        """
         check_column_in_df(df, sensitive)
         check_column_in_df(df, real_target)
         check_column_in_df(df, predicted_target)
