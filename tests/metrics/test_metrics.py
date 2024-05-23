@@ -1,35 +1,57 @@
-from fair_mango.dataset.dataset import Dataset
-from fair_mango.metrics.metrics import SelectionRate, ConfusionMatrix, false_positive_rate, false_negative_rate, true_negative_rate
-from fair_mango.metrics.metrics import is_binary, encode_target
-import pytest
-from typing import Sequence, Collection
-import pandas as pd
+from collections.abc import Collection, Sequence
+
 import numpy as np
+import pandas as pd
+import pytest
 from _pytest.python_api import RaisesContext
 
+from fair_mango.dataset.dataset import Dataset
+from fair_mango.metrics.metrics import (
+    ConfusionMatrix,
+    DemographicParityDifference,
+    DemographicParityRatio,
+    SelectionRate,
+    encode_target,
+    false_negative_rate,
+    false_positive_rate,
+    is_binary,
+    true_negative_rate,
+)
 
-df = pd.read_csv('tests/data/heart_data.csv')
+df = pd.read_csv("tests/data/heart_data.csv")
 
-dataset1 = Dataset(df, ['Sex'], ['HeartDisease'])
+dataset1 = Dataset(df, ["Sex"], ["HeartDisease"])
 
-dataset2 = Dataset(df, ['Sex'], ['HeartDisease'], ['HeartDiseasePred'])
+dataset2 = Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"])
 
-dataset3 = Dataset(df, ['Sex', 'ChestPainType'], ['HeartDisease'], ['HeartDiseasePred'])
+dataset3 = Dataset(df, ["Sex", "ChestPainType"], ["HeartDisease"], ["HeartDiseasePred"])
 
-dataset4 = Dataset(df, ['Sex'], ['HeartDisease', 'ExerciseAngina'], None, [1, 'Y'])
+dataset4 = Dataset(df, ["Sex"], ["HeartDisease", "ExerciseAngina"], None, [1, "Y"])
 
-dataset5 = Dataset(df, ['Sex'], ['HeartDisease', 'ExerciseAngina'], ['HeartDiseasePred', 'ExerciseAngina'], [1, 'Y'])
+dataset5 = Dataset(
+    df,
+    ["Sex"],
+    ["HeartDisease", "ExerciseAngina"],
+    ["HeartDiseasePred", "ExerciseAngina"],
+    [1, "Y"],
+)
 
-dataset6 = Dataset(df, ['Sex', 'ChestPainType'], ['HeartDisease', 'ExerciseAngina'], ['HeartDiseasePred', 'ExerciseAngina'], [1, 'Y'])
+dataset6 = Dataset(
+    df,
+    ["Sex", "ChestPainType"],
+    ["HeartDisease", "ExerciseAngina"],
+    ["HeartDiseasePred", "ExerciseAngina"],
+    [1, "Y"],
+)
 
 
 @pytest.mark.parametrize(
     "y, expected_result",
     [
-        (df['Sex'], True),
-        (df['ExerciseAngina'], True),
-        (df['ChestPainType'], False),
-        (df[['ExerciseAngina', 'Sex']], True),
+        (df["Sex"], True),
+        (df["ExerciseAngina"], True),
+        (df["ChestPainType"], False),
+        (df[["ExerciseAngina", "Sex"]], True),
     ],
 )
 def test_is_binary(y: pd.Series | pd.DataFrame, expected_result: bool):
@@ -39,16 +61,18 @@ def test_is_binary(y: pd.Series | pd.DataFrame, expected_result: bool):
 @pytest.mark.parametrize(
     "data, ind, col, expected_result",
     [
-        (dataset4, 0, 'HeartDisease', None),
-        (dataset5, 1, 'ExerciseAngina', None),
-        (dataset5, 1, 'HeartDiseasePred', pytest.raises(KeyError)),
-        (dataset3, 0, 'ExerciseAngina', pytest.raises(ValueError)),
+        (dataset4, 0, "HeartDisease", None),
+        (dataset5, 1, "ExerciseAngina", None),
+        (dataset5, 1, "HeartDiseasePred", pytest.raises(KeyError)),
+        (dataset3, 0, "ExerciseAngina", pytest.raises(ValueError)),
     ],
 )
-def test_encode_target(data: Dataset, ind: int, col: str, expected_result: None | RaisesContext):
+def test_encode_target(
+    data: Dataset, ind: int, col: str, expected_result: None | RaisesContext
+):
     if expected_result is None:
         encode_target(data, ind, col)
-        assert sorted(data.df[col].unique()) == [0,1]
+        assert sorted(data.df[col].unique()) == [0, 1]
     else:
         with expected_result:
             encode_target(data, ind, col)
@@ -57,19 +81,76 @@ def test_encode_target(data: Dataset, ind: int, col: str, expected_result: None 
 @pytest.mark.parametrize(
     "data, use_y_true, expected_groups, expected_result",
     [
-        (dataset1, True, ['M', 'F'], [0.63172414, 0.25906736]),
+        (dataset1, True, ["M", "F"], [0.63172414, 0.25906736]),
         (dataset1, False, [], pytest.raises(ValueError)),
-        (dataset3, True, [['M', 'ASY'],['M', 'NAP'],['M', 'ATA'],['F', 'ASY'],
-                           ['F', 'ATA'],['F', 'NAP'],['M', 'TA'],['F', 'TA']], 
-                          [0.8286385, 0.44, 0.17699115, 0.55714286, 0.06666667, 0.11320755, 0.52777778, 0.1]),
-        (dataset3, False, [['M', 'ASY'],['M', 'NAP'],['M', 'ATA'],['F', 'ASY'],
-                           ['F', 'ATA'],['F', 'NAP'],['M', 'TA'],['F', 'TA']], 
-                          [0.81924883, 0.44, 0.17699115, 0.58571429, 0.08333333, 0.0754717, 0.52777778, 0.1]),
-        (dataset5, True, ['M', 'F'], [[0.63172414, 0.45241379], [0.25906736, 0.22279793]]),
-        (dataset5, False, ['M', 'F'], [[0.6262069 , 0.45241379], [0.2642487 , 0.22279793]]),
+        (
+            dataset3,
+            True,
+            [
+                ["M", "ASY"],
+                ["M", "NAP"],
+                ["M", "ATA"],
+                ["F", "ASY"],
+                ["F", "ATA"],
+                ["F", "NAP"],
+                ["M", "TA"],
+                ["F", "TA"],
+            ],
+            [
+                0.8286385,
+                0.44,
+                0.17699115,
+                0.55714286,
+                0.06666667,
+                0.11320755,
+                0.52777778,
+                0.1,
+            ],
+        ),
+        (
+            dataset3,
+            False,
+            [
+                ["M", "ASY"],
+                ["M", "NAP"],
+                ["M", "ATA"],
+                ["F", "ASY"],
+                ["F", "ATA"],
+                ["F", "NAP"],
+                ["M", "TA"],
+                ["F", "TA"],
+            ],
+            [
+                0.81924883,
+                0.44,
+                0.17699115,
+                0.58571429,
+                0.08333333,
+                0.0754717,
+                0.52777778,
+                0.1,
+            ],
+        ),
+        (
+            dataset5,
+            True,
+            ["M", "F"],
+            [[0.63172414, 0.45241379], [0.25906736, 0.22279793]],
+        ),
+        (
+            dataset5,
+            False,
+            ["M", "F"],
+            [[0.6262069, 0.45241379], [0.2642487, 0.22279793]],
+        ),
     ],
 )
-def test_selectionrate(data: Dataset, use_y_true: bool, expected_groups: Sequence[str], expected_result: Sequence[float] | RaisesContext):
+def test_selectionrate(
+    data: Dataset,
+    use_y_true: bool,
+    expected_groups: Sequence[str],
+    expected_result: Sequence[float] | RaisesContext,
+):
     if isinstance(expected_result, Sequence):
         sr = SelectionRate(data, use_y_true)
         result = sr()
@@ -78,91 +159,313 @@ def test_selectionrate(data: Dataset, use_y_true: bool, expected_groups: Sequenc
         else:
             assert result[0] == data.predicted_target
         for i, res in enumerate(result[1]):
-            assert (res['sensitive'] == expected_groups[i]).all()
-            assert (np.isclose(res['result'], expected_result[i], atol=0.0000002)).all()        
+            assert (res["sensitive"] == expected_groups[i]).all()
+            assert (np.isclose(res["result"], expected_result[i], atol=0.0000002)).all()
     else:
         with expected_result:
             sr = SelectionRate(data, use_y_true)
             sr()
 
 
-expected_result_2 = [{'sensitive': np.array(['M']),
-                    'false_negative_rate': [0.021834061135371178],
-                    'false_positive_rate': [0.02247191011235955],
-                    'true_negative_rate': [0.9775280898876404],
-                    'true_positive_rate': [0.9781659388646288]},
-                    {'sensitive': np.array(['F']),
-                    'false_negative_rate': [0.06],
-                    'false_positive_rate': [0.027972027972027972],
-                    'true_negative_rate': [0.972027972027972],
-                    'true_positive_rate': [0.94]}]
+expected_result_2 = [
+    {
+        "sensitive": np.array(["M"]),
+        "false_negative_rate": [0.021834061135371178],
+        "false_positive_rate": [0.02247191011235955],
+        "true_negative_rate": [0.9775280898876404],
+        "true_positive_rate": [0.9781659388646288],
+    },
+    {
+        "sensitive": np.array(["F"]),
+        "false_negative_rate": [0.06],
+        "false_positive_rate": [0.027972027972027972],
+        "true_negative_rate": [0.972027972027972],
+        "true_positive_rate": [0.94],
+    },
+]
 
-expected_result_3 = [{'sensitive': np.array(['M', 'ASY']),
-                    'fpr': [0.0136986301369863]},
-                    {'sensitive': np.array(['M', 'NAP']),
-                    'fpr': [0.011904761904761904]},
-                    {'sensitive': np.array(['M', 'ATA']),
-                    'fpr': [0.010752688172043012]},
-                    {'sensitive': np.array(['F', 'ASY']),
-                    'fpr': [0.0967741935483871]},
-                    {'sensitive': np.array(['F', 'ATA']),
-                    'fpr': [0.017857142857142856]},
-                    {'sensitive': np.array(['F', 'NAP']), 'fpr': [0.0]},
-                    {'sensitive': np.array(['M', 'TA']),
-                    'fpr': [0.17647058823529413]},
-                    {'sensitive': np.array(['F', 'TA']), 'fpr': [0.0]}]
 
-expected_result_6 = [{'sensitive': np.array(['M', 'ASY']),
-                    'true_negative_rate': [0.9863013698630136, 1.0],
-                    'false_negative_rate': [0.014164305949008499, 0.0]},
-                    {'sensitive': np.array(['M', 'NAP']),
-                    'true_negative_rate': [0.9880952380952381, 1.0],
-                    'false_negative_rate': [0.015151515151515152, 0.0]},
-                    {'sensitive': np.array(['M', 'ATA']),
-                    'true_negative_rate': [0.989247311827957, 1.0],
-                    'false_negative_rate': [0.05, 0.0]},
-                    {'sensitive': np.array(['F', 'ASY']),
-                    'true_negative_rate': [0.9032258064516129, 1.0],
-                    'false_negative_rate': [0.02564102564102564, 0.0]},
-                    {'sensitive': np.array(['F', 'ATA']),
-                    'true_negative_rate': [0.9821428571428571, 1.0],
-                    'false_negative_rate': [0.0, 0.0]},
-                    {'sensitive': np.array(['F', 'NAP']),
-                    'true_negative_rate': [1.0, 1.0],
-                    'false_negative_rate': [0.3333333333333333, 0.0]},
-                    {'sensitive': np.array(['M', 'TA']),
-                    'true_negative_rate': [0.8235294117647058, 1.0],
-                    'false_negative_rate': [0.15789473684210525, 0.0]},
-                    {'sensitive': np.array(['F', 'TA']),
-                    'true_negative_rate': [1.0, 1.0],
-                    'false_negative_rate': [0.0, 'ZERO']}]
+expected_result_3 = [
+    {"sensitive": np.array(["M", "ASY"]), "fpr": [0.0136986301369863]},
+    {"sensitive": np.array(["M", "NAP"]), "fpr": [0.011904761904761904]},
+    {"sensitive": np.array(["M", "ATA"]), "fpr": [0.010752688172043012]},
+    {"sensitive": np.array(["F", "ASY"]), "fpr": [0.0967741935483871]},
+    {"sensitive": np.array(["F", "ATA"]), "fpr": [0.017857142857142856]},
+    {"sensitive": np.array(["F", "NAP"]), "fpr": [0.0]},
+    {"sensitive": np.array(["M", "TA"]), "fpr": [0.17647058823529413]},
+    {"sensitive": np.array(["F", "TA"]), "fpr": [0.0]},
+]
+
+
+expected_result_6 = [
+    {
+        "sensitive": np.array(["M", "ASY"]),
+        "true_negative_rate": [0.9863013698630136, 1.0],
+        "false_negative_rate": [0.014164305949008499, 0.0],
+    },
+    {
+        "sensitive": np.array(["M", "NAP"]),
+        "true_negative_rate": [0.9880952380952381, 1.0],
+        "false_negative_rate": [0.015151515151515152, 0.0],
+    },
+    {
+        "sensitive": np.array(["M", "ATA"]),
+        "true_negative_rate": [0.989247311827957, 1.0],
+        "false_negative_rate": [0.05, 0.0],
+    },
+    {
+        "sensitive": np.array(["F", "ASY"]),
+        "true_negative_rate": [0.9032258064516129, 1.0],
+        "false_negative_rate": [0.02564102564102564, 0.0],
+    },
+    {
+        "sensitive": np.array(["F", "ATA"]),
+        "true_negative_rate": [0.9821428571428571, 1.0],
+        "false_negative_rate": [0.0, 0.0],
+    },
+    {
+        "sensitive": np.array(["F", "NAP"]),
+        "true_negative_rate": [1.0, 1.0],
+        "false_negative_rate": [0.3333333333333333, 0.0],
+    },
+    {
+        "sensitive": np.array(["M", "TA"]),
+        "true_negative_rate": [0.8235294117647058, 1.0],
+        "false_negative_rate": [0.15789473684210525, 0.0],
+    },
+    {
+        "sensitive": np.array(["F", "TA"]),
+        "true_negative_rate": [1.0, 1.0],
+        "false_negative_rate": [0.0, "ZERO"],
+    },
+]
+
 
 @pytest.mark.parametrize(
     "data, metrics, zero_division, expected_result",
     [
         (dataset1, None, None, pytest.raises(ValueError)),
         (dataset2, None, None, expected_result_2),
-        (dataset3, {'fpr': false_positive_rate}, None, expected_result_3),
-        (dataset6, [false_negative_rate, true_negative_rate], "ZERO", expected_result_6),
+        (dataset3, {"fpr": false_positive_rate}, None, expected_result_3),
+        (
+            dataset6,
+            [true_negative_rate, false_negative_rate],
+            "ZERO",
+            expected_result_6,
+        ),
     ],
 )
-def test_confusionmatrix(data: Dataset, metrics: Collection | None, zero_division: float | str | None, expected_result: Sequence[float] | RaisesContext):
+def test_confusionmatrix(
+    data: Dataset,
+    metrics: Collection | None,
+    zero_division: float | str | None,
+    expected_result: Sequence[float] | RaisesContext,
+):
     if isinstance(expected_result, Sequence):
         cf = ConfusionMatrix(data, metrics, zero_division)
         result = cf()
         assert result[0] == data.real_target
         for i, res in enumerate(result[1]):
-            for key, expected_key in zip(res.keys(), expected_result[i].keys()):
-                assert key == expected_key
-            for val, expected_val in zip(res.values(), expected_result[i].values()):
-                if isinstance(val[0], object):
+            for key in res.keys():
+                if isinstance(res[key][0], object):
                     try:
-                        assert (val == expected_val).all()
+                        assert (res[key] == expected_result[i][key]).all()
                     except AttributeError:
-                        assert val == expected_val
+                        assert res[key] == expected_result[i][key]
                 else:
-                    assert (np.isclose(val, expected_val, atol=0.0000002)).all()        
+                    assert (
+                        np.isclose(res[key], expected_result[i][key], atol=0.0000002)
+                    ).all()
+
     else:
         with expected_result:
             cf = ConfusionMatrix(data, metrics, zero_division)
             cf()
+
+
+expected_result_2 = [
+    {
+        "HeartDisease": {
+            "dpd": 0.3726567804180811,
+            "privileged": ("M",),
+            "unprivileged": ("F",),
+        }
+    },
+    {
+        "HeartDisease": {
+            "pr_dpd": 0.3726567804180811,
+            "most_privileged": ("M",),
+            "unp_dpd": -0.3726567804180811,
+            "most_unprivileged": ("F",),
+        }
+    },
+]
+
+
+expected_result_3 = [
+    {
+        "HeartDisease": {
+            "demographic_parity_difference": 0.7619718309859155,
+            "privileged": ("M", "ASY"),
+            "unprivileged": ("F", "ATA"),
+        }
+    },
+    {
+        "HeartDisease": {
+            "pr_demographic_parity_difference": 0.5455262120526406,
+            "most_privileged": ("M", "ASY"),
+            "unp_demographic_parity_difference": -0.32529873764554856,
+            "most_unprivileged": ("F", "ATA"),
+        }
+    },
+]
+
+
+expected_result_6 = [
+    {
+        "HeartDisease": {
+            "demographic_parity_difference": 0.7619718309859155,
+            "privileged": ("M", "ASY"),
+            "unprivileged": ("F", "ATA"),
+        },
+        "ExerciseAngina": {
+            "demographic_parity_difference": 0.6197183098591549,
+            "privileged": ("M", "ASY"),
+            "unprivileged": ("F", "TA"),
+        },
+    },
+    {
+        "HeartDisease": {
+            "pr_demographic_parity_difference": 0.5455262120526406,
+            "most_privileged": ("M", "ASY"),
+            "unp_demographic_parity_difference": -0.32529873764554856,
+            "most_unprivileged": ("F", "ATA"),
+        },
+        "ExerciseAngina": {
+            "pr_demographic_parity_difference": 0.44419980257312147,
+            "most_privileged": ("M", "ASY"),
+            "unp_demographic_parity_difference": -0.26404969440876985,
+            "most_unprivileged": ("F", "TA"),
+        },
+    },
+]
+
+
+@pytest.mark.parametrize(
+    "data, label, expected_result",
+    [
+        (dataset2, "dpd", expected_result_2),
+        (dataset3, "demographic_parity_difference", expected_result_3),
+        (dataset6, "demographic_parity_difference", expected_result_6),
+    ],
+)
+def test_demographic_parity_difference(data: Dataset, label: str, expected_result):
+    if isinstance(expected_result, Collection):
+        dpd = DemographicParityDifference(data, label)
+        result = dpd.summary
+        assert result == expected_result[0]
+        md = dpd.mean_differences()
+        assert md == expected_result[1]
+    else:
+        with expected_result:
+            DemographicParityDifference(data, label)
+
+
+expected_result_2 = [
+    {
+        "HeartDisease": {
+            "dpr": 0.4100957078534742,
+            "privileged": ("M",),
+            "unprivileged": ("F",),
+        }
+    },
+    {
+        "HeartDisease": {
+            "pr_dpr": 0.4100957078534742,
+            "most_privileged": ("F",),
+            "unp_dpr": 2.4384551724137933,
+            "most_unprivileged": ("M",),
+            "is_biased": False,
+        }
+    },
+]
+
+
+expected_result_3 = [
+    {
+        "HeartDisease": {
+            "demographic_parity_ratio": 0.08045325779036827,
+            "privileged": ("M", "ASY"),
+            "unprivileged": ("F", "ATA"),
+        }
+    },
+    {
+        "HeartDisease": {
+            "pr_demographic_parity_ratio": 0.30145207723707795,
+            "most_privileged": ("F", "ATA"),
+            "unp_demographic_parity_ratio": 5.3797187266238415,
+            "most_unprivileged": ("M", "ASY"),
+            "is_biased": True,
+        }
+    },
+]
+
+
+expected_result_6 = [
+    {
+        "HeartDisease": {
+            "demographic_parity_ratio": 0.08045325779036827,
+            "privileged": ("M", "ASY"),
+            "unprivileged": ("F", "ATA"),
+        },
+        "ExerciseAngina": {
+            "demographic_parity_ratio": 0.0,
+            "privileged": ("F", "TA"),
+            "unprivileged": ("M", "ASY"),
+        },
+    },
+    {
+        "HeartDisease": {
+            "pr_demographic_parity_ratio": 0.341659585454887,
+            "most_privileged": ("M", "ASY"),
+            "unp_demographic_parity_ratio": 4.489065560514,
+            "most_unprivileged": ("F", "ATA"),
+            "is_biased": True,
+        },
+        "ExerciseAngina": {
+            "pr_demographic_parity_ratio": 0.28322304584791763,
+            "most_privileged": ("M", "ASY"),
+            "unp_demographic_parity_ratio": np.inf,
+            "most_unprivileged": ("F", "TA"),
+            "is_biased": True,
+        },
+    },
+]
+
+
+@pytest.mark.parametrize(
+    "data, label, zero_division, threshold, expected_result",
+    [
+        (dataset1, "dpr", None, 1.2, pytest.raises(ValueError)),
+        (dataset2, "dpr", None, 0.4, expected_result_2),
+        (dataset3, "demographic_parity_ratio", "Error", 0.8, expected_result_3),
+        (dataset6, "demographic_parity_ratio", np.nan, 0.3, expected_result_6),
+    ],
+)
+def test_demographic_parity_ratio(
+    data: Dataset,
+    label: str,
+    zero_division: float | str | None,
+    threshold: float,
+    expected_result,
+):
+    if isinstance(expected_result, Collection):
+        dpr = DemographicParityRatio(data, label, zero_division)
+        result = dpr.summary
+        assert result == expected_result[0]
+        md = dpr.mean_ratios(threshold)
+        assert md == expected_result[1]
+    else:
+        with expected_result:
+            dpr = DemographicParityRatio(data, label, zero_division)
+            dpr.mean_ratios(threshold)
