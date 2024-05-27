@@ -356,8 +356,8 @@ def difference(result_per_groups: np.array) -> dict:
     for i, j in pairs:
         group_i = tuple(result_per_groups[i]["sensitive"])
         group_j = tuple(result_per_groups[j]["sensitive"])
-        result_i = result_per_groups[i]["result"]
-        result_j = result_per_groups[j]["result"]
+        result_i = np.array(result_per_groups[i]["result"])
+        result_j = np.array(result_per_groups[j]["result"])
 
         key = (group_i, group_j)
         result[key] = result_i - result_j
@@ -508,6 +508,29 @@ class DisparateImpactDifference(FairnessMetricDifference):
             predicted_target,
             positive_target,
             **{"use_y_true": False},
+        )
+        super().call()
+
+
+class EqualOpportunityDifference(FairnessMetricDifference):
+    def __init__(
+        self,
+        data: Dataset | pd.DataFrame,
+        label: str = "equal_opportunity_difference",
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
+    ) -> None:
+        super().__init__(
+            data,
+            ConfusionMatrix,
+            label,
+            sensitive,
+            real_target,
+            predicted_target,
+            positive_target,
+            **{"metrics": {'result': true_positive_rate}},
         )
         super().call()
 
