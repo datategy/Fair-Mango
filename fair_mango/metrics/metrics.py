@@ -436,7 +436,9 @@ class FairnessMetricDifference:
                         self.summary[target]["privileged"] = key[1]
                         self.summary[target]["unprivileged"] = key[0]
 
-    def mean_differences(self):
+    def mean_differences(self, threshold: float = 0.1):
+        if not (0 <= threshold <= 1):
+            raise ValueError("Threshold must be in range [0, 1]")
         result = {}
         for key, value in self.result.items():
             result.setdefault(key[0], []).append(value)
@@ -462,6 +464,11 @@ class FairnessMetricDifference:
                 if value[ind] < results[target][f"unp_{self.label}"]:
                     results[target][f"unp_{self.label}"] = value[ind]
                     results[target]["most_unprivileged"] = key
+        for target, result in results.items():
+            if (result[f"pr_{self.label}"] > threshold) or (result[f"unp_{self.label}"] < -threshold):
+                result["is_biased"] = True
+            else:
+                result["is_biased"] = False
 
         return results
 
@@ -530,7 +537,7 @@ class EqualOpportunityDifference(FairnessMetricDifference):
             real_target,
             predicted_target,
             positive_target,
-            **{"metrics": {'result': true_positive_rate}},
+            **{"metrics": {'result': true_positive_rate}, 'zero_division': np.nan},
         )
         super().call()
 
@@ -622,10 +629,11 @@ class FairnessMetricRatio:
                 if value[ind] > results[target][f"unp_{self.label}"]:
                     results[target][f"unp_{self.label}"] = value[ind]
                     results[target]["most_unprivileged"] = key
-                if (value[ind] < threshold) or value[ind] > (1 / threshold):
-                    results[target]["is_biased"] = True
-                else:
-                    results[target]["is_biased"] = False
+        for target, result in results.items():
+            if (result[f"pr_{self.label}"] < threshold) or (result[f"unp_{self.label}"] > (1/threshold)):
+                result["is_biased"] = True
+            else:
+                result["is_biased"] = False
 
         return results
 
