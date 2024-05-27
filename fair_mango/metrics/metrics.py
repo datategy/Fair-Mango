@@ -1,4 +1,4 @@
-from collections.abc import Collection, Mapping
+from collections.abc import Collection, Sequence
 from itertools import combinations
 
 import numpy as np
@@ -66,7 +66,7 @@ different than [0,1]. Provide the positive_target parameter when creating the da
 
 
 def false_negative_rate(
-    fn: int, tp: int, zero_division: float | str | None, **_
+    tn: int, fp: int, fn: int, tp: int, zero_division: float | str | None
 ) -> float | str | None:
     """calculate false negative rate
 
@@ -91,7 +91,7 @@ def false_negative_rate(
 
 
 def false_positive_rate(
-    tn: int, fp: int, zero_division: float | str | None, **_
+    tn: int, fp: int, fn: int, tp: int, zero_division: float | str | None
 ) -> float | str | None:
     """calculate false positive rate
 
@@ -116,7 +116,7 @@ def false_positive_rate(
 
 
 def true_negative_rate(
-    tn: int, fp: int, zero_division: float | str | None, **_
+    tn: int, fp: int, fn: int, tp: int, zero_division: float | str | None
 ) -> float | str | None:
     """calculate true negative rate
 
@@ -141,7 +141,7 @@ def true_negative_rate(
 
 
 def true_positive_rate(
-    fn: int, tp: int, zero_division: float | str | None, **_
+    tn: int, fp: int, fn: int, tp: int, zero_division: float | str | None
 ) -> float | str | None:
     """calculate true positive rate
 
@@ -165,25 +165,42 @@ def true_positive_rate(
         return zero_division
 
 
-class Metric:
+class PerformanceMetric:
     """A class for the different fairness metrics and performance evaluation in different groups"""
 
-    def __init__(self, data: Dataset):
-        self.data = data
-        self.predicted_targets_by_group = None
-        y = self.data.df[data.real_target]
-        if len(data.real_target) > 1:
+    def __init__(
+        self,
+        data: Dataset | pd.DataFrame,
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
+    ):
+        if isinstance(data, Dataset):
+            self.data = data
+        else:
+            if sensitive == [] or real_target == []:
+                raise ValueError(
+                    "When providing a DataFrame, 'sensitive' and 'real_target' must be specified."
+                )
+            self.data = Dataset(
+                data, sensitive, real_target, predicted_target, positive_target
+            )
+
+        self.predicted_targets_by_group = []
+        y = self.data.df[self.data.real_target]
+        if len(self.data.real_target) > 1:
             y = y.squeeze()
         if is_binary(y):
             for ind, col in enumerate(y):
                 if (np.unique(y[col]) != [0, 1]).all():
                     encode_target(self.data, ind, col)
             self.real_targets_by_group = self.data.get_real_target_for_all_groups()
-            if self.data.predicted_target is not None:
+            if self.data.predicted_target != []:
                 self.predicted_targets_by_group = (
                     self.data.get_predicted_target_for_all_groups()
                 )
-            self.results = []
+            self.results: list = []
         else:
             raise (
                 ValueError(
@@ -194,11 +211,21 @@ class Metric:
     def __call__(self): ...
 
 
-class SelectionRate(Metric):
+class SelectionRate(PerformanceMetric):
     """Calculate selection rate for different sensitive groups"""
 
-    def __init__(self, data: Dataset, use_y_true: bool = False):
-        super().__init__(data)
+    def __init__(
+        self,
+        data: Dataset | pd.DataFrame,
+        use_y_true: bool = False,
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
+    ):
+        super().__init__(
+            data, sensitive, real_target, predicted_target, positive_target
+        )
         self.use_y_true = use_y_true
 
     def __call__(self):
@@ -207,7 +234,7 @@ class SelectionRate(Metric):
             targets = self.data.real_target
             targets_by_group = self.real_targets_by_group
         else:
-            if self.predicted_targets_by_group is None:
+            if self.predicted_targets_by_group == []:
                 raise ValueError(
                     "No predictions found, provide predicted_target parameter when creating the dataset or set use_y_true to True to use the real labels"
                 )
@@ -228,7 +255,7 @@ class SelectionRate(Metric):
             return self.data.df[self.data.predicted_target].mean()
 
 
-class ConfusionMatrix(Metric):
+class ConfusionMatrix(PerformanceMetric):
     """Calculate
     - false positive rate
     - false negative rate
@@ -238,12 +265,18 @@ class ConfusionMatrix(Metric):
 
     def __init__(
         self,
-        data: Dataset,
-        metrics: Collection | None = None,
+        data: Dataset | pd.DataFrame,
+        metrics: Collection | Sequence | None = None,
         zero_division: float | str | None = None,
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
-        super().__init__(data)
-        if self.predicted_targets_by_group is None:
+        super().__init__(
+            data, sensitive, real_target, predicted_target, positive_target
+        )
+        if self.predicted_targets_by_group == []:
             raise ValueError(
                 "No predictions found, provide predicted_target parameter when creating the dataset"
             )
@@ -256,7 +289,7 @@ class ConfusionMatrix(Metric):
                 "true_positive_rate": true_positive_rate,
             }
         else:
-            if isinstance(metrics, (dict, Mapping)):
+            if isinstance(metrics, dict):
                 self.metrics = metrics
             else:
                 metrics = set(metrics)
@@ -264,7 +297,7 @@ class ConfusionMatrix(Metric):
                 for metric in metrics:
                     self.metrics[metric.__name__] = metric
 
-    def __call__(self) -> tuple[list]:
+    def __call__(self) -> tuple[Sequence, list]:
         for real_group, predicted_group in zip(
             self.real_targets_by_group, self.predicted_targets_by_group
         ):
@@ -351,15 +384,37 @@ def ratio(
 
 
 class FairnessMetricDifference:
-    def __init__(self, data: Dataset, use_y_true: bool, label: str) -> None:
-        self.data = data
-        self.use_y_true = use_y_true
+    def __init__(
+        self,
+        data: Dataset | pd.DataFrame,
+        metric: type[SelectionRate] | type[ConfusionMatrix],
+        label: str,
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
+        **kwargs,
+    ) -> None:
+        if isinstance(data, Dataset):
+            self.data = data
+        else:
+            if sensitive == [] or real_target == []:
+                raise ValueError(
+                    "When providing a DataFrame, 'sensitive' and 'real_target' must be specified."
+                )
+            self.data = Dataset(
+                data, sensitive, real_target, predicted_target, positive_target
+            )
+        self.metric = metric
         self.label = label
+        self.kwargs = kwargs
+        self.targets: Sequence
+        self.metric_results: list
 
-    def call(self) -> dict:
-        sr = SelectionRate(self.data, self.use_y_true)
-        self.targets, selection_rate_results = sr()
-        self.result = difference(selection_rate_results)
+    def call(self) -> None:
+        metric = self.metric(self.data, **self.kwargs)
+        self.targets, self.metric_results = metric()
+        self.result = difference(self.metric_results)
         self.differences = self.targets, self.result
         self.summary = {}
         for target in self.targets:
@@ -413,39 +468,84 @@ class FairnessMetricDifference:
 
 class DemographicParityDifference(FairnessMetricDifference):
     def __init__(
-        self, data: Dataset, label: str = "demographic_parity_difference"
+        self,
+        data: Dataset | pd.DataFrame,
+        label: str = "demographic_parity_difference",
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
-        self.use_y_true = True
-        super().__init__(data, self.use_y_true, label)
+        super().__init__(
+            data,
+            SelectionRate,
+            label,
+            sensitive,
+            real_target,
+            predicted_target,
+            positive_target,
+            **{"use_y_true": True},
+        )
         super().call()
 
 
 class DisparateImpactDifference(FairnessMetricDifference):
     def __init__(
-        self, data: Dataset, label: str = "disparate_impact_difference"
+        self,
+        data: Dataset | pd.DataFrame,
+        label: str = "disparate_impact_difference",
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
-        self.use_y_true = False
-        super().__init__(data, self.use_y_true, label)
+        super().__init__(
+            data,
+            SelectionRate,
+            label,
+            sensitive,
+            real_target,
+            predicted_target,
+            positive_target,
+            **{"use_y_true": False},
+        )
         super().call()
 
 
 class FairnessMetricRatio:
     def __init__(
         self,
-        data: Dataset,
-        use_y_true: bool,
+        data: Dataset | pd.DataFrame,
+        metric: type[SelectionRate] | type[ConfusionMatrix],
         label: str,
         zero_division: float | str | None = None,
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
+        **kwargs,
     ) -> None:
-        self.data = data
-        self.use_y_true = use_y_true
+        if isinstance(data, Dataset):
+            self.data = data
+        else:
+            if sensitive == [] or real_target == []:
+                raise ValueError(
+                    "When providing a DataFrame, 'sensitive' and 'real_target' must be specified."
+                )
+            self.data = Dataset(
+                data, sensitive, real_target, predicted_target, positive_target
+            )
+        self.metric = metric
+        self.kwargs = kwargs
         self.label = label
         self.zero_division = zero_division
+        self.targets: Sequence
+        self.metric_results: list
 
-    def call(self) -> dict:
-        sr = SelectionRate(self.data, self.use_y_true)
-        self.targets, selection_rate_results = sr()
-        self.result = ratio(selection_rate_results, self.zero_division)
+    def call(self) -> None:
+        metric = self.metric(self.data, **self.kwargs)
+        self.targets, self.metric_results = metric()
+        self.result = ratio(self.metric_results, self.zero_division)
         self.ratios = self.targets, self.result
         self.summary = {}
         for target in self.targets:
@@ -474,14 +574,14 @@ class FairnessMetricRatio:
     def mean_ratios(self, threshold: float = 0.8) -> dict:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
-        result = {}
+        result: dict = {}
         for key, value in self.result.items():
             result.setdefault(key[0], []).append(value)
             result.setdefault(key[1], []).append(1 / value)
         for key, value in result.items():
             stacked_array = np.stack(value)
             result[key] = np.mean(stacked_array, axis=0)
-        results = {}
+        results: dict = {}
         for target in self.targets:
             results[target] = {
                 f"pr_{self.label}": 1.0,
@@ -510,22 +610,48 @@ class FairnessMetricRatio:
 class DemographicParityRatio(FairnessMetricRatio):
     def __init__(
         self,
-        data: Dataset,
+        data: Dataset | pd.DataFrame,
         label: str = "demographic_parity_ratio",
         zero_division: float | str | None = None,
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
-        self.use_y_true = True
-        super().__init__(data, self.use_y_true, label, zero_division)
+        super().__init__(
+            data,
+            SelectionRate,
+            label,
+            zero_division,
+            sensitive,
+            real_target,
+            predicted_target,
+            positive_target,
+            **{"use_y_true": True},
+        )
         super().call()
 
 
 class DisparateImpactRatio(FairnessMetricRatio):
     def __init__(
         self,
-        data: Dataset,
+        data: Dataset | pd.DataFrame,
         label: str = "disparate_impact_ratio",
         zero_division: float | str | None = None,
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
-        self.use_y_true = False
-        super().__init__(data, self.use_y_true, label, zero_division)
+        super().__init__(
+            data,
+            SelectionRate,
+            label,
+            zero_division,
+            sensitive,
+            real_target,
+            predicted_target,
+            positive_target,
+            **{"use_y_true": False},
+        )
         super().call()
