@@ -1,4 +1,4 @@
-from collections.abc import Collection, Sequence
+from collections.abc import Callable, Sequence
 
 import numpy as np
 import pandas as pd
@@ -10,6 +10,8 @@ from fair_mango.metrics.metrics import (
     ConfusionMatrix,
     DemographicParityDifference,
     DemographicParityRatio,
+    DisparateImpactDifference,
+    DisparateImpactRatio,
     SelectionRate,
     encode_target,
     false_negative_rate,
@@ -26,7 +28,7 @@ dataset2 = Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"])
 
 dataset3 = Dataset(df, ["Sex", "ChestPainType"], ["HeartDisease"], ["HeartDiseasePred"])
 
-dataset4 = Dataset(df, ["Sex"], ["HeartDisease", "ExerciseAngina"], None, [1, "Y"])
+dataset4 = Dataset(df, ["Sex"], ["HeartDisease", "ExerciseAngina"], [], [1, "Y"])
 
 dataset5 = Dataset(
     df,
@@ -257,9 +259,9 @@ expected_result_6 = [
 )
 def test_confusionmatrix(
     data: Dataset,
-    metrics: Collection | None,
+    metrics: dict[str, Callable] | None,
     zero_division: float | str | None,
-    expected_result: Sequence[float] | RaisesContext,
+    expected_result: Sequence[dict[str, Sequence]] | RaisesContext,
 ):
     if isinstance(expected_result, Sequence):
         cf = ConfusionMatrix(data, metrics, zero_division)
@@ -352,23 +354,38 @@ expected_result_6 = [
 
 
 @pytest.mark.parametrize(
-    "data, label, expected_result",
+    "data, label, sensitive, real_target, predicted_target, expected_result",
     [
-        (dataset2, "dpd", expected_result_2),
-        (dataset3, "demographic_parity_difference", expected_result_3),
-        (dataset6, "demographic_parity_difference", expected_result_6),
+        (dataset2, "dpd", [], [], [], expected_result_2),
+        (
+            df,
+            "demographic_parity_difference",
+            ["Sex", "ChestPainType"],
+            ["HeartDisease"],
+            ["HeartDiseasePred"],
+            expected_result_3,
+        ),
+        (dataset6, "demographic_parity_difference", [], [], [], expected_result_6),
     ],
 )
-def test_demographic_parity_difference(data: Dataset, label: str, expected_result):
-    if isinstance(expected_result, Collection):
+def test_demographic_parity_difference(
+    data: Dataset | pd.DataFrame,
+    label: str,
+    sensitive: Sequence[str],
+    real_target: Sequence[str],
+    predicted_target: Sequence[str],
+    expected_result: Sequence[dict[str, dict]],
+):
+    if isinstance(data, Dataset):
         dpd = DemographicParityDifference(data, label)
-        result = dpd.summary
-        assert result == expected_result[0]
-        md = dpd.mean_differences()
-        assert md == expected_result[1]
     else:
-        with expected_result:
-            DemographicParityDifference(data, label)
+        dpd = DemographicParityDifference(
+            data, label, sensitive, real_target, predicted_target
+        )
+    result = dpd.summary
+    assert result == expected_result[0]
+    md = dpd.mean_differences()
+    assert md == expected_result[1]
 
 
 expected_result_2 = [
@@ -444,28 +461,309 @@ expected_result_6 = [
 
 
 @pytest.mark.parametrize(
-    "data, label, zero_division, threshold, expected_result",
+    "data, label, zero_division, sensitive, real_target, predicted_target, threshold, expected_result",
     [
-        (dataset1, "dpr", None, 1.2, pytest.raises(ValueError)),
-        (dataset2, "dpr", None, 0.4, expected_result_2),
-        (dataset3, "demographic_parity_ratio", "Error", 0.8, expected_result_3),
-        (dataset6, "demographic_parity_ratio", np.nan, 0.3, expected_result_6),
+        (dataset1, "dpr", None, [], [], [], 1.2, pytest.raises(ValueError)),
+        (
+            df,
+            "dpr",
+            None,
+            ["Sex"],
+            ["HeartDisease"],
+            ["HeartDiseasePred"],
+            0.4,
+            expected_result_2,
+        ),
+        (
+            dataset3,
+            "demographic_parity_ratio",
+            "Error",
+            [],
+            [],
+            [],
+            0.8,
+            expected_result_3,
+        ),
+        (
+            dataset6,
+            "demographic_parity_ratio",
+            np.nan,
+            [],
+            [],
+            [],
+            0.3,
+            expected_result_6,
+        ),
     ],
 )
 def test_demographic_parity_ratio(
     data: Dataset,
     label: str,
     zero_division: float | str | None,
+    sensitive: Sequence[str],
+    real_target: Sequence[str],
+    predicted_target: Sequence[str],
     threshold: float,
-    expected_result,
+    expected_result: Sequence[dict[str, dict]],
 ):
-    if isinstance(expected_result, Collection):
-        dpr = DemographicParityRatio(data, label, zero_division)
+    if isinstance(expected_result, Sequence):
+        if isinstance(data, Dataset):
+            dpr = DemographicParityRatio(data, label, zero_division)
+        else:
+            dpr = DemographicParityRatio(
+                data, label, zero_division, sensitive, real_target, predicted_target
+            )
         result = dpr.summary
         assert result == expected_result[0]
-        md = dpr.mean_ratios(threshold)
-        assert md == expected_result[1]
+        mr = dpr.mean_ratios(threshold)
+        assert mr == expected_result[1]
     else:
         with expected_result:
             dpr = DemographicParityRatio(data, label, zero_division)
             dpr.mean_ratios(threshold)
+
+
+expected_result_2 = [
+    {
+        "HeartDiseasePred": {
+            "did": 0.3619581918885117,
+            "privileged": ("M",),
+            "unprivileged": ("F",),
+        }
+    },
+    {
+        "HeartDiseasePred": {
+            "pr_did": 0.3619581918885117,
+            "most_privileged": ("M",),
+            "unp_did": -0.3619581918885117,
+            "most_unprivileged": ("F",),
+        }
+    },
+]
+
+
+expected_result_3 = [
+    {
+        "HeartDiseasePred": {
+            "disparate_impact_difference": 0.7437771281778722,
+            "privileged": ("M", "ASY"),
+            "unprivileged": ("F", "NAP"),
+        }
+    },
+    {
+        "HeartDiseasePred": {
+            "pr_disparate_impact_difference": 0.5350647912366394,
+            "most_privileged": ("M", "ASY"),
+            "unp_disparate_impact_difference": -0.31496621239521455,
+            "most_unprivileged": ("F", "NAP"),
+        }
+    },
+]
+
+
+expected_result_6 = [
+    {
+        "HeartDiseasePred": {
+            "disparate_impact_difference": 0.7437771281778722,
+            "privileged": ("M", "ASY"),
+            "unprivileged": ("F", "NAP"),
+        },
+        "ExerciseAngina": {
+            "disparate_impact_difference": 0.6197183098591549,
+            "privileged": ("M", "ASY"),
+            "unprivileged": ("F", "TA"),
+        },
+    },
+    {
+        "HeartDiseasePred": {
+            "pr_disparate_impact_difference": 0.5350647912366394,
+            "most_privileged": ("M", "ASY"),
+            "unp_disparate_impact_difference": -0.31496621239521455,
+            "most_unprivileged": ("F", "NAP"),
+        },
+        "ExerciseAngina": {
+            "pr_disparate_impact_difference": 0.44419980257312147,
+            "most_privileged": ("M", "ASY"),
+            "unp_disparate_impact_difference": -0.26404969440876985,
+            "most_unprivileged": ("F", "TA"),
+        },
+    },
+]
+
+
+@pytest.mark.parametrize(
+    "data, label, sensitive, real_target, predicted_target, positive_target, expected_result",
+    [
+        (dataset2, "did", [], [], [], [], expected_result_2),
+        (dataset3, "disparate_impact_difference", [], [], [], [], expected_result_3),
+        (
+            df,
+            "disparate_impact_difference",
+            ["Sex", "ChestPainType"],
+            ["HeartDisease", "ExerciseAngina"],
+            ["HeartDiseasePred", "ExerciseAngina"],
+            [1, "Y"],
+            expected_result_6,
+        ),
+    ],
+)
+def test_disparate_impact_difference(
+    data: Dataset,
+    label: str,
+    sensitive: Sequence[str],
+    real_target: Sequence[str],
+    predicted_target: Sequence[str],
+    positive_target: Sequence[int | float | str | bool] | None,
+    expected_result: Sequence[dict[str, dict]],
+):
+    if isinstance(expected_result, Sequence):
+        if isinstance(data, Dataset):
+            did = DisparateImpactDifference(data, label)
+        else:
+            did = DisparateImpactDifference(
+                data, label, sensitive, real_target, predicted_target, positive_target
+            )
+
+        result = did.summary
+        assert result == expected_result[0]
+        md = did.mean_differences()
+        assert md == expected_result[1]
+    else:
+        with expected_result:
+            DisparateImpactDifference(data, label)
+
+
+expected_result_2 = [
+    {
+        "HeartDiseasePred": {
+            "dir": 0.4219830636141608,
+            "privileged": ("M",),
+            "unprivileged": ("F",),
+        }
+    },
+    {
+        "HeartDiseasePred": {
+            "pr_dir": 0.4219830636141608,
+            "most_privileged": ("F",),
+            "unp_dir": 2.369763353617309,
+            "most_unprivileged": ("M",),
+            "is_biased": False,
+        }
+    },
+]
+
+
+expected_result_3 = [
+    {
+        "HeartDiseasePred": {
+            "disparate_impact_ratio": 0.09212304698059144,
+            "privileged": ("M", "ASY"),
+            "unprivileged": ("F", "NAP"),
+        }
+    },
+    {
+        "HeartDiseasePred": {
+            "pr_disparate_impact_ratio": 0.3746136017304162,
+            "most_privileged": ("F", "NAP"),
+            "unp_disparate_impact_ratio": 5.474312084041965,
+            "most_unprivileged": ("M", "ASY"),
+            "is_biased": True,
+        }
+    },
+]
+
+
+expected_result_6 = [
+    {
+        "HeartDiseasePred": {
+            "disparate_impact_ratio": 0.09212304698059144,
+            "privileged": ("M", "ASY"),
+            "unprivileged": ("F", "NAP"),
+        },
+        "ExerciseAngina": {
+            "disparate_impact_ratio": 0.0,
+            "privileged": ("F", "TA"),
+            "unprivileged": ("M", "ASY"),
+        },
+    },
+    {
+        "HeartDiseasePred": {
+            "pr_disparate_impact_ratio": 0.3468836645650188,
+            "most_privileged": ("M", "ASY"),
+            "unp_disparate_impact_ratio": 4.113253804597716,
+            "most_unprivileged": ("F", "NAP"),
+            "is_biased": True,
+        },
+        "ExerciseAngina": {
+            "pr_disparate_impact_ratio": 0.28322304584791763,
+            "most_privileged": ("M", "ASY"),
+            "unp_disparate_impact_ratio": np.inf,
+            "most_unprivileged": ("F", "TA"),
+            "is_biased": True,
+        },
+    },
+]
+
+
+@pytest.mark.parametrize(
+    "data, label, zero_division, sensitive, real_target, predicted_target, threshold, expected_result",
+    [
+        (dataset1, "dir", None, [], [], [], 1.2, pytest.raises(ValueError)),
+        (
+            df,
+            "dir",
+            None,
+            ["Sex"],
+            ["HeartDisease"],
+            ["HeartDiseasePred"],
+            0.4,
+            expected_result_2,
+        ),
+        (
+            dataset3,
+            "disparate_impact_ratio",
+            "Error",
+            [],
+            [],
+            [],
+            0.8,
+            expected_result_3,
+        ),
+        (
+            dataset6,
+            "disparate_impact_ratio",
+            np.nan,
+            [],
+            [],
+            [],
+            0.3,
+            expected_result_6,
+        ),
+    ],
+)
+def test_disparate_impact_ratio(
+    data: Dataset,
+    label: str,
+    zero_division: float | str | None,
+    sensitive: Sequence[str],
+    real_target: Sequence[str],
+    predicted_target: Sequence[str],
+    threshold: float,
+    expected_result: Sequence[dict[str, dict]],
+):
+    if isinstance(expected_result, Sequence):
+        if isinstance(data, Dataset):
+            dira = DisparateImpactRatio(data, label, zero_division)
+        else:
+            dira = DisparateImpactRatio(
+                data, label, zero_division, sensitive, real_target, predicted_target
+            )
+
+        result = dira.summary
+        assert result == expected_result[0]
+        mr = dira.mean_ratios(threshold)
+        assert mr == expected_result[1]
+    else:
+        with expected_result:
+            dira = DisparateImpactRatio(data, label, zero_division)
+            dira.mean_ratios(threshold)
