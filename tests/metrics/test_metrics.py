@@ -13,6 +13,7 @@ from fair_mango.metrics.metrics import (
     DisparateImpactDifference,
     DisparateImpactRatio,
     SelectionRate,
+    EqualOpportunityDifference,
     encode_target,
     false_negative_rate,
     false_positive_rate,
@@ -299,6 +300,7 @@ expected_result_2 = [
             "most_privileged": ("M",),
             "unp_dpd": -0.3726567804180811,
             "most_unprivileged": ("F",),
+            "is_biased": True
         }
     },
 ]
@@ -318,6 +320,7 @@ expected_result_3 = [
             "most_privileged": ("M", "ASY"),
             "unp_demographic_parity_difference": -0.32529873764554856,
             "most_unprivileged": ("F", "ATA"),
+            "is_biased": True
         }
     },
 ]
@@ -342,30 +345,33 @@ expected_result_6 = [
             "most_privileged": ("M", "ASY"),
             "unp_demographic_parity_difference": -0.32529873764554856,
             "most_unprivileged": ("F", "ATA"),
+            "is_biased": True
         },
         "ExerciseAngina": {
             "pr_demographic_parity_difference": 0.44419980257312147,
             "most_privileged": ("M", "ASY"),
             "unp_demographic_parity_difference": -0.26404969440876985,
             "most_unprivileged": ("F", "TA"),
+            "is_biased": False
         },
     },
 ]
 
 
 @pytest.mark.parametrize(
-    "data, label, sensitive, real_target, predicted_target, expected_result",
+    "data, label, sensitive, real_target, predicted_target, threshold, expected_result",
     [
-        (dataset2, "dpd", [], [], [], expected_result_2),
+        (dataset2, "dpd", [], [], [], 0.3, expected_result_2),
         (
             df,
             "demographic_parity_difference",
             ["Sex", "ChestPainType"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
+            0.1, 
             expected_result_3,
         ),
-        (dataset6, "demographic_parity_difference", [], [], [], expected_result_6),
+        (dataset6, "demographic_parity_difference", [], [], [], 0.45, expected_result_6),
     ],
 )
 def test_demographic_parity_difference(
@@ -374,6 +380,7 @@ def test_demographic_parity_difference(
     sensitive: Sequence[str],
     real_target: Sequence[str],
     predicted_target: Sequence[str],
+    threshold: float,
     expected_result: Sequence[dict[str, dict]],
 ):
     if isinstance(data, Dataset):
@@ -384,7 +391,7 @@ def test_demographic_parity_difference(
         )
     result = dpd.summary
     assert result == expected_result[0]
-    md = dpd.mean_differences()
+    md = dpd.mean_differences(threshold)
     assert md == expected_result[1]
 
 
@@ -537,6 +544,7 @@ expected_result_2 = [
             "most_privileged": ("M",),
             "unp_did": -0.3619581918885117,
             "most_unprivileged": ("F",),
+            "is_biased": True
         }
     },
 ]
@@ -556,6 +564,7 @@ expected_result_3 = [
             "most_privileged": ("M", "ASY"),
             "unp_disparate_impact_difference": -0.31496621239521455,
             "most_unprivileged": ("F", "NAP"),
+            "is_biased": True,
         }
     },
 ]
@@ -580,22 +589,24 @@ expected_result_6 = [
             "most_privileged": ("M", "ASY"),
             "unp_disparate_impact_difference": -0.31496621239521455,
             "most_unprivileged": ("F", "NAP"),
+            "is_biased": True
         },
         "ExerciseAngina": {
             "pr_disparate_impact_difference": 0.44419980257312147,
             "most_privileged": ("M", "ASY"),
             "unp_disparate_impact_difference": -0.26404969440876985,
             "most_unprivileged": ("F", "TA"),
+            "is_biased": False
         },
     },
 ]
 
 
 @pytest.mark.parametrize(
-    "data, label, sensitive, real_target, predicted_target, positive_target, expected_result",
+    "data, label, sensitive, real_target, predicted_target, positive_target, threshold, expected_result",
     [
-        (dataset2, "did", [], [], [], [], expected_result_2),
-        (dataset3, "disparate_impact_difference", [], [], [], [], expected_result_3),
+        (dataset2, "did", [], [], [], [], 0.3, expected_result_2),
+        (dataset3, "disparate_impact_difference", [], [], [], [], 0.2, expected_result_3),
         (
             df,
             "disparate_impact_difference",
@@ -603,6 +614,7 @@ expected_result_6 = [
             ["HeartDisease", "ExerciseAngina"],
             ["HeartDiseasePred", "ExerciseAngina"],
             [1, "Y"],
+            0.45,
             expected_result_6,
         ),
     ],
@@ -614,6 +626,7 @@ def test_disparate_impact_difference(
     real_target: Sequence[str],
     predicted_target: Sequence[str],
     positive_target: Sequence[int | float | str | bool] | None,
+    threshold: float,
     expected_result: Sequence[dict[str, dict]],
 ):
     if isinstance(expected_result, Sequence):
@@ -626,7 +639,7 @@ def test_disparate_impact_difference(
 
         result = did.summary
         assert result == expected_result[0]
-        md = did.mean_differences()
+        md = did.mean_differences(threshold)
         assert md == expected_result[1]
     else:
         with expected_result:
@@ -767,3 +780,85 @@ def test_disparate_impact_ratio(
         with expected_result:
             dira = DisparateImpactRatio(data, label, zero_division)
             dira.mean_ratios(threshold)
+
+
+expected_result_2 = [{'HeartDisease': {'eod': 0.03816593886462882,
+  'privileged': ('M',),
+  'unprivileged': ('F',)}},
+                     {'HeartDisease': {'pr_eod': 0.03816593886462882,
+  'most_privileged': ('M',),
+  'unp_eod': -0.03816593886462882,
+  'most_unprivileged': ('F',),
+  'is_biased': False}}]
+
+
+expected_result_3 = [{'HeartDisease': {'equal_opportunity_difference': 0.33333333333333337,
+  'privileged': ('F', 'ATA'),
+  'unprivileged': ('F', 'NAP')}},
+                     {'HeartDisease': {'pr_equal_opportunity_difference': 0.08516927384528401,
+  'most_privileged': ('F', 'ATA'),
+  'unp_equal_opportunity_difference': -0.29578310710709704,
+  'most_unprivileged': ('F', 'NAP'),
+  'is_biased': True}}]
+
+
+expected_result_6 = [{'HeartDisease': {'equal_opportunity_difference': 0.33333333333333337,
+  'privileged': ('F', 'ATA'),
+  'unprivileged': ('F', 'NAP')},
+ 'ExerciseAngina': {'equal_opportunity_difference': 0.0,
+  'privileged': None,
+  'unprivileged': None}},
+                     {'HeartDisease': {'pr_equal_opportunity_difference': 0.08516927384528401,
+  'most_privileged': ('F', 'ATA'),
+  'unp_equal_opportunity_difference': -0.29578310710709704,
+  'most_unprivileged': ('F', 'NAP'),
+  'is_biased': True},
+ 'ExerciseAngina': {'pr_equal_opportunity_difference': 0.0,
+  'most_privileged': None,
+  'unp_equal_opportunity_difference': 0.0,
+  'most_unprivileged': None,
+  'is_biased': False}}]
+
+
+@pytest.mark.parametrize(
+    "data, label, sensitive, real_target, predicted_target, threshold, expected_result",
+    [
+        (dataset4, "eod", [], [], [], 1.2, pytest.raises(ValueError)),
+        (dataset2, "eod", [], [], [], 0.1, expected_result_2),
+        (
+            df,
+            "equal_opportunity_difference",
+            ["Sex", "ChestPainType"],
+            ["HeartDisease"],
+            ["HeartDiseasePred"],
+            0.2,
+            expected_result_3,
+        ),
+        (dataset6, "equal_opportunity_difference", [], [], [], 0.1, expected_result_6),
+    ],
+)
+def test_equal_opportunity_difference(
+    data: Dataset | pd.DataFrame,
+    label: str,
+    sensitive: Sequence[str],
+    real_target: Sequence[str],
+    predicted_target: Sequence[str],
+    threshold: float,
+    expected_result: Sequence[dict[str, dict]],
+):
+    if isinstance(expected_result, list):
+        if isinstance(data, Dataset):
+            eod = EqualOpportunityDifference(data, label)
+        else:
+            eod = EqualOpportunityDifference(
+                data, label, sensitive, real_target, predicted_target
+            )
+        result = eod.summary
+        assert result == expected_result[0]
+        md = eod.mean_differences(threshold)
+        assert md == expected_result[1]
+    else:
+        with expected_result:
+            eod = EqualOpportunityDifference(data, label)
+            eod.mean_differences(threshold)
+
