@@ -12,14 +12,24 @@ from fair_mango.metrics.metrics import (
     DemographicParityRatio,
     DisparateImpactDifference,
     DisparateImpactRatio,
-    SelectionRate,
     EqualOpportunityDifference,
+    SelectionRate,
+    PerformanceMetric,
     encode_target,
     false_negative_rate,
     false_positive_rate,
     is_binary,
     true_negative_rate,
 )
+
+from sklearn.metrics import(
+    accuracy_score,
+    balanced_accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+)
+
 
 df = pd.read_csv("tests/data/heart_data.csv")
 
@@ -300,7 +310,7 @@ expected_result_2 = [
             "most_privileged": ("M",),
             "unp_dpd": -0.3726567804180811,
             "most_unprivileged": ("F",),
-            "is_biased": True
+            "is_biased": True,
         }
     },
 ]
@@ -320,7 +330,7 @@ expected_result_3 = [
             "most_privileged": ("M", "ASY"),
             "unp_demographic_parity_difference": -0.32529873764554856,
             "most_unprivileged": ("F", "ATA"),
-            "is_biased": True
+            "is_biased": True,
         }
     },
 ]
@@ -345,14 +355,14 @@ expected_result_6 = [
             "most_privileged": ("M", "ASY"),
             "unp_demographic_parity_difference": -0.32529873764554856,
             "most_unprivileged": ("F", "ATA"),
-            "is_biased": True
+            "is_biased": True,
         },
         "ExerciseAngina": {
             "pr_demographic_parity_difference": 0.44419980257312147,
             "most_privileged": ("M", "ASY"),
             "unp_demographic_parity_difference": -0.26404969440876985,
             "most_unprivileged": ("F", "TA"),
-            "is_biased": False
+            "is_biased": False,
         },
     },
 ]
@@ -368,10 +378,18 @@ expected_result_6 = [
             ["Sex", "ChestPainType"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
-            0.1, 
+            0.1,
             expected_result_3,
         ),
-        (dataset6, "demographic_parity_difference", [], [], [], 0.45, expected_result_6),
+        (
+            dataset6,
+            "demographic_parity_difference",
+            [],
+            [],
+            [],
+            0.45,
+            expected_result_6,
+        ),
     ],
 )
 def test_demographic_parity_difference(
@@ -544,7 +562,7 @@ expected_result_2 = [
             "most_privileged": ("M",),
             "unp_did": -0.3619581918885117,
             "most_unprivileged": ("F",),
-            "is_biased": True
+            "is_biased": True,
         }
     },
 ]
@@ -589,14 +607,14 @@ expected_result_6 = [
             "most_privileged": ("M", "ASY"),
             "unp_disparate_impact_difference": -0.31496621239521455,
             "most_unprivileged": ("F", "NAP"),
-            "is_biased": True
+            "is_biased": True,
         },
         "ExerciseAngina": {
             "pr_disparate_impact_difference": 0.44419980257312147,
             "most_privileged": ("M", "ASY"),
             "unp_disparate_impact_difference": -0.26404969440876985,
             "most_unprivileged": ("F", "TA"),
-            "is_biased": False
+            "is_biased": False,
         },
     },
 ]
@@ -606,7 +624,16 @@ expected_result_6 = [
     "data, label, sensitive, real_target, predicted_target, positive_target, threshold, expected_result",
     [
         (dataset2, "did", [], [], [], [], 0.3, expected_result_2),
-        (dataset3, "disparate_impact_difference", [], [], [], [], 0.2, expected_result_3),
+        (
+            dataset3,
+            "disparate_impact_difference",
+            [],
+            [],
+            [],
+            [],
+            0.2,
+            expected_result_3,
+        ),
         (
             df,
             "disparate_impact_difference",
@@ -782,42 +809,76 @@ def test_disparate_impact_ratio(
             dira.mean_ratios(threshold)
 
 
-expected_result_2 = [{'HeartDisease': {'eod': 0.03816593886462882,
-  'privileged': ('M',),
-  'unprivileged': ('F',)}},
-                     {'HeartDisease': {'pr_eod': 0.03816593886462882,
-  'most_privileged': ('M',),
-  'unp_eod': -0.03816593886462882,
-  'most_unprivileged': ('F',),
-  'is_biased': False}}]
+expected_result_2 = [
+    {
+        "HeartDisease": {
+            "eod": 0.03816593886462882,
+            "privileged": ("M",),
+            "unprivileged": ("F",),
+        }
+    },
+    {
+        "HeartDisease": {
+            "pr_eod": 0.03816593886462882,
+            "most_privileged": ("M",),
+            "unp_eod": -0.03816593886462882,
+            "most_unprivileged": ("F",),
+            "is_biased": False,
+        }
+    },
+]
 
 
-expected_result_3 = [{'HeartDisease': {'equal_opportunity_difference': 0.33333333333333337,
-  'privileged': ('F', 'ATA'),
-  'unprivileged': ('F', 'NAP')}},
-                     {'HeartDisease': {'pr_equal_opportunity_difference': 0.08516927384528401,
-  'most_privileged': ('F', 'ATA'),
-  'unp_equal_opportunity_difference': -0.29578310710709704,
-  'most_unprivileged': ('F', 'NAP'),
-  'is_biased': True}}]
+expected_result_3 = [
+    {
+        "HeartDisease": {
+            "equal_opportunity_difference": 0.33333333333333337,
+            "privileged": ("F", "ATA"),
+            "unprivileged": ("F", "NAP"),
+        }
+    },
+    {
+        "HeartDisease": {
+            "pr_equal_opportunity_difference": 0.08516927384528401,
+            "most_privileged": ("F", "ATA"),
+            "unp_equal_opportunity_difference": -0.29578310710709704,
+            "most_unprivileged": ("F", "NAP"),
+            "is_biased": True,
+        }
+    },
+]
 
 
-expected_result_6 = [{'HeartDisease': {'equal_opportunity_difference': 0.33333333333333337,
-  'privileged': ('F', 'ATA'),
-  'unprivileged': ('F', 'NAP')},
- 'ExerciseAngina': {'equal_opportunity_difference': 0.0,
-  'privileged': None,
-  'unprivileged': None}},
-                     {'HeartDisease': {'pr_equal_opportunity_difference': 0.08516927384528401,
-  'most_privileged': ('F', 'ATA'),
-  'unp_equal_opportunity_difference': -0.29578310710709704,
-  'most_unprivileged': ('F', 'NAP'),
-  'is_biased': True},
- 'ExerciseAngina': {'pr_equal_opportunity_difference': 0.0,
-  'most_privileged': None,
-  'unp_equal_opportunity_difference': 0.0,
-  'most_unprivileged': None,
-  'is_biased': False}}]
+expected_result_6 = [
+    {
+        "HeartDisease": {
+            "equal_opportunity_difference": 0.33333333333333337,
+            "privileged": ("F", "ATA"),
+            "unprivileged": ("F", "NAP"),
+        },
+        "ExerciseAngina": {
+            "equal_opportunity_difference": 0.0,
+            "privileged": None,
+            "unprivileged": None,
+        },
+    },
+    {
+        "HeartDisease": {
+            "pr_equal_opportunity_difference": 0.08516927384528401,
+            "most_privileged": ("F", "ATA"),
+            "unp_equal_opportunity_difference": -0.29578310710709704,
+            "most_unprivileged": ("F", "NAP"),
+            "is_biased": True,
+        },
+        "ExerciseAngina": {
+            "pr_equal_opportunity_difference": 0.0,
+            "most_privileged": np.nan,
+            "unp_equal_opportunity_difference": 0.0,
+            "most_unprivileged": np.nan,
+            "is_biased": False,
+        },
+    },
+]
 
 
 @pytest.mark.parametrize(
@@ -834,7 +895,7 @@ expected_result_6 = [{'HeartDisease': {'equal_opportunity_difference': 0.3333333
             0.2,
             expected_result_3,
         ),
-        (dataset6, "equal_opportunity_difference", [], [], [], 0.1, expected_result_6),
+        (dataset6, "equal_opportunity_difference", [], [], [], 0.2, expected_result_6),
     ],
 )
 def test_equal_opportunity_difference(
@@ -844,9 +905,9 @@ def test_equal_opportunity_difference(
     real_target: Sequence[str],
     predicted_target: Sequence[str],
     threshold: float,
-    expected_result: Sequence[dict[str, dict]],
+    expected_result: Sequence[dict[str, dict]] | RaisesContext,
 ):
-    if isinstance(expected_result, list):
+    if isinstance(expected_result, Sequence):
         if isinstance(data, Dataset):
             eod = EqualOpportunityDifference(data, label)
         else:
@@ -862,3 +923,129 @@ def test_equal_opportunity_difference(
             eod = EqualOpportunityDifference(data, label)
             eod.mean_differences(threshold)
 
+
+expected_result_2 = [{'sensitive': np.array(['M'], dtype=object),
+   'accuracy': [0.9779310344827586],
+   'balanced accuracy': [0.9778470143761346],
+   'precision': [0.986784140969163],
+   'recall': [0.9781659388646288],
+   'f1-score': [0.9824561403508771]},
+  {'sensitive': np.array(['F'], dtype=object),
+   'accuracy': [0.9637305699481865],
+   'balanced accuracy': [0.956013986013986],
+   'precision': [0.9215686274509803],
+   'recall': [0.94],
+   'f1-score': [0.9306930693069307]}]
+
+
+expected_result_3 = [{'sensitive': np.array(['M', 'ASY'], dtype=object),
+   'acc': [0.9859154929577465],
+   'balanced_acc': [0.9860685319570026]},
+  {'sensitive': np.array(['M', 'NAP'], dtype=object),
+   'acc': [0.9866666666666667],
+   'balanced_acc': [0.9864718614718615]},
+  {'sensitive': np.array(['M', 'ATA'], dtype=object),
+   'acc': [0.9823008849557522],
+   'balanced_acc': [0.9696236559139785]},
+  {'sensitive': np.array(['F', 'ASY'], dtype=object),
+   'acc': [0.9428571428571428],
+   'balanced_acc': [0.9387923904052936]},
+  {'sensitive': np.array(['F', 'ATA'], dtype=object),
+   'acc': [0.9833333333333333],
+   'balanced_acc': [0.9910714285714286]},
+  {'sensitive': np.array(['F', 'NAP'], dtype=object),
+   'acc': [0.9622641509433962],
+   'balanced_acc': [0.8333333333333333]},
+  {'sensitive': np.array(['M', 'TA'], dtype=object),
+   'acc': [0.8333333333333334],
+   'balanced_acc': [0.8328173374613003]},
+  {'sensitive': np.array(['F', 'TA'], dtype=object),
+   'acc': [1.0],
+   'balanced_acc': [1.0]}]
+
+
+expected_result_6 = [{'sensitive': np.array(['M', 'ASY'], dtype=object),
+   'precision_score': [0.997134670487106, 1.0],
+   'recall_score': [0.9858356940509915, 1.0],
+   'f1_score': [0.9914529914529915, 1.0]},
+  {'sensitive': np.array(['M', 'NAP'], dtype=object),
+   'precision_score': [0.9848484848484849, 1.0],
+   'recall_score': [0.9848484848484849, 1.0],
+   'f1_score': [0.9848484848484849, 1.0]},
+  {'sensitive': np.array(['M', 'ATA'], dtype=object),
+   'precision_score': [0.95, 1.0],
+   'recall_score': [0.95, 1.0],
+   'f1_score': [0.95, 1.0]},
+  {'sensitive': np.array(['F', 'ASY'], dtype=object),
+   'precision_score': [0.926829268292683, 1.0],
+   'recall_score': [0.9743589743589743, 1.0],
+   'f1_score': [0.95, 1.0]},
+  {'sensitive': np.array(['F', 'ATA'], dtype=object),
+   'precision_score': [0.8, 1.0],
+   'recall_score': [1.0, 1.0],
+   'f1_score': [0.8888888888888888, 1.0]},
+  {'sensitive': np.array(['F', 'NAP'], dtype=object),
+   'precision_score': [1.0, 1.0],
+   'recall_score': [0.6666666666666666, 1.0],
+   'f1_score': [0.8, 1.0]},
+  {'sensitive': np.array(['M', 'TA'], dtype=object),
+   'precision_score': [0.8421052631578947, 1.0],
+   'recall_score': [0.8421052631578947, 1.0],
+   'f1_score': [0.8421052631578947, 1.0]},
+  {'sensitive': np.array(['F', 'TA'], dtype=object),
+   'precision_score': [1.0, 0.0],
+   'recall_score': [1.0, 0.0],
+   'f1_score': [1.0, 0.0]}]
+
+
+@pytest.mark.parametrize(
+    "data, metrics, sensitive, real_target, predicted_target, positive_target, expected_result",
+    [
+        (dataset1, None, [], [], [], [], pytest.raises(ValueError)),
+        (df, None, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"], [], expected_result_2),
+        (dataset3, {"acc": accuracy_score,'balanced_acc': balanced_accuracy_score,}, [], [], [], [], expected_result_3),
+        (
+            dataset6,
+            [precision_score, recall_score, f1_score],
+            [],
+            [],
+            [],
+            [],
+            expected_result_6,
+        ),
+    ],
+)
+def test_performancemetrics(
+    data: Dataset,
+    metrics: dict[str, Callable] | None,
+    sensitive: Sequence[str],
+    real_target: Sequence[str],
+    predicted_target: Sequence[str],
+    positive_target: Sequence[int | float | str | bool] | None,
+    expected_result: Sequence[dict[str, Sequence]] | RaisesContext,
+):
+    if isinstance(expected_result, Sequence):
+        if isinstance(data, Dataset):
+            pm = PerformanceMetric(data, metrics)
+        else:
+            pm = PerformanceMetric(
+                data, metrics, sensitive, real_target, predicted_target, positive_target
+            )
+        result = pm()
+        assert result[0] == pm.data.real_target
+        for i, res in enumerate(result[1]):
+            for key in res.keys():
+                if isinstance(res[key][0], object):
+                    try:
+                        assert (res[key] == expected_result[i][key]).all()
+                    except AttributeError:
+                        assert res[key] == expected_result[i][key]
+                else:
+                    assert (
+                        np.isclose(res[key], expected_result[i][key], atol=0.0000002)
+                    ).all()
+
+    else:
+        with expected_result:
+            cf = ConfusionMatrix(data, metrics)
+            cf()
