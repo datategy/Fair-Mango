@@ -4,6 +4,13 @@ import numpy as np
 import pandas as pd
 import pytest
 from _pytest.python_api import RaisesContext
+from sklearn.metrics import (
+    accuracy_score,
+    balanced_accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+)
 
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.metrics.metrics import (
@@ -13,23 +20,14 @@ from fair_mango.metrics.metrics import (
     DisparateImpactDifference,
     DisparateImpactRatio,
     EqualOpportunityDifference,
-    SelectionRate,
     PerformanceMetric,
+    SelectionRate,
     encode_target,
     false_negative_rate,
     false_positive_rate,
     is_binary,
     true_negative_rate,
 )
-
-from sklearn.metrics import(
-    accuracy_score,
-    balanced_accuracy_score,
-    f1_score,
-    precision_score,
-    recall_score,
-)
-
 
 df = pd.read_csv("tests/data/heart_data.csv")
 
@@ -924,86 +922,147 @@ def test_equal_opportunity_difference(
             eod.mean_differences(threshold)
 
 
-expected_result_2 = [{'sensitive': np.array(['M'], dtype=object),
-   'accuracy': [0.9779310344827586],
-   'balanced accuracy': [0.9778470143761346],
-   'precision': [0.986784140969163],
-   'recall': [0.9781659388646288],
-   'f1-score': [0.9824561403508771]},
-  {'sensitive': np.array(['F'], dtype=object),
-   'accuracy': [0.9637305699481865],
-   'balanced accuracy': [0.956013986013986],
-   'precision': [0.9215686274509803],
-   'recall': [0.94],
-   'f1-score': [0.9306930693069307]}]
+expected_result_2 = [
+    {
+        "sensitive": np.array(["M"], dtype=object),
+        "accuracy": [0.9779310344827586],
+        "balanced accuracy": [0.9778470143761346],
+        "precision": [0.986784140969163],
+        "recall": [0.9781659388646288],
+        "f1-score": [0.9824561403508771],
+    },
+    {
+        "sensitive": np.array(["F"], dtype=object),
+        "accuracy": [0.9637305699481865],
+        "balanced accuracy": [0.956013986013986],
+        "precision": [0.9215686274509803],
+        "recall": [0.94],
+        "f1-score": [0.9306930693069307],
+    },
+]
 
 
-expected_result_3 = [{'sensitive': np.array(['M', 'ASY'], dtype=object),
-   'acc': [0.9859154929577465],
-   'balanced_acc': [0.9860685319570026]},
-  {'sensitive': np.array(['M', 'NAP'], dtype=object),
-   'acc': [0.9866666666666667],
-   'balanced_acc': [0.9864718614718615]},
-  {'sensitive': np.array(['M', 'ATA'], dtype=object),
-   'acc': [0.9823008849557522],
-   'balanced_acc': [0.9696236559139785]},
-  {'sensitive': np.array(['F', 'ASY'], dtype=object),
-   'acc': [0.9428571428571428],
-   'balanced_acc': [0.9387923904052936]},
-  {'sensitive': np.array(['F', 'ATA'], dtype=object),
-   'acc': [0.9833333333333333],
-   'balanced_acc': [0.9910714285714286]},
-  {'sensitive': np.array(['F', 'NAP'], dtype=object),
-   'acc': [0.9622641509433962],
-   'balanced_acc': [0.8333333333333333]},
-  {'sensitive': np.array(['M', 'TA'], dtype=object),
-   'acc': [0.8333333333333334],
-   'balanced_acc': [0.8328173374613003]},
-  {'sensitive': np.array(['F', 'TA'], dtype=object),
-   'acc': [1.0],
-   'balanced_acc': [1.0]}]
+expected_result_3 = [
+    {
+        "sensitive": np.array(["M", "ASY"], dtype=object),
+        "acc": [0.9859154929577465],
+        "balanced_acc": [0.9860685319570026],
+    },
+    {
+        "sensitive": np.array(["M", "NAP"], dtype=object),
+        "acc": [0.9866666666666667],
+        "balanced_acc": [0.9864718614718615],
+    },
+    {
+        "sensitive": np.array(["M", "ATA"], dtype=object),
+        "acc": [0.9823008849557522],
+        "balanced_acc": [0.9696236559139785],
+    },
+    {
+        "sensitive": np.array(["F", "ASY"], dtype=object),
+        "acc": [0.9428571428571428],
+        "balanced_acc": [0.9387923904052936],
+    },
+    {
+        "sensitive": np.array(["F", "ATA"], dtype=object),
+        "acc": [0.9833333333333333],
+        "balanced_acc": [0.9910714285714286],
+    },
+    {
+        "sensitive": np.array(["F", "NAP"], dtype=object),
+        "acc": [0.9622641509433962],
+        "balanced_acc": [0.8333333333333333],
+    },
+    {
+        "sensitive": np.array(["M", "TA"], dtype=object),
+        "acc": [0.8333333333333334],
+        "balanced_acc": [0.8328173374613003],
+    },
+    {
+        "sensitive": np.array(["F", "TA"], dtype=object),
+        "acc": [1.0],
+        "balanced_acc": [1.0],
+    },
+]
 
 
-expected_result_6 = [{'sensitive': np.array(['M', 'ASY'], dtype=object),
-   'precision_score': [0.997134670487106, 1.0],
-   'recall_score': [0.9858356940509915, 1.0],
-   'f1_score': [0.9914529914529915, 1.0]},
-  {'sensitive': np.array(['M', 'NAP'], dtype=object),
-   'precision_score': [0.9848484848484849, 1.0],
-   'recall_score': [0.9848484848484849, 1.0],
-   'f1_score': [0.9848484848484849, 1.0]},
-  {'sensitive': np.array(['M', 'ATA'], dtype=object),
-   'precision_score': [0.95, 1.0],
-   'recall_score': [0.95, 1.0],
-   'f1_score': [0.95, 1.0]},
-  {'sensitive': np.array(['F', 'ASY'], dtype=object),
-   'precision_score': [0.926829268292683, 1.0],
-   'recall_score': [0.9743589743589743, 1.0],
-   'f1_score': [0.95, 1.0]},
-  {'sensitive': np.array(['F', 'ATA'], dtype=object),
-   'precision_score': [0.8, 1.0],
-   'recall_score': [1.0, 1.0],
-   'f1_score': [0.8888888888888888, 1.0]},
-  {'sensitive': np.array(['F', 'NAP'], dtype=object),
-   'precision_score': [1.0, 1.0],
-   'recall_score': [0.6666666666666666, 1.0],
-   'f1_score': [0.8, 1.0]},
-  {'sensitive': np.array(['M', 'TA'], dtype=object),
-   'precision_score': [0.8421052631578947, 1.0],
-   'recall_score': [0.8421052631578947, 1.0],
-   'f1_score': [0.8421052631578947, 1.0]},
-  {'sensitive': np.array(['F', 'TA'], dtype=object),
-   'precision_score': [1.0, 0.0],
-   'recall_score': [1.0, 0.0],
-   'f1_score': [1.0, 0.0]}]
+expected_result_6 = [
+    {
+        "sensitive": np.array(["M", "ASY"], dtype=object),
+        "precision_score": [0.997134670487106, 1.0],
+        "recall_score": [0.9858356940509915, 1.0],
+        "f1_score": [0.9914529914529915, 1.0],
+    },
+    {
+        "sensitive": np.array(["M", "NAP"], dtype=object),
+        "precision_score": [0.9848484848484849, 1.0],
+        "recall_score": [0.9848484848484849, 1.0],
+        "f1_score": [0.9848484848484849, 1.0],
+    },
+    {
+        "sensitive": np.array(["M", "ATA"], dtype=object),
+        "precision_score": [0.95, 1.0],
+        "recall_score": [0.95, 1.0],
+        "f1_score": [0.95, 1.0],
+    },
+    {
+        "sensitive": np.array(["F", "ASY"], dtype=object),
+        "precision_score": [0.926829268292683, 1.0],
+        "recall_score": [0.9743589743589743, 1.0],
+        "f1_score": [0.95, 1.0],
+    },
+    {
+        "sensitive": np.array(["F", "ATA"], dtype=object),
+        "precision_score": [0.8, 1.0],
+        "recall_score": [1.0, 1.0],
+        "f1_score": [0.8888888888888888, 1.0],
+    },
+    {
+        "sensitive": np.array(["F", "NAP"], dtype=object),
+        "precision_score": [1.0, 1.0],
+        "recall_score": [0.6666666666666666, 1.0],
+        "f1_score": [0.8, 1.0],
+    },
+    {
+        "sensitive": np.array(["M", "TA"], dtype=object),
+        "precision_score": [0.8421052631578947, 1.0],
+        "recall_score": [0.8421052631578947, 1.0],
+        "f1_score": [0.8421052631578947, 1.0],
+    },
+    {
+        "sensitive": np.array(["F", "TA"], dtype=object),
+        "precision_score": [1.0, 0.0],
+        "recall_score": [1.0, 0.0],
+        "f1_score": [1.0, 0.0],
+    },
+]
 
 
 @pytest.mark.parametrize(
     "data, metrics, sensitive, real_target, predicted_target, positive_target, expected_result",
     [
         (dataset1, None, [], [], [], [], pytest.raises(ValueError)),
-        (df, None, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"], [], expected_result_2),
-        (dataset3, {"acc": accuracy_score,'balanced_acc': balanced_accuracy_score,}, [], [], [], [], expected_result_3),
+        (
+            df,
+            None,
+            ["Sex"],
+            ["HeartDisease"],
+            ["HeartDiseasePred"],
+            [],
+            expected_result_2,
+        ),
+        (
+            dataset3,
+            {
+                "acc": accuracy_score,
+                "balanced_acc": balanced_accuracy_score,
+            },
+            [],
+            [],
+            [],
+            [],
+            expected_result_3,
+        ),
         (
             dataset6,
             [precision_score, recall_score, f1_score],
