@@ -3,7 +3,14 @@ from itertools import combinations
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import (
+    accuracy_score,
+    balanced_accuracy_score,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+)
 
 from fair_mango.dataset.dataset import Dataset
 
@@ -165,7 +172,7 @@ def true_positive_rate(
         return zero_division
 
 
-class PerformanceMetric:
+class Metric:
     """A class for the different fairness metrics and performance evaluation in different groups"""
 
     def __init__(
@@ -211,7 +218,7 @@ class PerformanceMetric:
     def __call__(self): ...
 
 
-class SelectionRate(PerformanceMetric):
+class SelectionRate(Metric):
     """Calculate selection rate for different sensitive groups"""
 
     def __init__(
@@ -255,7 +262,7 @@ class SelectionRate(PerformanceMetric):
             return self.data.df[self.data.predicted_target].mean()
 
 
-class ConfusionMatrix(PerformanceMetric):
+class ConfusionMatrix(Metric):
     """Calculate
     - false positive rate
     - false negative rate
@@ -350,6 +357,73 @@ class ConfusionMatrix(PerformanceMetric):
         return self.data.real_target, self.results
 
 
+class PerformanceMetric(Metric):
+    """Calculate
+    - accuracy
+    - balanced accuracy
+    - precision
+    - recall
+    - f1 score
+    """
+
+    def __init__(
+        self,
+        data: Dataset | pd.DataFrame,
+        metrics: Collection | Sequence | None = None,
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
+    ) -> None:
+        super().__init__(
+            data, sensitive, real_target, predicted_target, positive_target
+        )
+        if self.predicted_targets_by_group == []:
+            raise ValueError(
+                "No predictions found, provide predicted_target parameter when creating the dataset"
+            )
+        if metrics is None:
+            self.metrics = {
+                "accuracy": accuracy_score,
+                "balanced accuracy": balanced_accuracy_score,
+                "precision": precision_score,
+                "recall": recall_score,
+                "f1-score": f1_score,
+            }
+        else:
+            if isinstance(metrics, dict):
+                self.metrics = metrics
+            else:
+                metrics = set(metrics)
+                self.metrics = {}
+                for metric in metrics:
+                    self.metrics[metric.__name__] = metric
+
+    def __call__(self) -> tuple[Sequence, list]:
+        for real_group, predicted_group in zip(
+            self.real_targets_by_group, self.predicted_targets_by_group
+        ):
+            group_ = real_group["sensitive"]
+            real_y_group = real_group["data"]
+            predicted_y_group = predicted_group["data"]
+            result_for_group = {"sensitive": group_}
+            for real_col, predicted_col in zip(
+                self.data.real_target, self.data.predicted_target
+            ):
+                if len(self.data.real_target) != 1:
+                    real_values = real_y_group[real_col]
+                    predicted_values = predicted_y_group[predicted_col]
+                else:
+                    real_values = real_y_group
+                    predicted_values = predicted_y_group
+                for metric_name, metric in self.metrics.items():
+                    result_for_group.setdefault(metric_name, []).append(
+                        metric(real_values, predicted_values)
+                    )
+            self.results.append(result_for_group)
+        return self.data.real_target, self.results
+
+
 def difference(result_per_groups: np.array) -> dict:
     result = {}
     pairs = combinations(range(len(result_per_groups)), 2)
@@ -393,6 +467,7 @@ class FairnessMetricDifference:
         real_target: Sequence[str] = [],
         predicted_target: Sequence[str] = [],
         positive_target: Sequence[int | float | str | bool] | None = None,
+        metric_type: str = "performance",
         **kwargs,
     ) -> None:
         if isinstance(data, Dataset):
@@ -410,6 +485,12 @@ class FairnessMetricDifference:
         self.kwargs = kwargs
         self.targets: Sequence
         self.metric_results: list
+        if metric_type == "performance":
+            self.label1 = "privileged"
+            self.label2 = "unprivileged"
+        elif metric_type == "error":
+            self.label1 = "unprivileged"
+            self.label2 = "privileged"
 
     def call(self) -> None:
         metric = self.metric(self.data, **self.kwargs)
@@ -430,16 +511,16 @@ class FairnessMetricDifference:
                 if np.abs(value[ind]) > self.summary[target][self.label]:
                     self.summary[target][self.label] = np.abs(value[ind])
                     if value[ind] > 0:
-                        self.summary[target]["privileged"] = key[0]
-                        self.summary[target]["unprivileged"] = key[1]
+                        self.summary[target][self.label1] = key[0]
+                        self.summary[target][self.label2] = key[1]
                     else:
-                        self.summary[target]["privileged"] = key[1]
-                        self.summary[target]["unprivileged"] = key[0]
+                        self.summary[target][self.label1] = key[1]
+                        self.summary[target][self.label2] = key[0]
 
     def mean_differences(self, threshold: float = 0.1):
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
-        result = {}
+        result: dict = {}
         for key, value in self.result.items():
             result.setdefault(key[0], []).append(value)
             result.setdefault(key[1], []).append(-value)
@@ -450,9 +531,9 @@ class FairnessMetricDifference:
         for target in self.targets:
             results[target] = {
                 f"pr_{self.label}": 0.0,
-                "most_privileged": None,
+                "most_privileged": np.nan,
                 f"unp_{self.label}": 0.0,
-                "most_unprivileged": None,
+                "most_unprivileged": np.nan,
             }
         for key, value in result.items():
             if isinstance(value, (float, int)):
@@ -460,12 +541,14 @@ class FairnessMetricDifference:
             for ind, target in enumerate(self.targets):
                 if value[ind] > results[target][f"pr_{self.label}"]:
                     results[target][f"pr_{self.label}"] = value[ind]
-                    results[target]["most_privileged"] = key
+                    results[target][f"most_{self.label1}"] = key
                 if value[ind] < results[target][f"unp_{self.label}"]:
                     results[target][f"unp_{self.label}"] = value[ind]
-                    results[target]["most_unprivileged"] = key
+                    results[target][f"most_{self.label2}"] = key
         for target, result in results.items():
-            if (result[f"pr_{self.label}"] > threshold) or (result[f"unp_{self.label}"] < -threshold):
+            if (result[f"pr_{self.label}"] > threshold) or (
+                result[f"unp_{self.label}"] < -threshold
+            ):
                 result["is_biased"] = True
             else:
                 result["is_biased"] = False
@@ -537,7 +620,30 @@ class EqualOpportunityDifference(FairnessMetricDifference):
             real_target,
             predicted_target,
             positive_target,
-            **{"metrics": {'result': true_positive_rate}, 'zero_division': np.nan},
+            **{"metrics": {"result": true_positive_rate}, "zero_division": np.nan},
+        )
+        super().call()
+
+
+class FalseNegativeRateDifference(FairnessMetricDifference):
+    def __init__(
+        self,
+        data: Dataset | pd.DataFrame,
+        label: str = "false_negative_rate_difference",
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
+    ) -> None:
+        super().__init__(
+            data,
+            ConfusionMatrix,
+            label,
+            sensitive,
+            real_target,
+            predicted_target,
+            positive_target,
+            **{"metrics": {"result": false_negative_rate}, "zero_division": np.nan},
         )
         super().call()
 
@@ -630,7 +736,9 @@ class FairnessMetricRatio:
                     results[target][f"unp_{self.label}"] = value[ind]
                     results[target]["most_unprivileged"] = key
         for target, result in results.items():
-            if (result[f"pr_{self.label}"] < threshold) or (result[f"unp_{self.label}"] > (1/threshold)):
+            if (result[f"pr_{self.label}"] < threshold) or (
+                result[f"unp_{self.label}"] > (1 / threshold)
+            ):
                 result["is_biased"] = True
             else:
                 result["is_biased"] = False
