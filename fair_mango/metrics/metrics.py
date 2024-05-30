@@ -463,9 +463,9 @@ class FairnessMetricDifference:
         data: Dataset | pd.DataFrame,
         metric: type[SelectionRate] | type[ConfusionMatrix],
         label: str,
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
         metric_type: str = "performance",
         **kwargs,
@@ -473,7 +473,7 @@ class FairnessMetricDifference:
         if isinstance(data, Dataset):
             self.data = data
         else:
-            if sensitive == [] or real_target == []:
+            if sensitive is None or real_target is None:
                 raise ValueError(
                     "When providing a DataFrame, 'sensitive' and 'real_target' must be specified."
                 )
@@ -491,6 +491,8 @@ class FairnessMetricDifference:
         elif metric_type == "error":
             self.label1 = "unprivileged"
             self.label2 = "privileged"
+        else:
+            raise ValueError("Metric type not recognized. accepted values 'performance' or 'error'")
 
     def call(self) -> None:
         metric = self.metric(self.data, **self.kwargs)
@@ -574,6 +576,7 @@ class DemographicParityDifference(FairnessMetricDifference):
             real_target,
             predicted_target,
             positive_target,
+            "performance",
             **{"use_y_true": True},
         )
         super().call()
@@ -597,6 +600,7 @@ class DisparateImpactDifference(FairnessMetricDifference):
             real_target,
             predicted_target,
             positive_target,
+            "performance",
             **{"use_y_true": False},
         )
         super().call()
@@ -620,16 +624,17 @@ class EqualOpportunityDifference(FairnessMetricDifference):
             real_target,
             predicted_target,
             positive_target,
+            "performance",
             **{"metrics": {"result": true_positive_rate}, "zero_division": np.nan},
         )
         super().call()
 
 
-class FalseNegativeRateDifference(FairnessMetricDifference):
+class FalsePositiveRateDifference(FairnessMetricDifference):
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
-        label: str = "false_negative_rate_difference",
+        label: str = "false_positive_rate_difference",
         sensitive: Sequence[str] = [],
         real_target: Sequence[str] = [],
         predicted_target: Sequence[str] = [],
@@ -643,7 +648,8 @@ class FalseNegativeRateDifference(FairnessMetricDifference):
             real_target,
             predicted_target,
             positive_target,
-            **{"metrics": {"result": false_negative_rate}, "zero_division": np.nan},
+            "error",
+            **{"metrics": {"result": false_positive_rate}, "zero_division": np.nan},
         )
         super().call()
 

@@ -70,7 +70,7 @@ class Dataset:
         df: pd.DataFrame,
         sensitive: Sequence[str],
         real_target: Sequence[str],
-        predicted_target: Sequence[str] = [],
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ):
         """
@@ -89,14 +89,16 @@ class Dataset:
         """
         check_column_in_df(df, sensitive)
         check_column_in_df(df, real_target)
-        check_column_in_df(df, predicted_target)
-        if predicted_target != []:
+        if predicted_target is not None:
+            check_column_in_df(df, predicted_target)
             check_real_and_predicted_target_match(real_target, predicted_target)
+            self.predicted_target = predicted_target
+        else:
+            self.predicted_target = []
         self.df = df.copy()
         self.shape = df.shape
         self.sensitive = sensitive
         self.real_target = real_target
-        self.predicted_target = predicted_target
         self.positive_target = positive_target
         if isinstance(sensitive, str):
             self.groups = (
