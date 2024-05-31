@@ -493,71 +493,38 @@ class FairnessMetricDifference:
             self.label2 = "privileged"
         else:
             raise ValueError("Metric type not recognized. accepted values 'performance' or 'error'")
+        self.result = None
+        self.ranking = None
 
-    def call(self) -> None:
+    def summary(self) -> None:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
-        self.result = difference(self.metric_results)
-        self.differences = self.targets, self.result
-        self.summary = {}
+        self.results = difference(self.metric_results)
+        self.differences = self.targets, self.results
+        self.result = {}
         for target in self.targets:
-            self.summary[target] = {
+            self.result[target] = {
                 self.label: 0.0,
                 "privileged": None,
                 "unprivileged": None,
             }
-        for key, value in self.result.items():
+        for key, value in self.results.items():
             if isinstance(value, (float, int)):
                 value = [value]
             for ind, target in enumerate(self.targets):
-                if np.abs(value[ind]) > self.summary[target][self.label]:
-                    self.summary[target][self.label] = np.abs(value[ind])
+                if np.abs(value[ind]) > self.result[target][self.label]:
+                    self.result[target][self.label] = np.abs(value[ind])
                     if value[ind] > 0:
-                        self.summary[target][self.label1] = key[0]
-                        self.summary[target][self.label2] = key[1]
+                        self.result[target][self.label1] = key[0]
+                        self.result[target][self.label2] = key[1]
                     else:
-                        self.summary[target][self.label1] = key[1]
-                        self.summary[target][self.label2] = key[0]
-
-    def mean_differences(self, threshold: float = 0.1):
-        if not (0 <= threshold <= 1):
-            raise ValueError("Threshold must be in range [0, 1]")
-        result: dict = {}
-        for key, value in self.result.items():
-            result.setdefault(key[0], []).append(value)
-            result.setdefault(key[1], []).append(-value)
-        for key, value in result.items():
-            stacked_array = np.stack(value)
-            result[key] = np.mean(stacked_array, axis=0)
-        results = {}
-        for target in self.targets:
-            results[target] = {
-                f"pr_{self.label}": 0.0,
-                "most_privileged": np.nan,
-                f"unp_{self.label}": 0.0,
-                "most_unprivileged": np.nan,
-            }
-        for key, value in result.items():
-            if isinstance(value, (float, int)):
-                value = [value]
-            for ind, target in enumerate(self.targets):
-                if value[ind] > results[target][f"pr_{self.label}"]:
-                    results[target][f"pr_{self.label}"] = value[ind]
-                    results[target][f"most_{self.label1}"] = key
-                if value[ind] < results[target][f"unp_{self.label}"]:
-                    results[target][f"unp_{self.label}"] = value[ind]
-                    results[target][f"most_{self.label2}"] = key
-        for target, result in results.items():
-            if (result[f"pr_{self.label}"] > threshold) or (
-                result[f"unp_{self.label}"] < -threshold
-            ):
-                result["is_biased"] = True
-            else:
-                result["is_biased"] = False
-
-        return results
+                        self.result[target][self.label1] = key[1]
+                        self.result[target][self.label2] = key[0]
+        return self.result
     
     def rank(self, threshold: float = 0.1):
+        if self.result is None:
+            self.summary()
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
         result: dict = {}
@@ -565,7 +532,7 @@ class FairnessMetricDifference:
         for target in self.data.real_target:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
-        for key, values in self.result.items():
+        for key, values in self.results.items():
             if isinstance(values, float):
                 values = [values]
             for target, value in zip(self.data.real_target, values):
@@ -600,7 +567,6 @@ class DemographicParityDifference(FairnessMetricDifference):
             "performance",
             **{"use_y_true": True},
         )
-        super().call()
 
 
 class DisparateImpactDifference(FairnessMetricDifference):
@@ -624,7 +590,6 @@ class DisparateImpactDifference(FairnessMetricDifference):
             "performance",
             **{"use_y_true": False},
         )
-        super().call()
 
 
 class EqualOpportunityDifference(FairnessMetricDifference):
@@ -648,7 +613,6 @@ class EqualOpportunityDifference(FairnessMetricDifference):
             "performance",
             **{"metrics": {"result": true_positive_rate}, "zero_division": np.nan},
         )
-        super().call()
 
 
 class FalsePositiveRateDifference(FairnessMetricDifference):
@@ -672,7 +636,6 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
             "error",
             **{"metrics": {"result": false_positive_rate}, "zero_division": np.nan},
         )
-        super().call()
 
 
 class FairnessMetricRatio:
@@ -705,11 +668,11 @@ class FairnessMetricRatio:
         self.targets: Sequence
         self.metric_results: list
 
-    def call(self) -> None:
+    def summary(self) -> None:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
-        self.result = ratio(self.metric_results, self.zero_division)
-        self.ratios = self.targets, self.result
+        self.results = ratio(self.metric_results, self.zero_division)
+        self.ratios = self.targets, self.results
         self.summary = {}
         for target in self.targets:
             self.summary[target] = {
@@ -717,7 +680,7 @@ class FairnessMetricRatio:
                 "privileged": None,
                 "unprivileged": None,
             }
-        for key, value in self.result.items():
+        for key, value in self.results.items():
             if isinstance(value, (float, int)):
                 value = [value]
             for ind, target in enumerate(self.targets):
@@ -738,7 +701,7 @@ class FairnessMetricRatio:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
         result: dict = {}
-        for key, value in self.result.items():
+        for key, value in self.results.items():
             result.setdefault(key[0], []).append(value)
             result.setdefault(key[1], []).append(1 / value)
         for key, value in result.items():
@@ -795,7 +758,6 @@ class DemographicParityRatio(FairnessMetricRatio):
             positive_target,
             **{"use_y_true": True},
         )
-        super().call()
 
 
 class DisparateImpactRatio(FairnessMetricRatio):
@@ -820,7 +782,6 @@ class DisparateImpactRatio(FairnessMetricRatio):
             positive_target,
             **{"use_y_true": False},
         )
-        super().call()
 
 
 class EqualisedOddsDifference:
@@ -843,10 +804,15 @@ class EqualisedOddsDifference:
                 data, sensitive, real_target, predicted_target, positive_target
             )
         self.label = 'equalised_odds_difference'
-        self.tpr = EqualOpportunityDifference(self.data).differences[1]
-        self.fpr = FalsePositiveRateDifference(self.data).differences[1]
+        tpr = EqualOpportunityDifference(self.data)
+        tpr.summary()
+        fpr = FalsePositiveRateDifference(self.data)
+        fpr.summary()
+        self.tpr = tpr.differences[1]
+        self.fpr = fpr.differences[1]
+        self.ranking = None
         
-    def summary(self):
+    def summary(self) -> dict:
         self.result: dict = {}
         for target in self.data.real_target:
             self.result.setdefault(target, 
@@ -873,7 +839,7 @@ class EqualisedOddsDifference:
                         self.result[target]['unprivileged'] = key1[1]
         return self.result            
         
-    def rank(self):
+    def rank(self) -> dict:
         result: dict = {}
         self.ranking: dict = {}
         for target in self.data.real_target:
@@ -894,11 +860,16 @@ class EqualisedOddsDifference:
             self.ranking[target] = dict(sorted(self.ranking[target].items(), key=lambda item: item[1], reverse=True))
         return self.ranking
     
-    def is_biased(self, threshold: float = 0.1):
+    def is_biased(self, threshold: float = 0.1) -> dict:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
-        max_diff, min_diff = list(self.result.values())[0], list(self.result.values())[-1]
-        if max_diff > threshold or min_diff < -threshold:
-            return True
-        else:
-            return False
+        if self.ranking is None:
+            self.rank()
+        bias: dict = {}
+        for target, dicts in self.ranking.items():
+            max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
+            if max_diff > threshold or min_diff < -threshold:
+                bias[target] = True
+            else:
+                bias[target] = False
+        return bias
