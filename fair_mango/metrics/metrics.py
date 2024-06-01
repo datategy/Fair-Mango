@@ -840,6 +840,31 @@ class EqualOpportunityRatio(FairnessMetricRatio):
         )
 
 
+class FalsePositiveRateRatio(FairnessMetricRatio):
+    def __init__(
+        self,
+        data: Dataset | pd.DataFrame,
+        label: str = "false_positive_rate_ratio",
+        zero_division_: float | str | None = None,
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
+    ) -> None:
+        super().__init__(
+            data,
+            ConfusionMatrix,
+            label,
+            zero_division_,
+            sensitive,
+            real_target,
+            predicted_target,
+            positive_target,
+            "error",
+            **{"metrics": {"result": false_positive_rate}, "zero_division": np.nan},
+        )
+
+
 class EqualisedOddsDifference:
     def __init__(
         self,
