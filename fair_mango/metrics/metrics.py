@@ -444,8 +444,8 @@ def ratio(
     result = {}
     pairs = list(combinations(range(len(result_per_groups)), 2))
     for i, j in pairs:
-        result_i = result_per_groups[i]["result"]
-        result_j = result_per_groups[j]["result"]
+        result_i = np.array(result_per_groups[i]["result"])
+        result_j = np.array(result_per_groups[j]["result"])
         group_i = tuple(result_per_groups[i]["sensitive"])
         group_j = tuple(result_per_groups[j]["sensitive"])
         key = (group_i, group_j)
@@ -659,7 +659,7 @@ class FairnessMetricRatio:
         data: Dataset | pd.DataFrame,
         metric: type[SelectionRate] | type[ConfusionMatrix],
         label: str,
-        zero_division: float | str | None = None,
+        zero_division_: float | str | None = None,
         sensitive: Sequence[str] = [],
         real_target: Sequence[str] = [],
         predicted_target: Sequence[str] = [],
@@ -686,7 +686,7 @@ class FairnessMetricRatio:
             self.label2 = "privileged"
         self.kwargs = kwargs
         self.label = label
-        self.zero_division = zero_division
+        self.zero_division = zero_division_
         self.targets: Sequence
         self.metric_results: list
         self.result = None
@@ -765,7 +765,6 @@ class FairnessMetricRatio:
         return bias
     
     
-
 class DemographicParityRatio(FairnessMetricRatio):
     def __init__(
         self,
@@ -786,6 +785,7 @@ class DemographicParityRatio(FairnessMetricRatio):
             real_target,
             predicted_target,
             positive_target,
+            "performance",
             **{"use_y_true": True},
         )
 
@@ -795,7 +795,7 @@ class DisparateImpactRatio(FairnessMetricRatio):
         self,
         data: Dataset | pd.DataFrame,
         label: str = "disparate_impact_ratio",
-        zero_division: float | str | None = None,
+        zero_division_: float | str | None = None,
         sensitive: Sequence[str] = [],
         real_target: Sequence[str] = [],
         predicted_target: Sequence[str] = [],
@@ -805,12 +805,38 @@ class DisparateImpactRatio(FairnessMetricRatio):
             data,
             SelectionRate,
             label,
-            zero_division,
+            zero_division_,
             sensitive,
             real_target,
             predicted_target,
             positive_target,
+            "performance",
             **{"use_y_true": False},
+        )
+
+
+class EqualOpportunityRatio(FairnessMetricRatio):
+    def __init__(
+        self,
+        data: Dataset | pd.DataFrame,
+        label: str = "equal_opportunity_ratio",
+        zero_division_: float | str | None = None,
+        sensitive: Sequence[str] = [],
+        real_target: Sequence[str] = [],
+        predicted_target: Sequence[str] = [],
+        positive_target: Sequence[int | float | str | bool] | None = None,
+    ) -> None:
+        super().__init__(
+            data,
+            ConfusionMatrix,
+            label,
+            zero_division_,
+            sensitive,
+            real_target,
+            predicted_target,
+            positive_target,
+            "performance",
+            **{"metrics": {"result": true_positive_rate}, "zero_division": np.nan},
         )
 
 
