@@ -492,11 +492,13 @@ class FairnessMetricDifference:
             self.label1 = "unprivileged"
             self.label2 = "privileged"
         else:
-            raise ValueError("Metric type not recognized. accepted values 'performance' or 'error'")
-        self.result = None
-        self.ranking = None
+            raise ValueError(
+                "Metric type not recognized. accepted values 'performance' or 'error'"
+            )
+        self.result: dict | None = None
+        self.ranking: dict | None = None
 
-    def summary(self) -> None:
+    def summary(self) -> dict:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
         self.results = difference(self.metric_results)
@@ -521,12 +523,13 @@ class FairnessMetricDifference:
                         self.result[target][self.label1] = key[1]
                         self.result[target][self.label2] = key[0]
         return self.result
-    
+
     def rank(self, pr_to_unp: bool = True) -> dict:
+        self.pr_to_unp = pr_to_unp
         if self.result is None:
             self.summary()
         result: dict = {}
-        self.ranking: dict = {}
+        self.ranking = {}
         for target in self.data.real_target:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
@@ -541,19 +544,34 @@ class FairnessMetricDifference:
                 difference = np.mean(np.array(differences))
                 self.ranking[target].setdefault(group, difference)
             if pr_to_unp:
-                self.ranking[target] = dict(sorted(self.ranking[target].items(), key=lambda item: item[1], reverse=True))
+                self.ranking[target] = dict(
+                    sorted(
+                        self.ranking[target].items(),
+                        key=lambda item: item[1],
+                        reverse=True,
+                    )
+                )
             else:
-                self.ranking[target] = dict(sorted(self.ranking[target].items(), key=lambda item: item[1], reverse=False))
+                self.ranking[target] = dict(
+                    sorted(
+                        self.ranking[target].items(),
+                        key=lambda item: item[1],
+                        reverse=False,
+                    )
+                )
         return self.ranking
-    
+
     def is_biased(self, threshold: float = 0.1) -> dict:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
         if self.ranking is None:
-            self.rank()
+            self.ranking = self.rank()
         bias: dict = {}
         for target, dicts in self.ranking.items():
-            max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
+            if self.pr_to_unp:
+                max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
+            else:
+                min_diff, max_diff = list(dicts.values())[0], list(dicts.values())[-1]
             if max_diff > threshold or min_diff < -threshold:
                 bias[target] = True
             else:
@@ -566,9 +584,9 @@ class DemographicParityDifference(FairnessMetricDifference):
         self,
         data: Dataset | pd.DataFrame,
         label: str = "demographic_parity_difference",
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
         super().__init__(
@@ -589,9 +607,9 @@ class DisparateImpactDifference(FairnessMetricDifference):
         self,
         data: Dataset | pd.DataFrame,
         label: str = "disparate_impact_difference",
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
         super().__init__(
@@ -612,9 +630,9 @@ class EqualOpportunityDifference(FairnessMetricDifference):
         self,
         data: Dataset | pd.DataFrame,
         label: str = "equal_opportunity_difference",
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
         super().__init__(
@@ -635,9 +653,9 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
         self,
         data: Dataset | pd.DataFrame,
         label: str = "false_positive_rate_difference",
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
         super().__init__(
@@ -660,9 +678,9 @@ class FairnessMetricRatio:
         metric: type[SelectionRate] | type[ConfusionMatrix],
         label: str,
         zero_division_: float | str | None = None,
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
         metric_type: str = "performance",
         **kwargs,
@@ -670,7 +688,7 @@ class FairnessMetricRatio:
         if isinstance(data, Dataset):
             self.data = data
         else:
-            if sensitive == [] or real_target == []:
+            if sensitive is None or real_target is None:
                 raise ValueError(
                     "When providing a DataFrame, 'sensitive' and 'real_target' must be specified."
                 )
@@ -689,10 +707,10 @@ class FairnessMetricRatio:
         self.zero_division = zero_division_
         self.targets: Sequence
         self.metric_results: list
-        self.result = None
-        self.ranking = None
+        self.result: dict | None = None
+        self.ranking: dict | None = None
 
-    def summary(self) -> None:
+    def summary(self) -> dict:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
         self.results = ratio(self.metric_results, self.zero_division)
@@ -721,13 +739,13 @@ class FairnessMetricRatio:
                         self.result[target][self.label1] = key[1]
                         self.result[target][self.label2] = key[0]
         return self.result
-    
+
     def rank(self, pr_to_unp: bool = True) -> dict:
         self.pr_to_unp = pr_to_unp
         if self.result is None:
             self.summary()
         result: dict = {}
-        self.ranking: dict = {}
+        self.ranking = {}
         for target in self.data.real_target:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
@@ -736,44 +754,56 @@ class FairnessMetricRatio:
                 values = [values]
             for target, value in zip(self.data.real_target, values):
                 result[target].setdefault(key[0], []).append(value)
-                result[target].setdefault(key[1], []).append(1/value)
+                result[target].setdefault(key[1], []).append(1 / value)
         for target, target_result in result.items():
             for group, differences in target_result.items():
                 difference = np.mean(np.array(differences))
                 self.ranking[target].setdefault(group, difference)
             if pr_to_unp:
-                self.ranking[target] = dict(sorted(self.ranking[target].items(), key=lambda item: item[1], reverse=False))
+                self.ranking[target] = dict(
+                    sorted(
+                        self.ranking[target].items(),
+                        key=lambda item: item[1],
+                        reverse=False,
+                    )
+                )
             else:
-                self.ranking[target] = dict(sorted(self.ranking[target].items(), key=lambda item: item[1], reverse=True))
+                self.ranking[target] = dict(
+                    sorted(
+                        self.ranking[target].items(),
+                        key=lambda item: item[1],
+                        reverse=True,
+                    )
+                )
         return self.ranking
-    
+
     def is_biased(self, threshold: float = 0.8) -> dict:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
         if self.ranking is None:
-            self.rank()
+            self.ranking = self.rank()
         bias: dict = {}
         for target, dicts in self.ranking.items():
             if self.pr_to_unp:
-                min_diff, max_diff = list(dicts.values())[0], list(dicts.values())[-1]
+                min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
             else:
-                max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
-            if max_diff > 1/threshold or min_diff < threshold:
+                max_ratio, min_ratio = list(dicts.values())[0], list(dicts.values())[-1]
+            if max_ratio > (1 / threshold) or min_ratio < threshold:
                 bias[target] = True
             else:
                 bias[target] = False
         return bias
-    
-    
+
+
 class DemographicParityRatio(FairnessMetricRatio):
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
         label: str = "demographic_parity_ratio",
         zero_division: float | str | None = None,
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
         super().__init__(
@@ -796,9 +826,9 @@ class DisparateImpactRatio(FairnessMetricRatio):
         data: Dataset | pd.DataFrame,
         label: str = "disparate_impact_ratio",
         zero_division_: float | str | None = None,
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
         super().__init__(
@@ -821,9 +851,9 @@ class EqualOpportunityRatio(FairnessMetricRatio):
         data: Dataset | pd.DataFrame,
         label: str = "equal_opportunity_ratio",
         zero_division_: float | str | None = None,
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
         super().__init__(
@@ -846,9 +876,9 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
         data: Dataset | pd.DataFrame,
         label: str = "false_positive_rate_ratio",
         zero_division_: float | str | None = None,
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
         super().__init__(
@@ -884,45 +914,44 @@ class EqualisedOddsDifference:
             self.data = Dataset(
                 data, sensitive, real_target, predicted_target, positive_target
             )
-        self.label = 'equalised_odds_difference'
+        self.label = "equalised_odds_difference"
         tpr = EqualOpportunityDifference(self.data)
-        tpr.summary()
         fpr = FalsePositiveRateDifference(self.data)
+        tpr.summary()
         fpr.summary()
         self.tpr = tpr.differences[1]
         self.fpr = fpr.differences[1]
-        self.ranking = None
-        
+        self.ranking: dict | None = None
+
     def summary(self) -> dict:
         self.result: dict = {}
         for target in self.data.real_target:
-            self.result.setdefault(target, 
-                                   {self.label: 0.0,
-                                    'privileged': None,
-                                    'unprivileged': None})
+            self.result.setdefault(
+                target, {self.label: 0.0, "privileged": None, "unprivileged": None}
+            )
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if np.abs(value1) > self.result[target][self.label]:
                     self.result[target][self.label] = np.abs(value1)
                     if value1 > 0:
-                        self.result[target]['privileged'] = key1[0]
-                        self.result[target]['unprivileged'] = key1[1]
+                        self.result[target]["privileged"] = key1[0]
+                        self.result[target]["unprivileged"] = key1[1]
                     else:
-                        self.result[target]['privileged'] = key1[1]
-                        self.result[target]['unprivileged'] = key1[0]
+                        self.result[target]["privileged"] = key1[1]
+                        self.result[target]["unprivileged"] = key1[0]
                 if np.abs(value2) > self.result[target][self.label]:
                     self.result[target][self.label] = np.abs(value2)
                     if value2 > 0:
-                        self.result[target]['privileged'] = key1[1]
-                        self.result[target]['unprivileged'] = key1[0]
+                        self.result[target]["privileged"] = key1[1]
+                        self.result[target]["unprivileged"] = key1[0]
                     else:
-                        self.result[target]['privileged'] = key1[0]
-                        self.result[target]['unprivileged'] = key1[1]
-        return self.result            
-        
-    def rank(self) -> dict:
+                        self.result[target]["privileged"] = key1[0]
+                        self.result[target]["unprivileged"] = key1[1]
+        return self.result
+
+    def rank(self, pr_to_unp: bool = True) -> dict:
         result: dict = {}
-        self.ranking: dict = {}
+        self.ranking = {}
         for target in self.data.real_target:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
@@ -938,18 +967,159 @@ class EqualisedOddsDifference:
             for group, differences in target_result.items():
                 difference = np.mean(np.array(differences))
                 self.ranking[target].setdefault(group, difference)
-            self.ranking[target] = dict(sorted(self.ranking[target].items(), key=lambda item: item[1], reverse=True))
+            if pr_to_unp:
+                self.ranking[target] = dict(
+                    sorted(
+                        self.ranking[target].items(),
+                        key=lambda item: item[1],
+                        reverse=True,
+                    )
+                )
+            else:
+                self.ranking[target] = dict(
+                    sorted(
+                        self.ranking[target].items(),
+                        key=lambda item: item[1],
+                        reverse=False,
+                    )
+                )
         return self.ranking
-    
+
     def is_biased(self, threshold: float = 0.1) -> dict:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
         if self.ranking is None:
-            self.rank()
+            self.ranking = self.rank()
         bias: dict = {}
         for target, dicts in self.ranking.items():
             max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
             if max_diff > threshold or min_diff < -threshold:
+                bias[target] = True
+            else:
+                bias[target] = False
+        return bias
+
+
+class EqualisedOddsRatio:
+    def __init__(
+        self,
+        data: Dataset | pd.DataFrame,
+        zero_division: float | str | None = None,
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
+        positive_target: Sequence[int | float | str | bool] | None = None,
+    ) -> None:
+        if isinstance(data, Dataset):
+            self.data = data
+        else:
+            if sensitive is None or real_target is None:
+                raise ValueError(
+                    "When providing a DataFrame, 'sensitive' and 'real_target' must be specified."
+                )
+            self.data = Dataset(
+                data, sensitive, real_target, predicted_target, positive_target
+            )
+        self.label = "equalised_odds_difference"
+        tpr = EqualOpportunityRatio(self.data, zero_division_=zero_division)
+        fpr = FalsePositiveRateRatio(self.data, zero_division_=zero_division)
+        tpr.summary()
+        fpr.summary()
+        self.tpr = tpr.ratios[1]
+        self.fpr = fpr.ratios[1]
+        self.ranking: dict | None = None
+
+    def summary(self) -> dict:
+        self.result: dict = {}
+        for target in self.data.real_target:
+            self.result.setdefault(
+                target, {self.label: 1.0, "privileged": None, "unprivileged": None}
+            )
+        for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
+            for target, value1, value2 in zip(self.data.real_target, values1, values2):
+                if value1 > 1:
+                    temp = 1/value1
+                else:
+                    temp = value1
+                if temp < self.result[target][self.label]:
+                    self.result[target][self.label] = value1
+                    if value1 > 1:
+                        self.result[target]["privileged"] = key1[0]
+                        self.result[target]["unprivileged"] = key1[1]
+                    else:
+                        self.result[target]["privileged"] = key1[1]
+                        self.result[target]["unprivileged"] = key1[0]
+                if value2 > 1:
+                    temp = 1/value2
+                else:
+                    temp = value2
+                if temp < self.result[target][self.label]:
+                    self.result[target][self.label] = value2
+                    if value2 > 1:
+                        self.result[target]["privileged"] = key1[1]
+                        self.result[target]["unprivileged"] = key1[0]
+                    else:
+                        self.result[target]["privileged"] = key1[0]
+                        self.result[target]["unprivileged"] = key1[1]
+        return self.result
+
+    def rank(self, pr_to_unp: bool = True) -> dict:
+        self.pr_to_unp = pr_to_unp
+        result: dict = {}
+        self.ranking = {}
+        for target in self.data.real_target:
+            result.setdefault(target, {})
+            self.ranking.setdefault(target, {})
+        for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
+            for target, value1, value2 in zip(self.data.real_target, values1, values2):
+                if value1 > 1:
+                    temp1 = 1/value1
+                else:
+                    temp1 = value1
+                if value2 > 1:
+                    temp2 = 1/value2
+                else:
+                    temp2 = value2
+                if temp1 < temp2:
+                    result[target].setdefault(key1[0], []).append(value1)
+                    result[target].setdefault(key1[1], []).append(1/value1)
+                else:
+                    result[target].setdefault(key1[0], []).append(value2)
+                    result[target].setdefault(key1[1], []).append(1/value2)
+        for target, target_result in result.items():
+            for group, ratios in target_result.items():
+                ratio = np.mean(np.array(ratios))
+                self.ranking[target].setdefault(group, ratio)
+            if pr_to_unp:
+                self.ranking[target] = dict(
+                    sorted(
+                        self.ranking[target].items(),
+                        key=lambda item: item[1],
+                        reverse=False,
+                    )
+                )
+            else:
+                self.ranking[target] = dict(
+                    sorted(
+                        self.ranking[target].items(),
+                        key=lambda item: item[1],
+                        reverse=True,
+                    )
+                )
+        return self.ranking
+
+    def is_biased(self, threshold: float = 0.1) -> dict:
+        if not (0 <= threshold <= 1):
+            raise ValueError("Threshold must be in range [0, 1]")
+        if self.ranking is None:
+            self.ranking = self.rank()
+        bias: dict = {}
+        for target, dicts in self.ranking.items():
+            if self.pr_to_unp:
+                min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
+            else:
+                max_ratio, min_ratio = list(dicts.values())[0], list(dicts.values())[-1]
+            if max_ratio > (1 / threshold) or min_ratio < threshold:
                 bias[target] = True
             else:
                 bias[target] = False
