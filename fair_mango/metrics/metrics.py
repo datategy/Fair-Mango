@@ -753,12 +753,12 @@ class FairnessMetricRatio:
             if isinstance(values, float):
                 values = [values]
             for target, value in zip(self.data.real_target, values):
-                result[target].setdefault(key[0], []).append(value)
-                result[target].setdefault(key[1], []).append(1 / value)
+                result[target].setdefault(key[0], []).append(1/value)
+                result[target].setdefault(key[1], []).append(value)
         for target, target_result in result.items():
-            for group, differences in target_result.items():
-                difference = np.mean(np.array(differences))
-                self.ranking[target].setdefault(group, difference)
+            for group, ratios in target_result.items():
+                ratio = np.mean(np.array(ratios))
+                self.ranking[target].setdefault(group, ratio)
             if pr_to_unp:
                 self.ranking[target] = dict(
                     sorted(
