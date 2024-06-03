@@ -20,6 +20,7 @@ from fair_mango.metrics.metrics import (
     DisparateImpactDifference,
     DisparateImpactRatio,
     EqualOpportunityDifference,
+    EqualOpportunityRatio,
     PerformanceMetric,
     SelectionRate,
     encode_target,
@@ -37,7 +38,7 @@ dataset2 = Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"])
 
 dataset3 = Dataset(df, ["Sex", "ChestPainType"], ["HeartDisease"], ["HeartDiseasePred"])
 
-dataset4 = Dataset(df, ["Sex"], ["HeartDisease", "ExerciseAngina"], [], [1, "Y"])
+dataset4 = Dataset(df, ["Sex"], ["HeartDisease", "ExerciseAngina"], None, [1, "Y"])
 
 dataset5 = Dataset(
     df,
@@ -302,15 +303,8 @@ expected_result_2 = [
             "unprivileged": ("F",),
         }
     },
-    {
-        "HeartDisease": {
-            "pr_dpd": 0.3726567804180811,
-            "most_privileged": ("M",),
-            "unp_dpd": -0.3726567804180811,
-            "most_unprivileged": ("F",),
-            "is_biased": True,
-        }
-    },
+    {"HeartDisease": {("M",): 0.3726567804180811, ("F",): -0.3726567804180811}},
+    {"HeartDisease": True},
 ]
 
 
@@ -324,13 +318,17 @@ expected_result_3 = [
     },
     {
         "HeartDisease": {
-            "pr_demographic_parity_difference": 0.5455262120526406,
-            "most_privileged": ("M", "ASY"),
-            "unp_demographic_parity_difference": -0.32529873764554856,
-            "most_unprivileged": ("F", "ATA"),
-            "is_biased": True,
+            ("F", "ATA"): -0.32529873764554856,
+            ("F", "TA"): -0.28720349955031044,
+            ("F", "NAP"): -0.27210915992766893,
+            ("M", "ATA"): -0.19921361333033571,
+            ("M", "NAP"): 0.10136792902111814,
+            ("M", "TA"): 0.20168538933857846,
+            ("F", "ASY"): 0.23524548004152632,
+            ("M", "ASY"): 0.5455262120526406,
         }
     },
+    {"HeartDisease": True},
 ]
 
 
@@ -349,42 +347,51 @@ expected_result_6 = [
     },
     {
         "HeartDisease": {
-            "pr_demographic_parity_difference": 0.5455262120526406,
-            "most_privileged": ("M", "ASY"),
-            "unp_demographic_parity_difference": -0.32529873764554856,
-            "most_unprivileged": ("F", "ATA"),
-            "is_biased": True,
+            ("M", "ASY"): 0.5455262120526406,
+            ("F", "ASY"): 0.23524548004152632,
+            ("M", "TA"): 0.20168538933857846,
+            ("M", "NAP"): 0.10136792902111814,
+            ("M", "ATA"): -0.19921361333033571,
+            ("F", "NAP"): -0.27210915992766893,
+            ("F", "TA"): -0.28720349955031044,
+            ("F", "ATA"): -0.32529873764554856,
         },
         "ExerciseAngina": {
-            "pr_demographic_parity_difference": 0.44419980257312147,
-            "most_privileged": ("M", "ASY"),
-            "unp_demographic_parity_difference": -0.26404969440876985,
-            "most_unprivileged": ("F", "TA"),
-            "is_biased": False,
+            ("M", "ASY"): 0.44419980257312147,
+            ("F", "ASY"): 0.27472581579531175,
+            ("M", "NAP"): 0.08642649606742059,
+            ("M", "TA"): -0.07357350393257941,
+            ("M", "ATA"): -0.14268433410535647,
+            ("F", "NAP"): -0.1562329828184734,
+            ("F", "ATA"): -0.16881159917067465,
+            ("F", "TA"): -0.26404969440876985,
         },
     },
+    {"HeartDisease": True, "ExerciseAngina": False},
 ]
 
 
 @pytest.mark.parametrize(
-    "data, label, sensitive, real_target, predicted_target, threshold, expected_result",
+    "data, label, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
     [
-        (dataset2, "dpd", [], [], [], 0.3, expected_result_2),
+        (dataset2, "dpd", None, None, None, True, 0.3, expected_result_2),
         (
             df,
             "demographic_parity_difference",
             ["Sex", "ChestPainType"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
+            False,
             0.1,
             expected_result_3,
         ),
         (
             dataset6,
             "demographic_parity_difference",
-            [],
-            [],
-            [],
+            None,
+            None,
+            None,
+            True,
             0.45,
             expected_result_6,
         ),
@@ -393,9 +400,10 @@ expected_result_6 = [
 def test_demographic_parity_difference(
     data: Dataset | pd.DataFrame,
     label: str,
-    sensitive: Sequence[str],
-    real_target: Sequence[str],
-    predicted_target: Sequence[str],
+    sensitive: Sequence[str] | None,
+    real_target: Sequence[str] | None,
+    predicted_target: Sequence[str] | None,
+    pr_to_unp: bool,
     threshold: float,
     expected_result: Sequence[dict[str, dict]],
 ):
@@ -405,10 +413,25 @@ def test_demographic_parity_difference(
         dpd = DemographicParityDifference(
             data, label, sensitive, real_target, predicted_target
         )
-    result = dpd.summary
+    result = dpd.summary()
     assert result == expected_result[0]
-    md = dpd.mean_differences(threshold)
-    assert md == expected_result[1]
+    ranking = dpd.rank(pr_to_unp)
+    assert ranking == expected_result[1]
+    is_biased = dpd.is_biased(threshold)
+    assert is_biased == expected_result[2]
+
+
+expected_result_1 = [
+    {
+        "HeartDisease": {
+            "dpr": 0.4100957078534742,
+            "privileged": ("M",),
+            "unprivileged": ("F",),
+        }
+    },
+    {"HeartDisease": {("F",): 0.4100957078534742, ("M",): 2.4384551724137933}},
+    pytest.raises(ValueError),
+]
 
 
 expected_result_2 = [
@@ -419,15 +442,8 @@ expected_result_2 = [
             "unprivileged": ("F",),
         }
     },
-    {
-        "HeartDisease": {
-            "pr_dpr": 0.4100957078534742,
-            "most_privileged": ("F",),
-            "unp_dpr": 2.4384551724137933,
-            "most_unprivileged": ("M",),
-            "is_biased": False,
-        }
-    },
+    {"HeartDisease": {("F",): 0.4100957078534742, ("M",): 2.4384551724137933}},
+    {"HeartDisease": False},
 ]
 
 
@@ -441,13 +457,17 @@ expected_result_3 = [
     },
     {
         "HeartDisease": {
-            "pr_demographic_parity_ratio": 0.30145207723707795,
-            "most_privileged": ("F", "ATA"),
-            "unp_demographic_parity_ratio": 5.3797187266238415,
-            "most_unprivileged": ("M", "ASY"),
-            "is_biased": True,
+            ("F", "ATA"): 0.30145207723707795,
+            ("F", "TA"): 0.5236066872841885,
+            ("F", "NAP"): 0.6116302120198359,
+            ("M", "ATA"): 1.036724857393001,
+            ("M", "NAP"): 2.7895837097647145,
+            ("M", "TA"): 3.374590849555439,
+            ("F", "ASY"): 3.5702984822159882,
+            ("M", "ASY"): 5.3797187266238415,
         }
     },
+    {"HeartDisease": True},
 ]
 
 
@@ -466,27 +486,34 @@ expected_result_6 = [
     },
     {
         "HeartDisease": {
-            "pr_demographic_parity_ratio": 0.341659585454887,
-            "most_privileged": ("M", "ASY"),
-            "unp_demographic_parity_ratio": 4.489065560514,
-            "most_unprivileged": ("F", "ATA"),
-            "is_biased": True,
+            ("F", "ATA"): 4.489065560514,
+            ("F", "TA"): 3.9910826145507228,
+            ("F", "NAP"): 2.9267288829870166,
+            ("M", "TA"): 2.796472538555298,
+            ("M", "ATA"): 1.3431606996077519,
+            ("F", "ASY"): 1.0501460794989894,
+            ("M", "NAP"): 0.6492896409254209,
+            ("M", "ASY"): 0.341659585454887,
         },
         "ExerciseAngina": {
-            "pr_demographic_parity_ratio": 0.28322304584791763,
-            "most_privileged": ("M", "ASY"),
-            "unp_demographic_parity_ratio": np.inf,
-            "most_unprivileged": ("F", "TA"),
-            "is_biased": True,
+            ("F", "TA"): np.inf,
+            ("F", "ATA"): 2.775918884567413,
+            ("F", "NAP"): 2.520085790382556,
+            ("M", "TA"): 1.96042748554821,
+            ("M", "ATA"): 1.6084250195486227,
+            ("F", "ASY"): 1.1459320238574515,
+            ("M", "NAP"): 0.5914941793110404,
+            ("M", "ASY"): 0.28322304584791763,
         },
     },
+    {"HeartDisease": True, "ExerciseAngina": True},
 ]
 
 
 @pytest.mark.parametrize(
-    "data, label, zero_division, sensitive, real_target, predicted_target, threshold, expected_result",
+    "data, label, zero_division, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
     [
-        (dataset1, "dpr", None, [], [], [], 1.2, pytest.raises(ValueError)),
+        (dataset1, "dpr", None, None, None, None, True, 1.2, expected_result_1),
         (
             df,
             "dpr",
@@ -494,6 +521,7 @@ expected_result_6 = [
             ["Sex"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
+            True,
             0.4,
             expected_result_2,
         ),
@@ -501,9 +529,10 @@ expected_result_6 = [
             dataset3,
             "demographic_parity_ratio",
             "Error",
-            [],
-            [],
-            [],
+            None,
+            None,
+            None,
+            True,
             0.8,
             expected_result_3,
         ),
@@ -511,9 +540,10 @@ expected_result_6 = [
             dataset6,
             "demographic_parity_ratio",
             np.nan,
-            [],
-            [],
-            [],
+            None,
+            None,
+            None,
+            False,
             0.3,
             expected_result_6,
         ),
@@ -523,27 +553,29 @@ def test_demographic_parity_ratio(
     data: Dataset,
     label: str,
     zero_division: float | str | None,
-    sensitive: Sequence[str],
-    real_target: Sequence[str],
-    predicted_target: Sequence[str],
+    sensitive: Sequence[str] | None,
+    real_target: Sequence[str] | None,
+    predicted_target: Sequence[str] | None,
+    pr_to_unp: bool,
     threshold: float,
     expected_result: Sequence[dict[str, dict]],
 ):
-    if isinstance(expected_result, Sequence):
-        if isinstance(data, Dataset):
-            dpr = DemographicParityRatio(data, label, zero_division)
-        else:
-            dpr = DemographicParityRatio(
-                data, label, zero_division, sensitive, real_target, predicted_target
-            )
-        result = dpr.summary
-        assert result == expected_result[0]
-        mr = dpr.mean_ratios(threshold)
-        assert mr == expected_result[1]
+    if isinstance(data, Dataset):
+        dpr = DemographicParityRatio(data, label, zero_division)
     else:
-        with expected_result:
-            dpr = DemographicParityRatio(data, label, zero_division)
-            dpr.mean_ratios(threshold)
+        dpr = DemographicParityRatio(
+            data, label, zero_division, sensitive, real_target, predicted_target
+        )
+    result = dpr.summary()
+    assert result == expected_result[0]
+    ranking = dpr.rank(pr_to_unp)
+    assert ranking == expected_result[1]
+    if isinstance(expected_result[2], dict):
+        is_biased = dpr.is_biased(threshold)
+        assert is_biased == expected_result[2]
+    else:
+        with expected_result[2]:
+            dpr.is_biased(threshold)
 
 
 expected_result_2 = [
@@ -554,15 +586,8 @@ expected_result_2 = [
             "unprivileged": ("F",),
         }
     },
-    {
-        "HeartDiseasePred": {
-            "pr_did": 0.3619581918885117,
-            "most_privileged": ("M",),
-            "unp_did": -0.3619581918885117,
-            "most_unprivileged": ("F",),
-            "is_biased": True,
-        }
-    },
+    {"HeartDisease": {("F",): -0.3619581918885117, ("M",): 0.3619581918885117}},
+    {"HeartDisease": True},
 ]
 
 
@@ -575,14 +600,18 @@ expected_result_3 = [
         }
     },
     {
-        "HeartDiseasePred": {
-            "pr_disparate_impact_difference": 0.5350647912366394,
-            "most_privileged": ("M", "ASY"),
-            "unp_disparate_impact_difference": -0.31496621239521455,
-            "most_unprivileged": ("F", "NAP"),
-            "is_biased": True,
+        "HeartDisease": {
+            ("M", "ASY"): 0.5350647912366394,
+            ("F", "ASY"): 0.26816817343458915,
+            ("M", "TA"): 0.2019550215071515,
+            ("M", "NAP"): 0.10163756118969114,
+            ("M", "ATA"): -0.19894398116176273,
+            ("F", "TA"): -0.28693386738173743,
+            ("F", "ATA"): -0.30598148642935646,
+            ("F", "NAP"): -0.31496621239521455,
         }
     },
+    pytest.raises(ValueError),
 ]
 
 
@@ -600,36 +629,44 @@ expected_result_6 = [
         },
     },
     {
-        "HeartDiseasePred": {
-            "pr_disparate_impact_difference": 0.5350647912366394,
-            "most_privileged": ("M", "ASY"),
-            "unp_disparate_impact_difference": -0.31496621239521455,
-            "most_unprivileged": ("F", "NAP"),
-            "is_biased": True,
+        "HeartDisease": {
+            ("F", "NAP"): -0.31496621239521455,
+            ("F", "ATA"): -0.30598148642935646,
+            ("F", "TA"): -0.28693386738173743,
+            ("M", "ATA"): -0.19894398116176273,
+            ("M", "NAP"): 0.10163756118969114,
+            ("M", "TA"): 0.2019550215071515,
+            ("F", "ASY"): 0.26816817343458915,
+            ("M", "ASY"): 0.5350647912366394,
         },
         "ExerciseAngina": {
-            "pr_disparate_impact_difference": 0.44419980257312147,
-            "most_privileged": ("M", "ASY"),
-            "unp_disparate_impact_difference": -0.26404969440876985,
-            "most_unprivileged": ("F", "TA"),
-            "is_biased": False,
+            ("F", "TA"): -0.26404969440876985,
+            ("F", "ATA"): -0.16881159917067465,
+            ("F", "NAP"): -0.1562329828184734,
+            ("M", "ATA"): -0.14268433410535647,
+            ("M", "TA"): -0.07357350393257941,
+            ("M", "NAP"): 0.08642649606742059,
+            ("F", "ASY"): 0.27472581579531175,
+            ("M", "ASY"): 0.44419980257312147,
         },
     },
+    {"HeartDisease": True, "ExerciseAngina": False},
 ]
 
 
 @pytest.mark.parametrize(
-    "data, label, sensitive, real_target, predicted_target, positive_target, threshold, expected_result",
+    "data, label, sensitive, real_target, predicted_target, positive_target, pr_to_unp, threshold, expected_result",
     [
-        (dataset2, "did", [], [], [], [], 0.3, expected_result_2),
+        (dataset2, "did", None, None, None, None, False, 0.3, expected_result_2),
         (
             dataset3,
             "disparate_impact_difference",
-            [],
-            [],
-            [],
-            [],
-            0.2,
+            None,
+            None,
+            None,
+            None,
+            True,
+            -0.2,
             expected_result_3,
         ),
         (
@@ -639,6 +676,7 @@ expected_result_6 = [
             ["HeartDisease", "ExerciseAngina"],
             ["HeartDiseasePred", "ExerciseAngina"],
             [1, "Y"],
+            False,
             0.45,
             expected_result_6,
         ),
@@ -647,28 +685,31 @@ expected_result_6 = [
 def test_disparate_impact_difference(
     data: Dataset,
     label: str,
-    sensitive: Sequence[str],
-    real_target: Sequence[str],
-    predicted_target: Sequence[str],
+    sensitive: Sequence[str] | None,
+    real_target: Sequence[str] | None,
+    predicted_target: Sequence[str] | None,
     positive_target: Sequence[int | float | str | bool] | None,
+    pr_to_unp: bool,
     threshold: float,
     expected_result: Sequence[dict[str, dict]],
 ):
-    if isinstance(expected_result, Sequence):
-        if isinstance(data, Dataset):
-            did = DisparateImpactDifference(data, label)
-        else:
-            did = DisparateImpactDifference(
-                data, label, sensitive, real_target, predicted_target, positive_target
-            )
-
-        result = did.summary
-        assert result == expected_result[0]
-        md = did.mean_differences(threshold)
-        assert md == expected_result[1]
+    if isinstance(data, Dataset):
+        did = DisparateImpactDifference(data, label)
     else:
-        with expected_result:
-            DisparateImpactDifference(data, label)
+        did = DisparateImpactDifference(
+            data, label, sensitive, real_target, predicted_target, positive_target
+        )
+
+    result = did.summary()
+    assert result == expected_result[0]
+    ranking = did.rank(pr_to_unp)
+    assert ranking == expected_result[1]
+    if isinstance(expected_result[2], dict):
+        is_biased = did.is_biased(threshold)
+        assert is_biased == expected_result[2]
+    else:
+        with expected_result[2]:
+            did.is_biased(threshold)
 
 
 expected_result_2 = [
@@ -679,15 +720,8 @@ expected_result_2 = [
             "unprivileged": ("F",),
         }
     },
-    {
-        "HeartDiseasePred": {
-            "pr_dir": 0.4219830636141608,
-            "most_privileged": ("F",),
-            "unp_dir": 2.369763353617309,
-            "most_unprivileged": ("M",),
-            "is_biased": False,
-        }
-    },
+    {"HeartDisease": {("F",): 0.4219830636141608, ("M",): 2.369763353617309}},
+    {"HeartDisease": False},
 ]
 
 
@@ -700,14 +734,18 @@ expected_result_3 = [
         }
     },
     {
-        "HeartDiseasePred": {
-            "pr_disparate_impact_ratio": 0.3746136017304162,
-            "most_privileged": ("F", "NAP"),
-            "unp_disparate_impact_ratio": 5.474312084041965,
-            "most_unprivileged": ("M", "ASY"),
-            "is_biased": True,
+        "HeartDisease": {
+            ("F", "NAP"): 0.3746136017304162,
+            ("F", "ATA"): 0.4285168042916202,
+            ("F", "TA"): 0.542791593721373,
+            ("M", "ATA"): 1.0706804440074869,
+            ("M", "NAP"): 2.8739972980883266,
+            ("M", "TA"): 3.4758445224183574,
+            ("F", "ASY"): 3.8730854571027358,
+            ("M", "ASY"): 5.474312084041965,
         }
     },
+    {"HeartDisease": True},
 ]
 
 
@@ -725,28 +763,45 @@ expected_result_6 = [
         },
     },
     {
-        "HeartDiseasePred": {
-            "pr_disparate_impact_ratio": 0.3468836645650188,
-            "most_privileged": ("M", "ASY"),
-            "unp_disparate_impact_ratio": 4.113253804597716,
-            "most_unprivileged": ("F", "NAP"),
-            "is_biased": True,
+        "HeartDisease": {
+            ("F", "NAP"): 4.113253804597716,
+            ("F", "TA"): 4.003188628893744,
+            ("F", "ATA"): 3.737191370986864,
+            ("M", "TA"): 2.9084767624506056,
+            ("M", "ATA"): 1.3163622803768695,
+            ("F", "ASY"): 1.0545883304868093,
+            ("M", "NAP"): 0.6338969630446529,
+            ("M", "ASY"): 0.3468836645650188,
         },
         "ExerciseAngina": {
-            "pr_disparate_impact_ratio": 0.28322304584791763,
-            "most_privileged": ("M", "ASY"),
-            "unp_disparate_impact_ratio": np.inf,
-            "most_unprivileged": ("F", "TA"),
-            "is_biased": True,
+            ("F", "TA"): np.inf,
+            ("F", "ATA"): 2.775918884567413,
+            ("F", "NAP"): 2.520085790382556,
+            ("M", "TA"): 1.96042748554821,
+            ("M", "ATA"): 1.6084250195486227,
+            ("F", "ASY"): 1.1459320238574515,
+            ("M", "NAP"): 0.5914941793110404,
+            ("M", "ASY"): 0.28322304584791763,
         },
     },
+    {"HeartDisease": True, "ExerciseAngina": True},
 ]
 
 
 @pytest.mark.parametrize(
-    "data, label, zero_division, sensitive, real_target, predicted_target, threshold, expected_result",
+    "data, label, zero_division, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
     [
-        (dataset1, "dir", None, [], [], [], 1.2, pytest.raises(ValueError)),
+        (
+            dataset1,
+            "dir",
+            None,
+            None,
+            None,
+            None,
+            False,
+            1.2,
+            pytest.raises(ValueError),
+        ),
         (
             df,
             "dir",
@@ -754,6 +809,7 @@ expected_result_6 = [
             ["Sex"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
+            True,
             0.4,
             expected_result_2,
         ),
@@ -761,9 +817,10 @@ expected_result_6 = [
             dataset3,
             "disparate_impact_ratio",
             "Error",
-            [],
-            [],
-            [],
+            None,
+            None,
+            None,
+            True,
             0.8,
             expected_result_3,
         ),
@@ -771,9 +828,10 @@ expected_result_6 = [
             dataset6,
             "disparate_impact_ratio",
             np.nan,
-            [],
-            [],
-            [],
+            None,
+            None,
+            None,
+            False,
             0.3,
             expected_result_6,
         ),
@@ -783,11 +841,12 @@ def test_disparate_impact_ratio(
     data: Dataset,
     label: str,
     zero_division: float | str | None,
-    sensitive: Sequence[str],
-    real_target: Sequence[str],
-    predicted_target: Sequence[str],
+    sensitive: Sequence[str] | None,
+    real_target: Sequence[str] | None,
+    predicted_target: Sequence[str] | None,
+    pr_to_unp: bool,
     threshold: float,
-    expected_result: Sequence[dict[str, dict]],
+    expected_result: Sequence[dict[str, dict]] | RaisesContext,
 ):
     if isinstance(expected_result, Sequence):
         if isinstance(data, Dataset):
@@ -796,15 +855,21 @@ def test_disparate_impact_ratio(
             dira = DisparateImpactRatio(
                 data, label, zero_division, sensitive, real_target, predicted_target
             )
-
-        result = dira.summary
+        result = dira.summary()
         assert result == expected_result[0]
-        mr = dira.mean_ratios(threshold)
-        assert mr == expected_result[1]
+        ranking = dira.rank(pr_to_unp)
+        assert ranking == expected_result[1]
+        is_biased = dira.is_biased(threshold)
+        assert is_biased == expected_result[2]
     else:
         with expected_result:
-            dira = DisparateImpactRatio(data, label, zero_division)
-            dira.mean_ratios(threshold)
+            if isinstance(data, Dataset):
+                dira = DisparateImpactRatio(data, label, zero_division)
+            else:
+                dira = DisparateImpactRatio(
+                    data, label, zero_division, sensitive, real_target, predicted_target
+                )
+            dira.summary()
 
 
 expected_result_2 = [
@@ -815,15 +880,8 @@ expected_result_2 = [
             "unprivileged": ("F",),
         }
     },
-    {
-        "HeartDisease": {
-            "pr_eod": 0.03816593886462882,
-            "most_privileged": ("M",),
-            "unp_eod": -0.03816593886462882,
-            "most_unprivileged": ("F",),
-            "is_biased": False,
-        }
-    },
+    {"HeartDisease": {("F",): -0.03816593886462882, ("M",): 0.03816593886462882}},
+    {"HeartDisease": False},
 ]
 
 
@@ -837,13 +895,17 @@ expected_result_3 = [
     },
     {
         "HeartDisease": {
-            "pr_equal_opportunity_difference": 0.08516927384528401,
-            "most_privileged": ("F", "ATA"),
-            "unp_equal_opportunity_difference": -0.29578310710709704,
-            "most_unprivileged": ("F", "NAP"),
-            "is_biased": True,
+            ("F", "ATA"): 0.08516927384528401,
+            ("F", "TA"): 0.08516927384528401,
+            ("M", "ASY"): 0.0689814956178457,
+            ("M", "NAP"): 0.0678532565292667,
+            ("F", "ASY"): 0.05586524454125468,
+            ("M", "ATA"): 0.028026416702426813,
+            ("M", "TA"): -0.09528185397426492,
+            ("F", "NAP"): -0.29578310710709704,
         }
     },
+    {"HeartDisease": True},
 ]
 
 
@@ -862,64 +924,250 @@ expected_result_6 = [
     },
     {
         "HeartDisease": {
-            "pr_equal_opportunity_difference": 0.08516927384528401,
-            "most_privileged": ("F", "ATA"),
-            "unp_equal_opportunity_difference": -0.29578310710709704,
-            "most_unprivileged": ("F", "NAP"),
-            "is_biased": True,
+            ("F", "NAP"): -0.29578310710709704,
+            ("M", "TA"): -0.09528185397426492,
+            ("M", "ATA"): 0.028026416702426813,
+            ("F", "ASY"): 0.05586524454125468,
+            ("M", "NAP"): 0.0678532565292667,
+            ("M", "ASY"): 0.0689814956178457,
+            ("F", "ATA"): 0.08516927384528401,
+            ("F", "TA"): 0.08516927384528401,
         },
         "ExerciseAngina": {
-            "pr_equal_opportunity_difference": 0.0,
-            "most_privileged": np.nan,
-            "unp_equal_opportunity_difference": 0.0,
-            "most_unprivileged": np.nan,
-            "is_biased": False,
+            ("M", "ASY"): np.nan,
+            ("M", "NAP"): np.nan,
+            ("M", "ATA"): np.nan,
+            ("F", "ASY"): np.nan,
+            ("F", "ATA"): np.nan,
+            ("F", "NAP"): np.nan,
+            ("M", "TA"): np.nan,
+            ("F", "TA"): np.nan,
         },
     },
+    {"HeartDisease": True, "ExerciseAngina": False},
 ]
 
 
 @pytest.mark.parametrize(
-    "data, label, sensitive, real_target, predicted_target, threshold, expected_result",
+    "data, label, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
     [
-        (dataset4, "eod", [], [], [], 1.2, pytest.raises(ValueError)),
-        (dataset2, "eod", [], [], [], 0.1, expected_result_2),
+        (dataset2, "eod", None, None, None, False, 0.1, expected_result_2),
         (
             df,
             "equal_opportunity_difference",
             ["Sex", "ChestPainType"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
+            True,
             0.2,
             expected_result_3,
         ),
-        (dataset6, "equal_opportunity_difference", [], [], [], 0.2, expected_result_6),
+        (
+            dataset6,
+            "equal_opportunity_difference",
+            None,
+            None,
+            None,
+            False,
+            0.2,
+            expected_result_6,
+        ),
     ],
 )
 def test_equal_opportunity_difference(
     data: Dataset | pd.DataFrame,
     label: str,
-    sensitive: Sequence[str],
-    real_target: Sequence[str],
-    predicted_target: Sequence[str],
+    sensitive: Sequence[str] | None,
+    real_target: Sequence[str] | None,
+    predicted_target: Sequence[str] | None,
+    pr_to_unp: bool,
+    threshold: float,
+    expected_result: Sequence[dict[str, dict]],
+):
+    if isinstance(data, Dataset):
+        eod = EqualOpportunityDifference(data, label)
+    else:
+        eod = EqualOpportunityDifference(
+            data, label, sensitive, real_target, predicted_target
+        )
+    result = eod.summary()
+    assert result == expected_result[0]
+    rankings = eod.rank(pr_to_unp)
+    for (target, ranking), (expected_target, expected_ranking) in zip(
+        rankings.items(), expected_result[1].items()
+    ):
+        assert ranking.keys() == expected_ranking.keys()
+        for val, expected_val in zip(ranking.values(), expected_ranking.values()):
+            if not np.isnan(val) and not np.isnan(expected_val):
+                assert np.isclose(val, expected_val, atol=0.000002)
+    is_biased = eod.is_biased(threshold)
+    assert is_biased == expected_result[2]
+
+
+expected_result_2 = [
+    {
+        "HeartDisease": {
+            "eor": 0.9609821428571428,
+            "privileged": ("M",),
+            "unprivileged": ("F",),
+        }
+    },
+    {"HeartDisease": {("M",): 0.9609821428571428, ("F",): 1.0406020626219457}},
+    {"HeartDisease": False},
+]
+
+
+expected_result_3 = [
+    {
+        "HeartDisease": {
+            "equal_opportunity_ratio": 0.6666666666666666,
+            "privileged": ("F", "ATA"),
+            "unprivileged": ("F", "NAP"),
+        }
+    },
+    {
+        "HeartDisease": {
+            ("M", "ASY"): 0.9218753560705227,
+            ("M", "NAP"): 0.9223782384918281,
+            ("M", "ATA"): 0.9339407682291787,
+            ("F", "ASY"): 0.9350542453604455,
+            ("F", "ATA"): 0.9453531042460261,
+            ("F", "TA"): 1.1137428285568032,
+            ("M", "TA"): 1.1311609860555925,
+            ("F", "NAP"): 1.2572711518887156,
+        }
+    },
+    {"HeartDisease": True},
+]
+
+
+expected_result_6 = [
+    {
+        "HeartDisease": {
+            "equal_opportunity_ratio": 0.6666666666666666,
+            "privileged": ("F", "ATA"),
+            "unprivileged": ("F", "NAP"),
+        },
+        "ExerciseAngina": {
+            "equal_opportunity_ratio": 1.0,
+            "privileged": None,
+            "unprivileged": None,
+        },
+    },
+    {
+        "HeartDisease": {
+            ("F", "NAP"): 1.2572711518887156,
+            ("M", "TA"): 1.1311609860555925,
+            ("F", "TA"): 1.1137428285568032,
+            ("F", "ATA"): 0.9453531042460261,
+            ("F", "ASY"): 0.9350542453604455,
+            ("M", "ATA"): 0.9339407682291787,
+            ("M", "NAP"): 0.9223782384918281,
+            ("M", "ASY"): 0.9218753560705227,
+        },
+        "ExerciseAngina": {
+            ("M", "ASY"): np.nan,
+            ("M", "NAP"): np.nan,
+            ("M", "ATA"): np.nan,
+            ("F", "ASY"): np.nan,
+            ("F", "ATA"): np.nan,
+            ("F", "NAP"): np.nan,
+            ("M", "TA"): np.nan,
+            ("F", "TA"): np.nan,
+        },
+    },
+    {"HeartDisease": True, "ExerciseAngina": False},
+]
+
+
+@pytest.mark.parametrize(
+    "data, label, zero_division, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
+    [
+        (
+            dataset1,
+            "eor",
+            None,
+            None,
+            None,
+            None,
+            False,
+            1.2,
+            pytest.raises(ValueError),
+        ),
+        (
+            df,
+            "eor",
+            None,
+            ["Sex"],
+            ["HeartDisease"],
+            ["HeartDiseasePred"],
+            True,
+            0.4,
+            expected_result_2,
+        ),
+        (
+            dataset3,
+            "equal_opportunity_ratio",
+            "Error",
+            None,
+            None,
+            None,
+            True,
+            0.8,
+            expected_result_3,
+        ),
+        (
+            dataset6,
+            "equal_opportunity_ratio",
+            np.nan,
+            None,
+            None,
+            None,
+            False,
+            0.9,
+            expected_result_6,
+        ),
+    ],
+)
+def test_equal_opportuinity_ratio(
+    data: Dataset,
+    label: str,
+    zero_division: float | str | None,
+    sensitive: Sequence[str] | None,
+    real_target: Sequence[str] | None,
+    predicted_target: Sequence[str] | None,
+    pr_to_unp: bool,
     threshold: float,
     expected_result: Sequence[dict[str, dict]] | RaisesContext,
 ):
     if isinstance(expected_result, Sequence):
         if isinstance(data, Dataset):
-            eod = EqualOpportunityDifference(data, label)
+            eor = EqualOpportunityRatio(data, label, zero_division)
         else:
-            eod = EqualOpportunityDifference(
-                data, label, sensitive, real_target, predicted_target
+            eor = EqualOpportunityRatio(
+                data, label, zero_division, sensitive, real_target, predicted_target
             )
-        result = eod.summary
+        result = eor.summary()
         assert result == expected_result[0]
-        md = eod.mean_differences(threshold)
-        assert md == expected_result[1]
+        rankings = eor.rank(pr_to_unp)
+        for (target, ranking), (expected_target, expected_ranking) in zip(
+            rankings.items(), expected_result[1].items()
+        ):
+            assert ranking.keys() == expected_ranking.keys()
+            for val, expected_val in zip(ranking.values(), expected_ranking.values()):
+                if not np.isnan(val) and not np.isnan(expected_val):
+                    assert np.isclose(val, expected_val, atol=0.000002)
+        is_biased = eor.is_biased(threshold)
+        assert is_biased == expected_result[2]
     else:
         with expected_result:
-            eod = EqualOpportunityDifference(data, label)
-            eod.mean_differences(threshold)
+            if isinstance(data, Dataset):
+                eor = EqualOpportunityRatio(data, label, zero_division)
+            else:
+                eor = EqualOpportunityRatio(
+                    data, label, zero_division, sensitive, real_target, predicted_target
+                )
+            eor.summary()
 
 
 expected_result_2 = [
@@ -1041,14 +1289,14 @@ expected_result_6 = [
 @pytest.mark.parametrize(
     "data, metrics, sensitive, real_target, predicted_target, positive_target, expected_result",
     [
-        (dataset1, None, [], [], [], [], pytest.raises(ValueError)),
+        (dataset1, None, None, None, None, None, pytest.raises(ValueError)),
         (
             df,
             None,
             ["Sex"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
-            [],
+            None,
             expected_result_2,
         ),
         (
@@ -1057,19 +1305,19 @@ expected_result_6 = [
                 "acc": accuracy_score,
                 "balanced_acc": balanced_accuracy_score,
             },
-            [],
-            [],
-            [],
-            [],
+            None,
+            None,
+            None,
+            None,
             expected_result_3,
         ),
         (
             dataset6,
             [precision_score, recall_score, f1_score],
-            [],
-            [],
-            [],
-            [],
+            None,
+            None,
+            None,
+            None,
             expected_result_6,
         ),
     ],
@@ -1077,9 +1325,9 @@ expected_result_6 = [
 def test_performancemetrics(
     data: Dataset,
     metrics: dict[str, Callable] | None,
-    sensitive: Sequence[str],
-    real_target: Sequence[str],
-    predicted_target: Sequence[str],
+    sensitive: Sequence[str] | None,
+    real_target: Sequence[str] | None,
+    predicted_target: Sequence[str] | None,
     positive_target: Sequence[int | float | str | bool] | None,
     expected_result: Sequence[dict[str, Sequence]] | RaisesContext,
 ):
