@@ -727,17 +727,15 @@ class FairnessMetricRatio:
                 value = [value]
             for ind, target in enumerate(self.targets):
                 if value[ind] > 1:
-                    value[ind] = 1 / value[ind]
+                    temp = 1 / value[ind]
                     key = list(key)
                     key[0], key[1] = key[1], key[0]
-                if value[ind] < self.result[target][self.label]:
+                else:
+                    temp = value[ind]
+                if temp < self.result[target][self.label]:
                     self.result[target][self.label] = value[ind]
-                    if value[ind] > 1:
-                        self.result[target][self.label1] = key[0]
-                        self.result[target][self.label2] = key[1]
-                    else:
-                        self.result[target][self.label1] = key[1]
-                        self.result[target][self.label2] = key[0]
+                    self.result[target][self.label1] = key[1]
+                    self.result[target][self.label2] = key[0]
         return self.result
 
     def rank(self, pr_to_unp: bool = True) -> dict:
@@ -1020,7 +1018,7 @@ class EqualisedOddsRatio:
             self.data = Dataset(
                 data, sensitive, real_target, predicted_target, positive_target
             )
-        self.label = "equalised_odds_difference"
+        self.label = "equalised_odds_ratio"
         tpr = EqualOpportunityRatio(self.data, zero_division_=zero_division)
         fpr = FalsePositiveRateRatio(self.data, zero_division_=zero_division)
         tpr.summary()
