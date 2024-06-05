@@ -733,7 +733,7 @@ class FairnessMetricRatio:
                 else:
                     temp = value[ind]
                 if temp < self.result[target][self.label]:
-                    self.result[target][self.label] = value[ind]
+                    self.result[target][self.label] = temp
                     self.result[target][self.label1] = key[1]
                     self.result[target][self.label2] = key[0]
         return self.result
@@ -1040,7 +1040,7 @@ class EqualisedOddsRatio:
                 else:
                     temp = value1
                 if temp < self.result[target][self.label]:
-                    self.result[target][self.label] = value1
+                    self.result[target][self.label] = temp
                     if value1 > 1:
                         self.result[target]["privileged"] = key1[0]
                         self.result[target]["unprivileged"] = key1[1]
@@ -1052,7 +1052,7 @@ class EqualisedOddsRatio:
                 else:
                     temp = value2
                 if temp < self.result[target][self.label]:
-                    self.result[target][self.label] = value2
+                    self.result[target][self.label] = temp
                     if value2 > 1:
                         self.result[target]["privileged"] = key1[1]
                         self.result[target]["unprivileged"] = key1[0]
