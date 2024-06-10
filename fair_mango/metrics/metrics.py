@@ -538,10 +538,10 @@ class FairnessMetricDifference:
             if isinstance(values, float):
                 values = [values]
             for target, value in zip(self.data.real_target, values):
-                if self.metric_type == 'performance':
+                if self.metric_type == "performance":
                     result[target].setdefault(key[0], []).append(value)
                     result[target].setdefault(key[1], []).append(-value)
-                elif self.metric_type == 'error':
+                elif self.metric_type == "error":
                     result[target].setdefault(key[0], []).append(-value)
                     result[target].setdefault(key[1], []).append(value)
         for target, target_result in result.items():
@@ -757,12 +757,12 @@ class FairnessMetricRatio:
             if isinstance(values, float):
                 values = [values]
             for target, value in zip(self.data.real_target, values):
-                if self.metric_type == 'performance':
-                    result[target].setdefault(key[0], []).append(1/value)
+                if self.metric_type == "performance":
+                    result[target].setdefault(key[0], []).append(1 / value)
                     result[target].setdefault(key[1], []).append(value)
-                elif self.metric_type == 'error':
+                elif self.metric_type == "error":
                     result[target].setdefault(key[0], []).append(value)
-                    result[target].setdefault(key[1], []).append(1/value)
+                    result[target].setdefault(key[1], []).append(1 / value)
         for target, target_result in result.items():
             for group, ratios in target_result.items():
                 ratio = np.mean(np.array(ratios))
@@ -958,6 +958,7 @@ class EqualisedOddsDifference:
         return self.result
 
     def rank(self, pr_to_unp: bool = True) -> dict:
+        self.pr_to_unp = pr_to_unp
         result: dict = {}
         self.ranking = {}
         for target in self.data.real_target:
@@ -1000,7 +1001,10 @@ class EqualisedOddsDifference:
             self.ranking = self.rank()
         bias: dict = {}
         for target, dicts in self.ranking.items():
-            max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
+            if self.pr_to_unp:
+                max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
+            else:
+                min_diff, max_diff = list(dicts.values())[0], list(dicts.values())[-1]
             if max_diff > threshold or min_diff < -threshold:
                 bias[target] = True
             else:
@@ -1046,7 +1050,7 @@ class EqualisedOddsRatio:
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if value1 > 1:
-                    temp = 1/value1
+                    temp = 1 / value1
                 else:
                     temp = value1
                 if temp < self.result[target][self.label]:
@@ -1058,7 +1062,7 @@ class EqualisedOddsRatio:
                         self.result[target]["privileged"] = key1[1]
                         self.result[target]["unprivileged"] = key1[0]
                 if value2 > 1:
-                    temp = 1/value2
+                    temp = 1 / value2
                 else:
                     temp = value2
                 if temp < self.result[target][self.label]:
@@ -1082,19 +1086,19 @@ class EqualisedOddsRatio:
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if value1 > 1:
-                    temp1 = 1/value1
+                    temp1 = 1 / value1
                 else:
                     temp1 = value1
                 if value2 > 1:
-                    temp2 = 1/value2
+                    temp2 = 1 / value2
                 else:
                     temp2 = value2
                 if temp1 < temp2:
                     result[target].setdefault(key1[0], []).append(value1)
-                    result[target].setdefault(key1[1], []).append(1/value1)
+                    result[target].setdefault(key1[1], []).append(1 / value1)
                 else:
                     result[target].setdefault(key1[0], []).append(value2)
-                    result[target].setdefault(key1[1], []).append(1/value2)
+                    result[target].setdefault(key1[1], []).append(1 / value2)
         for target, target_result in result.items():
             for group, ratios in target_result.items():
                 ratio = np.mean(np.array(ratios))
