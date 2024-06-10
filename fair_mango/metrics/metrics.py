@@ -485,6 +485,7 @@ class FairnessMetricDifference:
         self.kwargs = kwargs
         self.targets: Sequence
         self.metric_results: list
+        self.metric_type = metric_type
         if metric_type == "performance":
             self.label1 = "privileged"
             self.label2 = "unprivileged"
@@ -537,8 +538,12 @@ class FairnessMetricDifference:
             if isinstance(values, float):
                 values = [values]
             for target, value in zip(self.data.real_target, values):
-                result[target].setdefault(key[0], []).append(value)
-                result[target].setdefault(key[1], []).append(-value)
+                if self.metric_type == 'performance':
+                    result[target].setdefault(key[0], []).append(value)
+                    result[target].setdefault(key[1], []).append(-value)
+                elif self.metric_type == 'error':
+                    result[target].setdefault(key[0], []).append(-value)
+                    result[target].setdefault(key[1], []).append(value)
         for target, target_result in result.items():
             for group, differences in target_result.items():
                 difference = np.mean(np.array(differences))
@@ -705,6 +710,7 @@ class FairnessMetricRatio:
         self.kwargs = kwargs
         self.label = label
         self.zero_division = zero_division_
+        self.metric_type = metric_type
         self.targets: Sequence
         self.metric_results: list
         self.result: dict | None = None
@@ -751,8 +757,12 @@ class FairnessMetricRatio:
             if isinstance(values, float):
                 values = [values]
             for target, value in zip(self.data.real_target, values):
-                result[target].setdefault(key[0], []).append(1/value)
-                result[target].setdefault(key[1], []).append(value)
+                if self.metric_type == 'performance':
+                    result[target].setdefault(key[0], []).append(1/value)
+                    result[target].setdefault(key[1], []).append(value)
+                elif self.metric_type == 'error':
+                    result[target].setdefault(key[0], []).append(value)
+                    result[target].setdefault(key[1], []).append(1/value)
         for target, target_result in result.items():
             for group, ratios in target_result.items():
                 ratio = np.mean(np.array(ratios))
@@ -1059,6 +1069,7 @@ class EqualisedOddsRatio:
                     else:
                         self.result[target]["privileged"] = key1[0]
                         self.result[target]["unprivileged"] = key1[1]
+
         return self.result
 
     def rank(self, pr_to_unp: bool = True) -> dict:
