@@ -173,7 +173,8 @@ def true_positive_rate(
 
 
 class Metric:
-    """A class for the different fairness metrics and performance evaluation in different groups"""
+    """A class for the different fairness metrics and performance evaluation
+    in different groups"""
 
     def __init__(
         self,
@@ -189,13 +190,16 @@ class Metric:
         data : Dataset | pd.DataFrame
             data to evaluate
         sensitive : Sequence[str]
-            list of sensitive attributes (Ex: gender, race...), by default None
+            sequence of sensitive attributes (Ex: gender, race...), by default None
         real_target : Sequence[str]
-            list of column names of actual labels for target variables, by default None
+            sequence of column names of actual labels for target variables, by
+            default None
         predicted_target : Sequence[str], optional
-            list of column names of predicted labels for target variables, by default None
-        positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-            list of the positive labels corresponding to the provided targets, by default None
+            sequence of column names of predicted labels for target variables, by
+            default None
+        positive_target : Sequence[int | float | str | bool] | None, optional
+            sequence of the positive labels corresponding to the provided targets,
+            by default None
 
         Raises
         ------
@@ -255,15 +259,19 @@ class SelectionRate(Metric):
         data : Dataset | pd.DataFrame
             data to evaluate
         use_y_true : bool, optional
-            use real labels if true else use predictions, by default False (predictions)
+            use real labels if true else use predictions, by default False
         sensitive : Sequence[str]
-            list of sensitive attributes (Ex: gender, race...), by default None
+            sequence of sensitive attributes (Ex: gender, race...), by default
+            None
         real_target : Sequence[str]
-            list of column names of actual labels for target variables, by default None
+            sequence of column names of actual labels for target variables, by
+            default None
         predicted_target : Sequence[str], optional
-            list of column names of predicted labels for target variables, by default None
-        positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-            list of the positive labels corresponding to the provided targets, by default None
+            sequence of column names of predicted labels for target variables,
+            by default None
+        positive_target : Sequence[int | float | str | bool] | None, optional
+            sequence of the positive labels corresponding to the provided
+            targets, by default None
         """
         super().__init__(
             data, sensitive, real_target, predicted_target, positive_target
@@ -343,17 +351,23 @@ class ConfusionMatrix(Metric):
         data : Dataset | pd.DataFrame
             data to evaluate
         metrics : Collection | Sequence | None, optional
-            the metrics to calculate, by default None -> meaning all metrics
+            the metrics to calculate. If None then all metrics are calculated,
+            by default None
         zero_division : float | str | None, optional
-            the default value to use when encountering zero division error, by default None
+            the default value to use when encountering zero division error,
+            by default None
         sensitive : Sequence[str]
-            list of sensitive attributes (Ex: gender, race...), by default None
+            sequence of sensitive attributes (Ex: gender, race...),
+            by default None
         real_target : Sequence[str]
-            list of column names of actual labels for target variables, by default None
+            sequence of column names of actual labels for target variables,
+            by default None
         predicted_target : Sequence[str], optional
-            list of column names of predicted labels for target variables, by default None
-        positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-            list of the positive labels corresponding to the provided targets, by default None
+            sequence of column names of predicted labels for target variables,
+            by default None
+        positive_target : Sequence[int | float | str | bool] | None, optional
+            sequence of the positive labels corresponding to the provided
+            targets, by default None
 
         Raises
         ------
@@ -385,40 +399,38 @@ class ConfusionMatrix(Metric):
                     self.metrics[metric.__name__] = metric
 
     def __call__(self) -> tuple[Sequence[str], list[dict]]:
-        """do the computation of the confusion matrix related metrics on each group
+        """do the computation of the confusion matrix related metrics
+        on each group
 
         Returns
         -------
         tuple[Sequence[str], list[dict]]
-            Sequence[str]: list of targets
-            list[dict]: results of each group where the keys are:
-                'sensitive': the sensitive group
-                *metric name*: the corresponding score
+            Sequence[str]: sequence of targets
+            list[dict]: results of each group
+
         Examples
         --------
-        Example 1
-        ---------
         >>> import pandas as pd
         >>> from fair_mango.metrics.metrics import (
-            ConfusionMatrix,
-            false_positive_rate,
-            false_negative_rate,
-            true_positive_rate,
-            true_negative_rate
-        )
+        ...     ConfusionMatrix,
+        ...     false_positive_rate,
+        ...     false_negative_rate,
+        ...     true_positive_rate,
+        ...     true_negative_rate
+        ... )
         >>> df = pd.DataFrame({
         ...     'gender': ['male', 'female', 'female', 'male', 'male'],
-        ...     'actual': [0, 1, 0, 1],
-        ...     'predicted': [0, 1, 1, 0]
+        ...     'actual': [0, 1, 0, 1, 1],
+        ...     'predicted': [0, 1, 1, 0, 1]
         ... })
-        >>> metrics = ConfusionMatrix(
+        >>> metrics_1 = ConfusionMatrix(
         ...     data=df,
         ...     sensitive=['gender'],
         ...     real_target=['actual'],
         ...     predicted_target=['predicted'],
         ...     positive_target=[1]
         ... )
-        >>> metrics()
+        >>> metrics_1()
         (
             ['actual'],
             [
@@ -439,14 +451,7 @@ class ConfusionMatrix(Metric):
             ]
         )
 
-        Example 2
-        ---------
-        >>> df = pd.DataFrame({
-        ...     'gender': ['male', 'female', 'female', 'male', 'male'],
-        ...     'actual': [0, 1, 0, 1],
-        ...     'predicted': [0, 1, 1, 0]
-        ... })
-        >>> metrics = ConfusionMatrix(
+        >>> metrics_2 = ConfusionMatrix(
         ...     data=df,
         ...     metrics=[false_negative_rate]
         ...     sensitive=['gender'],
@@ -454,7 +459,7 @@ class ConfusionMatrix(Metric):
         ...     predicted_target=['predicted'],
         ...     positive_target=[1]
         ... )
-        >>> metrics()
+        >>> metrics_2()
         (
             ['actual'],
             [
@@ -469,14 +474,7 @@ class ConfusionMatrix(Metric):
             ]
         )
 
-        Example 3
-        ---------
-        >>> df = pd.DataFrame({
-        ...     'gender': ['male', 'female', 'female', 'male', 'male'],
-        ...     'actual': [0, 1, 0, 1],
-        ...     'predicted': [0, 1, 1, 0]
-        ... })
-        >>> metrics = ConfusionMatrix(
+        >>> metrics_3 = ConfusionMatrix(
         ...     data=df,
         ...     metrics={'tnr': true_negative_rate, 'tpr': true_positive_rate},
         ...     sensitive=['gender'],
@@ -484,7 +482,7 @@ class ConfusionMatrix(Metric):
         ...     predicted_target=['predicted'],
         ...     positive_target=[1]
         ... )
-        >>> metrics()
+        >>> metrics_3()
         (
             ['actual'],
             [
@@ -579,13 +577,17 @@ class PerformanceMetric(Metric):
         metrics : Collection | Sequence | None, optional
             the metrics to calculate, by default None
         sensitive : Sequence[str]
-            list of sensitive attributes (Ex: gender, race...), by default None
+            list of sensitive attributes (Ex: gender, race...), by default
+            None
         real_target : Sequence[str]
-            list of column names of actual labels for target variables, by default None
+            list of column names of actual labels for target variables, by
+            default None
         predicted_target : Sequence[str], optional
-            list of column names of predicted labels for target variables, by default None
-        positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-            list of the positive labels corresponding to the provided targets, by default None
+            list of column names of predicted labels for target variables,
+            by default None
+        positive_target : Sequence[int | float | str | bool] | None, optional
+            list of the positive labels corresponding to the provided targets,
+            by default None
 
         Raises
         ------
@@ -617,19 +619,18 @@ class PerformanceMetric(Metric):
                     self.metrics[metric.__name__] = metric
 
     def __call__(self) -> tuple[Sequence[str], list[dict]]:
-        """do the computation of the confusion matrix related metrics on each group
+        """do the computation of the confusion matrix related metrics on each
+        group
 
         Returns
         -------
         tuple[Sequence[str], list[dict]]
             Sequence[str]: list of targets
-            list[dict]: results of each group where the keys are:
-                'sensitive': the sensitive group
-                *metric name*: the corresponding score
+            list[dict]: results of each group
+
         Examples
         --------
-        Example 1
-        ---------
+
         >>> import pandas as pd
         >>> from fair_mango.metrics.metrics import PerformanceMetric
         >>> from sklearn.metrics import (
@@ -638,20 +639,20 @@ class PerformanceMetric(Metric):
                 f1_score,
                 precision_score,
                 recall_score,
-            ) 
+            )
         >>> df = pd.DataFrame({
         ...     'gender': ['male', 'female', 'female', 'male', 'male'],
         ...     'actual': [0, 1, 0, 1, 1],
         ...     'predicted': [0, 1, 1, 0, 1]
         ... })
-        >>> metrics = PerformanceMetric(
+        >>> metrics_1 = PerformanceMetric(
         ...     data=df,
         ...     sensitive=['gender'],
         ...     real_target=['actual'],
         ...     predicted_target=['predicted'],
         ...     positive_target=[1]
         ... )
-        >>> metrics()
+        >>> metrics_1()
         (
             ['actual'],
             [
@@ -674,14 +675,7 @@ class PerformanceMetric(Metric):
             ]
         )
 
-        Example 2
-        ---------
-        >>> df = pd.DataFrame({
-        ...     'gender': ['male', 'female', 'female', 'male', 'male'],
-        ...     'actual': [0, 1, 0, 1],
-        ...     'predicted': [0, 1, 1, 0]
-        ... })
-        >>> metrics = ConfusionMatrix(
+        >>> metrics_2 = PerformanceMetric(
         ...     data=df,
         ...     metrics=[precision_score, recall_score]
         ...     sensitive=['gender'],
@@ -689,7 +683,7 @@ class PerformanceMetric(Metric):
         ...     predicted_target=['predicted'],
         ...     positive_target=[1]
         ... )
-        >>> metrics()
+        >>> metrics_2()
         (
             ['actual'],
             [
@@ -706,14 +700,7 @@ class PerformanceMetric(Metric):
             ]
         )
 
-        Example 3
-        ---------
-        >>> df = pd.DataFrame({
-        ...     'gender': ['male', 'female', 'female', 'male', 'male'],
-        ...     'actual': [0, 1, 0, 1],
-        ...     'predicted': [0, 1, 1, 0]
-        ... })
-        >>> metrics = ConfusionMatrix(
+        >>> metrics_3 = PerformanceMetric(
         ...     data=df,
         ...     metrics={'f1': f1_score},
         ...     sensitive=['gender'],
@@ -721,7 +708,7 @@ class PerformanceMetric(Metric):
         ...     predicted_target=['predicted'],
         ...     positive_target=[1]
         ... )
-        >>> metrics()
+        >>> metrics_3()
         (
             ['actual'],
             [
