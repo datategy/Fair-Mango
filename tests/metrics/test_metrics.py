@@ -19,10 +19,10 @@ from fair_mango.metrics.metrics import (
     DemographicParityRatio,
     DisparateImpactDifference,
     DisparateImpactRatio,
-    EqualOpportunityDifference,
-    EqualOpportunityRatio,
     EqualisedOddsDifference,
     EqualisedOddsRatio,
+    EqualOpportunityDifference,
+    EqualOpportunityRatio,
     PerformanceMetric,
     SelectionRate,
     encode_target,
@@ -1488,26 +1488,38 @@ def test_equalised_odds_difference(
 
 
 expected_result_2 = [
-    {'HeartDisease': {'equalised_odds_ratio': 0.8033707865168539,
-  'privileged': ('M',),
-  'unprivileged': ('F',)}},
-    {'HeartDisease': {('M',): 0.8033707865168539, ('F',): 1.2447552447552448}},
+    {
+        "HeartDisease": {
+            "equalised_odds_ratio": 0.8033707865168539,
+            "privileged": ("M",),
+            "unprivileged": ("F",),
+        }
+    },
+    {"HeartDisease": {("M",): 0.8033707865168539, ("F",): 1.2447552447552448}},
     {"HeartDisease": False},
 ]
 
 
 expected_result_3 = [
-    {'HeartDisease': {'equalised_odds_ratio': 0.0,
-  'privileged': ('F', 'NAP'),
-  'unprivileged': ('M', 'ASY')}},
-    {'HeartDisease': {('M', 'ASY'): np.inf,
-  ('M', 'NAP'): np.inf,
-  ('M', 'ATA'): np.inf,
-  ('F', 'ASY'): np.inf,
-  ('F', 'ATA'): np.inf,
-  ('F', 'NAP'): np.nan,
-  ('M', 'TA'): np.inf,
-  ('F', 'TA'): np.nan}},
+    {
+        "HeartDisease": {
+            "equalised_odds_ratio": 0.0,
+            "privileged": ("F", "NAP"),
+            "unprivileged": ("M", "ASY"),
+        }
+    },
+    {
+        "HeartDisease": {
+            ("M", "ASY"): np.inf,
+            ("M", "NAP"): np.inf,
+            ("M", "ATA"): np.inf,
+            ("F", "ASY"): np.inf,
+            ("F", "ATA"): np.inf,
+            ("F", "NAP"): np.nan,
+            ("M", "TA"): np.inf,
+            ("F", "TA"): np.nan,
+        }
+    },
     {"HeartDisease": False},
 ]
 
