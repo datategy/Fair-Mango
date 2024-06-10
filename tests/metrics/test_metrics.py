@@ -19,9 +19,10 @@ from fair_mango.metrics.metrics import (
     DemographicParityRatio,
     DisparateImpactDifference,
     DisparateImpactRatio,
-    EqualisedOddsDifference,
     EqualOpportunityDifference,
     EqualOpportunityRatio,
+    EqualisedOddsDifference,
+    EqualisedOddsRatio,
     PerformanceMetric,
     SelectionRate,
     encode_target,
@@ -1484,3 +1485,103 @@ def test_equalised_odds_difference(
                 assert np.isclose(val, expected_val, atol=0.000002)
     is_biased = eod.is_biased(threshold)
     assert is_biased == expected_result[2]
+
+
+expected_result_2 = [
+    {'HeartDisease': {'equalised_odds_ratio': 0.8033707865168539,
+  'privileged': ('M',),
+  'unprivileged': ('F',)}},
+    {'HeartDisease': {('M',): 0.8033707865168539, ('F',): 1.2447552447552448}},
+    {"HeartDisease": False},
+]
+
+
+expected_result_3 = [
+    {'HeartDisease': {'equalised_odds_ratio': 0.0,
+  'privileged': ('F', 'NAP'),
+  'unprivileged': ('M', 'ASY')}},
+    {'HeartDisease': {('M', 'ASY'): np.inf,
+  ('M', 'NAP'): np.inf,
+  ('M', 'ATA'): np.inf,
+  ('F', 'ASY'): np.inf,
+  ('F', 'ATA'): np.inf,
+  ('F', 'NAP'): np.nan,
+  ('M', 'TA'): np.inf,
+  ('F', 'TA'): np.nan}},
+    {"HeartDisease": False},
+]
+
+
+@pytest.mark.parametrize(
+    "data, zero_division, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
+    [
+        (
+            dataset1,
+            None,
+            None,
+            None,
+            None,
+            False,
+            1.2,
+            pytest.raises(ValueError),
+        ),
+        (
+            df,
+            None,
+            ["Sex"],
+            ["HeartDisease"],
+            ["HeartDiseasePred"],
+            True,
+            0.4,
+            expected_result_2,
+        ),
+        (
+            dataset3,
+            "Error",
+            None,
+            None,
+            None,
+            True,
+            0.8,
+            expected_result_3,
+        ),
+    ],
+)
+def test_equalised_odds_ratio(
+    data: Dataset,
+    zero_division: float | str | None,
+    sensitive: Sequence[str] | None,
+    real_target: Sequence[str] | None,
+    predicted_target: Sequence[str] | None,
+    pr_to_unp: bool,
+    threshold: float,
+    expected_result: Sequence[dict[str, dict]] | RaisesContext,
+):
+    if isinstance(expected_result, Sequence):
+        if isinstance(data, Dataset):
+            eor = EqualisedOddsRatio(data, zero_division)
+        else:
+            eor = EqualisedOddsRatio(
+                data, zero_division, sensitive, real_target, predicted_target
+            )
+        result = eor.summary()
+        assert result == expected_result[0]
+        rankings = eor.rank(pr_to_unp)
+        for (target, ranking), (expected_target, expected_ranking) in zip(
+            rankings.items(), expected_result[1].items()
+        ):
+            assert ranking.keys() == expected_ranking.keys()
+            for val, expected_val in zip(ranking.values(), expected_ranking.values()):
+                if not np.isnan(val) and not np.isnan(expected_val):
+                    assert np.isclose(val, expected_val, atol=0.000002)
+        is_biased = eor.is_biased(threshold)
+        assert is_biased == expected_result[2]
+    else:
+        with expected_result:
+            if isinstance(data, Dataset):
+                eor = EqualisedOddsRatio(data, zero_division)
+            else:
+                eor = EqualisedOddsRatio(
+                    data, zero_division, sensitive, real_target, predicted_target
+                )
+            eor.summary()
