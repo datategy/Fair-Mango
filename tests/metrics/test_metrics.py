@@ -19,6 +19,7 @@ from fair_mango.metrics.metrics import (
     DemographicParityRatio,
     DisparateImpactDifference,
     DisparateImpactRatio,
+    EqualisedOddsDifference,
     EqualOpportunityDifference,
     EqualOpportunityRatio,
     PerformanceMetric,
@@ -1356,3 +1357,130 @@ def test_performancemetrics(
         with expected_result:
             cf = ConfusionMatrix(data, metrics)
             cf()
+
+
+expected_result_2 = [
+    {
+        "HeartDisease": {
+            "equalised_odds_difference": 0.03816593886462882,
+            "privileged": ("M",),
+            "unprivileged": ("F",),
+        }
+    },
+    {"HeartDisease": {("F",): -0.03816593886462882, ("M",): 0.03816593886462882}},
+    {"HeartDisease": False},
+]
+
+
+expected_result_3 = [
+    {
+        "HeartDisease": {
+            "equalised_odds_difference": 0.33333333333333337,
+            "privileged": ("F", "ATA"),
+            "unprivileged": ("F", "NAP"),
+        }
+    },
+    {
+        "HeartDisease": {
+            ("F", "TA"): 0.10053586843924016,
+            ("F", "ATA"): 0.09033178680658709,
+            ("M", "NAP"): 0.08199377127623639,
+            ("M", "ASY"): 0.08153282325925479,
+            ("M", "ATA"): 0.05205550855335028,
+            ("F", "ASY"): 0.0014697534603408588,
+            ("M", "TA"): -0.16240914536313006,
+            ("F", "NAP"): -0.24551036643187954,
+        }
+    },
+    {"HeartDisease": True},
+]
+
+
+expected_result_6 = [
+    {
+        "HeartDisease": {
+            "equalised_odds_difference": 0.33333333333333337,
+            "privileged": ("F", "ATA"),
+            "unprivileged": ("F", "NAP"),
+        },
+        "ExerciseAngina": {
+            "equalised_odds_difference": 0.0,
+            "privileged": None,
+            "unprivileged": None,
+        },
+    },
+    {
+        "HeartDisease": {
+            ("F", "NAP"): -0.24551036643187954,
+            ("M", "TA"): -0.16240914536313006,
+            ("F", "ASY"): 0.0014697534603408588,
+            ("M", "ATA"): 0.05205550855335028,
+            ("M", "ASY"): 0.08153282325925479,
+            ("M", "NAP"): 0.08199377127623639,
+            ("F", "ATA"): 0.09033178680658709,
+            ("F", "TA"): 0.10053586843924016,
+        },
+        "ExerciseAngina": {
+            ("M", "ASY"): 0.0,
+            ("M", "NAP"): 0.0,
+            ("M", "ATA"): 0.0,
+            ("F", "ASY"): 0.0,
+            ("F", "ATA"): 0.0,
+            ("F", "NAP"): 0.0,
+            ("M", "TA"): 0.0,
+            ("F", "TA"): 0.0,
+        },
+    },
+    {"HeartDisease": True, "ExerciseAngina": False},
+]
+
+
+@pytest.mark.parametrize(
+    "data, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
+    [
+        (dataset2, None, None, None, False, 0.1, expected_result_2),
+        (
+            df,
+            ["Sex", "ChestPainType"],
+            ["HeartDisease"],
+            ["HeartDiseasePred"],
+            True,
+            0.2,
+            expected_result_3,
+        ),
+        (
+            dataset6,
+            None,
+            None,
+            None,
+            False,
+            0.2,
+            expected_result_6,
+        ),
+    ],
+)
+def test_equalised_odds_difference(
+    data: Dataset | pd.DataFrame,
+    sensitive: Sequence[str] | None,
+    real_target: Sequence[str] | None,
+    predicted_target: Sequence[str] | None,
+    pr_to_unp: bool,
+    threshold: float,
+    expected_result: Sequence[dict[str, dict]],
+):
+    if isinstance(data, Dataset):
+        eod = EqualisedOddsDifference(data)
+    else:
+        eod = EqualisedOddsDifference(data, sensitive, real_target, predicted_target)
+    result = eod.summary()
+    assert result == expected_result[0]
+    rankings = eod.rank(pr_to_unp)
+    for (target, ranking), (expected_target, expected_ranking) in zip(
+        rankings.items(), expected_result[1].items()
+    ):
+        assert ranking.keys() == expected_ranking.keys()
+        for val, expected_val in zip(ranking.values(), expected_ranking.values()):
+            if not np.isnan(val) and not np.isnan(expected_val):
+                assert np.isclose(val, expected_val, atol=0.000002)
+    is_biased = eod.is_biased(threshold)
+    assert is_biased == expected_result[2]
