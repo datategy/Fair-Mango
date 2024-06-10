@@ -178,15 +178,34 @@ class Metric:
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
-    ):
+    ) -> None:
+        """
+        Parameters
+        ----------
+        data : Dataset | pd.DataFrame
+            data to evaluate
+        sensitive : Sequence[str]
+            list of sensitive attributes (Ex: gender, race...), by default None
+        real_target : Sequence[str]
+            list of column names of actual labels for target variables, by default None
+        predicted_target : Sequence[str], optional
+            list of column names of predicted labels for target variables, by default None
+        positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+            list of the positive labels corresponding to the provided targets, by default None
+
+        Raises
+        ------
+        ValueError
+            if sensitive and real_target are not provided
+        """
         if isinstance(data, Dataset):
             self.data = data
         else:
-            if sensitive == [] or real_target == []:
+            if sensitive is None or real_target is None:
                 raise ValueError(
                     "When providing a DataFrame, 'sensitive' and 'real_target' must be specified."
                 )
@@ -225,9 +244,9 @@ class SelectionRate(Metric):
         self,
         data: Dataset | pd.DataFrame,
         use_y_true: bool = False,
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ):
         super().__init__(
@@ -235,7 +254,7 @@ class SelectionRate(Metric):
         )
         self.use_y_true = use_y_true
 
-    def __call__(self):
+    def __call__(self) -> tuple[Sequence[str], list[dict]]:
         self.results = []
         if self.use_y_true:
             targets = self.data.real_target
@@ -255,7 +274,14 @@ class SelectionRate(Metric):
             )
         return targets, self.results
 
-    def all_data(self):
+    def all_data(self) -> pd.Series:
+        """Compute selection rate for all the dataset
+
+        Returns
+        -------
+        pd.Series
+            the target name and the corresponding selection rate
+        """
         if self.use_y_true:
             return self.data.df[self.data.real_target].mean()
         else:
@@ -263,7 +289,7 @@ class SelectionRate(Metric):
 
 
 class ConfusionMatrix(Metric):
-    """Calculate
+    """Calculate confusion matrix related metrics:
     - false positive rate
     - false negative rate
     - true positive rate
@@ -275,9 +301,9 @@ class ConfusionMatrix(Metric):
         data: Dataset | pd.DataFrame,
         metrics: Collection | Sequence | None = None,
         zero_division: float | str | None = None,
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
         super().__init__(
@@ -370,9 +396,9 @@ class PerformanceMetric(Metric):
         self,
         data: Dataset | pd.DataFrame,
         metrics: Collection | Sequence | None = None,
-        sensitive: Sequence[str] = [],
-        real_target: Sequence[str] = [],
-        predicted_target: Sequence[str] = [],
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
         super().__init__(
