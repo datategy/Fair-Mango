@@ -190,16 +190,17 @@ class Metric:
         data : Dataset | pd.DataFrame
             data to evaluate
         sensitive : Sequence[str]
-            sequence of sensitive attributes (Ex: gender, race...), by default None
+            sequence of sensitive attributes (Ex: gender, race...), by default
+            None
         real_target : Sequence[str]
             sequence of column names of actual labels for target variables, by
             default None
         predicted_target : Sequence[str], optional
-            sequence of column names of predicted labels for target variables, by
-            default None
-        positive_target : Sequence[int | float | str | bool] | None, optional
-            sequence of the positive labels corresponding to the provided targets,
+            sequence of column names of predicted labels for target variables,
             by default None
+        positive_target : Sequence[int | float | str | bool] | None, optional
+            sequence of the positive labels corresponding to the provided
+            targets, by default None
 
         Raises
         ------
@@ -748,6 +749,48 @@ class PerformanceMetric(Metric):
 
 
 def difference(result_per_groups: np.array) -> dict:
+    """
+    Compute the difference in results between all pairs of groups.
+
+    Parameters
+    ----------
+    result_per_groups : np.array
+        Array of dictionaries, where each dictionary contains a 'sensitive'
+        key with a tuple of sensitive group attributes and a 'result' key
+        with the corresponding results as a numpy array.
+
+    Returns
+    -------
+    dict
+        A dictionary where the keys are tuples of pairs of sensitive groups
+        and the values are numpy arrays representing the difference in
+        results between the corresponding pairs of groups.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from fair_mango.metrics.metrics import difference
+    >>> result_per_groups_1 = np.array([
+    ...     {'sensitive': ('male',), 'result': [0.8, 0.75]},
+    ...     {'sensitive': ('female',), 'result': [0.6, 0.9]},
+    ... ])
+    >>> difference(result_per_groups_1)
+    {
+        (('male',), ('female',)): [0.2, -0.15]
+    }
+
+    >>> result_per_groups_2 = np.array([
+    ...     {'sensitive': ('white',), 'result': [0.75, 0.65]},
+    ...     {'sensitive': ('black',), 'result': [0.55, 0.85]},
+    ...     {'sensitive': ('asian',), 'result': [0.60, 0.75]}
+    ... ])
+    >>> difference(result_per_groups_2)
+    {
+        (('white',), ('black',)): array([ 0.2 , -0.2 ]),
+        (('white',), ('asian',)): array([ 0.15, -0.1 ]),
+        (('black',), ('asian',)): array([-0.05,  0.1 ])
+    }
+    """
     result = {}
     pairs = combinations(range(len(result_per_groups)), 2)
     for i, j in pairs:
@@ -764,6 +807,51 @@ def difference(result_per_groups: np.array) -> dict:
 def ratio(
     result_per_groups: np.array, zero_division: float | str | None = None
 ) -> dict:
+    """
+    Compute the ratio of results between all pairs of groups.
+
+    Parameters
+    ----------
+    result_per_groups : np.array
+        Array of dictionaries, where each dictionary contains a 'sensitive'
+        key with a tuple of sensitive group attributes and a 'result' key
+        with the corresponding results as a numpy array.
+    zero_division : float | str | None, optional
+        The value to use when encountering a zero division error. Default
+        is None.
+
+    Returns
+    -------
+    dict
+        A dictionary where the keys are tuples of pairs of sensitive groups
+        and the values are numpy arrays representing the ratio of results
+        between the corresponding pairs of groups.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from fair_mango.metrics.metrics import ratio
+    >>> result_per_groups_1 = np.array([
+    ...     {'sensitive': ('male',), 'result': [0.8, 0.75]},
+    ...     {'sensitive': ('female',), 'result': [0.6, 0.9]},
+    ... ])
+    >>> ratio(result_per_groups_1)
+    {
+        (('male',), ('female',)): array([1.33333333, 0.83333333])
+    }
+
+    >>> result_per_groups_2 = np.array([
+    ...     {'sensitive': ('white',), 'result': [0.75, 0.65]},
+    ...     {'sensitive': ('black',), 'result': [0.55, 0.85]},
+    ...     {'sensitive': ('asian',), 'result': [0.60, 0.75]}
+    ... ])
+    >>> ratio(result_per_groups_2)
+    {
+        (('white',), ('black',)): array([1.36363636, 0.76470588]),
+        (('white',), ('asian',)): array([1.25      , 0.86666667]),
+        (('black',), ('asian',)): array([0.91666667, 1.13333333])
+    }
+    """
     result = {}
     pairs = list(combinations(range(len(result_per_groups)), 2))
     for i, j in pairs:
