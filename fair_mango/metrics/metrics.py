@@ -578,16 +578,16 @@ class PerformanceMetric(Metric):
         metrics : Collection | Sequence | None, optional
             the metrics to calculate, by default None
         sensitive : Sequence[str]
-            list of sensitive attributes (Ex: gender, race...), by default
+            sequence of sensitive attributes (Ex: gender, race...), by default
             None
         real_target : Sequence[str]
-            list of column names of actual labels for target variables, by
+            sequence of column names of actual labels for target variables, by
             default None
         predicted_target : Sequence[str], optional
-            list of column names of predicted labels for target variables,
+            sequence of column names of predicted labels for target variables,
             by default None
         positive_target : Sequence[int | float | str | bool] | None, optional
-            list of the positive labels corresponding to the provided targets,
+            sequence of the positive labels corresponding to the provided targets,
             by default None
 
         Raises
@@ -869,6 +869,66 @@ def ratio(
 
 
 class FairnessMetricDifference:
+    """
+    A base class for calculating and evaluating fairness metrics using
+    differences across sensitive groups.
+
+    This class is intended to be inherited by specific fairness metric
+    classes. It provides methods for summarizing metric differences, 
+    ranking groups, and determining bias.
+
+    Parameters
+    ----------
+    data : Dataset or pd.DataFrame
+        dataset to evaluate. If a DataFrame is provided, 'sensitive' 
+        and 'real_target' must also be specified.
+    metric : type[SelectionRate] or type[ConfusionMatrix]
+        The metric class to be used for evaluation.
+    label : str
+        The key to be used for the fairness result.
+    sensitive : Sequence[str]
+        sequence of sensitive attributes (Ex: gender, race...), by default
+        None
+    real_target : Sequence[str]
+        sequence of column names of actual labels for target variables, by
+        default None
+    predicted_target : Sequence[str], optional
+        sequence of column names of predicted labels for target variables,
+        by default None
+    positive_target : Sequence[int | float | str | bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+    metric_type : str, optional
+        Type of metric to evaluate ('performance' or 'error'), by default
+        'performance'.
+    **kwargs
+        Additional keyword arguments to pass to the metric class.
+
+    Attributes
+    ----------
+    data : Dataset
+        The dataset to be evaluated.
+    metric : type[SelectionRate] or type[ConfusionMatrix]
+        The metric class used for evaluation.
+    label : str
+        The main label for the fairness metric.
+    metric_results : list
+        List of metric results by group.
+    result : dict or None
+        Dictionary containing the summarized results.
+    ranking : dict or None
+        Dictionary containing the ranking of groups based on the metric.
+
+    Methods
+    -------
+    summary() -> dict
+        Give a summarised result with the biggest difference and between
+        which groups.
+    rank(pr_to_unp: bool = True) -> dict
+        Ranks the groups based on the metric differences.
+    is_biased(threshold: float = 0.1) -> dict
+        Determines if there is bias in the groups based on a threshold.
+    """
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -911,6 +971,16 @@ class FairnessMetricDifference:
         self.ranking: dict | None = None
 
     def summary(self) -> dict:
+        """
+        Give a summarised result with the biggest difference and between
+        which groups.
+
+        Returns
+        -------
+        dict
+            A dictionary with the summarized results, indicating the highest
+            absolute difference for each target and the corresponding groups.
+        """
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
         self.results = difference(self.metric_results)
@@ -937,6 +1007,20 @@ class FairnessMetricDifference:
         return self.result
 
     def rank(self, pr_to_unp: bool = True) -> dict:
+        """
+        Ranks the groups based on the metric differences.
+
+        Parameters
+        ----------
+        pr_to_unp : bool, optional
+            If True, rank from privileged to unprivileged. If False, rank from
+            unprivileged to privileged. Default is True.
+
+        Returns
+        -------
+        dict
+            A dictionary with the ranking of groups based on the metric differences.
+        """
         self.pr_to_unp = pr_to_unp
         if self.result is None:
             self.summary()
@@ -978,6 +1062,21 @@ class FairnessMetricDifference:
         return self.ranking
 
     def is_biased(self, threshold: float = 0.1) -> dict:
+        """
+        Determines if there is bias in the groups based on a threshold.
+
+        Parameters
+        ----------
+        threshold : float, optional
+            The threshold to determine bias. Must be in the range [0, 1]. 
+            Default is 0.1.
+
+        Returns
+        -------
+        dict
+            A dictionary indicating whether each target is biased (True) 
+            or not (False).
+        """
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
         if self.ranking is None:
@@ -996,6 +1095,106 @@ class FairnessMetricDifference:
 
 
 class DemographicParityDifference(FairnessMetricDifference):
+    """
+    A class to calculate the Demographic Parity Difference for a dataset.
+
+    This class inherits from `FairnessMetricDifference` and is used to 
+    calculate the differences in selection rates  between different sensitive
+    groups.
+    
+    The scores are in the range [0,1] and represent the difference between 
+    the selection rates in the `real_target`.
+    
+    For example, a demographic_parity_difference of 0.2 means that the 
+    privileged group has a 20% higher selection rate compared to the 
+    unprivileged group.
+
+    Parameters
+    ----------
+    data : Dataset or pd.DataFrame
+        dataset to evaluate. If a DataFrame is provided, 'sensitive' 
+        and 'real_target' must also be specified.
+    label : str
+        The key to be used for the fairness result.
+    sensitive : Sequence[str]
+        sequence of sensitive attributes (Ex: gender, race...), by default
+        None
+    real_target : Sequence[str]
+        sequence of column names of actual labels for target variables, by
+        default None
+    predicted_target : Sequence[str], optional
+        sequence of column names of predicted labels for target variables,
+        by default None
+    positive_target : Sequence[int | float | str | bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Methods
+    -------
+    summary() -> dict
+        Calculates the difference in the selection rate in the `real_target`
+        and returns the biggest disparity and the group that is considered 
+        privileged and the group that is considered unprivileged.
+
+    rank(pr_to_unp: bool = True) -> dict
+        Averages the differences calculated for each group and ranks the 
+        groups based on that average.
+
+    is_biased(threshold: float = 0.1) -> dict
+        Decides whether there is bias or not based on a given threshold that
+        is compared to the average scores of each group (the scores used for 
+        ranking).
+
+    Examples
+    --------
+    >>> from fair_mango.metrics.metrics import DemographicParityDifference
+    >>> from fair_mango.dataset.dataset import Dataset
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({
+    ...     'gender': ['male', 'female', 'male', 'female'],
+    ...     'real': [1, 0, 1, 1],
+    ...     'pred': [1, 0, 1, 0]
+    ... })
+    >>> demographic_parity_1 = DemographicParityDifference(
+    ...     data=df,
+    ...     sensitive=['gender'],
+    ...     real_target=['real'],
+    ...     predicted_target=['pred']
+    ... )
+    >>> demographic_parity_1.summary()
+    {
+        'real': {
+            'demographic_parity_difference': 0.5,
+            'privileged': ('male',),
+            'unprivileged': ('female',)
+        }
+    }
+    >>> demographic_parity_1.rank(pr_to_unp=True)
+    {'real': {('male',): 0.5, ('female',): -0.5}}
+    >>> demographic_parity_1.is_biased(threshold=0.1)
+    {'real': True}
+    >>> data = Dataset(
+        df=df,
+        sensitive=['gender'],
+        real_target=['real'],
+        predicted_target=['pred']
+        )
+    >>> demographic_parity_2 = DemographicParityDifference(
+    ...     data=data
+    ... )
+    >>> demographic_parity_2.summary()
+    {
+        'real': {
+            'demographic_parity_difference': 0.5,
+            'privileged': ('male',),
+            'unprivileged': ('female',)
+        }
+    }
+    >>> demographic_parity_2.rank(pr_to_unp=False)
+    {'real': {('female',): -0.5, ('male',): 0.5}}
+    >>> demographic_parity_2.is_biased(threshold=0.6)
+    {'real': False}
+    """
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -1019,6 +1218,106 @@ class DemographicParityDifference(FairnessMetricDifference):
 
 
 class DisparateImpactDifference(FairnessMetricDifference):
+    """
+    A class to calculate the Disparate Impact Difference for a model.
+
+    This class inherits from `FairnessMetricDifference` and is used to 
+    calculate the differences in selection rates between different sensitive
+    groups.
+    
+    The scores are in the range [0,1] and represent the difference between 
+    the selection rates in the `predicted_target`.
+    
+    For example, a demographic_parity_difference of 0.2 means that the 
+    privileged group has a 20% higher selection rate compared to the 
+    unprivileged group.
+
+    Parameters
+    ----------
+    data : Dataset or pd.DataFrame
+        dataset to evaluate. If a DataFrame is provided, 'sensitive' 
+        and 'real_target' must also be specified.
+    label : str
+        The key to be used for the fairness result.
+    sensitive : Sequence[str]
+        sequence of sensitive attributes (Ex: gender, race...), by default
+        None
+    real_target : Sequence[str]
+        sequence of column names of actual labels for target variables, by
+        default None
+    predicted_target : Sequence[str], optional
+        sequence of column names of predicted labels for target variables,
+        by default None
+    positive_target : Sequence[int | float | str | bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Methods
+    -------
+    summary() -> dict
+        Calculates the difference in the selection rate in the `real_target`
+        and returns the biggest disparity and the group that is considered 
+        privileged and the group that is considered unprivileged.
+
+    rank(pr_to_unp: bool = True) -> dict
+        Averages the differences calculated for each group and ranks the 
+        groups based on that average.
+
+    is_biased(threshold: float = 0.1) -> dict
+        Decides whether there is bias or not based on a given threshold that
+        is compared to the average scores of each group (the scores used for 
+        ranking).
+
+    Examples
+    --------
+    >>> from fair_mango.metrics.metrics import DisparateImpactDifference
+    >>> from fair_mango.dataset.dataset import Dataset
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({
+    ...     'gender': ['male', 'female', 'male', 'female'],
+    ...     'real': [1, 0, 1, 1],
+    ...     'pred': [1, 0, 1, 0]
+    ... })
+    >>> disparate_impact_1 = DisparateImpactDifference(
+    ...     data=df,
+    ...     sensitive=['gender'],
+    ...     real_target=['real'],
+    ...     predicted_target=['pred']
+    ... )
+    >>> disparate_impact_1.summary()
+    {
+        'pred': {
+            'disparate_impact_difference': 1.0,
+            'privileged': ('male',),
+            'unprivileged': ('female',)
+        }
+    }
+    >>> disparate_impact_1.rank(pr_to_unp=True)
+    {'real': {('male',): 1.0, ('female',): -1.0}}
+    >>> disparate_impact_1.is_biased(threshold=0.1)
+    {'real': True}
+    >>> data = Dataset(
+        df=df,
+        sensitive=['gender'],
+        real_target=['real'],
+        predicted_target=['pred']
+        )
+    >>> disparate_impact_2 = DisparateImpactDifference(
+    ...     data=data
+    ... )
+    >>> disparate_impact_2.summary()
+    {
+        'real': {
+            'disparate_impact_difference': 1.0,
+            'privileged': ('male',),
+            'unprivileged': ('female',)
+        }
+    }
+    >>> disparate_impact_2.rank(pr_to_unp=False)
+    {'real': {('female',): -1.0, ('male',): 1.0}}
+    >>> disparate_impact_2.is_biased(threshold=0.6)
+    {'real': True}
+    """
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -1042,6 +1341,7 @@ class DisparateImpactDifference(FairnessMetricDifference):
 
 
 class EqualOpportunityDifference(FairnessMetricDifference):
+    
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
