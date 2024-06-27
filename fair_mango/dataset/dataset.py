@@ -83,7 +83,7 @@ class Dataset:
         real_target : Sequence[str]
             list of column names of actual labels for target variables
         predicted_target : Sequence[str], optional
-            list of column names of predicted labels for target variables, by default []
+            list of column names of predicted labels for target variables, by default None
         positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
             list of the positive labels corresponding to the provided targets , by default None
         """

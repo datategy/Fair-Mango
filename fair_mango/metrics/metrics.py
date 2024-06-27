@@ -1102,11 +1102,17 @@ class DemographicParityDifference(FairnessMetricDifference):
     calculate the differences in selection rates  between different sensitive
     groups.
     
-    The scores are in the range [0,1] and represent the difference between 
+    The scores are in the range [-1,1] and represent the difference between 
     the selection rates in the `real_target`.
     
+    A score of 0 means the two groups scores are similar.
+    
+    The sign of the score determines which group is considered privileged 
+    and which group is considered unprivileged.
+    
     For example, a demographic_parity_difference of 0.2 means that the 
-    privileged group has a 20% higher selection rate compared to the 
+    first group is consedered the privileged group and has a 20% higher 
+    selection rate compared to the second group which is considered 
     unprivileged group.
 
     Parameters
@@ -1225,18 +1231,24 @@ class DisparateImpactDifference(FairnessMetricDifference):
     calculate the differences in selection rates between different sensitive
     groups.
     
-    The scores are in the range [0,1] and represent the difference between 
+    The scores are in the range [-1,1] and represent the difference between 
     the selection rates in the `predicted_target`.
     
-    For example, a demographic_parity_difference of 0.2 means that the 
-    privileged group has a 20% higher selection rate compared to the 
+    A score of 0 means the two groups scores are similar.
+    
+    The sign of the score determines which group is considered privileged 
+    and which group is considered unprivileged.
+    
+    For example, a disparate_impact_difference of 0.2 means that the 
+    first group is considered the privileged group and has a 20% higher 
+    selection rate compared to the second group which is considered 
     unprivileged group.
 
     Parameters
     ----------
     data : Dataset or pd.DataFrame
-        dataset to evaluate. If a DataFrame is provided, 'sensitive' 
-        and 'real_target' must also be specified.
+        dataset to evaluate. If a DataFrame is provided, 'sensitive', 
+        'real_target' and 'predicted_target' must also be specified.
     label : str
         The key to be used for the fairness result.
     sensitive : Sequence[str]
@@ -1255,9 +1267,10 @@ class DisparateImpactDifference(FairnessMetricDifference):
     Methods
     -------
     summary() -> dict
-        Calculates the difference in the selection rate in the `real_target`
-        and returns the biggest disparity and the group that is considered 
-        privileged and the group that is considered unprivileged.
+        Calculates the difference in the selection rate in the 
+        `predicted_target` and returns the biggest disparity and the group
+        that is considered privileged and the group that is considered 
+        unprivileged.
 
     rank(pr_to_unp: bool = True) -> dict
         Averages the differences calculated for each group and ranks the 
@@ -1341,7 +1354,112 @@ class DisparateImpactDifference(FairnessMetricDifference):
 
 
 class EqualOpportunityDifference(FairnessMetricDifference):
+    """
+    A class to calculate the Equal Opportunity Difference for a model.
+
+    This class inherits from `FairnessMetricDifference` and is used to 
+    calculate the differences in True Positive Rates between different 
+    sensitive groups.
     
+    The scores are in the range [-1,1] and represent the difference between 
+    the TPRs.
+    
+    A score of 0 means the two groups scores are similar.
+    
+    The sign of the score determines which group is considered privileged 
+    and which group is considered unprivileged.
+    
+    For example, a equal_opportunity_difference of 0.2 means that the 
+    first group is considered the privileged group and has a 20% higher 
+    TPRs compared to the second group which is considered unprivileged
+    group.
+
+    Parameters
+    ----------
+    data : Dataset or pd.DataFrame
+        dataset to evaluate. If a DataFrame is provided, 'sensitive', 
+        'real_target' and 'predicted_target' must also be specified.
+    label : str
+        The key to be used for the fairness result.
+    sensitive : Sequence[str]
+        sequence of sensitive attributes (Ex: gender, race...), by default
+        None
+    real_target : Sequence[str]
+        sequence of column names of actual labels for target variables, by
+        default None
+    predicted_target : Sequence[str], optional
+        sequence of column names of predicted labels for target variables,
+        by default None
+    positive_target : Sequence[int | float | str | bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Methods
+    -------
+    summary() -> dict
+        Calculates the difference in the TPRs in the `real_target`and returns
+        the biggest disparity and the group that is considered privileged and
+        the group that is considered unprivileged.
+
+    rank(pr_to_unp: bool = True) -> dict
+        Averages the differences calculated for each group and ranks the 
+        groups based on that average.
+
+    is_biased(threshold: float = 0.1) -> dict
+        Decides whether there is bias or not based on a given threshold that
+        is compared to the average scores of each group (the scores used for 
+        ranking).
+
+    Examples
+    --------
+    >>> from fair_mango.metrics.metrics import EqualOpportunityDifference
+    >>> from fair_mango.dataset.dataset import Dataset
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({
+    ...     'gender': ['male', 'female', 'male', 'female'],
+    ...     'real': [1, 0, 1, 1],
+    ...     'pred': [1, 0, 1, 0]
+    ... })
+    >>> equal_opportunity_1 = EqualOpportunityDifference(
+    ...     data=df,
+    ...     sensitive=['gender'],
+    ...     real_target=['real'],
+    ...     predicted_target=['pred']
+    ... )
+    >>> equal_opportunity_1.summary()
+    {
+        'pred': {
+            'equal_opportunity_difference': 1.0,
+            'privileged': ('male',),
+            'unprivileged': ('female',)
+        }
+    }
+    >>> equal_opportunity_1.rank(pr_to_unp=True)
+    {'real': {('male',): 1.0, ('female',): -1.0}}
+    >>> equal_opportunity_1.is_biased(threshold=0.1)
+    {'real': True}
+    >>> data = Dataset(
+        df=df,
+        sensitive=['gender'],
+        real_target=['real'],
+        predicted_target=['pred']
+        )
+    >>> equal_opportunity_2 = EqualOpportunityDifference(
+    ...     data=data
+    ... )
+    >>> equal_opportunity_2.summary()
+    {
+        'real': {
+            'equal_opportunity_difference': 1.0,
+            'privileged': ('male',),
+            'unprivileged': ('female',)
+        }
+    }
+    >>> equal_opportunity_2.rank(pr_to_unp=False)
+    {'real': {('female',): -1.0, ('male',): 1.0}}
+    >>> equal_opportunity_2.is_biased(threshold=0.6)
+    {'real': True}
+    """
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -1365,6 +1483,112 @@ class EqualOpportunityDifference(FairnessMetricDifference):
 
 
 class FalsePositiveRateDifference(FairnessMetricDifference):
+    """
+    A class to calculate the False Positive Rate Difference for a model.
+
+    This class inherits from `FairnessMetricDifference` and is used to 
+    calculate the differences in False Positive Rates between different 
+    sensitive groups.
+    
+    The scores are in the range [-1,1] and represent the difference between 
+    the FPRs.
+    
+    A score of 0 means the two groups scores are similar.
+    
+    The sign of the score determines which group is considered privileged 
+    and which group is considered unprivileged.
+    
+    For example, a false_positive_rate_difference of 0.2 means that the 
+    second group is considered the privileged group and has a 20% lower 
+    FPRs compared to the first group which is considered unprivileged 
+    group.
+
+    Parameters
+    ----------
+    data : Dataset or pd.DataFrame
+        dataset to evaluate. If a DataFrame is provided, 'sensitive', 
+        'real_target' and 'predicted_target' must also be specified.
+    label : str
+        The key to be used for the fairness result.
+    sensitive : Sequence[str]
+        sequence of sensitive attributes (Ex: gender, race...), by default
+        None
+    real_target : Sequence[str]
+        sequence of column names of actual labels for target variables, by
+        default None
+    predicted_target : Sequence[str], optional
+        sequence of column names of predicted labels for target variables,
+        by default None
+    positive_target : Sequence[int | float | str | bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Methods
+    -------
+    summary() -> dict
+        Calculates the difference in the FPRs in the `real_target`and returns
+        the biggest disparity and the group that is considered privileged and
+        the group that is considered unprivileged.
+
+    rank(pr_to_unp: bool = True) -> dict
+        Averages the differences calculated for each group and ranks the 
+        groups based on that average.
+
+    is_biased(threshold: float = 0.1) -> dict
+        Decides whether there is bias or not based on a given threshold that
+        is compared to the average scores of each group (the scores used for 
+        ranking).
+
+    Examples
+    --------
+    >>> from fair_mango.metrics.metrics import FalsePositiveRateDifference
+    >>> from fair_mango.dataset.dataset import Dataset
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({
+    ...     'gender': ['male', 'female', 'male', 'female', 'female'],
+    ...     'real': [1, 0, 0, 1, 0],
+    ...     'pred': [1, 0, 1, 0, 1]
+    ... })
+    >>> fpr_difference_1 = FalsePositiveRateDifference(
+    ...     data=df,
+    ...     sensitive=['gender'],
+    ...     real_target=['real'],
+    ...     predicted_target=['pred']
+    ... )
+    >>> fpr_difference_1.summary()
+    {
+        'real': {
+            'false_positive_rate_difference': 0.5,
+            'privileged': ('female',),
+            'unprivileged': ('male',)
+        }
+    }
+    >>> fpr_difference_1.rank(pr_to_unp=True)
+    {'real': {('female',): 0.5, ('male',): -0.5}}
+    >>> fpr_difference_1.is_biased(threshold=0.1)
+    {'real': True}
+    >>> data = Dataset(
+        df=df,
+        sensitive=['gender'],
+        real_target=['real'],
+        predicted_target=['pred']
+        )
+    >>> fpr_difference_2 = FalsePositiveRateDifference(
+    ...     data=data
+    ... )
+    >>> fpr_difference_2.summary()
+    {
+        'real': {
+            'equal_opportunity_difference': 0.5,
+            'privileged': ('female',),
+            'unprivileged': ('male',)
+        }
+    }
+    >>> fpr_difference_2.rank(pr_to_unp=False)
+    {'real': {('male',): -0.5, ('female',): 0.5}}
+    >>> fpr_difference_2.is_biased(threshold=0.6)
+    {'real': False}
+    """
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -1388,6 +1612,69 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
 
 
 class FairnessMetricRatio:
+    """
+    A base class for calculating and evaluating fairness metrics using
+    ratios across sensitive groups.
+
+    This class is intended to be inherited by specific fairness metric
+    classes. It provides methods for summarizing metric ratios, ranking 
+    groups, and determining bias.
+
+    Parameters
+    ----------
+    data : Dataset or pd.DataFrame
+        dataset to evaluate. If a DataFrame is provided, 'sensitive' 
+        and 'real_target' must also be specified.
+    metric : type[SelectionRate] or type[ConfusionMatrix]
+        The metric class to be used for evaluation.
+    label : str
+        The key to be used for the fairness result.
+    zero_division_ : float | str | None, optional
+        The value to use when encountering a zero division error. Default
+        is None.
+    sensitive : Sequence[str]
+        sequence of sensitive attributes (Ex: gender, race...), by default
+        None
+    real_target : Sequence[str]
+        sequence of column names of actual labels for target variables, by
+        default None
+    predicted_target : Sequence[str], optional
+        sequence of column names of predicted labels for target variables,
+        by default None
+    positive_target : Sequence[int | float | str | bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+    metric_type : str, optional
+        Type of metric to evaluate ('performance' or 'error'), by default
+        'performance'.
+    **kwargs
+        Additional keyword arguments to pass to the metric class.
+
+    Attributes
+    ----------
+    data : Dataset
+        The dataset to be evaluated.
+    metric : type[SelectionRate] or type[ConfusionMatrix]
+        The metric class used for evaluation.
+    label : str
+        The main label for the fairness metric.
+    metric_results : list
+        List of metric results by group.
+    result : dict or None
+        Dictionary containing the summarized results.
+    ranking : dict or None
+        Dictionary containing the ranking of groups based on the metric.
+
+    Methods
+    -------
+    summary() -> dict
+        Give a summarised result with the smallest ratio (biggest disparity)
+        and between which groups.
+    rank(pr_to_unp: bool = True) -> dict
+        Ranks the groups based on the metric ratios.
+    is_biased(threshold: float = 0.8) -> dict
+        Determines if there is bias in the groups based on a threshold.
+    """
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -1428,6 +1715,16 @@ class FairnessMetricRatio:
         self.ranking: dict | None = None
 
     def summary(self) -> dict:
+        """
+        Give a summarised result with the smallest ratios and between which
+        groups.
+
+        Returns
+        -------
+        dict
+            A dictionary with the summarized results, indicating the smallest
+            ratio for each target and the corresponding groups.
+        """
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
         self.results = ratio(self.metric_results, self.zero_division)
@@ -1456,6 +1753,20 @@ class FairnessMetricRatio:
         return self.result
 
     def rank(self, pr_to_unp: bool = True) -> dict:
+        """
+        Ranks the groups based on the metric ratios.
+
+        Parameters
+        ----------
+        pr_to_unp : bool, optional
+            If True, rank from privileged to unprivileged. If False, rank from
+            unprivileged to privileged. Default is True.
+
+        Returns
+        -------
+        dict
+            A dictionary with the ranking of groups based on the metric ratios.
+        """
         self.pr_to_unp = pr_to_unp
         if self.result is None:
             self.summary()
@@ -1497,6 +1808,21 @@ class FairnessMetricRatio:
         return self.ranking
 
     def is_biased(self, threshold: float = 0.8) -> dict:
+        """
+        Determines if there is bias in the groups based on a threshold.
+
+        Parameters
+        ----------
+        threshold : float, optional
+            The threshold to determine bias. Must be in the range [0, 1]. 
+            Default is 0.8.
+
+        Returns
+        -------
+        dict
+            A dictionary indicating whether each target is biased (True) 
+            or not (False).
+        """
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
         if self.ranking is None:
@@ -1515,6 +1841,114 @@ class FairnessMetricRatio:
 
 
 class DemographicParityRatio(FairnessMetricRatio):
+    """
+    A class to calculate the Demographic Parity Ratio for a dataset.
+
+    This class inherits from `FairnessMetricRatio` and is used to 
+    calculate the ratios in selection rates  between different sensitive
+    groups.
+    
+    The scores are in the range [0, inf] and represent the ratio between 
+    the selection rates in the `real_target`.
+    
+    A score of 1 means the two groups scores are similar.
+    
+    The value of the score compared to 1 determines which group is considered 
+    privileged and which group is considered unprivileged.
+    
+    For example, a demographic_parity_ratio of 0.8 means that the nominator 
+    group is considered the unprivileged group and has 80% the selection rate 
+    of the denominator group which is considered privileged group.
+
+    Parameters
+    ----------
+    data : Dataset or pd.DataFrame
+        dataset to evaluate. If a DataFrame is provided, 'sensitive' 
+        and 'real_target' must also be specified.
+    label : str
+        The key to be used for the fairness result.
+    zero_division: float | str | None, optional
+        The value to use when encountering a zero division error. Default
+        is None.
+    sensitive : Sequence[str]
+        sequence of sensitive attributes (Ex: gender, race...), by default
+        None
+    real_target : Sequence[str]
+        sequence of column names of actual labels for target variables, by
+        default None
+    predicted_target : Sequence[str], optional
+        sequence of column names of predicted labels for target variables,
+        by default None
+    positive_target : Sequence[int | float | str | bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Methods
+    -------
+    summary() -> dict
+        Calculates the ratio in the selection rate in the `real_target` and
+        returns the biggest disparity (smallest ratio) and the group that is
+        considered privileged and the group that is considered unprivileged.
+
+    rank(pr_to_unp: bool = True) -> dict
+        Averages the ratios calculated for each group and ranks the 
+        groups based on that average.
+
+    is_biased(threshold: float = 0.8) -> dict
+        Decides whether there is bias or not based on a given threshold that
+        is compared to the average scores of each group (the scores used for 
+        ranking).
+
+    Examples
+    --------
+    >>> from fair_mango.metrics.metrics import DemographicParityRatio
+    >>> from fair_mango.dataset.dataset import Dataset
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({
+    ...     'gender': ['male', 'female', 'male', 'female'],
+    ...     'real': [1, 0, 1, 1],
+    ...     'pred': [1, 0, 1, 0]
+    ... })
+    >>> demographic_parity_1 = DemographicParityRatio(
+    ...     data=df,
+    ...     sensitive=['gender'],
+    ...     real_target=['real'],
+    ...     predicted_target=['pred']
+    ... )
+    >>> demographic_parity_1.summary()
+    {
+        'real': {
+            'demographic_parity_ratio': 0.5,
+            'privileged': ('male',),
+            'unprivileged': ('female',)
+        }
+    }
+    >>> demographic_parity_1.rank(pr_to_unp=True)
+    {'real': {('male',): 0.5, ('female',): 2.0}}
+    >>> demographic_parity_1.is_biased(threshold=0.6)
+    {'real': True}
+    >>> data = Dataset(
+        df=df,
+        sensitive=['gender'],
+        real_target=['real'],
+        predicted_target=['pred']
+        )
+    >>> demographic_parity_2 = DemographicParityRatio(
+    ...     data=data
+    ... )
+    >>> demographic_parity_2.summary()
+    {
+        'real': {
+            'demographic_parity_ratio': 0.5,
+            'privileged': ('male',),
+            'unprivileged': ('female',)
+        }
+    }
+    >>> demographic_parity_2.rank(pr_to_unp=False)
+    {'real': {('female',): 2.0, ('male',): 0.5}}
+    >>> demographic_parity_2.is_biased(threshold=0.4)
+    {'real': False}
+    """
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -1540,6 +1974,114 @@ class DemographicParityRatio(FairnessMetricRatio):
 
 
 class DisparateImpactRatio(FairnessMetricRatio):
+    """
+    A class to calculate the Disparate Impact Ratio for a dataset.
+
+    This class inherits from `FairnessMetricRatio` and is used to 
+    calculate the ratios in selection rates  between different sensitive
+    groups.
+    
+    The scores are in the range [0, inf] and represent the ratio between 
+    the selection rates in the `predicted_target`.
+    
+    A score of 1 means the two groups scores are similar.
+    
+    The value of the score compared to 1 determines which group is considered
+    privileged and which group is considered unprivileged.
+    
+    For example, a disparate_impact_ratio of 0.8 means that the nominator 
+    group is considered the unprivileged group and has 80% the selection rate
+    of the denominator group which is considered privileged group.
+
+    Parameters
+    ----------
+    data : Dataset or pd.DataFrame
+        dataset to evaluate. If a DataFrame is provided, 'sensitive', 
+        'real_target' and 'predicted_target' must also be specified.
+    label : str
+        The key to be used for the fairness result.
+    zero_division: float | str | None, optional
+        The value to use when encountering a zero division error. Default
+        is None.
+    sensitive : Sequence[str]
+        sequence of sensitive attributes (Ex: gender, race...), by default
+        None
+    real_target : Sequence[str]
+        sequence of column names of actual labels for target variables, by
+        default None
+    predicted_target : Sequence[str], optional
+        sequence of column names of predicted labels for target variables,
+        by default None
+    positive_target : Sequence[int | float | str | bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Methods
+    -------
+    summary() -> dict
+        Calculates the ratio in the selection rate in the `predicted_target` 
+        and returns the biggest disparity (smallest ratio) and the group that
+        is considered privileged and the group that is considered unprivileged.
+
+    rank(pr_to_unp: bool = True) -> dict
+        Averages the ratios calculated for each group and ranks the 
+        groups based on that average.
+
+    is_biased(threshold: float = 0.8) -> dict
+        Decides whether there is bias or not based on a given threshold that
+        is compared to the average scores of each group (the scores used for 
+        ranking).
+
+    Examples
+    --------
+    >>> from fair_mango.metrics.metrics import DisparateImpactRatio
+    >>> from fair_mango.dataset.dataset import Dataset
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({
+    ...     'gender': ['male', 'female', 'male', 'female'],
+    ...     'real': [1, 0, 1, 1],
+    ...     'pred': [1, 1, 1, 0]
+    ... })
+    >>> disparate_impact_1 = DisparateImpactRatio(
+    ...     data=df,
+    ...     sensitive=['gender'],
+    ...     real_target=['real'],
+    ...     predicted_target=['pred']
+    ... )
+    >>> disparate_impact_1.summary()
+    {
+        'pred': {
+            'disparate_impact_difference': 0.5,
+            'privileged': ('male',),
+            'unprivileged': ('female',)
+        }
+    }
+    >>> disparate_impact_1.rank(pr_to_unp=True)
+    {'real': {('male',): 0.5, ('female',): 2.0}}
+    >>> disparate_impact_1.is_biased(threshold=0.8)
+    {'real': True}
+    >>> data = Dataset(
+        df=df,
+        sensitive=['gender'],
+        real_target=['real'],
+        predicted_target=['pred']
+        )
+    >>> disparate_impact_2 = DisparateImpactRatio(
+    ...     data=data
+    ... )
+    >>> disparate_impact_2.summary()
+    {
+        'real': {
+            'disparate_impact_difference': 0.5,
+            'privileged': ('male',),
+            'unprivileged': ('female',)
+        }
+    }
+    >>> disparate_impact_2.rank(pr_to_unp=False)
+    {'real': {('female',): 2.0, ('male',): 0.5}}
+    >>> disparate_impact_2.is_biased(threshold=0.4)
+    {'real': False}
+    """
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -1565,6 +2107,114 @@ class DisparateImpactRatio(FairnessMetricRatio):
 
 
 class EqualOpportunityRatio(FairnessMetricRatio):
+    """
+    A class to calculate the Equal Opportunity Ratio for a dataset.
+
+    This class inherits from `FairnessMetricRatio` and is used to 
+    calculate the ratios in True Positive Rates  between different sensitive
+    groups.
+    
+    The scores are in the range [0, inf] and represent the ratio between 
+    the True Positive Rates.
+    
+    A score of 1 means the two groups scores are similar.
+    
+    The value of the score compared to 1 determines which group is considered
+    privileged and which group is considered unprivileged.
+    
+    For example, a equal_opportunity_ratio of 0.8 means that the nominator 
+    group is considered the unprivileged group and has 80% the TPR of the 
+    denominator group which is considered privileged group.
+
+    Parameters
+    ----------
+    data : Dataset or pd.DataFrame
+        dataset to evaluate. If a DataFrame is provided, 'sensitive', 
+        'real_target' and 'predicted_target' must also be specified.
+    label : str
+        The key to be used for the fairness result.
+    zero_division: float | str | None, optional
+        The value to use when encountering a zero division error. Default
+        is None.
+    sensitive : Sequence[str]
+        sequence of sensitive attributes (Ex: gender, race...), by default
+        None
+    real_target : Sequence[str]
+        sequence of column names of actual labels for target variables, by
+        default None
+    predicted_target : Sequence[str], optional
+        sequence of column names of predicted labels for target variables,
+        by default None
+    positive_target : Sequence[int | float | str | bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Methods
+    -------
+    summary() -> dict
+        Calculates the ratio in the TPRs in the `predicted_target` and returns
+        the biggest disparity (smallest ratio) and the group that is considered
+        privileged and the group that is considered unprivileged.
+
+    rank(pr_to_unp: bool = True) -> dict
+        Averages the ratios calculated for each group and ranks the 
+        groups based on that average.
+
+    is_biased(threshold: float = 0.8) -> dict
+        Decides whether there is bias or not based on a given threshold that
+        is compared to the average scores of each group (the scores used for 
+        ranking).
+
+    Examples
+    --------
+    >>> from fair_mango.metrics.metrics import EqualOpportunityRatio
+    >>> from fair_mango.dataset.dataset import Dataset
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({
+    ...     'gender': ['male', 'female', 'male', 'female', 'female'],
+    ...     'real': [1, 0, 1, 1, 1],
+    ...     'pred': [1, 1, 1, 0, 1]
+    ... })
+    >>> equal_opportunity_1 = EqualOpportunityRatio(
+    ...     data=df,
+    ...     sensitive=['gender'],
+    ...     real_target=['real'],
+    ...     predicted_target=['pred']
+    ... )
+    >>> equal_opportunity_1.summary()
+    {
+        'pred': {
+            'equal_opportunity_ratio': 0.5,
+            'privileged': ('male',),
+            'unprivileged': ('female',)
+        }
+    }
+    >>> equal_opportunity_1.rank(pr_to_unp=True)
+    {'real': {('male',): 0.5, ('female',): 2.0}}
+    >>> equal_opportunity_1.is_biased(threshold=0.8)
+    {'real': True}
+    >>> data = Dataset(
+        df=df,
+        sensitive=['gender'],
+        real_target=['real'],
+        predicted_target=['pred']
+        )
+    >>> equal_opportunity_2 = EqualOpportunityRatio(
+    ...     data=data
+    ... )
+    >>> equal_opportunity_2.summary()
+    {
+        'real': {
+            'equal_opportunity_ratio': 0.5,
+            'privileged': ('male',),
+            'unprivileged': ('female',)
+        }
+    }
+    >>> equal_opportunity_2.rank(pr_to_unp=False)
+    {'real': {('female',): 2.0, ('male',): 0.5}}
+    >>> equal_opportunity_2.is_biased(threshold=0.4)
+    {'real': False}
+    """
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -1590,6 +2240,114 @@ class EqualOpportunityRatio(FairnessMetricRatio):
 
 
 class FalsePositiveRateRatio(FairnessMetricRatio):
+    """
+    A class to calculate the False Positive Rate Ratio for a dataset.
+
+    This class inherits from `FairnessMetricRatio` and is used to 
+    calculate the ratios in False Positive Rates  between different sensitive
+    groups.
+    
+    The scores are in the range [0, inf] and represent the ratio between 
+    the False Positive Rates.
+    
+    A score of 1 means the two groups scores are similar.
+    
+    The value of the score compared to 1 determines which group is considered
+    privileged and which group is considered unprivileged.
+    
+    For example, a fpr_ratio of 0.8 means that the nominator group is
+    considered the privileged group and has 80% the FPR of the denominator
+    group which is considered unprivileged group.
+
+    Parameters
+    ----------
+    data : Dataset or pd.DataFrame
+        dataset to evaluate. If a DataFrame is provided, 'sensitive', 
+        'real_target' and 'predicted_target' must also be specified.
+    label : str
+        The key to be used for the fairness result.
+    zero_division: float | str | None, optional
+        The value to use when encountering a zero division error. Default
+        is None.
+    sensitive : Sequence[str]
+        sequence of sensitive attributes (Ex: gender, race...), by default
+        None
+    real_target : Sequence[str]
+        sequence of column names of actual labels for target variables, by
+        default None
+    predicted_target : Sequence[str], optional
+        sequence of column names of predicted labels for target variables,
+        by default None
+    positive_target : Sequence[int | float | str | bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Methods
+    -------
+    summary() -> dict
+        Calculates the ratio in the FPRs in the `predicted_target` and returns
+        the biggest disparity (smallest ratio) and the group that is considered
+        privileged and the group that is considered unprivileged.
+
+    rank(pr_to_unp: bool = True) -> dict
+        Averages the ratios calculated for each group and ranks the 
+        groups based on that average.
+
+    is_biased(threshold: float = 0.8) -> dict
+        Decides whether there is bias or not based on a given threshold that
+        is compared to the average scores of each group (the scores used for 
+        ranking).
+
+    Examples
+    --------
+    >>> from fair_mango.metrics.metrics import FalsePositiveRateRatio
+    >>> from fair_mango.dataset.dataset import Dataset
+    >>> import pandas as pd
+    >>> df = pd.DataFrame({
+    ...     'gender': ['male', 'female', 'male', 'female', 'female'],
+    ...     'real': [1, 0, 0, 1, 0],
+    ...     'pred': [1, 0, 1, 0, 1]
+    ... })
+    >>> fpr_ratio_1 = FalsePositiveRateRatio(
+    ...     data=df,
+    ...     sensitive=['gender'],
+    ...     real_target=['real'],
+    ...     predicted_target=['pred']
+    ... )
+    >>> fpr_ratio_1.summary()
+    {
+        'real': {
+            'false_positive_rate_difference': 0.5,
+            'privileged': ('female',),
+            'unprivileged': ('male',)
+        }
+    }
+    >>> fpr_ratio_1.rank(pr_to_unp=True)
+    {'real': {('female',): 0.5, ('male',): 2.0}}
+    >>> fpr_ratio_1.is_biased(threshold=0.6)
+    {'real': True}
+    >>> data = Dataset(
+        df=df,
+        sensitive=['gender'],
+        real_target=['real'],
+        predicted_target=['pred']
+        )
+    >>> fpr_ratio_2 = FalsePositiveRateRatio(
+    ...     data=data
+    ... )
+    >>> fpr_ratio_2.summary()
+    {
+        'real': {
+            'equal_opportunity_difference': 0.5,
+            'privileged': ('female',),
+            'unprivileged': ('male',)
+        }
+    }
+    >>> fpr_ratio_2.rank(pr_to_unp=False)
+    {'real': {('male',): 2.0, ('female',): 0.5}}
+    >>> fpr_ratio_2.is_biased(threshold=0.4)
+    {'real': False}
+    """
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
