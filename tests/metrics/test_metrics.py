@@ -374,16 +374,15 @@ expected_result_6 = [
 
 
 @pytest.mark.parametrize(
-    "data, label, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
+    "data, label, sensitive, real_target, predicted_target, threshold, expected_result",
     [
-        (dataset2, "dpd", None, None, None, True, 0.3, expected_result_2),
+        (dataset2, "dpd", None, None, None, 0.3, expected_result_2),
         (
             df,
             "demographic_parity_difference",
             ["Sex", "ChestPainType"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
-            False,
             0.1,
             expected_result_3,
         ),
@@ -393,7 +392,6 @@ expected_result_6 = [
             None,
             None,
             None,
-            True,
             0.45,
             expected_result_6,
         ),
@@ -405,7 +403,6 @@ def test_demographic_parity_difference(
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
-    pr_to_unp: bool,
     threshold: float,
     expected_result: Sequence[dict[str, dict]],
 ):
@@ -417,7 +414,7 @@ def test_demographic_parity_difference(
         )
     result = dpd.summary()
     assert result == expected_result[0]
-    ranking = dpd.rank(pr_to_unp)
+    ranking = dpd.rank()
     assert ranking == expected_result[1]
     is_biased = dpd.is_biased(threshold)
     assert is_biased == expected_result[2]
@@ -513,9 +510,9 @@ expected_result_6 = [
 
 
 @pytest.mark.parametrize(
-    "data, label, zero_division, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
+    "data, label, zero_division, sensitive, real_target, predicted_target, threshold, expected_result",
     [
-        (dataset1, "dpr", None, None, None, None, True, 1.2, expected_result_1),
+        (dataset1, "dpr", None, None, None, None, 1.2, expected_result_1),
         (
             df,
             "dpr",
@@ -523,7 +520,6 @@ expected_result_6 = [
             ["Sex"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
-            True,
             0.4,
             expected_result_2,
         ),
@@ -534,7 +530,6 @@ expected_result_6 = [
             None,
             None,
             None,
-            True,
             0.8,
             expected_result_3,
         ),
@@ -545,7 +540,6 @@ expected_result_6 = [
             None,
             None,
             None,
-            False,
             0.3,
             expected_result_6,
         ),
@@ -558,7 +552,6 @@ def test_demographic_parity_ratio(
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
-    pr_to_unp: bool,
     threshold: float,
     expected_result: Sequence[dict[str, dict]],
 ):
@@ -570,7 +563,7 @@ def test_demographic_parity_ratio(
         )
     result = dpr.summary()
     assert result == expected_result[0]
-    ranking = dpr.rank(pr_to_unp)
+    ranking = dpr.rank()
     assert ranking == expected_result[1]
     if isinstance(expected_result[2], dict):
         is_biased = dpr.is_biased(threshold)
@@ -657,9 +650,9 @@ expected_result_6 = [
 
 
 @pytest.mark.parametrize(
-    "data, label, sensitive, real_target, predicted_target, positive_target, pr_to_unp, threshold, expected_result",
+    "data, label, sensitive, real_target, predicted_target, positive_target, threshold, expected_result",
     [
-        (dataset2, "did", None, None, None, None, False, 0.3, expected_result_2),
+        (dataset2, "did", None, None, None, None, 0.3, expected_result_2),
         (
             dataset3,
             "disparate_impact_difference",
@@ -667,7 +660,6 @@ expected_result_6 = [
             None,
             None,
             None,
-            True,
             -0.2,
             expected_result_3,
         ),
@@ -678,7 +670,6 @@ expected_result_6 = [
             ["HeartDisease", "ExerciseAngina"],
             ["HeartDiseasePred", "ExerciseAngina"],
             [1, "Y"],
-            False,
             0.45,
             expected_result_6,
         ),
@@ -691,7 +682,6 @@ def test_disparate_impact_difference(
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
     positive_target: Sequence[int | float | str | bool] | None,
-    pr_to_unp: bool,
     threshold: float,
     expected_result: Sequence[dict[str, dict]],
 ):
@@ -704,7 +694,7 @@ def test_disparate_impact_difference(
 
     result = did.summary()
     assert result == expected_result[0]
-    ranking = did.rank(pr_to_unp)
+    ranking = did.rank()
     assert ranking == expected_result[1]
     if isinstance(expected_result[2], dict):
         is_biased = did.is_biased(threshold)
@@ -791,7 +781,7 @@ expected_result_6 = [
 
 
 @pytest.mark.parametrize(
-    "data, label, zero_division, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
+    "data, label, zero_division, sensitive, real_target, predicted_target, threshold, expected_result",
     [
         (
             dataset1,
@@ -800,7 +790,6 @@ expected_result_6 = [
             None,
             None,
             None,
-            False,
             1.2,
             pytest.raises(ValueError),
         ),
@@ -811,7 +800,6 @@ expected_result_6 = [
             ["Sex"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
-            True,
             0.4,
             expected_result_2,
         ),
@@ -822,7 +810,6 @@ expected_result_6 = [
             None,
             None,
             None,
-            True,
             0.8,
             expected_result_3,
         ),
@@ -833,7 +820,6 @@ expected_result_6 = [
             None,
             None,
             None,
-            False,
             0.3,
             expected_result_6,
         ),
@@ -846,7 +832,6 @@ def test_disparate_impact_ratio(
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
-    pr_to_unp: bool,
     threshold: float,
     expected_result: Sequence[dict[str, dict]] | RaisesContext,
 ):
@@ -859,7 +844,7 @@ def test_disparate_impact_ratio(
             )
         result = dira.summary()
         assert result == expected_result[0]
-        ranking = dira.rank(pr_to_unp)
+        ranking = dira.rank()
         assert ranking == expected_result[1]
         is_biased = dira.is_biased(threshold)
         assert is_biased == expected_result[2]
@@ -882,7 +867,7 @@ expected_result_2 = [
             "unprivileged": ("F",),
         }
     },
-    {"HeartDisease": {("F",): -0.03816593886462882, ("M",): 0.03816593886462882}},
+    {"HeartDisease": {("M",): 0.03816593886462882, ("F",): -0.03816593886462882}},
     {"HeartDisease": False},
 ]
 
@@ -926,14 +911,14 @@ expected_result_6 = [
     },
     {
         "HeartDisease": {
-            ("F", "NAP"): -0.29578310710709704,
-            ("M", "TA"): -0.09528185397426492,
-            ("M", "ATA"): 0.028026416702426813,
-            ("F", "ASY"): 0.05586524454125468,
-            ("M", "NAP"): 0.0678532565292667,
-            ("M", "ASY"): 0.0689814956178457,
             ("F", "ATA"): 0.08516927384528401,
             ("F", "TA"): 0.08516927384528401,
+            ("M", "ASY"): 0.0689814956178457,
+            ("M", "NAP"): 0.0678532565292667,
+            ("F", "ASY"): 0.05586524454125468,
+            ("M", "ATA"): 0.028026416702426813,
+            ("M", "TA"): -0.09528185397426492,
+            ("F", "NAP"): -0.29578310710709704,
         },
         "ExerciseAngina": {
             ("M", "ASY"): np.nan,
@@ -951,16 +936,15 @@ expected_result_6 = [
 
 
 @pytest.mark.parametrize(
-    "data, label, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
+    "data, label, sensitive, real_target, predicted_target, threshold, expected_result",
     [
-        (dataset2, "eod", None, None, None, False, 0.1, expected_result_2),
+        (dataset2, "eod", None, None, None, 0.1, expected_result_2),
         (
             df,
             "equal_opportunity_difference",
             ["Sex", "ChestPainType"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
-            True,
             0.2,
             expected_result_3,
         ),
@@ -970,7 +954,6 @@ expected_result_6 = [
             None,
             None,
             None,
-            False,
             0.2,
             expected_result_6,
         ),
@@ -982,7 +965,6 @@ def test_equal_opportunity_difference(
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
-    pr_to_unp: bool,
     threshold: float,
     expected_result: Sequence[dict[str, dict]],
 ):
@@ -994,7 +976,7 @@ def test_equal_opportunity_difference(
         )
     result = eod.summary()
     assert result == expected_result[0]
-    rankings = eod.rank(pr_to_unp)
+    rankings = eod.rank()
     for (target, ranking), (expected_target, expected_ranking) in zip(
         rankings.items(), expected_result[1].items()
     ):
@@ -1058,14 +1040,14 @@ expected_result_6 = [
     },
     {
         "HeartDisease": {
-            ("F", "NAP"): 1.4436746606606454,
-            ("M", "TA"): 1.1131472015944397,
-            ("M", "ATA"): 0.9704985087342874,
-            ("F", "ASY"): 0.9426646174445017,
-            ("M", "NAP"): 0.9311028472164368,
-            ("M", "ASY"): 0.9300273909393691,
             ("F", "ATA"): 0.9148307261547161,
             ("F", "TA"): 0.9148307261547161,
+            ("M", "ASY"): 0.9300273909393691,
+            ("M", "NAP"): 0.9311028472164368,
+            ("F", "ASY"): 0.9426646174445017,
+            ("M", "ATA"): 0.9704985087342874,
+            ("M", "TA"): 1.1131472015944397,
+            ("F", "NAP"): 1.4436746606606454,
         },
         "ExerciseAngina": {
             ("M", "ASY"): np.nan,
@@ -1083,7 +1065,7 @@ expected_result_6 = [
 
 
 @pytest.mark.parametrize(
-    "data, label, zero_division, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
+    "data, label, zero_division, sensitive, real_target, predicted_target, threshold, expected_result",
     [
         (
             dataset1,
@@ -1092,7 +1074,6 @@ expected_result_6 = [
             None,
             None,
             None,
-            False,
             1.2,
             pytest.raises(ValueError),
         ),
@@ -1103,7 +1084,6 @@ expected_result_6 = [
             ["Sex"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
-            True,
             0.4,
             expected_result_2,
         ),
@@ -1114,7 +1094,6 @@ expected_result_6 = [
             None,
             None,
             None,
-            True,
             0.8,
             expected_result_3,
         ),
@@ -1125,7 +1104,6 @@ expected_result_6 = [
             None,
             None,
             None,
-            False,
             0.9,
             expected_result_6,
         ),
@@ -1138,7 +1116,6 @@ def test_equal_opportuinity_ratio(
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
-    pr_to_unp: bool,
     threshold: float,
     expected_result: Sequence[dict[str, dict]] | RaisesContext,
 ):
@@ -1151,7 +1128,7 @@ def test_equal_opportuinity_ratio(
             )
         result = eor.summary()
         assert result == expected_result[0]
-        rankings = eor.rank(pr_to_unp)
+        rankings = eor.rank()
         for (target, ranking), (expected_target, expected_ranking) in zip(
             rankings.items(), expected_result[1].items()
         ):
@@ -1368,7 +1345,7 @@ expected_result_2 = [
             "unprivileged": ("F",),
         }
     },
-    {"HeartDisease": {("F",): -0.03816593886462882, ("M",): 0.03816593886462882}},
+    {"HeartDisease": {("M",): 0.03816593886462882, ("F",): -0.03816593886462882}},
     {"HeartDisease": False},
 ]
 
@@ -1412,14 +1389,14 @@ expected_result_6 = [
     },
     {
         "HeartDisease": {
-            ("F", "NAP"): -0.24551036643187954,
-            ("M", "TA"): -0.16240914536313006,
-            ("F", "ASY"): 0.0014697534603408588,
-            ("M", "ATA"): 0.05205550855335028,
-            ("M", "ASY"): 0.08153282325925479,
-            ("M", "NAP"): 0.08199377127623639,
-            ("F", "ATA"): 0.09033178680658709,
             ("F", "TA"): 0.10053586843924016,
+            ("F", "ATA"): 0.09033178680658709,
+            ("M", "NAP"): 0.08199377127623639,
+            ("M", "ASY"): 0.08153282325925479,
+            ("M", "ATA"): 0.05205550855335028,
+            ("F", "ASY"): 0.0014697534603408588,
+            ("M", "TA"): -0.16240914536313006,
+            ("F", "NAP"): -0.24551036643187954,
         },
         "ExerciseAngina": {
             ("M", "ASY"): 0.0,
@@ -1437,15 +1414,14 @@ expected_result_6 = [
 
 
 @pytest.mark.parametrize(
-    "data, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
+    "data, sensitive, real_target, predicted_target, threshold, expected_result",
     [
-        (dataset2, None, None, None, False, 0.1, expected_result_2),
+        (dataset2, None, None, None, 0.1, expected_result_2),
         (
             df,
             ["Sex", "ChestPainType"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
-            True,
             0.2,
             expected_result_3,
         ),
@@ -1454,7 +1430,6 @@ expected_result_6 = [
             None,
             None,
             None,
-            False,
             0.2,
             expected_result_6,
         ),
@@ -1465,7 +1440,6 @@ def test_equalised_odds_difference(
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
-    pr_to_unp: bool,
     threshold: float,
     expected_result: Sequence[dict[str, dict]],
 ):
@@ -1475,7 +1449,7 @@ def test_equalised_odds_difference(
         eod = EqualisedOddsDifference(data, sensitive, real_target, predicted_target)
     result = eod.summary()
     assert result == expected_result[0]
-    rankings = eod.rank(pr_to_unp)
+    rankings = eod.rank()
     for (target, ranking), (expected_target, expected_ranking) in zip(
         rankings.items(), expected_result[1].items()
     ):
@@ -1525,7 +1499,7 @@ expected_result_3 = [
 
 
 @pytest.mark.parametrize(
-    "data, zero_division, sensitive, real_target, predicted_target, pr_to_unp, threshold, expected_result",
+    "data, zero_division, sensitive, real_target, predicted_target, threshold, expected_result",
     [
         (
             dataset1,
@@ -1533,7 +1507,6 @@ expected_result_3 = [
             None,
             None,
             None,
-            False,
             1.2,
             pytest.raises(ValueError),
         ),
@@ -1543,7 +1516,6 @@ expected_result_3 = [
             ["Sex"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
-            True,
             0.4,
             expected_result_2,
         ),
@@ -1553,7 +1525,6 @@ expected_result_3 = [
             None,
             None,
             None,
-            True,
             0.8,
             expected_result_3,
         ),
@@ -1565,7 +1536,6 @@ def test_equalised_odds_ratio(
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
-    pr_to_unp: bool,
     threshold: float,
     expected_result: Sequence[dict[str, dict]] | RaisesContext,
 ):
@@ -1578,7 +1548,7 @@ def test_equalised_odds_ratio(
             )
         result = eor.summary()
         assert result == expected_result[0]
-        rankings = eor.rank(pr_to_unp)
+        rankings = eor.rank()
         for (target, ranking), (expected_target, expected_ranking) in zip(
             rankings.items(), expected_result[1].items()
         ):

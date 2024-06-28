@@ -524,11 +524,16 @@ class FairnessMetricDifference:
             )
         self.result: dict | None = None
         self.ranking: dict | None = None
+        self.results: dict | None = None
+    
+    def _compute(self) -> None:
+        self.results = difference(self.metric_results)
 
     def summary(self) -> dict:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
-        self.results = difference(self.metric_results)
+        if self.results is None:
+            self._compute()
         self.differences = self.targets, self.results
         self.result = {}
         for target in self.targets:
@@ -551,15 +556,14 @@ class FairnessMetricDifference:
                         self.result[target][self.label2] = key[0]
         return self.result
 
-    def rank(self, pr_to_unp: bool = True) -> dict:
-        self.pr_to_unp = pr_to_unp
-        if self.result is None:
-            self.summary()
+    def rank(self) -> dict:
         result: dict = {}
         self.ranking = {}
         for target in self.data.real_target:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
+        if self.results is None:
+            self._compute()
         for key, values in self.results.items():
             if isinstance(values, float):
                 values = [values]
@@ -574,22 +578,14 @@ class FairnessMetricDifference:
             for group, differences in target_result.items():
                 difference = np.mean(np.array(differences))
                 self.ranking[target].setdefault(group, difference)
-            if pr_to_unp:
-                self.ranking[target] = dict(
-                    sorted(
-                        self.ranking[target].items(),
-                        key=lambda item: item[1],
-                        reverse=True,
-                    )
+            self.ranking[target] = dict(
+                sorted(
+                    self.ranking[target].items(),
+                    key=lambda item: item[1],
+                    reverse=True,
                 )
-            else:
-                self.ranking[target] = dict(
-                    sorted(
-                        self.ranking[target].items(),
-                        key=lambda item: item[1],
-                        reverse=False,
-                    )
-                )
+            )
+
         return self.ranking
 
     def is_biased(self, threshold: float = 0.1) -> dict:
@@ -599,10 +595,7 @@ class FairnessMetricDifference:
             self.ranking = self.rank()
         bias: dict = {}
         for target, dicts in self.ranking.items():
-            if self.pr_to_unp:
-                max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
-            else:
-                min_diff, max_diff = list(dicts.values())[0], list(dicts.values())[-1]
+            max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
             if max_diff > threshold or min_diff < -threshold:
                 bias[target] = True
             else:
@@ -741,11 +734,16 @@ class FairnessMetricRatio:
         self.metric_results: list
         self.result: dict | None = None
         self.ranking: dict | None = None
+        self.results: dict | None = None
+    
+    def _compute(self) -> None:
+        self.results = ratio(self.metric_results, self.zero_division)
 
     def summary(self) -> dict:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
-        self.results = ratio(self.metric_results, self.zero_division)
+        if self.results is None:
+            self._compute()
         self.ratios = self.targets, self.results
         self.result = {}
         for target in self.targets:
@@ -770,15 +768,14 @@ class FairnessMetricRatio:
                     self.result[target][self.label2] = key[0]
         return self.result
 
-    def rank(self, pr_to_unp: bool = True) -> dict:
-        self.pr_to_unp = pr_to_unp
-        if self.result is None:
-            self.summary()
+    def rank(self) -> dict:
         result: dict = {}
         self.ranking = {}
         for target in self.data.real_target:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
+        if self.results is None:
+            self._compute()
         for key, values in self.results.items():
             if isinstance(values, float):
                 values = [values]
@@ -793,22 +790,14 @@ class FairnessMetricRatio:
             for group, ratios in target_result.items():
                 ratio = np.mean(np.array(ratios))
                 self.ranking[target].setdefault(group, ratio)
-            if pr_to_unp:
-                self.ranking[target] = dict(
-                    sorted(
-                        self.ranking[target].items(),
-                        key=lambda item: item[1],
-                        reverse=False,
-                    )
+            self.ranking[target] = dict(
+                sorted(
+                    self.ranking[target].items(),
+                    key=lambda item: item[1],
+                    reverse=False,
                 )
-            else:
-                self.ranking[target] = dict(
-                    sorted(
-                        self.ranking[target].items(),
-                        key=lambda item: item[1],
-                        reverse=True,
-                    )
-                )
+            )
+
         return self.ranking
 
     def is_biased(self, threshold: float = 0.8) -> dict:
@@ -818,10 +807,7 @@ class FairnessMetricRatio:
             self.ranking = self.rank()
         bias: dict = {}
         for target, dicts in self.ranking.items():
-            if self.pr_to_unp:
-                min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
-            else:
-                max_ratio, min_ratio = list(dicts.values())[0], list(dicts.values())[-1]
+            min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
             if max_ratio > (1 / threshold) or min_ratio < threshold:
                 bias[target] = True
             else:
@@ -949,13 +935,17 @@ class EqualisedOddsDifference:
                 data, sensitive, real_target, predicted_target, positive_target
             )
         self.label = "equalised_odds_difference"
+        self.ranking: dict | None = None
+        self.tpr: dict | None = None
+        self.fpr: dict | None = None
+    
+    def _compute(self) -> None:
         tpr = EqualOpportunityDifference(self.data)
         fpr = FalsePositiveRateDifference(self.data)
         tpr.summary()
         fpr.summary()
         self.tpr = tpr.differences[1]
         self.fpr = fpr.differences[1]
-        self.ranking: dict | None = None
 
     def summary(self) -> dict:
         self.result: dict = {}
@@ -963,6 +953,8 @@ class EqualisedOddsDifference:
             self.result.setdefault(
                 target, {self.label: 0.0, "privileged": None, "unprivileged": None}
             )
+        if (self.tpr is None) or (self.fpr is None):
+            self._compute()
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if np.abs(value1) > self.result[target][self.label]:
@@ -983,13 +975,14 @@ class EqualisedOddsDifference:
                         self.result[target]["unprivileged"] = key1[1]
         return self.result
 
-    def rank(self, pr_to_unp: bool = True) -> dict:
-        self.pr_to_unp = pr_to_unp
+    def rank(self) -> dict:
         result: dict = {}
         self.ranking = {}
         for target in self.data.real_target:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
+        if (self.tpr is None) or (self.fpr is None):
+            self._compute()
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if np.abs(value1) > np.abs(value2):
@@ -1002,22 +995,14 @@ class EqualisedOddsDifference:
             for group, differences in target_result.items():
                 difference = np.mean(np.array(differences))
                 self.ranking[target].setdefault(group, difference)
-            if pr_to_unp:
-                self.ranking[target] = dict(
-                    sorted(
-                        self.ranking[target].items(),
-                        key=lambda item: item[1],
-                        reverse=True,
-                    )
+            self.ranking[target] = dict(
+                sorted(
+                    self.ranking[target].items(),
+                    key=lambda item: item[1],
+                    reverse=True,
                 )
-            else:
-                self.ranking[target] = dict(
-                    sorted(
-                        self.ranking[target].items(),
-                        key=lambda item: item[1],
-                        reverse=False,
-                    )
-                )
+            )
+
         return self.ranking
 
     def is_biased(self, threshold: float = 0.1) -> dict:
@@ -1027,10 +1012,7 @@ class EqualisedOddsDifference:
             self.ranking = self.rank()
         bias: dict = {}
         for target, dicts in self.ranking.items():
-            if self.pr_to_unp:
-                max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
-            else:
-                min_diff, max_diff = list(dicts.values())[0], list(dicts.values())[-1]
+            max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
             if max_diff > threshold or min_diff < -threshold:
                 bias[target] = True
             else:
@@ -1059,13 +1041,18 @@ class EqualisedOddsRatio:
                 data, sensitive, real_target, predicted_target, positive_target
             )
         self.label = "equalised_odds_ratio"
-        tpr = EqualOpportunityRatio(self.data, zero_division_=zero_division)
-        fpr = FalsePositiveRateRatio(self.data, zero_division_=zero_division)
+        self.zero_division = zero_division
+        self.ranking: dict | None = None
+        self.tpr: dict | None = None
+        self.fpr: dict | None = None
+    
+    def _compute(self) -> None:
+        tpr = EqualOpportunityRatio(self.data, zero_division_=self.zero_division)
+        fpr = FalsePositiveRateRatio(self.data, zero_division_=self.zero_division)
         tpr.summary()
         fpr.summary()
         self.tpr = tpr.ratios[1]
         self.fpr = fpr.ratios[1]
-        self.ranking: dict | None = None
 
     def summary(self) -> dict:
         self.result: dict = {}
@@ -1073,6 +1060,8 @@ class EqualisedOddsRatio:
             self.result.setdefault(
                 target, {self.label: 1.0, "privileged": None, "unprivileged": None}
             )
+        if (self.tpr is None) or (self.fpr is None):
+            self._compute()
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if value1 > 1:
@@ -1102,13 +1091,14 @@ class EqualisedOddsRatio:
 
         return self.result
 
-    def rank(self, pr_to_unp: bool = True) -> dict:
-        self.pr_to_unp = pr_to_unp
+    def rank(self) -> dict:
         result: dict = {}
         self.ranking = {}
         for target in self.data.real_target:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
+        if (self.tpr is None) or (self.fpr is None):
+            self._compute()
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if value1 > 1:
@@ -1129,22 +1119,14 @@ class EqualisedOddsRatio:
             for group, ratios in target_result.items():
                 ratio = np.mean(np.array(ratios))
                 self.ranking[target].setdefault(group, ratio)
-            if pr_to_unp:
-                self.ranking[target] = dict(
-                    sorted(
-                        self.ranking[target].items(),
-                        key=lambda item: item[1],
-                        reverse=False,
-                    )
+            self.ranking[target] = dict(
+                sorted(
+                    self.ranking[target].items(),
+                    key=lambda item: item[1],
+                    reverse=False,
                 )
-            else:
-                self.ranking[target] = dict(
-                    sorted(
-                        self.ranking[target].items(),
-                        key=lambda item: item[1],
-                        reverse=True,
-                    )
-                )
+            )
+
         return self.ranking
 
     def is_biased(self, threshold: float = 0.1) -> dict:
@@ -1154,10 +1136,7 @@ class EqualisedOddsRatio:
             self.ranking = self.rank()
         bias: dict = {}
         for target, dicts in self.ranking.items():
-            if self.pr_to_unp:
-                min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
-            else:
-                max_ratio, min_ratio = list(dicts.values())[0], list(dicts.values())[-1]
+            min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
             if max_ratio > (1 / threshold) or min_ratio < threshold:
                 bias[target] = True
             else:
