@@ -527,11 +527,11 @@ class FairnessMetricDifference:
         self.results: dict | None = None
     
     def _compute(self) -> None:
+        metric = self.metric(self.data, **self.kwargs)
+        self.targets, self.metric_results = metric()
         self.results = difference(self.metric_results)
 
     def summary(self) -> dict:
-        metric = self.metric(self.data, **self.kwargs)
-        self.targets, self.metric_results = metric()
         if self.results is None:
             self._compute()
         self.differences = self.targets, self.results
@@ -1142,3 +1142,15 @@ class EqualisedOddsRatio:
             else:
                 bias[target] = False
         return bias
+
+
+def super_set(
+    metric: FairnessMetricDifference | FairnessMetricRatio | EqualisedOddsDifference | EqualisedOddsRatio, 
+    data: Dataset | pd.DataFrame,
+    zero_division: float | str | None = None,
+    sensitive: Sequence[str] | None = None,
+    real_target: Sequence[str] | None = None,
+    predicted_target: Sequence[str] | None = None,
+    positive_target: Sequence[int | float | str | bool] | None = None,
+) -> dict:
+    pass
