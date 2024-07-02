@@ -1,5 +1,5 @@
 from collections.abc import Collection, Sequence
-from itertools import combinations
+from itertools import chain, combinations
 
 import numpy as np
 import pandas as pd
@@ -525,15 +525,16 @@ class FairnessMetricDifference:
         self.result: dict | None = None
         self.ranking: dict | None = None
         self.results: dict | None = None
-    
-    def _compute(self) -> None:
+
+    def _compute(self) -> dict:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
-        self.results = difference(self.metric_results)
+        results = difference(self.metric_results)
+        return results
 
     def summary(self) -> dict:
         if self.results is None:
-            self._compute()
+            self.results = self._compute()
         self.differences = self.targets, self.results
         self.result = {}
         for target in self.targets:
@@ -563,7 +564,7 @@ class FairnessMetricDifference:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
         if self.results is None:
-            self._compute()
+            self.results = self._compute()
         for key, values in self.results.items():
             if isinstance(values, float):
                 values = [values]
@@ -735,15 +736,16 @@ class FairnessMetricRatio:
         self.result: dict | None = None
         self.ranking: dict | None = None
         self.results: dict | None = None
-    
-    def _compute(self) -> None:
-        self.results = ratio(self.metric_results, self.zero_division)
 
-    def summary(self) -> dict:
+    def _compute(self) -> dict:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
+        results = ratio(self.metric_results, self.zero_division)
+        return results
+
+    def summary(self) -> dict:
         if self.results is None:
-            self._compute()
+            self.results = self._compute()
         self.ratios = self.targets, self.results
         self.result = {}
         for target in self.targets:
@@ -775,7 +777,7 @@ class FairnessMetricRatio:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
         if self.results is None:
-            self._compute()
+            self.results = self._compute()
         for key, values in self.results.items():
             if isinstance(values, float):
                 values = [values]
@@ -938,14 +940,15 @@ class EqualisedOddsDifference:
         self.ranking: dict | None = None
         self.tpr: dict | None = None
         self.fpr: dict | None = None
-    
-    def _compute(self) -> None:
+
+    def _compute(self) -> tuple:
         tpr = EqualOpportunityDifference(self.data)
         fpr = FalsePositiveRateDifference(self.data)
         tpr.summary()
         fpr.summary()
-        self.tpr = tpr.differences[1]
-        self.fpr = fpr.differences[1]
+        tpr_diff = tpr.differences[1]
+        fpr_diff = fpr.differences[1]
+        return tpr_diff, fpr_diff
 
     def summary(self) -> dict:
         self.result: dict = {}
@@ -954,7 +957,7 @@ class EqualisedOddsDifference:
                 target, {self.label: 0.0, "privileged": None, "unprivileged": None}
             )
         if (self.tpr is None) or (self.fpr is None):
-            self._compute()
+            self.tpr, self.fpr = self._compute()
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if np.abs(value1) > self.result[target][self.label]:
@@ -982,7 +985,7 @@ class EqualisedOddsDifference:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
         if (self.tpr is None) or (self.fpr is None):
-            self._compute()
+            self.tpr, self.fpr = self._compute()
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if np.abs(value1) > np.abs(value2):
@@ -1024,7 +1027,7 @@ class EqualisedOddsRatio:
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
-        zero_division: float | str | None = None,
+        zero_division_: float | str | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -1041,18 +1044,19 @@ class EqualisedOddsRatio:
                 data, sensitive, real_target, predicted_target, positive_target
             )
         self.label = "equalised_odds_ratio"
-        self.zero_division = zero_division
+        self.zero_division = zero_division_
         self.ranking: dict | None = None
         self.tpr: dict | None = None
         self.fpr: dict | None = None
-    
-    def _compute(self) -> None:
+
+    def _compute(self) -> tuple:
         tpr = EqualOpportunityRatio(self.data, zero_division_=self.zero_division)
         fpr = FalsePositiveRateRatio(self.data, zero_division_=self.zero_division)
         tpr.summary()
         fpr.summary()
-        self.tpr = tpr.ratios[1]
-        self.fpr = fpr.ratios[1]
+        tpr_ratio = tpr.ratios[1]
+        fpr_ratio = fpr.ratios[1]
+        return tpr_ratio, fpr_ratio
 
     def summary(self) -> dict:
         self.result: dict = {}
@@ -1061,7 +1065,7 @@ class EqualisedOddsRatio:
                 target, {self.label: 1.0, "privileged": None, "unprivileged": None}
             )
         if (self.tpr is None) or (self.fpr is None):
-            self._compute()
+            self.tpr, self.fpr = self._compute()
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if value1 > 1:
@@ -1098,7 +1102,7 @@ class EqualisedOddsRatio:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
         if (self.tpr is None) or (self.fpr is None):
-            self._compute()
+            self.tpr, self.fpr = self._compute()
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if value1 > 1:
@@ -1145,12 +1149,17 @@ class EqualisedOddsRatio:
 
 
 def super_set(
-    metric: FairnessMetricDifference | FairnessMetricRatio | EqualisedOddsDifference | EqualisedOddsRatio, 
+    metric: (
+        FairnessMetricDifference
+        | FairnessMetricRatio
+        | EqualisedOddsDifference
+        | EqualisedOddsRatio
+    ),
     data: Dataset | pd.DataFrame,
-    zero_division: float | str | None = None,
     sensitive: Sequence[str] | None = None,
     real_target: Sequence[str] | None = None,
     predicted_target: Sequence[str] | None = None,
     positive_target: Sequence[int | float | str | bool] | None = None,
-) -> dict:
+    zero_division: float | str | None = None,
+) -> list:
     pass
