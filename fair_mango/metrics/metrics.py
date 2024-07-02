@@ -1185,16 +1185,16 @@ def super_set(
     positive_target: Sequence[int | float | str | bool] | None = None,
     zero_division: float | str | None = None,
 ) -> list:
-    """Calculate fairness metrics for different subsets of sensitive 
-    attributes. Ex: 
+    """Calculate fairness metrics for different subsets of sensitive
+    attributes. Ex:
     [gender, race] → (gender), (race), (gender, race)
 
     Parameters
     ----------
     metric : type[DemographicParityDifference]  |  type[DemographicParityRatio]
-    |  type[DisparateImpactDifference]  |  type[DisparateImpactRatio]  |  
-    type[EqualOpportunityDifference]  |  type[EqualOpportunityRatio]  |  
-    type[EqualisedOddsDifference]  |  type[EqualisedOddsRatio]  |  
+    |  type[DisparateImpactDifference]  |  type[DisparateImpactRatio]  |
+    type[EqualOpportunityDifference]  |  type[EqualOpportunityRatio]  |
+    type[EqualisedOddsDifference]  |  type[EqualisedOddsRatio]  |
     type[FalsePositiveRateDifference]  |  type[FalsePositiveRateRatio]
         The fairness metric class to be used for evaluation
     data : Dataset | pd.DataFrame
@@ -1204,13 +1204,13 @@ def super_set(
     sensitive : Sequence[str], optional
         A Sequence of sensitive attributes (Ex: gender, race...), by default []
     real_target : Sequence[str] | None, optional
-        A Sequence of column names of actual labels for target variables, 
+        A Sequence of column names of actual labels for target variables,
         by default None
     predicted_target : Sequence[str] | None, optional
-        A Sequence of column names of predicted labels for target variables, 
+        A Sequence of column names of predicted labels for target variables,
         by default None
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        A Sequence of the positive labels corresponding to the provided 
+        A Sequence of the positive labels corresponding to the provided
         targets, by default None
     zero_division : float | str | None, optional
         Value to use when there is a zero division situation, by default None
@@ -1219,7 +1219,7 @@ def super_set(
     -------
     list
         list
-        A list of dictionaries, each containing the sensitive attributes 
+        A list of dictionaries, each containing the sensitive attributes
         considered and their corresponding fairness metric result.
 
     Examples
