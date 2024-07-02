@@ -1042,7 +1042,7 @@ class EqualisedOddsRatio:
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
-        zero_division: float | str | None = None,
+        zero_division_: float | str | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -1059,8 +1059,8 @@ class EqualisedOddsRatio:
                 data, sensitive, real_target, predicted_target, positive_target
             )
         self.label = "equalised_odds_ratio"
-        tpr = EqualOpportunityRatio(self.data, zero_division_=zero_division)
-        fpr = FalsePositiveRateRatio(self.data, zero_division_=zero_division)
+        tpr = EqualOpportunityRatio(self.data, zero_division_=zero_division_)
+        fpr = FalsePositiveRateRatio(self.data, zero_division_=zero_division_)
         tpr.summary()
         fpr.summary()
         self.tpr = tpr.ratios[1]
@@ -1167,13 +1167,19 @@ class EqualisedOddsRatio:
 
 def super_set(
     metric: (
-        FairnessMetricDifference
-        | FairnessMetricRatio
-        | EqualisedOddsDifference
-        | EqualisedOddsRatio
+        type[DemographicParityDifference]
+        | type[DemographicParityRatio]
+        | type[DisparateImpactDifference]
+        | type[DisparateImpactRatio]
+        | type[EqualOpportunityDifference]
+        | type[EqualOpportunityRatio]
+        | type[EqualisedOddsDifference]
+        | type[EqualisedOddsRatio]
+        | type[FalsePositiveRateDifference]
+        | type[FalsePositiveRateRatio]
     ),
     data: Dataset | pd.DataFrame,
-    sensitive: Sequence[str] | None = None,
+    sensitive: Sequence[str] = [],
     real_target: Sequence[str] | None = None,
     predicted_target: Sequence[str] | None = None,
     positive_target: Sequence[int | float | str | bool] | None = None,
