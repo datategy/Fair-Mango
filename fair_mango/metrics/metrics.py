@@ -1,5 +1,6 @@
+from abc import ABC, abstractmethod
 from collections.abc import Collection, Sequence
-from itertools import chain, combinations
+from itertools import combinations
 
 import numpy as np
 import pandas as pd
@@ -55,12 +56,14 @@ def encode_target(data: Dataset, ind: int, col: str):
     Raises
     ------
     ValueError
-        if the positive target parameter was not provided when creating the dataset
+        if the positive target parameter was not provided when creating the
+        dataset
     """
     if data.positive_target is None:
         raise ValueError(
-            f"Calculations failed because target '{col}' has values \
-different than [0,1]. Provide the positive_target parameter when creating the dataset to solve this issue."
+            f"Calculations failed because target '{col}' has values different "
+            "than [0,1]. Provide the positive_target parameter when creating "
+            "the dataset to solve this issue."
         )
     else:
         if data.positive_target[ind] in data.df[col].unique():
@@ -68,7 +71,9 @@ different than [0,1]. Provide the positive_target parameter when creating the da
             data.df[col] = data.df[col].map(mapping).fillna(0).astype(int)
         else:
             raise KeyError(
-                f"Positive target value provided does not exist in the column. {data.positive_target[ind]} does not exist in column {col}: {data.df[col].unique()}"
+                "Positive target value provided does not exist in the column. "
+                f"{data.positive_target[ind]} does not exist in column {col}: "
+                f"{data.df[col].unique()}"
             )
 
 
@@ -172,8 +177,9 @@ def true_positive_rate(
         return zero_division
 
 
-class Metric:
-    """A class for the different fairness metrics and performance evaluation in different groups"""
+class Metric(ABC):
+    """A class for the different fairness metrics and performance evaluation
+    in different groups"""
 
     def __init__(
         self,
@@ -191,11 +197,14 @@ class Metric:
         sensitive : Sequence[str]
             list of sensitive attributes (Ex: gender, race...), by default None
         real_target : Sequence[str]
-            list of column names of actual labels for target variables, by default None
+            list of column names of actual labels for target variables, by
+            default None
         predicted_target : Sequence[str], optional
-            list of column names of predicted labels for target variables, by default None
+            list of column names of predicted labels for target variables, by
+            default None
         positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-            list of the positive labels corresponding to the provided targets, by default None
+            list of the positive labels corresponding to the provided targets,
+            by default None
 
         Raises
         ------
@@ -207,7 +216,8 @@ class Metric:
         else:
             if sensitive is None or real_target is None:
                 raise ValueError(
-                    "When providing a DataFrame, 'sensitive' and 'real_target' must be specified."
+                    "When providing a DataFrame, 'sensitive' and 'real_target'"
+                    " must be specified."
                 )
             self.data = Dataset(
                 data, sensitive, real_target, predicted_target, positive_target
@@ -230,10 +240,12 @@ class Metric:
         else:
             raise (
                 ValueError(
-                    f"target variable needs to be binary. Found {y.nunique()} unique values"
+                    f"target variable needs to be binary. Found {y.nunique()}"
+                    " unique values"
                 )
             )
 
+    @abstractmethod
     def __call__(self): ...
 
 
@@ -262,7 +274,9 @@ class SelectionRate(Metric):
         else:
             if self.predicted_targets_by_group == []:
                 raise ValueError(
-                    "No predictions found, provide predicted_target parameter when creating the dataset or set use_y_true to True to use the real labels"
+                    "No predictions found, provide predicted_target parameter "
+                    "when creating the dataset or set use_y_true to True to "
+                    "use the real labels"
                 )
             targets = self.data.predicted_target
             targets_by_group = self.predicted_targets_by_group
@@ -311,7 +325,8 @@ class ConfusionMatrix(Metric):
         )
         if self.predicted_targets_by_group == []:
             raise ValueError(
-                "No predictions found, provide predicted_target parameter when creating the dataset"
+                "No predictions found, provide predicted_target parameter "
+                "when creating the dataset"
             )
         self.zero_division = zero_division
         if metrics is None:
@@ -347,32 +362,29 @@ class ConfusionMatrix(Metric):
                 else:
                     real_values = real_y_group
                     predicted_values = predicted_y_group
+
+                # when the values in y_true and y_pred are all 1's or all 0's
+                # the confusion martix return a 2D array with a single value
+                # to handle this case we need the following check
                 if (np.unique(real_values) == 1).all() and (
                     np.unique(predicted_values) == 1
                 ).all():
                     tp = len(real_values)
                     tn = fp = fn = 0
+
                 elif (np.unique(real_values) == 0).all() and (
                     np.unique(predicted_values) == 0
                 ).all():
                     tn = len(real_values)
                     tp = fp = fn = 0
-                elif (np.unique(real_values) == 1).all() and (
-                    np.unique(predicted_values) == 0
-                ).all():
-                    fn = len(real_values)
-                    fp = tn = tp = 0
-                elif (np.unique(real_values) == 0).all() and (
-                    np.unique(predicted_values) == 1
-                ).all():
-                    fp = len(real_values)
-                    fn = tn = tp = 0
+
                 else:
                     conf_matrix = confusion_matrix(real_values, predicted_values)
                     tn = conf_matrix[0, 0]
                     tp = conf_matrix[1, 1]
                     fn = conf_matrix[1, 0]
                     fp = conf_matrix[0, 1]
+
                 for metric_name, metric in self.metrics.items():
                     result_for_group.setdefault(metric_name, []).append(
                         metric(
@@ -380,6 +392,7 @@ class ConfusionMatrix(Metric):
                         )
                     )
             self.results.append(result_for_group)
+
         return self.data.real_target, self.results
 
 
@@ -404,10 +417,13 @@ class PerformanceMetric(Metric):
         super().__init__(
             data, sensitive, real_target, predicted_target, positive_target
         )
+
         if self.predicted_targets_by_group == []:
             raise ValueError(
-                "No predictions found, provide predicted_target parameter when creating the dataset"
+                "No predictions found, provide predicted_target parameter "
+                "when creating the dataset"
             )
+
         if metrics is None:
             self.metrics = {
                 "accuracy": accuracy_score,
@@ -416,9 +432,11 @@ class PerformanceMetric(Metric):
                 "recall": recall_score,
                 "f1-score": f1_score,
             }
+
         else:
             if isinstance(metrics, dict):
                 self.metrics = metrics
+
             else:
                 metrics = set(metrics)
                 self.metrics = {}
@@ -433,6 +451,7 @@ class PerformanceMetric(Metric):
             real_y_group = real_group["data"]
             predicted_y_group = predicted_group["data"]
             result_for_group = {"sensitive": group_}
+
             for real_col, predicted_col in zip(
                 self.data.real_target, self.data.predicted_target
             ):
@@ -442,17 +461,21 @@ class PerformanceMetric(Metric):
                 else:
                     real_values = real_y_group
                     predicted_values = predicted_y_group
+
                 for metric_name, metric in self.metrics.items():
                     result_for_group.setdefault(metric_name, []).append(
                         metric(real_values, predicted_values)
                     )
+
             self.results.append(result_for_group)
+
         return self.data.real_target, self.results
 
 
 def difference(result_per_groups: np.array) -> dict:
     result = {}
     pairs = combinations(range(len(result_per_groups)), 2)
+
     for i, j in pairs:
         group_i = tuple(result_per_groups[i]["sensitive"])
         group_j = tuple(result_per_groups[j]["sensitive"])
@@ -461,6 +484,7 @@ def difference(result_per_groups: np.array) -> dict:
 
         key = (group_i, group_j)
         result[key] = result_i - result_j
+
     return result
 
 
@@ -469,6 +493,7 @@ def ratio(
 ) -> dict:
     result = {}
     pairs = list(combinations(range(len(result_per_groups)), 2))
+
     for i, j in pairs:
         result_i = np.array(result_per_groups[i]["result"])
         result_j = np.array(result_per_groups[j]["result"])
@@ -480,10 +505,11 @@ def ratio(
             result[key] = result_i / result_j
         except ZeroDivisionError:
             result[key] = zero_division
+
     return result
 
 
-class FairnessMetricDifference:
+class FairnessMetricDifference(ABC):
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -506,12 +532,14 @@ class FairnessMetricDifference:
             self.data = Dataset(
                 data, sensitive, real_target, predicted_target, positive_target
             )
+
         self.metric = metric
         self.label = label
         self.kwargs = kwargs
         self.targets: Sequence
         self.metric_results: list
         self.metric_type = metric_type
+
         if metric_type == "performance":
             self.label1 = "privileged"
             self.label2 = "unprivileged"
@@ -522,6 +550,7 @@ class FairnessMetricDifference:
             raise ValueError(
                 "Metric type not recognized. accepted values 'performance' or 'error'"
             )
+
         self.result: dict | None = None
         self.ranking: dict | None = None
         self.results: dict | None = None
@@ -537,12 +566,14 @@ class FairnessMetricDifference:
             self.results = self._compute()
         self.differences = self.targets, self.results
         self.result = {}
+
         for target in self.targets:
             self.result[target] = {
                 self.label: 0.0,
                 "privileged": None,
                 "unprivileged": None,
             }
+
         for key, value in self.results.items():
             if isinstance(value, (float, int)):
                 value = [value]
@@ -555,16 +586,20 @@ class FairnessMetricDifference:
                     else:
                         self.result[target][self.label1] = key[1]
                         self.result[target][self.label2] = key[0]
+
         return self.result
 
     def rank(self) -> dict:
         result: dict = {}
         self.ranking = {}
+
         for target in self.data.real_target:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
+
         if self.results is None:
             self.results = self._compute()
+
         for key, values in self.results.items():
             if isinstance(values, float):
                 values = [values]
@@ -575,6 +610,7 @@ class FairnessMetricDifference:
                 elif self.metric_type == "error":
                     result[target].setdefault(key[0], []).append(-value)
                     result[target].setdefault(key[1], []).append(value)
+
         for target, target_result in result.items():
             for group, differences in target_result.items():
                 difference = np.mean(np.array(differences))
@@ -592,15 +628,19 @@ class FairnessMetricDifference:
     def is_biased(self, threshold: float = 0.1) -> dict:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
+
         if self.ranking is None:
             self.ranking = self.rank()
+
         bias: dict = {}
+
         for target, dicts in self.ranking.items():
             max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
             if max_diff > threshold or min_diff < -threshold:
                 bias[target] = True
             else:
                 bias[target] = False
+
         return bias
 
 
@@ -696,7 +736,7 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
         )
 
 
-class FairnessMetricRatio:
+class FairnessMetricRatio(ABC):
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -721,12 +761,14 @@ class FairnessMetricRatio:
                 data, sensitive, real_target, predicted_target, positive_target
             )
         self.metric = metric
+
         if metric_type == "performance":
             self.label1 = "privileged"
             self.label2 = "unprivileged"
         elif metric_type == "error":
             self.label1 = "unprivileged"
             self.label2 = "privileged"
+
         self.kwargs = kwargs
         self.label = label
         self.zero_division = zero_division_
@@ -746,14 +788,17 @@ class FairnessMetricRatio:
     def summary(self) -> dict:
         if self.results is None:
             self.results = self._compute()
+
         self.ratios = self.targets, self.results
         self.result = {}
+
         for target in self.targets:
             self.result[target] = {
                 self.label: 1.0,
                 "privileged": None,
                 "unprivileged": None,
             }
+
         for key, value in self.results.items():
             if isinstance(value, (float, int)):
                 value = [value]
@@ -764,20 +809,25 @@ class FairnessMetricRatio:
                     key[0], key[1] = key[1], key[0]
                 else:
                     temp = value[ind]
+
                 if temp < self.result[target][self.label]:
                     self.result[target][self.label] = temp
                     self.result[target][self.label1] = key[1]
                     self.result[target][self.label2] = key[0]
+
         return self.result
 
     def rank(self) -> dict:
         result: dict = {}
         self.ranking = {}
+
         for target in self.data.real_target:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
+
         if self.results is None:
             self.results = self._compute()
+
         for key, values in self.results.items():
             if isinstance(values, float):
                 values = [values]
@@ -788,10 +838,12 @@ class FairnessMetricRatio:
                 elif self.metric_type == "error":
                     result[target].setdefault(key[0], []).append(value)
                     result[target].setdefault(key[1], []).append(1 / value)
+
         for target, target_result in result.items():
             for group, ratios in target_result.items():
                 ratio = np.mean(np.array(ratios))
                 self.ranking[target].setdefault(group, ratio)
+
             self.ranking[target] = dict(
                 sorted(
                     self.ranking[target].items(),
@@ -805,15 +857,19 @@ class FairnessMetricRatio:
     def is_biased(self, threshold: float = 0.8) -> dict:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
+
         if self.ranking is None:
             self.ranking = self.rank()
+
         bias: dict = {}
+
         for target, dicts in self.ranking.items():
             min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
             if max_ratio > (1 / threshold) or min_ratio < threshold:
                 bias[target] = True
             else:
                 bias[target] = False
+
         return bias
 
 
@@ -931,33 +987,40 @@ class EqualisedOddsDifference:
         else:
             if sensitive is None or real_target is None:
                 raise ValueError(
-                    "When providing a DataFrame, 'sensitive' and 'real_target' must be specified."
+                    "When providing a DataFrame, 'sensitive' and 'real_target'"
+                    " must be specified."
                 )
+
             self.data = Dataset(
                 data, sensitive, real_target, predicted_target, positive_target
             )
+
         self.label = "equalised_odds_difference"
         self.ranking: dict | None = None
         self.tpr: dict | None = None
         self.fpr: dict | None = None
 
-    def _compute(self) -> tuple:
+    def _compute(self) -> tuple[dict, dict]:
         tpr = EqualOpportunityDifference(self.data)
         fpr = FalsePositiveRateDifference(self.data)
         tpr.summary()
         fpr.summary()
         tpr_diff = tpr.differences[1]
         fpr_diff = fpr.differences[1]
+
         return tpr_diff, fpr_diff
 
     def summary(self) -> dict:
         self.result: dict = {}
+
         for target in self.data.real_target:
             self.result.setdefault(
                 target, {self.label: 0.0, "privileged": None, "unprivileged": None}
             )
+
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
+
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if np.abs(value1) > self.result[target][self.label]:
@@ -976,16 +1039,20 @@ class EqualisedOddsDifference:
                     else:
                         self.result[target]["privileged"] = key1[0]
                         self.result[target]["unprivileged"] = key1[1]
+
         return self.result
 
     def rank(self) -> dict:
         result: dict = {}
         self.ranking = {}
+
         for target in self.data.real_target:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
+
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
+
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if np.abs(value1) > np.abs(value2):
@@ -994,10 +1061,12 @@ class EqualisedOddsDifference:
                 else:
                     result[target].setdefault(key1[0], []).append(-value2)
                     result[target].setdefault(key1[1], []).append(value2)
+
         for target, target_result in result.items():
             for group, differences in target_result.items():
                 difference = np.mean(np.array(differences))
                 self.ranking[target].setdefault(group, difference)
+
             self.ranking[target] = dict(
                 sorted(
                     self.ranking[target].items(),
@@ -1011,15 +1080,19 @@ class EqualisedOddsDifference:
     def is_biased(self, threshold: float = 0.1) -> dict:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
+
         if self.ranking is None:
             self.ranking = self.rank()
+
         bias: dict = {}
+
         for target, dicts in self.ranking.items():
             max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
             if max_diff > threshold or min_diff < -threshold:
                 bias[target] = True
             else:
                 bias[target] = False
+
         return bias
 
 
@@ -1038,40 +1111,48 @@ class EqualisedOddsRatio:
         else:
             if sensitive is None or real_target is None:
                 raise ValueError(
-                    "When providing a DataFrame, 'sensitive' and 'real_target' must be specified."
+                    "When providing a DataFrame, 'sensitive' and 'real_target'"
+                    " must be specified."
                 )
+
             self.data = Dataset(
                 data, sensitive, real_target, predicted_target, positive_target
             )
+
         self.label = "equalised_odds_ratio"
         self.zero_division = zero_division_
         self.ranking: dict | None = None
         self.tpr: dict | None = None
         self.fpr: dict | None = None
 
-    def _compute(self) -> tuple:
+    def _compute(self) -> tuple[dict, dict]:
         tpr = EqualOpportunityRatio(self.data, zero_division_=self.zero_division)
         fpr = FalsePositiveRateRatio(self.data, zero_division_=self.zero_division)
         tpr.summary()
         fpr.summary()
         tpr_ratio = tpr.ratios[1]
         fpr_ratio = fpr.ratios[1]
+
         return tpr_ratio, fpr_ratio
 
     def summary(self) -> dict:
         self.result: dict = {}
+
         for target in self.data.real_target:
             self.result.setdefault(
                 target, {self.label: 1.0, "privileged": None, "unprivileged": None}
             )
+
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
+
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if value1 > 1:
                     temp = 1 / value1
                 else:
                     temp = value1
+
                 if temp < self.result[target][self.label]:
                     self.result[target][self.label] = temp
                     if value1 > 1:
@@ -1080,10 +1161,12 @@ class EqualisedOddsRatio:
                     else:
                         self.result[target]["privileged"] = key1[1]
                         self.result[target]["unprivileged"] = key1[0]
+
                 if value2 > 1:
                     temp = 1 / value2
                 else:
                     temp = value2
+
                 if temp < self.result[target][self.label]:
                     self.result[target][self.label] = temp
                     if value2 > 1:
@@ -1098,31 +1181,38 @@ class EqualisedOddsRatio:
     def rank(self) -> dict:
         result: dict = {}
         self.ranking = {}
+
         for target in self.data.real_target:
             result.setdefault(target, {})
             self.ranking.setdefault(target, {})
+
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
+
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
             for target, value1, value2 in zip(self.data.real_target, values1, values2):
                 if value1 > 1:
                     temp1 = 1 / value1
                 else:
                     temp1 = value1
+
                 if value2 > 1:
                     temp2 = 1 / value2
                 else:
                     temp2 = value2
+
                 if temp1 < temp2:
                     result[target].setdefault(key1[0], []).append(value1)
                     result[target].setdefault(key1[1], []).append(1 / value1)
                 else:
                     result[target].setdefault(key1[0], []).append(value2)
                     result[target].setdefault(key1[1], []).append(1 / value2)
+
         for target, target_result in result.items():
             for group, ratios in target_result.items():
                 ratio = np.mean(np.array(ratios))
                 self.ranking[target].setdefault(group, ratio)
+
             self.ranking[target] = dict(
                 sorted(
                     self.ranking[target].items(),
@@ -1136,30 +1226,17 @@ class EqualisedOddsRatio:
     def is_biased(self, threshold: float = 0.1) -> dict:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
+
         if self.ranking is None:
             self.ranking = self.rank()
+
         bias: dict = {}
+
         for target, dicts in self.ranking.items():
             min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
             if max_ratio > (1 / threshold) or min_ratio < threshold:
                 bias[target] = True
             else:
                 bias[target] = False
+
         return bias
-
-
-def super_set(
-    metric: (
-        FairnessMetricDifference
-        | FairnessMetricRatio
-        | EqualisedOddsDifference
-        | EqualisedOddsRatio
-    ),
-    data: Dataset | pd.DataFrame,
-    sensitive: Sequence[str] | None = None,
-    real_target: Sequence[str] | None = None,
-    predicted_target: Sequence[str] | None = None,
-    positive_target: Sequence[int | float | str | bool] | None = None,
-    zero_division: float | str | None = None,
-) -> list:
-    pass
