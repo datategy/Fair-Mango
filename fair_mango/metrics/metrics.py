@@ -720,7 +720,90 @@ def super_set(
     positive_target: Sequence[int | float | str | bool] | None = None,
     zero_division: float | str | None = None,
 ) -> list:
+    """Calculate fairness metrics for different subsets of sensitive 
+    attributes. Ex: 
+    [gender, race] → (gender), (race), (gender, race)
 
+    Parameters
+    ----------
+    metric : type[DemographicParityDifference]  |  type[DemographicParityRatio]
+    |  type[DisparateImpactDifference]  |  type[DisparateImpactRatio]  |  
+    type[EqualOpportunityDifference]  |  type[EqualOpportunityRatio]  |  
+    type[EqualisedOddsDifference]  |  type[EqualisedOddsRatio]  |  
+    type[FalsePositiveRateDifference]  |  type[FalsePositiveRateRatio]
+        The fairness metric class to be used for evaluation
+    data : Dataset | pd.DataFrame
+        The dataset containing the data to be evaluated. If a DataFrame object
+        is passed, it should contain attributes `sensitive`, `real_target`,
+        `predicted_target`, and `positive_target`.
+    sensitive : Sequence[str], optional
+        A Sequence of sensitive attributes (Ex: gender, race...), by default []
+    real_target : Sequence[str] | None, optional
+        A Sequence of column names of actual labels for target variables, 
+        by default None
+    predicted_target : Sequence[str] | None, optional
+        A Sequence of column names of predicted labels for target variables, 
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        A Sequence of the positive labels corresponding to the provided 
+        targets, by default None
+    zero_division : float | str | None, optional
+        Value to use when there is a zero division situation, by default None
+
+    Returns
+    -------
+    list
+        list
+        A list of dictionaries, each containing the sensitive attributes 
+        considered and their corresponding fairness metric result.
+
+    Examples
+    --------
+    >>> df = pd.DataFrame({
+    ...         'gender': ['male', 'male', 'male', 'female', 'female'],
+    ...         'race': ['white', 'black', 'black', 'white', 'white'],
+    ...         'real': [1,1,0,0,1],
+    ...         'pred': [0,1,0,0,1]
+    ... })
+    >>> result = super_set(
+    ...     metric=DemographicParityDifference,
+    ...     data=df,
+    ...     sensitive=['gender', 'race'],
+    ...     real_target=['real'],
+    ...     predicted_target=['pred'],
+    ... )
+    >>> result
+    [
+        {
+            'sensitive': ('gender',),
+            'result': {
+                'real': {
+                    ('male',): 0.16666666666666663,
+                    ('female',): -0.16666666666666663
+                }
+            }
+        },
+        {
+            'sensitive': ('race',),
+            'result': {
+                'real': {
+                    ('white',): 0.16666666666666663,
+                    ('black',): -0.16666666666666663
+                }
+            }
+        },
+        {
+            'sensitive': ('gender', 'race'),
+            'result': {
+                'real': {
+                    ('male', 'white'): 0.5,
+                    ('female', 'white'): -0.25,
+                    ('male', 'black'): -0.25
+                }
+            }
+        }
+    ]
+    """
     results = []
 
     if isinstance(data, Dataset):
