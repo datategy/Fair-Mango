@@ -1,5 +1,6 @@
 from collections.abc import Collection, Sequence
 from itertools import chain, combinations
+from itertools import chain, combinations
 
 import numpy as np
 import pandas as pd
