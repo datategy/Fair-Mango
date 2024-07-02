@@ -1,5 +1,5 @@
 from collections.abc import Collection, Sequence
-from itertools import combinations
+from itertools import chain, combinations
 
 import numpy as np
 import pandas as pd
@@ -1163,3 +1163,60 @@ class EqualisedOddsRatio:
             else:
                 bias[target] = False
         return bias
+
+
+def super_set(
+    metric: (
+        FairnessMetricDifference
+        | FairnessMetricRatio
+        | EqualisedOddsDifference
+        | EqualisedOddsRatio
+    ),
+    data: Dataset | pd.DataFrame,
+    sensitive: Sequence[str] | None = None,
+    real_target: Sequence[str] | None = None,
+    predicted_target: Sequence[str] | None = None,
+    positive_target: Sequence[int | float | str | bool] | None = None,
+    zero_division: float | str | None = None,
+) -> list:
+
+    results = []
+
+    if isinstance(data, Dataset):
+        sensitive = data.sensitive
+        real_target = data.real_target
+        predicted_target = data.predicted_target
+        positive_target = data.positive_target
+        data = data.df
+
+    pairs = chain.from_iterable(
+        combinations(sensitive, r) for r in range(1, len(sensitive) + 1)
+    )
+
+    for pair in pairs:
+        if hasattr(metric, "zero_division"):
+            result = metric(
+                data=data,
+                zero_division_=zero_division,
+                sensitive=list(pair),
+                real_target=real_target,
+                predicted_target=predicted_target,
+                positive_target=positive_target,
+            ).rank()
+        else:
+            result = metric(
+                data=data,
+                sensitive=list(pair),
+                real_target=real_target,
+                predicted_target=predicted_target,
+                positive_target=positive_target,
+            ).rank()
+
+        results.append(
+            {
+                "sensitive": pair,
+                "result": result,
+            }
+        )
+
+    return results
