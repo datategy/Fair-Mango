@@ -1188,6 +1188,8 @@ def super_set(
         predicted_target = data.predicted_target
         positive_target = data.positive_target
         data = data.df
+        if predicted_target == []:
+            predicted_target = None
 
     pairs = chain.from_iterable(
         combinations(sensitive, r) for r in range(1, len(sensitive) + 1)
