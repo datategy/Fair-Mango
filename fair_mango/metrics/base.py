@@ -212,7 +212,7 @@ class Metric(ABC):
     def __call__(self): ...
 
 
-def difference(result_per_groups: np.ndarray) -> dict[tuple, np.ndarray[float]]:
+def difference(result_per_groups: np.ndarray) -> dict[tuple, float | np.ndarray[float]]:
     result = {}
     pairs = combinations(range(len(result_per_groups)), 2)
 
@@ -228,7 +228,7 @@ def difference(result_per_groups: np.ndarray) -> dict[tuple, np.ndarray[float]]:
     return result
 
 
-def ratio(result_per_groups: np.ndarray) -> dict[tuple, np.ndarray[float]]:
+def ratio(result_per_groups: np.ndarray) -> dict[tuple, float | np.ndarray[float]]:
     result = {}
     pairs = list(combinations(range(len(result_per_groups)), 2))
 
