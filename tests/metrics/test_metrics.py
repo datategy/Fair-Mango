@@ -13,6 +13,7 @@ from sklearn.metrics import (
 )
 
 from fair_mango.dataset.dataset import Dataset
+from fair_mango.metrics.base import encode_target, is_binary
 from fair_mango.metrics.metrics import (
     ConfusionMatrix,
     DemographicParityDifference,
@@ -25,10 +26,8 @@ from fair_mango.metrics.metrics import (
     EqualOpportunityRatio,
     PerformanceMetric,
     SelectionRate,
-    encode_target,
     false_negative_rate,
     false_positive_rate,
-    is_binary,
     true_negative_rate,
 )
 
