@@ -258,6 +258,7 @@ expected_result_6 = [
     "data, metrics, expected_result",
     [
         (dataset1, None, pytest.raises(ValueError)),
+        (dataset2, {'sensitive': false_positive_rate}, pytest.raises(KeyError)),
         (dataset2, None, expected_result_2),
         (dataset3, {"fpr": false_positive_rate}, expected_result_3),
         (
@@ -1252,6 +1253,15 @@ expected_result_6 = [
     [
         (dataset1, None, None, None, None, None, pytest.raises(ValueError)),
         (
+            dataset2,
+            {'sensitive': f1_score},
+            None,
+            None,
+            None,
+            None,
+            pytest.raises(KeyError)
+        ),
+        (
             df,
             None,
             ["Sex"],
@@ -1315,8 +1325,10 @@ def test_performancemetrics(
 
     else:
         with expected_result:
-            cf = ConfusionMatrix(data, metrics)
-            cf()
+            pm = PerformanceMetric(
+                data, metrics, sensitive, real_target, predicted_target, positive_target
+            )
+            pm()
 
 
 expected_result_2 = [
