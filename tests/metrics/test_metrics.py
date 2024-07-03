@@ -262,7 +262,7 @@ expected_result_6 = [
         (dataset3, {"fpr": false_positive_rate}, None, expected_result_3),
         (
             dataset6,
-            [true_negative_rate, false_negative_rate],
+            [true_negative_rate, false_negative_rate],  # type: ignore[list-item]
             "ZERO",
             expected_result_6,
         ),
@@ -270,7 +270,7 @@ expected_result_6 = [
 )
 def test_confusionmatrix(
     data: Dataset,
-    metrics: dict[str, Callable] | None,
+    metrics: dict[str, Callable] | Sequence[Callable] | None,
     zero_division: float | str | None,
     expected_result: Sequence[dict[str, Sequence]] | RaisesContext,
 ):
