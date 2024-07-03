@@ -457,7 +457,9 @@ class EqualisedOddsDifference:
         self.tpr: dict | None = None
         self.fpr: dict | None = None
 
-    def _compute(self) -> tuple[dict, dict]:
+    def _compute(
+        self,
+    ) -> tuple[dict[tuple, np.ndarray[float]], dict[tuple, np.ndarray[float]]]:
         tpr = EqualOpportunityDifference(self.data)
         fpr = FalsePositiveRateDifference(self.data)
         tpr.summary()
@@ -467,7 +469,7 @@ class EqualisedOddsDifference:
 
         return tpr_diff, fpr_diff
 
-    def summary(self) -> dict:
+    def summary(self) -> dict[str, dict[str, float | tuple | None]]:
         self.result: dict = {}
 
         for target in self.data.real_target:
@@ -499,7 +501,7 @@ class EqualisedOddsDifference:
 
         return self.result
 
-    def rank(self) -> dict:
+    def rank(self) -> dict[str, dict[tuple[str], float]]:
         result: dict = {}
         self.ranking = {}
 
@@ -534,7 +536,7 @@ class EqualisedOddsDifference:
 
         return self.ranking
 
-    def is_biased(self, threshold: float = 0.1) -> dict:
+    def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
@@ -590,7 +592,7 @@ class EqualisedOddsRatio:
 
         return tpr_ratio, fpr_ratio
 
-    def summary(self) -> dict:
+    def summary(self) -> dict[str, dict[str, float | tuple | None]]:
         self.result: dict = {}
 
         for target in self.data.real_target:
@@ -633,7 +635,7 @@ class EqualisedOddsRatio:
 
         return self.result
 
-    def rank(self) -> dict:
+    def rank(self) -> dict[str, dict[tuple[str], float]]:
         result: dict = {}
         self.ranking = {}
 
@@ -678,7 +680,7 @@ class EqualisedOddsRatio:
 
         return self.ranking
 
-    def is_biased(self, threshold: float = 0.1) -> dict:
+    def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
