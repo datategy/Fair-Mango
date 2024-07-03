@@ -110,8 +110,7 @@ class ConfusionMatrix(Metric):
             if isinstance(metrics, dict):
                 if "sensitive" in metrics.keys():
                     raise KeyError(
-                        "metric label cannot be 'sensitive'. Change the label "
-                        "to fix"
+                        "metric label cannot be 'sensitive'. Change the label " "to fix"
                     )
                 self.metrics = metrics
             else:
@@ -202,8 +201,7 @@ class PerformanceMetric(Metric):
             if isinstance(metrics, dict):
                 if "sensitive" in metrics.keys():
                     raise KeyError(
-                        "metric label cannot be 'sensitive'. Change the label "
-                        "to fix"
+                        "metric label cannot be 'sensitive'. Change the label " "to fix"
                     )
                 self.metrics = metrics
 
