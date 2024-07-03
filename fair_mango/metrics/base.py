@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections.abc import Collection, Sequence
+from collections.abc import Sequence
 from itertools import combinations
 
 import numpy as np
