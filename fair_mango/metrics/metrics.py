@@ -105,10 +105,10 @@ class ConfusionMatrix(Metric):
         self.zero_division = zero_division
         if metrics is None:
             self.metrics = {
-                "false_negative_rate": false_negative_rate,
-                "false_positive_rate": false_positive_rate,
-                "true_negative_rate": true_negative_rate,
-                "true_positive_rate": true_positive_rate,
+                "false_negative_rate": false_negative_rate,  # type: ignore[dict-item]
+                "false_positive_rate": false_positive_rate,  # type: ignore[dict-item]
+                "true_negative_rate": true_negative_rate,  # type: ignore[dict-item]
+                "true_positive_rate": true_positive_rate,  # type: ignore[dict-item]
             }
         else:
             if isinstance(metrics, dict):
@@ -137,7 +137,9 @@ class ConfusionMatrix(Metric):
                     real_values = real_y_group
                     predicted_values = predicted_y_group
 
-                conf_matrix = confusion_matrix(real_values, predicted_values, labels=[0,1])
+                conf_matrix = confusion_matrix(
+                    real_values, predicted_values, labels=[0, 1]
+                )
                 tn = conf_matrix[0, 0]
                 tp = conf_matrix[1, 1]
                 fn = conf_matrix[1, 0]
@@ -146,7 +148,7 @@ class ConfusionMatrix(Metric):
                 for metric_name, metric in self.metrics.items():
                     result_for_group.setdefault(metric_name, []).append(
                         metric(
-                            tn=tn, fp=fp, fn=fn, tp=tp, zero_division=self.zero_division
+                            tn=tn, fp=fp, fn=fn, tp=tp, zero_division=self.zero_division  # type: ignore[call-arg]
                         )
                     )
             self.results.append(result_for_group)
