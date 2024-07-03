@@ -258,7 +258,7 @@ expected_result_6 = [
     "data, metrics, expected_result",
     [
         (dataset1, None, pytest.raises(ValueError)),
-        (dataset2, {'sensitive': false_positive_rate}, pytest.raises(KeyError)),
+        (dataset2, {"sensitive": false_positive_rate}, pytest.raises(KeyError)),
         (dataset2, None, expected_result_2),
         (dataset3, {"fpr": false_positive_rate}, expected_result_3),
         (
@@ -1254,12 +1254,12 @@ expected_result_6 = [
         (dataset1, None, None, None, None, None, pytest.raises(ValueError)),
         (
             dataset2,
-            {'sensitive': f1_score},
+            {"sensitive": f1_score},
             None,
             None,
             None,
             None,
-            pytest.raises(KeyError)
+            pytest.raises(KeyError),
         ),
         (
             df,
