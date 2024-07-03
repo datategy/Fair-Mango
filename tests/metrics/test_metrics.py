@@ -249,21 +249,20 @@ expected_result_6 = [
     {
         "sensitive": np.array(["F", "TA"]),
         "true_negative_rate": [1.0, 1.0],
-        "false_negative_rate": [0.0, "ZERO"],
+        "false_negative_rate": [0.0, np.nan],
     },
 ]
 
 
 @pytest.mark.parametrize(
-    "data, metrics, zero_division, expected_result",
+    "data, metrics, expected_result",
     [
-        (dataset1, None, None, pytest.raises(ValueError)),
-        (dataset2, None, None, expected_result_2),
-        (dataset3, {"fpr": false_positive_rate}, None, expected_result_3),
+        (dataset1, None, pytest.raises(ValueError)),
+        (dataset2, None, expected_result_2),
+        (dataset3, {"fpr": false_positive_rate}, expected_result_3),
         (
             dataset6,
             [true_negative_rate, false_negative_rate],  # type: ignore[list-item]
-            "ZERO",
             expected_result_6,
         ),
     ],
@@ -271,28 +270,26 @@ expected_result_6 = [
 def test_confusionmatrix(
     data: Dataset,
     metrics: dict[str, Callable] | Sequence[Callable] | None,
-    zero_division: float | str | None,
     expected_result: Sequence[dict[str, Sequence]] | RaisesContext,
 ):
     if isinstance(expected_result, Sequence):
-        cf = ConfusionMatrix(data, metrics, zero_division)
+        cf = ConfusionMatrix(data, metrics)
         result = cf()
         assert result[0] == data.real_target
         for i, res in enumerate(result[1]):
             for key in res.keys():
-                if isinstance(res[key][0], object):
-                    try:
-                        assert (res[key] == expected_result[i][key]).all()
-                    except AttributeError:
-                        assert res[key] == expected_result[i][key]
+                if key == "sensitive":
+                    assert (res[key] == expected_result[i][key]).all()
                 else:
-                    assert (
-                        np.isclose(res[key], expected_result[i][key], atol=0.0000002)
-                    ).all()
+                    for val, expected_val in zip(res[key], expected_result[i][key]):
+                        if np.isnan(val) and np.isnan(expected_val):
+                            assert True
+                        else:
+                            assert (np.isclose(val, expected_val, atol=0.0000002)).all()
 
     else:
         with expected_result:
-            cf = ConfusionMatrix(data, metrics, zero_division)
+            cf = ConfusionMatrix(data, metrics)
             cf()
 
 
@@ -509,13 +506,12 @@ expected_result_6 = [
 
 
 @pytest.mark.parametrize(
-    "data, label, zero_division, sensitive, real_target, predicted_target, threshold, expected_result",
+    "data, label, sensitive, real_target, predicted_target, threshold, expected_result",
     [
-        (dataset1, "dpr", None, None, None, None, 1.2, expected_result_1),
+        (dataset1, "dpr", None, None, None, 1.2, expected_result_1),
         (
             df,
             "dpr",
-            None,
             ["Sex"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
@@ -525,7 +521,6 @@ expected_result_6 = [
         (
             dataset3,
             "demographic_parity_ratio",
-            "Error",
             None,
             None,
             None,
@@ -535,7 +530,6 @@ expected_result_6 = [
         (
             dataset6,
             "demographic_parity_ratio",
-            np.nan,
             None,
             None,
             None,
@@ -547,7 +541,6 @@ expected_result_6 = [
 def test_demographic_parity_ratio(
     data: Dataset,
     label: str,
-    zero_division: float | str | None,
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
@@ -555,10 +548,10 @@ def test_demographic_parity_ratio(
     expected_result: Sequence[dict[str, dict]],
 ):
     if isinstance(data, Dataset):
-        dpr = DemographicParityRatio(data, label, zero_division)
+        dpr = DemographicParityRatio(data, label)
     else:
         dpr = DemographicParityRatio(
-            data, label, zero_division, sensitive, real_target, predicted_target
+            data, label, sensitive, real_target, predicted_target
         )
     result = dpr.summary()
     assert result == expected_result[0]
@@ -780,12 +773,11 @@ expected_result_6 = [
 
 
 @pytest.mark.parametrize(
-    "data, label, zero_division, sensitive, real_target, predicted_target, threshold, expected_result",
+    "data, label, sensitive, real_target, predicted_target, threshold, expected_result",
     [
         (
             dataset1,
             "dir",
-            None,
             None,
             None,
             None,
@@ -795,7 +787,6 @@ expected_result_6 = [
         (
             df,
             "dir",
-            None,
             ["Sex"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
@@ -805,7 +796,6 @@ expected_result_6 = [
         (
             dataset3,
             "disparate_impact_ratio",
-            "Error",
             None,
             None,
             None,
@@ -815,7 +805,6 @@ expected_result_6 = [
         (
             dataset6,
             "disparate_impact_ratio",
-            np.nan,
             None,
             None,
             None,
@@ -827,7 +816,6 @@ expected_result_6 = [
 def test_disparate_impact_ratio(
     data: Dataset,
     label: str,
-    zero_division: float | str | None,
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
@@ -836,10 +824,10 @@ def test_disparate_impact_ratio(
 ):
     if isinstance(expected_result, Sequence):
         if isinstance(data, Dataset):
-            dira = DisparateImpactRatio(data, label, zero_division)
+            dira = DisparateImpactRatio(data, label)
         else:
             dira = DisparateImpactRatio(
-                data, label, zero_division, sensitive, real_target, predicted_target
+                data, label, sensitive, real_target, predicted_target
             )
         result = dira.summary()
         assert result == expected_result[0]
@@ -850,10 +838,10 @@ def test_disparate_impact_ratio(
     else:
         with expected_result:
             if isinstance(data, Dataset):
-                dira = DisparateImpactRatio(data, label, zero_division)
+                dira = DisparateImpactRatio(data, label)
             else:
                 dira = DisparateImpactRatio(
-                    data, label, zero_division, sensitive, real_target, predicted_target
+                    data, label, sensitive, real_target, predicted_target
                 )
             dira.summary()
 
@@ -1064,12 +1052,11 @@ expected_result_6 = [
 
 
 @pytest.mark.parametrize(
-    "data, label, zero_division, sensitive, real_target, predicted_target, threshold, expected_result",
+    "data, label, sensitive, real_target, predicted_target, threshold, expected_result",
     [
         (
             dataset1,
             "eor",
-            None,
             None,
             None,
             None,
@@ -1079,7 +1066,6 @@ expected_result_6 = [
         (
             df,
             "eor",
-            None,
             ["Sex"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
@@ -1089,7 +1075,6 @@ expected_result_6 = [
         (
             dataset3,
             "equal_opportunity_ratio",
-            "Error",
             None,
             None,
             None,
@@ -1099,7 +1084,6 @@ expected_result_6 = [
         (
             dataset6,
             "equal_opportunity_ratio",
-            np.nan,
             None,
             None,
             None,
@@ -1111,7 +1095,6 @@ expected_result_6 = [
 def test_equal_opportuinity_ratio(
     data: Dataset,
     label: str,
-    zero_division: float | str | None,
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
@@ -1120,10 +1103,10 @@ def test_equal_opportuinity_ratio(
 ):
     if isinstance(expected_result, Sequence):
         if isinstance(data, Dataset):
-            eor = EqualOpportunityRatio(data, label, zero_division)
+            eor = EqualOpportunityRatio(data, label)
         else:
             eor = EqualOpportunityRatio(
-                data, label, zero_division, sensitive, real_target, predicted_target
+                data, label, sensitive, real_target, predicted_target
             )
         result = eor.summary()
         assert result == expected_result[0]
@@ -1140,10 +1123,10 @@ def test_equal_opportuinity_ratio(
     else:
         with expected_result:
             if isinstance(data, Dataset):
-                eor = EqualOpportunityRatio(data, label, zero_division)
+                eor = EqualOpportunityRatio(data, label)
             else:
                 eor = EqualOpportunityRatio(
-                    data, label, zero_division, sensitive, real_target, predicted_target
+                    data, label, sensitive, real_target, predicted_target
                 )
             eor.summary()
 
@@ -1498,11 +1481,10 @@ expected_result_3 = [
 
 
 @pytest.mark.parametrize(
-    "data, zero_division, sensitive, real_target, predicted_target, threshold, expected_result",
+    "data, sensitive, real_target, predicted_target, threshold, expected_result",
     [
         (
             dataset1,
-            None,
             None,
             None,
             None,
@@ -1511,7 +1493,6 @@ expected_result_3 = [
         ),
         (
             df,
-            None,
             ["Sex"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
@@ -1520,7 +1501,6 @@ expected_result_3 = [
         ),
         (
             dataset3,
-            "Error",
             None,
             None,
             None,
@@ -1531,7 +1511,6 @@ expected_result_3 = [
 )
 def test_equalised_odds_ratio(
     data: Dataset,
-    zero_division: float | str | None,
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
@@ -1540,11 +1519,9 @@ def test_equalised_odds_ratio(
 ):
     if isinstance(expected_result, Sequence):
         if isinstance(data, Dataset):
-            eor = EqualisedOddsRatio(data, zero_division)
+            eor = EqualisedOddsRatio(data)
         else:
-            eor = EqualisedOddsRatio(
-                data, zero_division, sensitive, real_target, predicted_target
-            )
+            eor = EqualisedOddsRatio(data, sensitive, real_target, predicted_target)
         result = eor.summary()
         assert result == expected_result[0]
         rankings = eor.rank()
@@ -1560,9 +1537,7 @@ def test_equalised_odds_ratio(
     else:
         with expected_result:
             if isinstance(data, Dataset):
-                eor = EqualisedOddsRatio(data, zero_division)
+                eor = EqualisedOddsRatio(data)
             else:
-                eor = EqualisedOddsRatio(
-                    data, zero_division, sensitive, real_target, predicted_target
-                )
+                eor = EqualisedOddsRatio(data, sensitive, real_target, predicted_target)
             eor.summary()
