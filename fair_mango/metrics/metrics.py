@@ -41,7 +41,7 @@ class SelectionRate(Metric):
         self.use_y_true = use_y_true
 
     def __call__(self) -> tuple[Sequence[str], list[dict]]:
-        self.results = []
+        results: list = []
         if self.use_y_true:
             targets = self.data.real_target
             targets_by_group = self.real_targets_by_group
@@ -57,10 +57,10 @@ class SelectionRate(Metric):
         for group in targets_by_group:
             group_ = group["sensitive"]
             y_group = group["data"]
-            self.results.append(
+            results.append(
                 {"sensitive": group_, "result": np.array(y_group.mean())}
             )
-        return targets, self.results
+        return targets, results
 
     def all_data(self) -> pd.Series:
         """Compute selection rate for all the dataset
@@ -118,6 +118,7 @@ class ConfusionMatrix(Metric):
                     self.metrics[metric.__name__] = metric
 
     def __call__(self) -> tuple[Sequence, list]:
+        results: list = []
         for real_group, predicted_group in zip(
             self.real_targets_by_group, self.predicted_targets_by_group
         ):
@@ -147,9 +148,9 @@ class ConfusionMatrix(Metric):
                     result_for_group.setdefault(metric_name, []).append(
                         metric(tn=tn, fp=fp, fn=fn, tp=tp)  # type: ignore[call-arg]
                     )
-            self.results.append(result_for_group)
+            results.append(result_for_group)
 
-        return self.data.real_target, self.results
+        return self.data.real_target, results
 
 
 class PerformanceMetric(Metric):
@@ -200,6 +201,7 @@ class PerformanceMetric(Metric):
                     self.metrics[metric.__name__] = metric
 
     def __call__(self) -> tuple[Sequence, list]:
+        results: list = []
         for real_group, predicted_group in zip(
             self.real_targets_by_group, self.predicted_targets_by_group
         ):
@@ -223,9 +225,9 @@ class PerformanceMetric(Metric):
                         metric(real_values, predicted_values)
                     )
 
-            self.results.append(result_for_group)
+            results.append(result_for_group)
 
-        return self.data.real_target, self.results
+        return self.data.real_target, results
 
 
 class DemographicParityDifference(FairnessMetricDifference):
