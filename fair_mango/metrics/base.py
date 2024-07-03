@@ -290,13 +290,13 @@ class FairnessMetricDifference(ABC):
         self.ranking: dict | None = None
         self.results: dict | None = None
 
-    def _compute(self) -> dict:
+    def _compute(self) -> dict[tuple, np.ndarray[float]]:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
         results = difference(self.metric_results)
         return results
 
-    def summary(self) -> dict:
+    def summary(self) -> dict[str, dict[str, float | tuple | None]]:
         if self.results is None:
             self.results = self._compute()
         self.differences = self.targets, self.results
@@ -324,7 +324,7 @@ class FairnessMetricDifference(ABC):
 
         return self.result
 
-    def rank(self) -> dict:
+    def rank(self) -> dict[str, dict[tuple[str], float]]:
         result: dict = {}
         self.ranking = {}
 
@@ -360,7 +360,7 @@ class FairnessMetricDifference(ABC):
 
         return self.ranking
 
-    def is_biased(self, threshold: float = 0.1) -> dict:
+    def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
@@ -420,13 +420,13 @@ class FairnessMetricRatio(ABC):
         self.ranking: dict | None = None
         self.results: dict | None = None
 
-    def _compute(self) -> dict:
+    def _compute(self) -> dict[tuple, np.ndarray[float]]:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
         results = ratio(self.metric_results)
         return results
 
-    def summary(self) -> dict:
+    def summary(self) -> dict[str, dict[str, float | tuple | None]]:
         if self.results is None:
             self.results = self._compute()
 
@@ -458,7 +458,7 @@ class FairnessMetricRatio(ABC):
 
         return self.result
 
-    def rank(self) -> dict:
+    def rank(self) -> dict[str, dict[tuple[str], float]]:
         result: dict = {}
         self.ranking = {}
 
@@ -495,7 +495,7 @@ class FairnessMetricRatio(ABC):
 
         return self.ranking
 
-    def is_biased(self, threshold: float = 0.8) -> dict:
+    def is_biased(self, threshold: float = 0.8) -> dict[str, bool]:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
