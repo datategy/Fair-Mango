@@ -69,9 +69,7 @@ def encode_target(data: Dataset, ind: int, col: str):
             )
 
 
-def false_negative_rate(
-    fn: int, tp: int, zero_division: float | str | None, **kwargs
-) -> float | str | None:
+def false_negative_rate(fn: int, tp: int, **kwargs) -> float:
     """calculate false negative rate
 
     Parameters
@@ -80,23 +78,16 @@ def false_negative_rate(
         number of false negatives from the confusion matrix
     tp : int
         number of true positives from the confusion matrix
-    zero_division : float | str | None
-        default value in case of zero division
 
     Returns
     -------
-    float | str | None
+    float
         result
     """
-    try:
-        return fn / (fn + tp)
-    except ZeroDivisionError:
-        return zero_division
+    return fn / (fn + tp)
 
 
-def false_positive_rate(
-    tn: int, fp: int, zero_division: float | str | None, **kwargs
-) -> float | str | None:
+def false_positive_rate(tn: int, fp: int, **kwargs) -> float:
     """calculate false positive rate
 
     Parameters
@@ -105,23 +96,16 @@ def false_positive_rate(
         number of true negatives from the confusion matrix
     fp : int
         number of false positives from the confusion matrix
-    zero_division : float | str | None
-        default value in case of zero division
 
     Returns
     -------
-    float | str | None
+    float
         result
     """
-    try:
-        return fp / (fp + tn)
-    except ZeroDivisionError:
-        return zero_division
+    return fp / (fp + tn)
 
 
-def true_negative_rate(
-    tn: int, fp: int, zero_division: float | str | None, **kwargs
-) -> float | str | None:
+def true_negative_rate(tn: int, fp: int, **kwargs) -> float:
     """calculate true negative rate
 
     Parameters
@@ -130,23 +114,16 @@ def true_negative_rate(
         number of true negatives from the confusion matrix
     fp : int
         number of false positives from the confusion matrix
-    zero_division : float | str | None
-        default value in case of zero division
 
     Returns
     -------
-    float | str | None
+    float
         result
     """
-    try:
-        return tn / (tn + fp)
-    except ZeroDivisionError:
-        return zero_division
+    return tn / (tn + fp)
 
 
-def true_positive_rate(
-    fn: int, tp: int, zero_division: float | str | None, **kwargs
-) -> float | str | None:
+def true_positive_rate(fn: int, tp: int, **kwargs) -> float:
     """calculate true positive rate
 
     Parameters
@@ -155,18 +132,13 @@ def true_positive_rate(
         number of false negatives from the confusion matrix
     tp : int
         number of true positives from the confusion matrix
-    zero_division : float | str | None
-        default value in case of zero division
 
     Returns
     -------
-    float | str | None
+    float
         result
     """
-    try:
-        return tp / (fn + tp)
-    except ZeroDivisionError:
-        return zero_division
+    return tp / (fn + tp)
 
 
 class Metric(ABC):
@@ -257,9 +229,7 @@ def difference(result_per_groups: np.array) -> dict:
     return result
 
 
-def ratio(
-    result_per_groups: np.array, zero_division: float | str | None = None
-) -> dict:
+def ratio(result_per_groups: np.array) -> dict:
     result = {}
     pairs = list(combinations(range(len(result_per_groups)), 2))
 
@@ -270,10 +240,7 @@ def ratio(
         group_j = tuple(result_per_groups[j]["sensitive"])
         key = (group_i, group_j)
 
-        try:
-            result[key] = result_i / result_j
-        except ZeroDivisionError:
-            result[key] = zero_division
+        result[key] = result_i / result_j
 
     return result
 
@@ -419,7 +386,6 @@ class FairnessMetricRatio(ABC):
         data: Dataset | pd.DataFrame,
         metric: type[Metric],
         label: str,
-        zero_division_: float | str | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -448,7 +414,6 @@ class FairnessMetricRatio(ABC):
 
         self.kwargs = kwargs
         self.label = label
-        self.zero_division = zero_division_
         self.metric_type = metric_type
         self.targets: Sequence
         self.metric_results: list
@@ -459,7 +424,7 @@ class FairnessMetricRatio(ABC):
     def _compute(self) -> dict:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
-        results = ratio(self.metric_results, self.zero_division)
+        results = ratio(self.metric_results)
         return results
 
     def summary(self) -> dict:
