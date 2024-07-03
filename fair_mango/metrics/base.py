@@ -200,7 +200,6 @@ class Metric(ABC):
                 self.predicted_targets_by_group = (
                     self.data.get_predicted_target_for_all_groups()
                 )
-            self.results: list = []
         else:
             raise (
                 ValueError(
