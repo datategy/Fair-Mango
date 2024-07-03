@@ -137,27 +137,11 @@ class ConfusionMatrix(Metric):
                     real_values = real_y_group
                     predicted_values = predicted_y_group
 
-                # when the values in y_true and y_pred are all 1's or all 0's
-                # the confusion martix return a 2D array with a single value
-                # to handle this case we need the following check
-                if (np.unique(real_values) == 1).all() and (
-                    np.unique(predicted_values) == 1
-                ).all():
-                    tp = len(real_values)
-                    tn = fp = fn = 0
-
-                elif (np.unique(real_values) == 0).all() and (
-                    np.unique(predicted_values) == 0
-                ).all():
-                    tn = len(real_values)
-                    tp = fp = fn = 0
-
-                else:
-                    conf_matrix = confusion_matrix(real_values, predicted_values)
-                    tn = conf_matrix[0, 0]
-                    tp = conf_matrix[1, 1]
-                    fn = conf_matrix[1, 0]
-                    fp = conf_matrix[0, 1]
+                conf_matrix = confusion_matrix(real_values, predicted_values, labels=[0,1])
+                tn = conf_matrix[0, 0]
+                tp = conf_matrix[1, 1]
+                fn = conf_matrix[1, 0]
+                fp = conf_matrix[0, 1]
 
                 for metric_name, metric in self.metrics.items():
                     result_for_group.setdefault(metric_name, []).append(
