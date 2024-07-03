@@ -20,7 +20,7 @@ dataset2 = Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"])
 
 dataset3 = Dataset(df, ["Sex", "ChestPainType"], ["HeartDisease"], ["HeartDiseasePred"])
 
-dataset4 = Dataset(df, ["Sex"], ["HeartDisease", "ExerciseAngina"], [], [1, "Y"])
+dataset4 = Dataset(df, ["Sex"], ["HeartDisease", "ExerciseAngina"], None, [1, "Y"])
 
 dataset5 = Dataset(
     df,
@@ -73,7 +73,7 @@ def test_check_real_and_predicted_target_match(
 @pytest.mark.parametrize(
     "df, sensitive, real_target, predicted_target, positive_target, group_count, expected_result",
     [
-        (df, ["Sex"], ["HeartDisease"], [], None, (725, 193), None),
+        (df, ["Sex"], ["HeartDisease"], None, None, (725, 193), None),
         (df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"], None, (725, 193), None),
         (
             df,
@@ -85,8 +85,8 @@ def test_check_real_and_predicted_target_match(
             None,
         ),
         (df, "Sex", "HeartDisease", "HeartDiseasePred", None, (725, 193), None),
-        (df, ["Sex"], ["ExerciseAngina"], [], None, (725, 193), None),
-        (df, ["Sex"], ["ExerciseAngina"], [], ["Y"], (725, 193), None),
+        (df, ["Sex"], ["ExerciseAngina"], None, None, (725, 193), None),
+        (df, ["Sex"], ["ExerciseAngina"], None, ["Y"], (725, 193), None),
         (
             df,
             ["Sex"],
