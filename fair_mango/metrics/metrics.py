@@ -57,9 +57,7 @@ class SelectionRate(Metric):
         for group in targets_by_group:
             group_ = group["sensitive"]
             y_group = group["data"]
-            results.append(
-                {"sensitive": group_, "result": np.array(y_group.mean())}
-            )
+            results.append({"sensitive": group_, "result": np.array(y_group.mean())})
         return targets, results
 
     def all_data(self) -> pd.Series:
@@ -110,11 +108,21 @@ class ConfusionMatrix(Metric):
             }
         else:
             if isinstance(metrics, dict):
+                if "sensitive" in metrics.keys():
+                    raise KeyError(
+                        "metric label cannot be 'sensitive'. Change the label "
+                        "to fix"
+                    )
                 self.metrics = metrics
             else:
                 metrics = set(metrics)
                 self.metrics = {}
                 for metric in metrics:
+                    if metric.__name__ == "sensitive":
+                        raise KeyError(
+                            "metric label cannot be 'sensitive'. Rename your "
+                            "function or use a dictionary to set a label for it"
+                        )
                     self.metrics[metric.__name__] = metric
 
     def __call__(self) -> tuple[Sequence, list]:
@@ -192,12 +200,22 @@ class PerformanceMetric(Metric):
 
         else:
             if isinstance(metrics, dict):
+                if "sensitive" in metrics.keys():
+                    raise KeyError(
+                        "metric label cannot be 'sensitive'. Change the label "
+                        "to fix"
+                    )
                 self.metrics = metrics
 
             else:
                 metrics = set(metrics)
                 self.metrics = {}
                 for metric in metrics:
+                    if metric.__name__ == "sensitive":
+                        raise KeyError(
+                            "metric label cannot be 'sensitive'. Rename your "
+                            "function or use a dictionary to set a label for it"
+                        )
                     self.metrics[metric.__name__] = metric
 
     def __call__(self) -> tuple[Sequence, list]:
