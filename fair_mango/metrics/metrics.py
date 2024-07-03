@@ -88,7 +88,6 @@ class ConfusionMatrix(Metric):
         self,
         data: Dataset | pd.DataFrame,
         metrics: Collection | Sequence | None = None,
-        zero_division: float | str | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -102,7 +101,6 @@ class ConfusionMatrix(Metric):
                 "No predictions found, provide predicted_target parameter "
                 "when creating the dataset"
             )
-        self.zero_division = zero_division
         if metrics is None:
             self.metrics = {
                 "false_negative_rate": false_negative_rate,  # type: ignore[dict-item]
@@ -147,9 +145,7 @@ class ConfusionMatrix(Metric):
 
                 for metric_name, metric in self.metrics.items():
                     result_for_group.setdefault(metric_name, []).append(
-                        metric(
-                            tn=tn, fp=fp, fn=fn, tp=tp, zero_division=self.zero_division  # type: ignore[call-arg]
-                        )
+                        metric(tn=tn, fp=fp, fn=fn, tp=tp)  # type: ignore[call-arg]
                     )
             self.results.append(result_for_group)
 
@@ -297,7 +293,7 @@ class EqualOpportunityDifference(FairnessMetricDifference):
             predicted_target,
             positive_target,
             "performance",
-            **{"metrics": {"result": true_positive_rate}, "zero_division": np.nan},
+            **{"metrics": {"result": true_positive_rate}},
         )
 
 
@@ -320,7 +316,7 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
             predicted_target,
             positive_target,
             "error",
-            **{"metrics": {"result": false_positive_rate}, "zero_division": np.nan},
+            **{"metrics": {"result": false_positive_rate}},
         )
 
 
@@ -329,7 +325,6 @@ class DemographicParityRatio(FairnessMetricRatio):
         self,
         data: Dataset | pd.DataFrame,
         label: str = "demographic_parity_ratio",
-        zero_division: float | str | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -339,7 +334,6 @@ class DemographicParityRatio(FairnessMetricRatio):
             data,
             SelectionRate,
             label,
-            zero_division,
             sensitive,
             real_target,
             predicted_target,
@@ -354,7 +348,6 @@ class DisparateImpactRatio(FairnessMetricRatio):
         self,
         data: Dataset | pd.DataFrame,
         label: str = "disparate_impact_ratio",
-        zero_division_: float | str | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -364,7 +357,6 @@ class DisparateImpactRatio(FairnessMetricRatio):
             data,
             SelectionRate,
             label,
-            zero_division_,
             sensitive,
             real_target,
             predicted_target,
@@ -379,7 +371,6 @@ class EqualOpportunityRatio(FairnessMetricRatio):
         self,
         data: Dataset | pd.DataFrame,
         label: str = "equal_opportunity_ratio",
-        zero_division_: float | str | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -389,13 +380,12 @@ class EqualOpportunityRatio(FairnessMetricRatio):
             data,
             ConfusionMatrix,
             label,
-            zero_division_,
             sensitive,
             real_target,
             predicted_target,
             positive_target,
             "performance",
-            **{"metrics": {"result": true_positive_rate}, "zero_division": np.nan},
+            **{"metrics": {"result": true_positive_rate}},
         )
 
 
@@ -404,7 +394,6 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
         self,
         data: Dataset | pd.DataFrame,
         label: str = "false_positive_rate_ratio",
-        zero_division_: float | str | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -414,13 +403,12 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
             data,
             ConfusionMatrix,
             label,
-            zero_division_,
             sensitive,
             real_target,
             predicted_target,
             positive_target,
             "error",
-            **{"metrics": {"result": false_positive_rate}, "zero_division": np.nan},
+            **{"metrics": {"result": false_positive_rate}},
         )
 
 
@@ -551,7 +539,6 @@ class EqualisedOddsRatio:
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
-        zero_division_: float | str | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -571,14 +558,13 @@ class EqualisedOddsRatio:
             )
 
         self.label = "equalised_odds_ratio"
-        self.zero_division = zero_division_
         self.ranking: dict | None = None
         self.tpr: dict | None = None
         self.fpr: dict | None = None
 
     def _compute(self) -> tuple[dict, dict]:
-        tpr = EqualOpportunityRatio(self.data, zero_division_=self.zero_division)
-        fpr = FalsePositiveRateRatio(self.data, zero_division_=self.zero_division)
+        tpr = EqualOpportunityRatio(self.data)
+        fpr = FalsePositiveRateRatio(self.data)
         tpr.summary()
         fpr.summary()
         tpr_ratio = tpr.ratios[1]
