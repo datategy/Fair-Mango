@@ -70,7 +70,7 @@ def encode_target(data: Dataset, ind: int, col: str):
 
 
 def false_negative_rate(
-    tn: int, fp: int, fn: int, tp: int, zero_division: float | str | None
+    fn: int, tp: int, zero_division: float | str | None, **kwargs
 ) -> float | str | None:
     """calculate false negative rate
 
@@ -95,7 +95,7 @@ def false_negative_rate(
 
 
 def false_positive_rate(
-    tn: int, fp: int, fn: int, tp: int, zero_division: float | str | None
+    tn: int, fp: int, zero_division: float | str | None, **kwargs
 ) -> float | str | None:
     """calculate false positive rate
 
@@ -120,7 +120,7 @@ def false_positive_rate(
 
 
 def true_negative_rate(
-    tn: int, fp: int, fn: int, tp: int, zero_division: float | str | None
+    tn: int, fp: int, zero_division: float | str | None, **kwargs
 ) -> float | str | None:
     """calculate true negative rate
 
@@ -145,7 +145,7 @@ def true_negative_rate(
 
 
 def true_positive_rate(
-    tn: int, fp: int, fn: int, tp: int, zero_division: float | str | None
+    fn: int, tp: int, zero_division: float | str | None, **kwargs
 ) -> float | str | None:
     """calculate true positive rate
 
