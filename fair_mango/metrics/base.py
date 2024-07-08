@@ -212,15 +212,23 @@ class Metric(ABC):
     def __call__(self): ...
 
 
-def difference(result_per_groups: np.ndarray) -> dict[tuple, float | np.ndarray[float]]:
+def difference(result_per_groups: np.ndarray) -> dict[tuple, np.ndarray[float]]:
     result = {}
     pairs = combinations(range(len(result_per_groups)), 2)
 
     for i, j in pairs:
         group_i = tuple(result_per_groups[i]["sensitive"])
         group_j = tuple(result_per_groups[j]["sensitive"])
-        result_i = np.array(result_per_groups[i]["result"])
-        result_j = np.array(result_per_groups[j]["result"])
+
+        if isinstance(result_per_groups[i]["result"], list) or (
+            isinstance(result_per_groups[i]["result"], np.ndarray)
+            and result_per_groups[i]["result"].ndim == 1
+        ):
+            result_i = np.array(result_per_groups[i]["result"])
+            result_j = np.array(result_per_groups[j]["result"])
+        else:
+            result_i = np.array([result_per_groups[i]["result"]])
+            result_j = np.array([result_per_groups[j]["result"]])
 
         key = (group_i, group_j)
         result[key] = result_i - result_j
@@ -228,17 +236,25 @@ def difference(result_per_groups: np.ndarray) -> dict[tuple, float | np.ndarray[
     return result
 
 
-def ratio(result_per_groups: np.ndarray) -> dict[tuple, float | np.ndarray[float]]:
+def ratio(result_per_groups: np.ndarray) -> dict[tuple, np.ndarray[float]]:
     result = {}
     pairs = list(combinations(range(len(result_per_groups)), 2))
 
     for i, j in pairs:
-        result_i = np.array(result_per_groups[i]["result"])
-        result_j = np.array(result_per_groups[j]["result"])
         group_i = tuple(result_per_groups[i]["sensitive"])
         group_j = tuple(result_per_groups[j]["sensitive"])
-        key = (group_i, group_j)
 
+        if isinstance(result_per_groups[i]["result"], list) or (
+            isinstance(result_per_groups[i]["result"], np.ndarray)
+            and result_per_groups[i]["result"].ndim == 1
+        ):
+            result_i = np.array(result_per_groups[i]["result"])
+            result_j = np.array(result_per_groups[j]["result"])
+        else:
+            result_i = np.array([result_per_groups[i]["result"]])
+            result_j = np.array([result_per_groups[j]["result"]])
+
+        key = (group_i, group_j)
         result[key] = result_i / result_j
 
     return result
@@ -310,8 +326,6 @@ class FairnessMetricDifference(ABC):
             }
 
         for key, value in self.results.items():
-            if isinstance(value, (float, int)):
-                value = [value]
             for ind, target in enumerate(self.targets):
                 if np.abs(value[ind]) > self.result[target][self.label]:
                     self.result[target][self.label] = np.abs(value[ind])
@@ -336,8 +350,6 @@ class FairnessMetricDifference(ABC):
             self.results = self._compute()
 
         for key, values in self.results.items():
-            if isinstance(values, float):
-                values = [values]
             for target, value in zip(self.data.real_target, values):
                 if self.metric_type == "performance":
                     result[target].setdefault(key[0], []).append(value)
@@ -441,8 +453,6 @@ class FairnessMetricRatio(ABC):
             }
 
         for key, value in self.results.items():
-            if isinstance(value, (float, int)):
-                value = [value]
             for ind, target in enumerate(self.targets):
                 if value[ind] > 1:
                     temp = 1 / value[ind]
@@ -470,8 +480,6 @@ class FairnessMetricRatio(ABC):
             self.results = self._compute()
 
         for key, values in self.results.items():
-            if isinstance(values, float):
-                values = [values]
             for target, value in zip(self.data.real_target, values):
                 if self.metric_type == "performance":
                     result[target].setdefault(key[0], []).append(1 / value)
