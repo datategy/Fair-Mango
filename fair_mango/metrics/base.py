@@ -244,11 +244,18 @@ def disparity_generator(
             )
 
 
-def calculate_disparity(
-    result_per_groups: np.ndarray, method: Literal["difference", "ratio"]
+def calculate_difference(
+    result_per_groups: np.ndarray,
 ) -> dict[tuple, np.ndarray[float]]:
     result = {}
-    for key, value in disparity_generator(result_per_groups, method):
+    for key, value in disparity_generator(result_per_groups, "difference"):
+        result[key] = value
+    return result
+
+
+def calculate_ratio(result_per_groups: np.ndarray) -> dict[tuple, np.ndarray[float]]:
+    result = {}
+    for key, value in disparity_generator(result_per_groups, "ratio"):
         result[key] = value
     return result
 
@@ -302,7 +309,7 @@ class FairnessMetricDifference(ABC):
     def _compute(self) -> dict[tuple, np.ndarray[float]]:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
-        results = calculate_disparity(self.metric_results, "difference")
+        results = calculate_difference(self.metric_results)
         return results
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
@@ -428,7 +435,7 @@ class FairnessMetricRatio(ABC):
     def _compute(self) -> dict[tuple, np.ndarray[float]]:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
-        results = calculate_disparity(self.metric_results, "ratio")
+        results = calculate_ratio(self.metric_results)
         return results
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
