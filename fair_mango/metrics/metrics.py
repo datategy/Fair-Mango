@@ -718,7 +718,6 @@ def super_set(
     real_target: Sequence[str] | None = None,
     predicted_target: Sequence[str] | None = None,
     positive_target: Sequence[int | float | str | bool] | None = None,
-    zero_division: float | str | None = None,
 ) -> list:
     """Calculate fairness metrics for different subsets of sensitive
     attributes. Ex:
@@ -747,8 +746,6 @@ def super_set(
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
         A Sequence of the positive labels corresponding to the provided
         targets, by default None
-    zero_division : float | str | None, optional
-        Value to use when there is a zero division situation, by default None
 
     Returns
     -------
