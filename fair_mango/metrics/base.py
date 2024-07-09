@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections.abc import Sequence
+from collections.abc import Generator, Sequence
 from itertools import combinations
 from typing import Literal
 
@@ -213,10 +213,9 @@ class Metric(ABC):
     def __call__(self): ...
 
 
-def calculate_disparity(
+def disparity_generator(
     result_per_groups: np.ndarray, method: Literal["difference", "ratio"]
-) -> dict[tuple, np.ndarray[float]]:
-    result = {}
+) -> Generator[tuple[tuple, np.ndarray[float]], None, None]:
     pairs = combinations(range(len(result_per_groups)), 2)
 
     for i, j in pairs:
@@ -236,15 +235,21 @@ def calculate_disparity(
         key = (group_i, group_j)
 
         if method == "difference":
-            result[key] = result_i - result_j
+            yield key, result_i - result_j
         elif method == "ratio":
-            result[key] = result_i / result_j
+            yield key, result_i / result_j
         else:
             raise AttributeError(
-                f"method {method} not recognised. Use 'difference' or "
-                "'ratio' instead."
+                f"method {method} not recognised. Use 'difference' or 'ratio' instead."
             )
 
+
+def calculate_disparity(
+    result_per_groups: np.ndarray, method: Literal["difference", "ratio"]
+) -> dict[tuple, np.ndarray[float]]:
+    result = {}
+    for key, value in disparity_generator(result_per_groups, method):
+        result[key] = value
     return result
 
 
