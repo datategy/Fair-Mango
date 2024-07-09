@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections.abc import Generator, Sequence
+from collections.abc import Iterator, Sequence
 from itertools import combinations
 from typing import Literal
 
@@ -215,7 +215,7 @@ class Metric(ABC):
 
 def disparity_generator(
     result_per_groups: np.ndarray, method: Literal["difference", "ratio"]
-) -> Generator[tuple[tuple, np.ndarray[float]], None, None]:
+) -> Iterator[tuple[tuple, np.ndarray[float]]]:
     pairs = combinations(range(len(result_per_groups)), 2)
 
     for i, j in pairs:
