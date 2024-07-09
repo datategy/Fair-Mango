@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from itertools import combinations
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -212,7 +213,9 @@ class Metric(ABC):
     def __call__(self): ...
 
 
-def difference(result_per_groups: np.ndarray) -> dict[tuple, np.ndarray[float]]:
+def calculate_disparity(
+    result_per_groups: np.ndarray, method: Literal["difference", "ratio"]
+) -> dict[tuple, np.ndarray[float]]:
     result = {}
     pairs = combinations(range(len(result_per_groups)), 2)
 
@@ -231,31 +234,16 @@ def difference(result_per_groups: np.ndarray) -> dict[tuple, np.ndarray[float]]:
             result_j = np.array([result_per_groups[j]["result"]])
 
         key = (group_i, group_j)
-        result[key] = result_i - result_j
 
-    return result
-
-
-def ratio(result_per_groups: np.ndarray) -> dict[tuple, np.ndarray[float]]:
-    result = {}
-    pairs = list(combinations(range(len(result_per_groups)), 2))
-
-    for i, j in pairs:
-        group_i = tuple(result_per_groups[i]["sensitive"])
-        group_j = tuple(result_per_groups[j]["sensitive"])
-
-        if isinstance(result_per_groups[i]["result"], list) or (
-            isinstance(result_per_groups[i]["result"], np.ndarray)
-            and result_per_groups[i]["result"].ndim == 1
-        ):
-            result_i = np.array(result_per_groups[i]["result"])
-            result_j = np.array(result_per_groups[j]["result"])
+        if method == "difference":
+            result[key] = result_i - result_j
+        elif method == "ratio":
+            result[key] = result_i / result_j
         else:
-            result_i = np.array([result_per_groups[i]["result"]])
-            result_j = np.array([result_per_groups[j]["result"]])
-
-        key = (group_i, group_j)
-        result[key] = result_i / result_j
+            raise AttributeError(
+                f"method {method} not recognised. Use 'difference' or "
+                "'ratio' instead."
+            )
 
     return result
 
@@ -309,7 +297,7 @@ class FairnessMetricDifference(ABC):
     def _compute(self) -> dict[tuple, np.ndarray[float]]:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
-        results = difference(self.metric_results)
+        results = calculate_disparity(self.metric_results, "difference")
         return results
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
@@ -435,7 +423,7 @@ class FairnessMetricRatio(ABC):
     def _compute(self) -> dict[tuple, np.ndarray[float]]:
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
-        results = ratio(self.metric_results)
+        results = calculate_disparity(self.metric_results, "ratio")
         return results
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
