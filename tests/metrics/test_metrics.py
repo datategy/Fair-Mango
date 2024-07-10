@@ -30,7 +30,6 @@ from fair_mango.metrics.metrics import (
     SelectionRate,
     false_negative_rate,
     false_positive_rate,
-    is_binary,
     super_set,
     true_negative_rate,
 )
