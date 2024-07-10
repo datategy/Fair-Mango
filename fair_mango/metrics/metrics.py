@@ -820,23 +820,13 @@ def super_set(
     )
 
     for pair in pairs:
-        if hasattr(metric, "zero_division"):
-            result = metric(
-                data=data,
-                zero_division_=zero_division,
-                sensitive=list(pair),
-                real_target=real_target,
-                predicted_target=predicted_target,
-                positive_target=positive_target,
-            ).rank()
-        else:
-            result = metric(
-                data=data,
-                sensitive=list(pair),
-                real_target=real_target,
-                predicted_target=predicted_target,
-                positive_target=positive_target,
-            ).rank()
+        result = metric(
+            data=data,
+            sensitive=list(pair),
+            real_target=real_target,
+            predicted_target=predicted_target,
+            positive_target=positive_target,
+        ).rank()
 
         results.append(
             {
