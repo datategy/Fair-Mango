@@ -5,10 +5,7 @@ import pandas as pd
 import seaborn as sns
 
 
-def check_column_in_df(
-    df: pd.DataFrame,
-    columns: Sequence
-    ) -> None:
+def check_column_in_df(df: pd.DataFrame, columns: Sequence) -> None:
     """validate the columns existance in the dataset
 
     Parameters
@@ -16,9 +13,9 @@ def check_column_in_df(
     df : pd.DataFrame
         the dataframe to check
     columns : Sequence | None
-        sequence of column names to check if their existance in 
+        sequence of column names to check if their existance in
         the dataframe.
-    
+
     Raises
     ------
     KeyError
@@ -43,8 +40,7 @@ def check_column_in_df(
 
 
 def check_real_and_predicted_target_match(
-    real_target: Sequence[str],
-    predicted_target: Sequence[str]
+    real_target: Sequence[str], predicted_target: Sequence[str]
 ) -> None:
     """check that the number of real targets and number of predicted targets
     match.
@@ -77,21 +73,21 @@ def check_real_and_predicted_target_match(
 class Dataset:
     """A class for handling datasets with sensitive attributes and target
     variables.
-    
+
     This class separates a dataframe into different demographic groups present
     in the dataframe. Any object of this class will serve as a building block
-    for evaluating the performance of different demographic groups and 
+    for evaluating the performance of different demographic groups and
     calculating the fairness metrics.
-    
+
     Parameters
     ----------
     df : pd.DataFrame
         input dataframe
     sensitive : Sequence[str]
-        sequence of column names corresponding to sensitive features 
+        sequence of column names corresponding to sensitive features
         (Ex: gender, race...).
     real_target : Sequence[str]
-        sequence of column names corresponding to the real targets 
+        sequence of column names corresponding to the real targets
         (true labels).
     predicted_target : Sequence[str], optional
         sequence of column names corresponding to the predicted targets,
@@ -140,6 +136,7 @@ class Dataset:
             )
         self.n_groups: int = len(self.groups)
         self.groups_data: list[dict] = []
+        self.groups_real_target: list[dict] | None = None
         self.groups_predicted_target: list[dict] = []
         plt.style.use("fivethirtyeight")
 
@@ -155,7 +152,7 @@ class Dataset:
         Parameters
         ----------
         sensitive : Sequence[str], optional
-            sequence of column names corresponding to sensitive features 
+            sequence of column names corresponding to sensitive features
             (Ex: gender, race...), by default []
         figsize : tuple[int, int], optional
             figure size, by default (16, 6)
@@ -179,15 +176,15 @@ class Dataset:
             plt.show()
 
     def get_data_for_all_groups(self) -> list[dict]:
-        """Retrieve data corresponding to each demographic group present in 
+        """Retrieve data corresponding to each demographic group present in
         the sensitive features.
 
         Returns
         -------
         list[dict]
-            list of dictionaries with the sensitive group as keys and the 
+            list of dictionaries with the sensitive group as keys and the
             corresponding dataframe as value.
-        
+
         Examples
         --------
         >>> import pandas as pd
@@ -218,7 +215,7 @@ class Dataset:
                     0        male       white      ...         0                 no
                     3        male       black      ...         0                yes
                     4        male       black      ...         0                yes
-  
+
                 [3 rows x 8 columns]
             },
             {
@@ -226,7 +223,7 @@ class Dataset:
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                      1      female       white     ...        1                 no
                      2      female       black     ...        1                yes
-            
+
                 [2 rows x 8 columns]
             }
         ]
@@ -244,28 +241,28 @@ class Dataset:
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     3        male       black      ...         0                yes
                     4        male       black      ...         0                yes
-  
+
                 [2 rows x 8 columns]
             },
             {
                 'sensitive': array(['female', 'black'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     2      female       black      ...         1                yes
-  
+
                 [1 rows x 8 columns]
             },
             {
                 'sensitive': array(['female', 'white'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     1      female       white      ...         1                 no
-  
+
                 [1 rows x 8 columns]
             },
             {
                 'sensitive': array(['male', 'white'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     0        male       white      ...         0                 no
-  
+
                 [1 rows x 8 columns]
             }
         ]
@@ -284,14 +281,14 @@ class Dataset:
         Parameters
         ----------
         sensitive : Sequence[str]
-            sequence of column names corresponding to sensitive features 
+            sequence of column names corresponding to sensitive features
             (Ex: gender, race...).
 
         Returns
         -------
         pd.DataFrame
             the dataframe corresponding to the sensitive group specified.
-        
+
         Examples
         --------
         >>> import pandas as pd
@@ -356,9 +353,9 @@ class Dataset:
         Returns
         -------
         list[dict]
-            list of dictionaries with the sensitive group as keys and the 
+            list of dictionaries with the sensitive group as keys and the
             corresponding real target as value.
-        
+
         Examples
         --------
         >>> import pandas as pd
@@ -413,20 +410,20 @@ class Dataset:
                         Name: real_target_1, dtype: int64
             },
             {
-                'sensitive': array(['female', 'black'], dtype=object), 
+                'sensitive': array(['female', 'black'], dtype=object),
                 'data': 0
             },
             {
-                'sensitive': array(['female', 'white'], dtype=object), 
+                'sensitive': array(['female', 'white'], dtype=object),
                 'data': 1
             },
             {
-                'sensitive': array(['male', 'white'], dtype=object), 
+                'sensitive': array(['male', 'white'], dtype=object),
                 'data': 0
             }
         ]
         """
-        self.groups_real_target: list[dict] = []
+        self.groups_real_target = []
         for row in self.groups.values:
             result = self.df
             for i in range(len(self.sensitive)):
@@ -443,7 +440,7 @@ class Dataset:
         Parameters
         ----------
         sensitive : Sequence[str]
-            sequence of column names corresponding to sensitive features 
+            sequence of column names corresponding to sensitive features
             (Ex: gender, race...).
 
         Returns
