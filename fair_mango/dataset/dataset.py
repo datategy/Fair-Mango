@@ -433,7 +433,7 @@ class Dataset:
             )
         return self.groups_real_target
 
-    def get_real_target_for_one_group(self, sensitive: Sequence[str]) -> pd.DataFrame:
+    def get_real_target_for_one_group(self, sensitive: Sequence[str]) -> pd.Series:
         """Retrieve the real target corresponding to a specific demographic
         group present in the sensitive features.
 
