@@ -505,12 +505,81 @@ class Dataset:
         return result.squeeze()
 
     def get_predicted_target_for_all_groups(self) -> list[dict]:
-        """Retrieve predicted target for all unique groups.
+        """Retrieve the predicted target corresponding to each demographic
+        group present in the sensitive features.
 
         Returns
         -------
         list[dict]
-            list of dictionaries with the sensitive group and the corresponding dataframe.
+            list of dictionaries with the sensitive group as keys and the
+            corresponding predicted target as value.
+
+        Examples
+        --------
+        >>> import pandas as pd
+        >>> from fair_mango.dataset.dataset import Dataset
+        >>> data = {
+        ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male'],
+        ...     'sensitive_2': ['white', 'white', 'black', 'black', 'black'],
+        ...     'col-a': ['a', 'A', 'a', 'A', 'a'],
+        ...     'col-b': ['B', 'B', 'b', 'B', 'b'],
+        ...     'real_target_1': [0, 1, 0, 1, 0],
+        ...     'real_target_2': ['no', 'yes', 'yes', 'yes', 'no'],
+        ...     'predicted_target_1': [0, 1, 1, 0, 0],
+        ...     'predicted_target_2': ['no', 'no', 'yes', 'yes', 'yes'],
+        ... }
+        >>> df = pd.DataFrame(data)
+        >>> dataset1 = Dataset(
+        ...     df=df,
+        ...     sensitive=['sensitive_1'],
+        ...     real_target=['real_target_1'],
+        ...     predicted_target=['predicted_target_1'],
+        ...     positive_target=[1]
+        ... )
+        >>> dataset1.get_predicted_target_for_all_groups()
+        [
+            {
+                'sensitive': array(['male'], dtype=object),
+                'data': 0    0
+                        3    0
+                        4    0
+                        Name: predicted_target_1, dtype: int64
+            },
+            {
+                'sensitive': array(['female'], dtype=object),
+                'data': 1    1
+                        2    1
+                        Name: predicted_target_1, dtype: int64
+            }
+        ]
+        >>> dataset2 = Dataset(
+        ...     df=df,
+        ...     sensitive=['sensitive_1', 'sensitive_2'],
+        ...     real_target=['real_target_1'],
+        ...     predicted_target=['predicted_target_1'],
+        ...     positive_target=[1]
+        ... )
+        >>> dataset2.get_predicted_target_for_all_groups()
+        [
+            {
+                'sensitive': array(['male', 'black'], dtype=object),
+                'data': 3    0
+                        4    0
+                        Name: predicted_target_1, dtype: int64
+            },
+            {
+                'sensitive': array(['female', 'black'], dtype=object), 
+                'data': 1
+            },
+            {
+                'sensitive': array(['female', 'white'], dtype=object),
+                'data': 1
+            },
+            {
+                'sensitive': array(['male', 'white'], dtype=object),
+                'data': 0
+            }
+        ]
         """
         if self.predicted_target == []:
             raise ValueError(
@@ -529,18 +598,6 @@ class Dataset:
     def get_predicted_target_for_one_group(
         self, sensitive: Sequence[str]
     ) -> pd.DataFrame:
-        """Retrieve predicted target for a specific group
-
-        Parameters
-        ----------
-        sensitive : Sequence[str]
-            the sensitive group
-
-        Returns
-        -------
-        pd.DataFrame
-            the dataframe corresponding to the sensitive group
-        """
         if self.predicted_target == []:
             raise ValueError(
                 "predicted_target parameter is required when creating the dataset"
