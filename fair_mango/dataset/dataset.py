@@ -137,7 +137,7 @@ class Dataset:
         self.n_groups: int = len(self.groups)
         self.groups_data: list[dict] = []
         self.groups_real_target: list[dict] | None = None
-        self.groups_predicted_target: list[dict] = []
+        self.groups_predicted_target: list[dict] | None = None
         plt.style.use("fivethirtyeight")
 
     def plot_groups(
@@ -568,7 +568,7 @@ class Dataset:
                         Name: predicted_target_1, dtype: int64
             },
             {
-                'sensitive': array(['female', 'black'], dtype=object), 
+                'sensitive': array(['female', 'black'], dtype=object),
                 'data': 1
             },
             {
@@ -597,7 +597,7 @@ class Dataset:
 
     def get_predicted_target_for_one_group(
         self, sensitive: Sequence[str]
-    ) -> pd.DataFrame:
+    ) -> pd.Series | pd.DataFrame:
         if self.predicted_target == []:
             raise ValueError(
                 "predicted_target parameter is required when creating the dataset"
