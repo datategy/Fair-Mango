@@ -598,6 +598,58 @@ class Dataset:
     def get_predicted_target_for_one_group(
         self, sensitive: Sequence[str]
     ) -> pd.Series | pd.DataFrame:
+        """Retrieve the predicted target corresponding to a specific 
+        demographic group present in the sensitive features.
+
+        Parameters
+        ----------
+        sensitive : Sequence[str]
+            sequence of column names corresponding to sensitive features
+            (Ex: gender, race...).
+
+        Returns
+        -------
+        pd.Seies | pd.DataFrame
+            the pandas series or dataframe corresponding to the sensitive group
+
+        Examples
+        --------
+        >>> import pandas as pd
+        >>> from fair_mango.dataset.dataset import Dataset
+        >>> data = {
+        ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male'],
+        ...     'sensitive_2': ['white', 'white', 'black', 'black', 'black'],
+        ...     'col-a': ['a', 'A', 'a', 'A', 'a'],
+        ...     'col-b': ['B', 'B', 'b', 'B', 'b'],
+        ...     'real_target_1': [0, 1, 0, 1, 0],
+        ...     'real_target_2': ['no', 'yes', 'yes', 'yes', 'no'],
+        ...     'predicted_target_1': [0, 1, 1, 0, 0],
+        ...     'predicted_target_2': ['no', 'no', 'yes', 'yes', 'yes'],
+        ... }
+        >>> df = pd.DataFrame(data)
+        >>> dataset1 = Dataset(
+        ...     df=df,
+        ...     sensitive=['sensitive_1'],
+        ...     real_target=['real_target_1'],
+        ...     predicted_target=['predicted_target_1'],
+        ...     positive_target=[1]
+        ... )
+        >>> dataset1.get_predicted_target_for_one_group(['female'])
+        1    1
+        2    1
+        Name: predicted_target_1, dtype: int64
+        >>> dataset2 = Dataset(
+        ...     df=df,
+        ...     sensitive=['sensitive_1', 'sensitive_2'],
+        ...     real_target=['real_target_1', 'real_target_2'],
+        ...     predicted_target=['predicted_target_1', 'predicted_target_2'],
+        ...     positive_target=[1, 'yes']
+        ... )
+        >>> dataset2.get_real_target_for_one_group(['male', 'black'])
+            predicted_target_1 predicted_target_2
+        3           0                yes
+        4           0                yes
+        """
         if self.predicted_target == []:
             raise ValueError(
                 "predicted_target parameter is required when creating the dataset"
