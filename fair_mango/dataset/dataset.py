@@ -607,7 +607,7 @@ class Dataset:
             result = self.df
             for i in range(len(sensitive)):
                 result = result[result[self.sensitive[i]].isin(sensitive)]
-            result = result[self.real_target]
+            result = result[self.predicted_target]
         else:
             for item in self.groups_predicted_target:
                 if (item["sensitive"] == sensitive).all() or (
