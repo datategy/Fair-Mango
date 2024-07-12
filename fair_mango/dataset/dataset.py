@@ -91,7 +91,7 @@ class Dataset:
         (true labels).
     predicted_target : Sequence[str], optional
         sequence of column names corresponding to the predicted targets,
-        by default []
+        by default None
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
         sequence of the positive labels corresponding to the provided targets,
         by default None
