@@ -20,7 +20,7 @@ def is_binary(y: pd.Series | pd.DataFrame) -> bool:
     Returns
     -------
     bool
-        true if data contains two unique values else false
+        True if data contains two unique values else False
     """
     try:
         if y.nunique() == 2:
@@ -35,12 +35,12 @@ def is_binary(y: pd.Series | pd.DataFrame) -> bool:
 
 
 def encode_target(data: Dataset, ind: int, col: str):
-    """encode targets to [0,1]
+    """encode targets as [0,1]
 
     Parameters
     ----------
     data : Dataset
-        dataset
+        Dataset object
     ind : int
         index of the positive target
     col : str
@@ -51,6 +51,8 @@ def encode_target(data: Dataset, ind: int, col: str):
     ValueError
         if the positive target parameter was not provided when creating the
         dataset
+    KeyError
+        if the positive target value does not exist in the column
     """
     if data.positive_target is None:
         raise ValueError(
@@ -83,7 +85,7 @@ def false_negative_rate(fn: int, tp: int, **kwargs) -> float:
     Returns
     -------
     float
-        result
+        false negative rate value
     """
     return fn / (fn + tp)
 
@@ -101,7 +103,7 @@ def false_positive_rate(tn: int, fp: int, **kwargs) -> float:
     Returns
     -------
     float
-        result
+        false positive rate value
     """
     return fp / (fp + tn)
 
@@ -119,7 +121,7 @@ def true_negative_rate(tn: int, fp: int, **kwargs) -> float:
     Returns
     -------
     float
-        result
+        true negative rate value
     """
     return tn / (tn + fp)
 
@@ -137,14 +139,40 @@ def true_positive_rate(fn: int, tp: int, **kwargs) -> float:
     Returns
     -------
     float
-        result
+        true positive rate value
     """
     return tp / (fn + tp)
 
 
 class Metric(ABC):
-    """A class for the different fairness metrics and performance evaluation
-    in different groups"""
+    """An abstract class that is inherited by every class that measures some
+    metric for the different demographic groups present in the sensitive
+    feature.
+    
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Raises
+    ------
+    ValueError
+        - if data is a DataFrame and the parameters 'sensitive' and 'real_target'
+        are not provided
+        - if the target variable is not binary (has two unique values).
+    """
 
     def __init__(
         self,
@@ -154,28 +182,6 @@ class Metric(ABC):
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
-        """
-        Parameters
-        ----------
-        data : Dataset | pd.DataFrame
-            data to evaluate
-        sensitive : Sequence[str]
-            list of sensitive attributes (Ex: gender, race...), by default None
-        real_target : Sequence[str]
-            list of column names of actual labels for target variables, by
-            default None
-        predicted_target : Sequence[str], optional
-            list of column names of predicted labels for target variables, by
-            default None
-        positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-            list of the positive labels corresponding to the provided targets,
-            by default None
-
-        Raises
-        ------
-        ValueError
-            if sensitive and real_target are not provided
-        """
         if isinstance(data, Dataset):
             self.data = data
         else:
@@ -216,6 +222,33 @@ class Metric(ABC):
 def calculate_disparity(
     result_per_groups: np.ndarray, method: Literal["difference", "ratio"]
 ) -> dict[tuple, np.ndarray[float]]:
+    """Calculate the disparity in the scores between every possible pair in
+    the provided groups using two available methods:
+    - difference (Example: for three groups a, b, c: 
+    [score_a - score_b], [score_a - score_c], [score_b - score_c])
+    - ratio (Example: for three groups a, b, c: 
+    [score_a / score_b], [score_a / score_c], [score_b / score_c])
+
+    Parameters
+    ----------
+    result_per_groups : np.ndarray
+        array of dictionaries with the sensitive group and the corresponding
+        score.
+    method : Literal['difference', 'ratio']
+        method used to calculate the disparity. Either 'difference' or 'ratio'.
+
+    Returns
+    -------
+    dict[tuple, np.ndarray[float]]
+        a dictionary with:
+        - keys: tuple with the pair of the sensitive groups labels.
+        - values: a numpy array with the corresponding disparity.
+
+    Raises
+    ------
+    AttributeError
+        if method is not 'difference' or 'ratio'.
+    """
     result = {}
     pairs = combinations(range(len(result_per_groups)), 2)
 
@@ -249,6 +282,43 @@ def calculate_disparity(
 
 
 class FairnessMetricDifference(ABC):
+    """An abstract class that is inherited by every fairness metric that is
+    based on the 'difference' to calculate disparity between the demographic
+    groups present in the sensitive feature.
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    metric : type[Metric]
+        a sequence of metrics or a dictionary with keys being custom labels
+        and values a callable that calculates the score.
+    label : str
+        the key to give to the result in the different returned dictionaries.
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+    metric_type : str, optional
+        whether the metric measures performance or error. Either 'performance'
+        or 'error', by default 'performance'
+
+    Raises
+    ------
+    ValueError
+        if data is a DataFrame and the parameters 'sensitive' and 'real_target'
+        are not provided
+    AttributeError
+        if metric_type is not 'performance' or 'error'.
+    """
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -266,7 +336,8 @@ class FairnessMetricDifference(ABC):
         else:
             if sensitive is None or real_target is None:
                 raise ValueError(
-                    "When providing a DataFrame, 'sensitive' and 'real_target' must be specified."
+                    "When providing a DataFrame, 'sensitive' and 'real_target'"
+                    " must be specified."
                 )
             self.data = Dataset(
                 data, sensitive, real_target, predicted_target, positive_target
@@ -286,8 +357,9 @@ class FairnessMetricDifference(ABC):
             self.label1 = "unprivileged"
             self.label2 = "privileged"
         else:
-            raise ValueError(
-                "Metric type not recognized. accepted values 'performance' or 'error'"
+            raise AttributeError(
+                "Metric type not recognized. accepted values 'performance' or "
+                "'error'"
             )
 
         self.result: dict | None = None
@@ -295,12 +367,38 @@ class FairnessMetricDifference(ABC):
         self.results: dict | None = None
 
     def _compute(self) -> dict[tuple, np.ndarray[float]]:
+        """Calculate the disparity in the scores between every possible pair in
+        the provided groups.
+
+        Returns
+        -------
+        dict[tuple, np.ndarray[float]]
+            a dictionary with:
+            - keys: tuple with the pair of the sensitive groups labels.
+            - values: a numpy array with the corresponding disparity.
+        """
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
         results = calculate_disparity(self.metric_results, "difference")
         return results
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
+        """Return the fairness metric value in other words the biggest
+        disparity found with specifying the priviliged and discriminated 
+        groups.
+
+        Returns
+        -------
+        dict[str, dict[str, float | tuple | None]]
+            a dictionaty with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the results for that target
+            variable with:
+                - keys: labels for the biggest disparity, the privileged group
+                and the discriminated group.
+                - values: values for the biggest disparity, the privileged 
+                group and the discriminated group.
+        """
         if self.results is None:
             self.results = self._compute()
         self.differences = self.targets, self.results
@@ -327,6 +425,24 @@ class FairnessMetricDifference(ABC):
         return self.result
 
     def rank(self) -> dict[str, dict[tuple[str], float]]:
+        """Assign a score to every demographic group present in the sensitive
+        features and rank them from most privileged to most discriminated.
+        The score can be interpreted like:
+        - ['Male': 0.0314]: Males have on average a score higher by 3.14% than 
+        the Females.
+        - ['White': -0.0628]: Whites have on average a score lower by 6.28% than
+        other groups (Black, Asian...).
+
+        Returns
+        -------
+        dict[str, dict[tuple[str], float]]
+            a dictionaty with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the ranking for that target
+            variable with:
+                - keys: a tuple with the demographic group.
+                - values: the corresponding score.
+        """
         result: dict = {}
         self.ranking = {}
 
@@ -361,6 +477,27 @@ class FairnessMetricDifference(ABC):
         return self.ranking
 
     def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
+        """Return a decision of whether there is bias or not depending on the
+        provided threshold.
+
+        Parameters
+        ----------
+        threshold : float, optional
+            the threshold to make the decision of whether there is bias or not,
+            by default 0.1
+
+        Returns
+        -------
+        dict[str, bool]
+            a dictionary with:
+            - keys: a string with the target column name.
+            - values: True if there is bias else False.
+
+        Raises
+        ------
+        ValueError
+            if threshold parameter is not in the range of [0, 1].
+        """
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
@@ -380,6 +517,43 @@ class FairnessMetricDifference(ABC):
 
 
 class FairnessMetricRatio(ABC):
+    """An abstract class that is inherited by every fairness metric that is
+    based on the 'ratio' to calculate disparity between the demographic groups
+    present in the sensitive feature.
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    metric : type[Metric]
+        a sequence of metrics or a dictionary with keys being custom labels
+        and values a callable that calculates the score.
+    label : str
+        the key to give to the result in the different returned dictionaries.
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+    metric_type : str, optional
+        whether the metric measures performance or error. Either 'performance'
+        or 'error', by default 'performance'
+
+    Raises
+    ------
+    ValueError
+        if data is a DataFrame and the parameters 'sensitive' and 'real_target'
+        are not provided
+    AttributeError
+        if metric_type is not 'performance' or 'error'.
+    """
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -410,6 +584,11 @@ class FairnessMetricRatio(ABC):
         elif metric_type == "error":
             self.label1 = "unprivileged"
             self.label2 = "privileged"
+        else:
+            raise AttributeError(
+                "Metric type not recognized. accepted values 'performance' or "
+                "'error'"
+            )
 
         self.kwargs = kwargs
         self.label = label
@@ -421,12 +600,38 @@ class FairnessMetricRatio(ABC):
         self.results: dict | None = None
 
     def _compute(self) -> dict[tuple, np.ndarray[float]]:
+        """Calculate the disparity in the scores between every possible pair in
+        the provided groups.
+
+        Returns
+        -------
+        dict[tuple, np.ndarray[float]]
+            a dictionary with:
+            - keys: tuple with the pair of the sensitive groups labels.
+            - values: a numpy array with the corresponding disparity.
+        """
         metric = self.metric(self.data, **self.kwargs)
         self.targets, self.metric_results = metric()
         results = calculate_disparity(self.metric_results, "ratio")
         return results
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
+        """Return the fairness metric value in other words the biggest
+        disparity found with specifying the priviliged and discriminated 
+        groups.
+
+        Returns
+        -------
+        dict[str, dict[str, float | tuple | None]]
+            a dictionaty with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the results for that target
+            variable with:
+                - keys: labels for the biggest disparity, the privileged group
+                and the discriminated group.
+                - values: values for the biggest disparity, the privileged 
+                group and the discriminated group.
+        """
         if self.results is None:
             self.results = self._compute()
 
@@ -457,6 +662,24 @@ class FairnessMetricRatio(ABC):
         return self.result
 
     def rank(self) -> dict[str, dict[tuple[str], float]]:
+        """Assign a score to every demographic group present in the sensitive
+        features and rank them from most privileged to most discriminated.
+        The score can be interpreted like:
+        - ['Male': 0.814]: Males have on average 81.4% the score of the 
+        Females.
+        - ['White': 1.20]: Whites have on average 120% the score of the
+        other groups (Black, Asian...).
+
+        Returns
+        -------
+        dict[str, dict[tuple[str], float]]
+            a dictionaty with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the ranking for that target
+            variable with:
+                - keys: a tuple with the demographic group.
+                - values: the corresponding score.
+        """
         result: dict = {}
         self.ranking = {}
 
@@ -492,6 +715,27 @@ class FairnessMetricRatio(ABC):
         return self.ranking
 
     def is_biased(self, threshold: float = 0.8) -> dict[str, bool]:
+        """Return a decision of whether there is bias or not depending on the
+        provided threshold.
+
+        Parameters
+        ----------
+        threshold : float, optional
+            the threshold to make the decision of whether there is bias or not,
+            by default 0.8
+
+        Returns
+        -------
+        dict[str, bool]
+            a dictionary with:
+            - keys: a string with the target column name.
+            - values: True if there is bias else False.
+
+        Raises
+        ------
+        ValueError
+            if threshold parameter is not in the range of [0, 1].
+        """
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
