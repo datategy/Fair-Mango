@@ -35,11 +35,13 @@ class SelectionRate(Metric):
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+        label: str = "result",
     ):
         super().__init__(
             data, sensitive, real_target, predicted_target, positive_target
         )
         self.use_y_true = use_y_true
+        self.label = label
 
     def __call__(self) -> tuple[Sequence[str], list[dict]]:
         results: list = []
@@ -58,7 +60,7 @@ class SelectionRate(Metric):
         for group in targets_by_group:
             group_ = group["sensitive"]
             y_group = group["data"]
-            results.append({"sensitive": group_, "result": np.array(y_group.mean())})
+            results.append({"sensitive": group_, self.label: np.array(y_group.mean())})
         return targets, results
 
     def all_data(self) -> pd.Series:
@@ -762,7 +764,7 @@ def super_set_fairness_metrics(
     ...         'real': [1,1,0,0,1],
     ...         'pred': [0,1,0,0,1]
     ... })
-    >>> result = super_set(
+    >>> result = super_set_fairness_metrics(
     ...     metric=DemographicParityDifference,
     ...     data=df,
     ...     sensitive=['gender', 'race'],
@@ -829,6 +831,148 @@ def super_set_fairness_metrics(
             {
                 "sensitive": pair,
                 "result": result,
+            }
+        )
+
+    return results
+
+
+def super_set_performance_metrics(
+    data: Dataset | pd.DataFrame,
+    sensitive: Sequence[str] = [],
+    real_target: Sequence[str] | None = None,
+    predicted_target: Sequence[str] | None = None,
+    positive_target: Sequence[int | float | str | bool] | None = None,
+) -> list:
+    """Calculate performance evaluation metrics for different subsets of
+    sensitive attributes. Ex:
+    [gender, race] → (gender), (race), (gender, race)
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        The dataset containing the data to be evaluated. If a DataFrame object
+        is passed, it should contain attributes `sensitive`, `real_target`,
+        `predicted_target`, and `positive_target`.
+    sensitive : Sequence[str], optional
+        A Sequence of sensitive attributes (Ex: gender, race...), by default []
+    real_target : Sequence[str] | None, optional
+        A Sequence of column names of actual labels for target variables,
+        by default None
+    predicted_target : Sequence[str] | None, optional
+        A Sequence of column names of predicted labels for target variables,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        A Sequence of the positive labels corresponding to the provided
+        targets, by default None
+
+    Returns
+    -------
+    list
+        A list of dictionaries, each containing the sensitive attributes
+        considered and their corresponding performance evaluation metric
+        results.
+
+    Examples
+    --------
+    >>> df = pd.DataFrame({
+    ...         'gender': ['male', 'male', 'male', 'male', 'female', 'female'],
+    ...         'race': ['white', 'white', 'black', 'black', 'white', 'white'],
+    ...         'real': [1,0,1,0,0,1],
+    ...         'pred': [0,0,1,0,0,1]
+    ... })
+    >>> result = super_set_performance_metrics(
+    ...     data=df,
+    ...     sensitive=['gender', 'race'],
+    ...     real_target=['real'],
+    ...     predicted_target=['pred'],
+    ... )
+    >>> result
+    [
+        {'sensitive': ('gender',),
+        'result': (['real'],
+        [
+            {
+                'sensitive': array(['male'], dtype=object),
+                'selection_rate_in_data': array(0.5),
+                'selection_rate_in_predictions': array(0.25),
+                'accuracy': [0.75],
+                'balanced accuracy': [0.75],
+                'precision': [1.0],
+                'recall': [0.5],
+                'f1-score': [0.6666666666666666],
+                'false_negative_rate': [0.5],
+                'false_positive_rate': [0.0],
+                'true_negative_rate': [1.0],
+                'true_positive_rate': [0.5]
+            },
+            {
+                'sensitive': array(['female'], dtype=object),
+                ...
+                'f1-score': [0.0],
+                'false_negative_rate': [1.0],
+                'false_positive_rate': [0.0],
+                'true_negative_rate': [1.0],
+                'true_positive_rate': [0.0]
+            }
+        ]
+        )
+        }
+    ]
+    """
+    results = []
+    metrics = [SelectionRate, PerformanceMetric, ConfusionMatrix]
+
+    if isinstance(data, Dataset):
+        sensitive = data.sensitive
+        real_target = data.real_target
+        predicted_target = data.predicted_target
+        positive_target = data.positive_target
+        data = data.df
+        if predicted_target == []:
+            predicted_target = None
+
+    pairs = chain.from_iterable(
+        combinations(sensitive, r) for r in range(1, len(sensitive) + 1)
+    )
+
+    for pair in pairs:
+        concatenated_results = SelectionRate(
+            data=data,
+            use_y_true=True,
+            sensitive=list(pair),
+            real_target=real_target,
+            predicted_target=predicted_target,
+            positive_target=positive_target,
+            label="selection_rate_in_data",
+        )()
+        for metric in metrics:
+            if metric.__name__ == "SelectionRate":
+                result = SelectionRate(
+                    data=data,
+                    use_y_true=False,
+                    sensitive=list(pair),
+                    real_target=real_target,
+                    predicted_target=predicted_target,
+                    positive_target=positive_target,
+                    label="selection_rate_in_predictions",
+                )()[1]
+            else:
+                result = metric(
+                    data=data,
+                    sensitive=list(pair),
+                    real_target=real_target,
+                    predicted_target=predicted_target,
+                    positive_target=positive_target,
+                )()[1]
+
+            for concatenated_result, res in zip(concatenated_results[1], result):
+                concatenated_result.update(res)
+
+        results.append(
+            {
+                "sensitive": pair,
+                "result": concatenated_results,
             }
         )
 
