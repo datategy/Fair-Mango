@@ -32,13 +32,13 @@ class SelectionRate(Metric):
         input data
     use_y_true : bool, optional
         if True use the real label else use the predictions, by default False
-    sensitive : Sequence[str], optional if data is a Dataset object
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
         sequence of column names corresponding to sensitive features
         (Ex: gender, race...), by default None
-    real_target : Sequence[str], optional if data is a Dataset object
+    real_target : Sequence[str] | None, optional if data is a Dataset object
         sequence of column names corresponding to the real targets
         (true labels), by default None
-    predicted_target : Sequence[str], optional
+    predicted_target : Sequence[str] | None, optional
         sequence of column names corresponding to the predicted targets,
         by default None
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
@@ -263,13 +263,13 @@ class ConfusionMatrix(Metric):
         - false_negative_rate()
         - true_positive_rate()
         - true_negative_rate()
-    sensitive : Sequence[str], optional if data is a Dataset object
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
         sequence of column names corresponding to sensitive features
         (Ex: gender, race...), by default None
-    real_target : Sequence[str], optional if data is a Dataset object
+    real_target : Sequence[str] | None, optional if data is a Dataset object
         sequence of column names corresponding to the real targets
         (true labels), by default None
-    predicted_target : Sequence[str], optional
+    predicted_target : Sequence[str] | None, optional
         sequence of column names corresponding to the predicted targets,
         by default None
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
@@ -497,13 +497,13 @@ class PerformanceMetric(Metric):
         - f1_score_score()
         or any custom metric that takes y_true and y_pred and parameters 
         respectively.
-    sensitive : Sequence[str], optional if data is a Dataset object
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
         sequence of column names corresponding to sensitive features
         (Ex: gender, race...), by default None
-    real_target : Sequence[str], optional if data is a Dataset object
+    real_target : Sequence[str] | None, optional if data is a Dataset object
         sequence of column names corresponding to the real targets
         (true labels), by default None
-    predicted_target : Sequence[str], optional
+    predicted_target : Sequence[str] | None, optional
         sequence of column names corresponding to the predicted targets,
         by default None
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
