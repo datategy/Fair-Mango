@@ -30,7 +30,7 @@ from fair_mango.metrics.metrics import (
     SelectionRate,
     false_negative_rate,
     false_positive_rate,
-    super_set,
+    super_set_fairness_metrics,
     true_negative_rate,
 )
 
@@ -1667,7 +1667,7 @@ expected_result_3 = [
         ),
     ],
 )
-def test_super_set(
+def test_super_set_fairness_metrics(
     metric: (
         type[DemographicParityDifference]
         | type[DemographicParityRatio]
@@ -1686,7 +1686,7 @@ def test_super_set(
     predicted_target: Sequence[str] | None,
     expected_result: Sequence[dict[str, dict]] | RaisesContext,
 ):
-    result = super_set(
+    result = super_set_fairness_metrics(
         metric,
         data,
         sensitive,
