@@ -1,4 +1,8 @@
-from typing import Sequence
+from collections.abc import Sequence
+from itertools import chain, combinations
+
+import pandas as pd
+
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.metrics.metrics import (
     ConfusionMatrix,
@@ -15,8 +19,7 @@ from fair_mango.metrics.metrics import (
     PerformanceMetric,
     SelectionRate,
 )
-import pandas as pd
-from itertools import chain, combinations
+
 
 def super_set_fairness_metrics(
     metric: (
