@@ -1761,9 +1761,9 @@ expected_result_2 = [
         ),
         (
             df,
-            ['Sex'],
-            ['HeartDisease'],
-            ['HeartDiseasePred'],
+            ["Sex"],
+            ["HeartDisease"],
+            ["HeartDiseasePred"],
             expected_result_2,
         ),
     ],
@@ -1783,7 +1783,9 @@ def test_super_set_performance_metrics(
             predicted_target,
         )
         for result, expected_result in zip(results, expected_results):
-            for result_values, expected_result_values in zip(result['result'][1], expected_result['result'][1]):
+            for result_values, expected_result_values in zip(
+                result["result"][1], expected_result["result"][1]
+            ):
                 for value, expected_value in zip(result_values, expected_result_values):
                     if isinstance(value, np.ndarray):
                         assert (np.isclose(value, expected_value, atol=0.0000002)).all()
