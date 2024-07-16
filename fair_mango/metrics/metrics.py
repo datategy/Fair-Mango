@@ -716,7 +716,7 @@ def super_set_fairness_metrics(
         | type[FalsePositiveRateRatio]
     ),
     data: Dataset | pd.DataFrame,
-    sensitive: Sequence[str] = [],
+    sensitive: Sequence[str] | None = None,
     real_target: Sequence[str] | None = None,
     predicted_target: Sequence[str] | None = None,
     positive_target: Sequence[int | float | str | bool] | None = None,
@@ -755,6 +755,11 @@ def super_set_fairness_metrics(
         list
         A list of dictionaries, each containing the sensitive attributes
         considered and their corresponding fairness metric result.
+
+    Raises
+    ------
+    AttributeError
+        if data is a pandas dataframe and 'sensitive' parameter is not provided.
 
     Examples
     --------
@@ -814,6 +819,11 @@ def super_set_fairness_metrics(
         if predicted_target == []:
             predicted_target = None
 
+    if sensitive is None:
+        raise AttributeError(
+            "'sensitive' attribute is required when data is " "pandas dataframe"
+        )
+
     pairs = chain.from_iterable(
         combinations(sensitive, r) for r in range(1, len(sensitive) + 1)
     )
@@ -839,11 +849,11 @@ def super_set_fairness_metrics(
 
 def super_set_performance_metrics(
     data: Dataset | pd.DataFrame,
-    sensitive: Sequence[str] = [],
+    sensitive: Sequence[str] | None = None,
     real_target: Sequence[str] | None = None,
     predicted_target: Sequence[str] | None = None,
     positive_target: Sequence[int | float | str | bool] | None = None,
-) -> list:
+) -> list[dict]:
     """Calculate performance evaluation metrics for different subsets of
     sensitive attributes. Ex:
     [gender, race] → (gender), (race), (gender, race)
@@ -872,6 +882,11 @@ def super_set_performance_metrics(
         A list of dictionaries, each containing the sensitive attributes
         considered and their corresponding performance evaluation metric
         results.
+
+    Raises
+    ------
+    AttributeError
+        if data is a pandas dataframe and 'sensitive' parameter is not provided.
 
     Examples
     --------
@@ -931,6 +946,11 @@ def super_set_performance_metrics(
         data = data.df
         if predicted_target == []:
             predicted_target = None
+
+    if sensitive is None:
+        raise AttributeError(
+            "'sensitive' attribute is required when data is " "pandas dataframe"
+        )
 
     pairs = chain.from_iterable(
         combinations(sensitive, r) for r in range(1, len(sensitive) + 1)
