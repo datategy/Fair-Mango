@@ -146,7 +146,7 @@ def test_selectionrate(
             sr()
 
 
-expected_result_2 = [
+confusionmatrix_expected_result_2 = [
     {
         "sensitive": np.array(["M"]),
         "false_negative_rate": [0.021834061135371178],
@@ -164,7 +164,7 @@ expected_result_2 = [
 ]
 
 
-expected_result_3 = [
+confusionmatrix_expected_result_3 = [
     {"sensitive": np.array(["M", "ASY"]), "fpr": [0.0136986301369863]},
     {"sensitive": np.array(["M", "NAP"]), "fpr": [0.011904761904761904]},
     {"sensitive": np.array(["M", "ATA"]), "fpr": [0.010752688172043012]},
@@ -176,7 +176,7 @@ expected_result_3 = [
 ]
 
 
-expected_result_6 = [
+confusionmatrix_expected_result_6 = [
     {
         "sensitive": np.array(["M", "ASY"]),
         "true_negative_rate": [0.9863013698630136, 1.0],
@@ -225,12 +225,12 @@ expected_result_6 = [
     [
         (dataset1, None, pytest.raises(ValueError)),
         (dataset2, {"sensitive": false_positive_rate}, pytest.raises(KeyError)),
-        (dataset2, None, expected_result_2),
-        (dataset3, {"fpr": false_positive_rate}, expected_result_3),
+        (dataset2, None, confusionmatrix_expected_result_2),
+        (dataset3, {"fpr": false_positive_rate}, confusionmatrix_expected_result_3),
         (
             dataset6,
             [true_negative_rate, false_negative_rate],  # type: ignore[list-item]
-            expected_result_6,
+            confusionmatrix_expected_result_6,
         ),
     ],
 )
@@ -260,7 +260,7 @@ def test_confusionmatrix(
             cf()
 
 
-expected_result_2 = [
+dpd_expected_result_2 = [
     {
         "HeartDisease": {
             "dpd": 0.3726567804180811,
@@ -273,7 +273,7 @@ expected_result_2 = [
 ]
 
 
-expected_result_3 = [
+dpd_expected_result_3 = [
     {
         "HeartDisease": {
             "demographic_parity_difference": 0.7619718309859155,
@@ -297,7 +297,7 @@ expected_result_3 = [
 ]
 
 
-expected_result_6 = [
+dpd_expected_result_6 = [
     {
         "HeartDisease": {
             "demographic_parity_difference": 0.7619718309859155,
@@ -339,7 +339,7 @@ expected_result_6 = [
 @pytest.mark.parametrize(
     "data, label, sensitive, real_target, predicted_target, threshold, expected_result",
     [
-        (dataset2, "dpd", None, None, None, 0.3, expected_result_2),
+        (dataset2, "dpd", None, None, None, 0.3, dpd_expected_result_2),
         (
             df,
             "demographic_parity_difference",
@@ -347,7 +347,7 @@ expected_result_6 = [
             ["HeartDisease"],
             ["HeartDiseasePred"],
             0.1,
-            expected_result_3,
+            dpd_expected_result_3,
         ),
         (
             dataset6,
@@ -356,7 +356,7 @@ expected_result_6 = [
             None,
             None,
             0.45,
-            expected_result_6,
+            dpd_expected_result_6,
         ),
     ],
 )
@@ -383,7 +383,7 @@ def test_demographic_parity_difference(
     assert is_biased == expected_result[2]
 
 
-expected_result_1 = [
+dpr_expected_result_1 = [
     {
         "HeartDisease": {
             "dpr": 0.4100957078534742,
@@ -396,7 +396,7 @@ expected_result_1 = [
 ]
 
 
-expected_result_2 = [
+dpr_expected_result_2 = [
     {
         "HeartDisease": {
             "dpr": 0.4100957078534742,
@@ -409,7 +409,7 @@ expected_result_2 = [
 ]
 
 
-expected_result_3 = [
+dpr_expected_result_3 = [
     {
         "HeartDisease": {
             "demographic_parity_ratio": 0.08045325779036827,
@@ -433,7 +433,7 @@ expected_result_3 = [
 ]
 
 
-expected_result_6 = [
+dpr_expected_result_6 = [
     {
         "HeartDisease": {
             "demographic_parity_ratio": 0.08045325779036827,
@@ -475,7 +475,7 @@ expected_result_6 = [
 @pytest.mark.parametrize(
     "data, label, sensitive, real_target, predicted_target, threshold, expected_result",
     [
-        (dataset1, "dpr", None, None, None, 1.2, expected_result_1),
+        (dataset1, "dpr", None, None, None, 1.2, dpr_expected_result_1),
         (
             df,
             "dpr",
@@ -483,7 +483,7 @@ expected_result_6 = [
             ["HeartDisease"],
             ["HeartDiseasePred"],
             0.4,
-            expected_result_2,
+            dpr_expected_result_2,
         ),
         (
             dataset3,
@@ -492,7 +492,7 @@ expected_result_6 = [
             None,
             None,
             0.8,
-            expected_result_3,
+            dpr_expected_result_3,
         ),
         (
             dataset6,
@@ -501,7 +501,7 @@ expected_result_6 = [
             None,
             None,
             0.3,
-            expected_result_6,
+            dpr_expected_result_6,
         ),
     ],
 )
@@ -532,7 +532,7 @@ def test_demographic_parity_ratio(
             dpr.is_biased(threshold)
 
 
-expected_result_2 = [
+did_expected_result_2 = [
     {
         "HeartDiseasePred": {
             "did": 0.3619581918885117,
@@ -545,7 +545,7 @@ expected_result_2 = [
 ]
 
 
-expected_result_3 = [
+did_expected_result_3 = [
     {
         "HeartDiseasePred": {
             "disparate_impact_difference": 0.7437771281778722,
@@ -569,7 +569,7 @@ expected_result_3 = [
 ]
 
 
-expected_result_6 = [
+did_expected_result_6 = [
     {
         "HeartDiseasePred": {
             "disparate_impact_difference": 0.7437771281778722,
@@ -611,7 +611,7 @@ expected_result_6 = [
 @pytest.mark.parametrize(
     "data, label, sensitive, real_target, predicted_target, positive_target, threshold, expected_result",
     [
-        (dataset2, "did", None, None, None, None, 0.3, expected_result_2),
+        (dataset2, "did", None, None, None, None, 0.3, did_expected_result_2),
         (
             dataset3,
             "disparate_impact_difference",
@@ -620,7 +620,7 @@ expected_result_6 = [
             None,
             None,
             -0.2,
-            expected_result_3,
+            did_expected_result_3,
         ),
         (
             df,
@@ -630,7 +630,7 @@ expected_result_6 = [
             ["HeartDiseasePred", "ExerciseAngina"],
             [1, "Y"],
             0.45,
-            expected_result_6,
+            did_expected_result_6,
         ),
     ],
 )
@@ -663,7 +663,7 @@ def test_disparate_impact_difference(
             did.is_biased(threshold)
 
 
-expected_result_2 = [
+dir_expected_result_2 = [
     {
         "HeartDiseasePred": {
             "dir": 0.4219830636141608,
@@ -676,7 +676,7 @@ expected_result_2 = [
 ]
 
 
-expected_result_3 = [
+dir_expected_result_3 = [
     {
         "HeartDiseasePred": {
             "disparate_impact_ratio": 0.09212304698059144,
@@ -700,7 +700,7 @@ expected_result_3 = [
 ]
 
 
-expected_result_6 = [
+dir_expected_result_6 = [
     {
         "HeartDiseasePred": {
             "disparate_impact_ratio": 0.09212304698059144,
@@ -758,7 +758,7 @@ expected_result_6 = [
             ["HeartDisease"],
             ["HeartDiseasePred"],
             0.4,
-            expected_result_2,
+            dir_expected_result_2,
         ),
         (
             dataset3,
@@ -767,7 +767,7 @@ expected_result_6 = [
             None,
             None,
             0.8,
-            expected_result_3,
+            dir_expected_result_3,
         ),
         (
             dataset6,
@@ -776,7 +776,7 @@ expected_result_6 = [
             None,
             None,
             0.3,
-            expected_result_6,
+            dir_expected_result_6,
         ),
     ],
 )
@@ -813,7 +813,7 @@ def test_disparate_impact_ratio(
             dira.summary()
 
 
-expected_result_2 = [
+eod_expected_result_2 = [
     {
         "HeartDisease": {
             "eod": 0.03816593886462882,
@@ -826,7 +826,7 @@ expected_result_2 = [
 ]
 
 
-expected_result_3 = [
+eod_expected_result_3 = [
     {
         "HeartDisease": {
             "equal_opportunity_difference": 0.33333333333333337,
@@ -850,7 +850,7 @@ expected_result_3 = [
 ]
 
 
-expected_result_6 = [
+eod_expected_result_6 = [
     {
         "HeartDisease": {
             "equal_opportunity_difference": 0.33333333333333337,
@@ -892,7 +892,7 @@ expected_result_6 = [
 @pytest.mark.parametrize(
     "data, label, sensitive, real_target, predicted_target, threshold, expected_result",
     [
-        (dataset2, "eod", None, None, None, 0.1, expected_result_2),
+        (dataset2, "eod", None, None, None, 0.1, eod_expected_result_2),
         (
             df,
             "equal_opportunity_difference",
@@ -900,7 +900,7 @@ expected_result_6 = [
             ["HeartDisease"],
             ["HeartDiseasePred"],
             0.2,
-            expected_result_3,
+            eod_expected_result_3,
         ),
         (
             dataset6,
@@ -909,7 +909,7 @@ expected_result_6 = [
             None,
             None,
             0.2,
-            expected_result_6,
+            eod_expected_result_6,
         ),
     ],
 )
@@ -942,7 +942,7 @@ def test_equal_opportunity_difference(
     assert is_biased == expected_result[2]
 
 
-expected_result_2 = [
+eor_expected_result_2 = [
     {
         "HeartDisease": {
             "eor": 0.9609821428571428,
@@ -955,7 +955,7 @@ expected_result_2 = [
 ]
 
 
-expected_result_3 = [
+eor_expected_result_3 = [
     {
         "HeartDisease": {
             "equal_opportunity_ratio": 0.6666666666666666,
@@ -979,7 +979,7 @@ expected_result_3 = [
 ]
 
 
-expected_result_6 = [
+eor_expected_result_6 = [
     {
         "HeartDisease": {
             "equal_opportunity_ratio": 0.6666666666666666,
@@ -1037,7 +1037,7 @@ expected_result_6 = [
             ["HeartDisease"],
             ["HeartDiseasePred"],
             0.4,
-            expected_result_2,
+            eor_expected_result_2,
         ),
         (
             dataset3,
@@ -1046,7 +1046,7 @@ expected_result_6 = [
             None,
             None,
             0.8,
-            expected_result_3,
+            eor_expected_result_3,
         ),
         (
             dataset6,
@@ -1055,12 +1055,12 @@ expected_result_6 = [
             None,
             None,
             0.9,
-            expected_result_6,
+            eor_expected_result_6,
         ),
     ],
 )
 def test_equal_opportuinity_ratio(
-    data: Dataset,
+    data: pd.DataFrame | Dataset,
     label: str,
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
@@ -1098,7 +1098,7 @@ def test_equal_opportuinity_ratio(
             eor.summary()
 
 
-expected_result_2 = [
+performancemetrics_expected_result_2 = [
     {
         "sensitive": np.array(["M"], dtype=object),
         "accuracy": [0.9779310344827586],
@@ -1118,7 +1118,7 @@ expected_result_2 = [
 ]
 
 
-expected_result_3 = [
+performancemetrics_expected_result_3 = [
     {
         "sensitive": np.array(["M", "ASY"], dtype=object),
         "acc": [0.9859154929577465],
@@ -1162,7 +1162,7 @@ expected_result_3 = [
 ]
 
 
-expected_result_6 = [
+performancemetrics_expected_result_6 = [
     {
         "sensitive": np.array(["M", "ASY"], dtype=object),
         "precision_score": [0.997134670487106, 1.0],
@@ -1234,7 +1234,7 @@ expected_result_6 = [
             ["HeartDisease"],
             ["HeartDiseasePred"],
             None,
-            expected_result_2,
+            performancemetrics_expected_result_2,
         ),
         (
             dataset3,
@@ -1246,7 +1246,7 @@ expected_result_6 = [
             None,
             None,
             None,
-            expected_result_3,
+            performancemetrics_expected_result_3,
         ),
         (
             dataset6,
@@ -1255,12 +1255,12 @@ expected_result_6 = [
             None,
             None,
             None,
-            expected_result_6,
+            performancemetrics_expected_result_6,
         ),
     ],
 )
 def test_performancemetrics(
-    data: Dataset,
+    data: pd.DataFrame | Dataset,
     metrics: dict[str, Callable] | None,
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
@@ -1295,7 +1295,7 @@ def test_performancemetrics(
             pm()
 
 
-expected_result_2 = [
+eod_expected_result_2 = [
     {
         "HeartDisease": {
             "equalised_odds_difference": 0.03816593886462882,
@@ -1308,7 +1308,7 @@ expected_result_2 = [
 ]
 
 
-expected_result_3 = [
+eod_expected_result_3 = [
     {
         "HeartDisease": {
             "equalised_odds_difference": 0.33333333333333337,
@@ -1332,7 +1332,7 @@ expected_result_3 = [
 ]
 
 
-expected_result_6 = [
+eod_expected_result_6 = [
     {
         "HeartDisease": {
             "equalised_odds_difference": 0.33333333333333337,
@@ -1374,14 +1374,14 @@ expected_result_6 = [
 @pytest.mark.parametrize(
     "data, sensitive, real_target, predicted_target, threshold, expected_result",
     [
-        (dataset2, None, None, None, 0.1, expected_result_2),
+        (dataset2, None, None, None, 0.1, eod_expected_result_2),
         (
             df,
             ["Sex", "ChestPainType"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
             0.2,
-            expected_result_3,
+            eod_expected_result_3,
         ),
         (
             dataset6,
@@ -1389,7 +1389,7 @@ expected_result_6 = [
             None,
             None,
             0.2,
-            expected_result_6,
+            eod_expected_result_6,
         ),
     ],
 )
@@ -1419,7 +1419,7 @@ def test_equalised_odds_difference(
     assert is_biased == expected_result[2]
 
 
-expected_result_2 = [
+eor_expected_result_2 = [
     {
         "HeartDisease": {
             "equalised_odds_ratio": 0.8033707865168539,
@@ -1432,7 +1432,7 @@ expected_result_2 = [
 ]
 
 
-expected_result_3 = [
+eor_expected_result_3 = [
     {
         "HeartDisease": {
             "equalised_odds_ratio": 0.0,
@@ -1473,7 +1473,7 @@ expected_result_3 = [
             ["HeartDisease"],
             ["HeartDiseasePred"],
             0.4,
-            expected_result_2,
+            eor_expected_result_2,
         ),
         (
             dataset3,
@@ -1481,7 +1481,7 @@ expected_result_3 = [
             None,
             None,
             0.8,
-            expected_result_3,
+            eor_expected_result_3,
         ),
     ],
 )

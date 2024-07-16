@@ -1,9 +1,9 @@
-from fair_mango.metrics.base import encode_target, is_binary
-from fair_mango.dataset.dataset import Dataset
 import pandas as pd
 import pytest
 from _pytest.python_api import RaisesContext
 
+from fair_mango.dataset.dataset import Dataset
+from fair_mango.metrics.base import encode_target, is_binary
 
 df = pd.read_csv("tests/data/heart_data.csv")
 
@@ -43,7 +43,7 @@ dataset6 = Dataset(
 )
 def test_is_binary(y: pd.Series | pd.DataFrame, expected_result: bool):
     assert is_binary(y) == expected_result
-    
+
 
 @pytest.mark.parametrize(
     "data, ind, col, expected_result",
