@@ -30,9 +30,11 @@ from fair_mango.metrics.metrics import (
     SelectionRate,
     false_negative_rate,
     false_positive_rate,
+    true_negative_rate,
+)
+from fair_mango.metrics.superset import (
     super_set_fairness_metrics,
     super_set_performance_metrics,
-    true_negative_rate,
 )
 
 df = pd.read_csv("tests/data/heart_data.csv")
