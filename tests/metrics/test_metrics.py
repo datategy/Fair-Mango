@@ -179,7 +179,7 @@ def test_selectionrate(
             assert result[0] == data.predicted_target
         for i, res in enumerate(result[1]):
             assert (res["sensitive"] == expected_groups[i]).all()
-            assert (np.isclose(res["result"], expected_result[i], atol=0.0000002)).all()
+            assert (np.isclose(res["result"], expected_result[i])).all()
     else:
         with expected_result:
             sr = SelectionRate(data, use_y_true)
@@ -292,7 +292,7 @@ def test_confusionmatrix(
                         if np.isnan(val) and np.isnan(expected_val):
                             assert True
                         else:
-                            assert (np.isclose(val, expected_val, atol=0.0000002)).all()
+                            assert (np.isclose(val, expected_val)).all()
 
     else:
         with expected_result:
@@ -977,7 +977,7 @@ def test_equal_opportunity_difference(
         assert ranking.keys() == expected_ranking.keys()
         for val, expected_val in zip(ranking.values(), expected_ranking.values()):
             if not np.isnan(val) and not np.isnan(expected_val):
-                assert np.isclose(val, expected_val, atol=0.000002)
+                assert np.isclose(val, expected_val)
     is_biased = eod.is_biased(threshold)
     assert is_biased == expected_result[2]
 
@@ -1124,7 +1124,7 @@ def test_equal_opportuinity_ratio(
             assert ranking.keys() == expected_ranking.keys()
             for val, expected_val in zip(ranking.values(), expected_ranking.values()):
                 if not np.isnan(val) and not np.isnan(expected_val):
-                    assert np.isclose(val, expected_val, atol=0.000002)
+                    assert np.isclose(val, expected_val)
         is_biased = eor.is_biased(threshold)
         assert is_biased == expected_result[2]
     else:
@@ -1326,7 +1326,7 @@ def test_performancemetrics(
                         assert res[key] == expected_result[i][key]
                 else:
                     assert (
-                        np.isclose(res[key], expected_result[i][key], atol=0.0000002)
+                        np.isclose(res[key], expected_result[i][key])
                     ).all()
 
     else:
@@ -1456,7 +1456,7 @@ def test_equalised_odds_difference(
         assert ranking.keys() == expected_ranking.keys()
         for val, expected_val in zip(ranking.values(), expected_ranking.values()):
             if not np.isnan(val) and not np.isnan(expected_val):
-                assert np.isclose(val, expected_val, atol=0.000002)
+                assert np.isclose(val, expected_val)
     is_biased = eod.is_biased(threshold)
     assert is_biased == expected_result[2]
 
@@ -1549,7 +1549,7 @@ def test_equalised_odds_ratio(
             assert ranking.keys() == expected_ranking.keys()
             for val, expected_val in zip(ranking.values(), expected_ranking.values()):
                 if not np.isnan(val) and not np.isnan(expected_val):
-                    assert np.isclose(val, expected_val, atol=0.000002)
+                    assert np.isclose(val, expected_val)
         is_biased = eor.is_biased(threshold)
         assert is_biased == expected_result[2]
     else:
@@ -1787,9 +1787,9 @@ def test_super_set_performance_metrics(
             ):
                 for value, expected_value in zip(result_values, expected_result_values):
                     if isinstance(value, np.ndarray):
-                        assert (np.isclose(value, expected_value, atol=0.0000002)).all()
+                        assert (np.isclose(value, expected_value)).all()
                     elif isinstance(value, float):
-                        assert np.isclose(value, expected_value, atol=0.0000002)
+                        assert np.isclose(value, expected_value)
                     else:
                         assert value == expected_value
     else:
