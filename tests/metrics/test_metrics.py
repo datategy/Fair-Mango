@@ -31,6 +31,7 @@ from fair_mango.metrics.metrics import (
     false_negative_rate,
     false_positive_rate,
     super_set_fairness_metrics,
+    super_set_performance_metrics,
     true_negative_rate,
 )
 
@@ -1566,6 +1567,8 @@ expected_result_1 = [
         },
     }
 ]
+
+
 expected_result_2 = [
     {
         "sensitive": ("Sex",),
@@ -1694,3 +1697,105 @@ def test_super_set_fairness_metrics(
         predicted_target,
     )
     assert result == expected_result
+
+
+expected_result_1 = pytest.raises(ValueError)
+
+
+expected_result_2 = [
+    {
+        "sensitive": ("Sex",),
+        "result": (
+            ["HeartDisease"],
+            [
+                {
+                    "sensitive": np.array(["M"], dtype=object),
+                    "selection_rate_in_data": np.array(0.63172414),
+                    "selection_rate_in_predictions": np.array(0.6262069),
+                    "accuracy": [0.9779310344827586],
+                    "balanced accuracy": [np.float64(0.9778470143761346)],
+                    "precision": [np.float64(0.986784140969163)],
+                    "recall": [np.float64(0.9781659388646288)],
+                    "f1-score": [np.float64(0.9824561403508771)],
+                    "false_negative_rate": [np.float64(0.021834061135371178)],
+                    "false_positive_rate": [np.float64(0.02247191011235955)],
+                    "true_negative_rate": [np.float64(0.9775280898876404)],
+                    "true_positive_rate": [np.float64(0.9781659388646288)],
+                },
+                {
+                    "sensitive": np.array(["F"], dtype=object),
+                    "selection_rate_in_data": np.array(0.25906736),
+                    "selection_rate_in_predictions": np.array(0.2642487),
+                    "accuracy": [0.9637305699481865],
+                    "balanced accuracy": [np.float64(0.956013986013986)],
+                    "precision": [np.float64(0.9215686274509803)],
+                    "recall": [np.float64(0.94)],
+                    "f1-score": [np.float64(0.9306930693069307)],
+                    "false_negative_rate": [np.float64(0.06)],
+                    "false_positive_rate": [np.float64(0.027972027972027972)],
+                    "true_negative_rate": [np.float64(0.972027972027972)],
+                    "true_positive_rate": [np.float64(0.94)],
+                },
+            ],
+        ),
+    }
+]
+
+
+@pytest.mark.parametrize(
+    "data, sensitive, real_target, predicted_target, expected_results",
+    [
+        (
+            dataset1,
+            [],
+            None,
+            None,
+            expected_result_1,
+        ),
+        (
+            dataset2,
+            [],
+            None,
+            None,
+            expected_result_2,
+        ),
+        (
+            df,
+            ['Sex'],
+            ['HeartDisease'],
+            ['HeartDiseasePred'],
+            expected_result_2,
+        ),
+    ],
+)
+def test_super_set_performance_metrics(
+    data: pd.DataFrame | Dataset,
+    sensitive: Sequence[str],
+    real_target: Sequence[str] | None,
+    predicted_target: Sequence[str] | None,
+    expected_results: list[dict] | RaisesContext,
+):
+    if isinstance(expected_results, list):
+        results = super_set_performance_metrics(
+            data,
+            sensitive,
+            real_target,
+            predicted_target,
+        )
+        for result, expected_result in zip(results, expected_results):
+            for result_values, expected_result_values in zip(result['result'][1], expected_result['result'][1]):
+                for value, expected_value in zip(result_values, expected_result_values):
+                    if isinstance(value, np.ndarray):
+                        assert (np.isclose(value, expected_value, atol=0.0000002)).all()
+                    elif isinstance(value, float):
+                        assert np.isclose(value, expected_value, atol=0.0000002)
+                    else:
+                        assert value == expected_value
+    else:
+        with expected_results:
+            super_set_performance_metrics(
+                data,
+                sensitive,
+                real_target,
+                predicted_target,
+            )
