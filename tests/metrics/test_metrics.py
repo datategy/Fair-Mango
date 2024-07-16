@@ -1699,9 +1699,6 @@ def test_super_set_fairness_metrics(
     assert result == expected_result
 
 
-expected_result_1 = pytest.raises(ValueError)
-
-
 expected_result_2 = [
     {
         "sensitive": ("Sex",),
@@ -1750,7 +1747,7 @@ expected_result_2 = [
             None,
             None,
             None,
-            expected_result_1,
+            pytest.raises(ValueError),
         ),
         (
             dataset2,
