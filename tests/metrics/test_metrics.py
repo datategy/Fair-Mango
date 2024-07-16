@@ -1647,7 +1647,7 @@ expected_result_3 = [
         (
             DemographicParityDifference,
             dataset1,
-            [],
+            None,
             None,
             None,
             expected_result_1,
@@ -1663,7 +1663,7 @@ expected_result_3 = [
         (
             EqualisedOddsDifference,
             dataset3,
-            [],
+            None,
             None,
             None,
             expected_result_3,
@@ -1684,7 +1684,7 @@ def test_super_set_fairness_metrics(
         | type[FalsePositiveRateRatio]
     ),
     data: pd.DataFrame | Dataset,
-    sensitive: Sequence[str],
+    sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
     expected_result: Sequence[dict[str, dict]] | RaisesContext,
@@ -1747,14 +1747,14 @@ expected_result_2 = [
     [
         (
             dataset1,
-            [],
+            None,
             None,
             None,
             expected_result_1,
         ),
         (
             dataset2,
-            [],
+            None,
             None,
             None,
             expected_result_2,
@@ -1770,7 +1770,7 @@ expected_result_2 = [
 )
 def test_super_set_performance_metrics(
     data: pd.DataFrame | Dataset,
-    sensitive: Sequence[str],
+    sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
     expected_results: list[dict] | RaisesContext,
