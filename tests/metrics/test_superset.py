@@ -6,7 +6,6 @@ import pytest
 from _pytest.python_api import RaisesContext
 
 from fair_mango.dataset.dataset import Dataset
-from fair_mango.metrics.base import encode_target, is_binary
 from fair_mango.metrics.metrics import (
     DemographicParityDifference,
     DemographicParityRatio,
@@ -23,7 +22,6 @@ from fair_mango.metrics.superset import (
     super_set_fairness_metrics,
     super_set_performance_metrics,
 )
-
 
 df = pd.read_csv("tests/data/heart_data.csv")
 
@@ -52,7 +50,7 @@ dataset6 = Dataset(
 )
 
 
-expected_result_1 = [
+super_set_fairness_metrics_expected_result_1 = [
     {
         "sensitive": ("Sex",),
         "result": {
@@ -62,7 +60,7 @@ expected_result_1 = [
 ]
 
 
-expected_result_2 = [
+super_set_fairness_metrics_expected_result_2 = [
     {
         "sensitive": ("Sex",),
         "result": {
@@ -98,7 +96,7 @@ expected_result_2 = [
 ]
 
 
-expected_result_3 = [
+super_set_fairness_metrics_expected_result_3 = [
     {
         "sensitive": ("Sex",),
         "result": {
@@ -143,7 +141,7 @@ expected_result_3 = [
             None,
             None,
             None,
-            expected_result_1,
+            super_set_fairness_metrics_expected_result_1,
         ),
         (
             DisparateImpactRatio,
@@ -151,7 +149,7 @@ expected_result_3 = [
             ["Sex", "ChestPainType"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
-            expected_result_2,
+            super_set_fairness_metrics_expected_result_2,
         ),
         (
             EqualisedOddsDifference,
@@ -159,7 +157,7 @@ expected_result_3 = [
             None,
             None,
             None,
-            expected_result_3,
+            super_set_fairness_metrics_expected_result_3,
         ),
     ],
 )
@@ -192,7 +190,7 @@ def test_super_set_fairness_metrics(
     assert result == expected_result
 
 
-expected_result_2 = [
+super_set_performance_metrics_expected_result_2 = [
     {
         "sensitive": ("Sex",),
         "result": (
@@ -247,14 +245,14 @@ expected_result_2 = [
             None,
             None,
             None,
-            expected_result_2,
+            super_set_performance_metrics_expected_result_2,
         ),
         (
             df,
             ["Sex"],
             ["HeartDisease"],
             ["HeartDiseasePred"],
-            expected_result_2,
+            super_set_performance_metrics_expected_result_2,
         ),
     ],
 )
