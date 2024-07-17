@@ -19,8 +19,8 @@ from fair_mango.metrics.metrics import (
     FalsePositiveRateRatio,
 )
 from fair_mango.metrics.superset import (
-    super_set_fairness_metrics,
-    super_set_performance_metrics,
+    SupersetFairnessMetrics,
+    SupersetPerformanceMetrics,
 )
 
 df = pd.read_csv("tests/data/heart_data.csv")
@@ -133,7 +133,7 @@ super_set_fairness_metrics_expected_result_3 = [
 
 
 @pytest.mark.parametrize(
-    "metric, data, sensitive, real_target, predicted_target, expected_result",
+    "metric, data, sensitive, real_target, predicted_target, expected_results",
     [
         (
             DemographicParityDifference,
@@ -178,16 +178,18 @@ def test_super_set_fairness_metrics(
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
     predicted_target: Sequence[str] | None,
-    expected_result: Sequence[dict[str, dict]] | RaisesContext,
+    expected_results: Sequence[dict[str, dict]] | RaisesContext,
 ):
-    result = super_set_fairness_metrics(
+    super_set_fairness_metrics = SupersetFairnessMetrics(
         metric,
         data,
         sensitive,
         real_target,
         predicted_target,
     )
-    assert result == expected_result
+    results = super_set_fairness_metrics.rank()
+
+    assert results == expected_results
 
 
 super_set_performance_metrics_expected_result_2 = [
@@ -264,12 +266,13 @@ def test_super_set_performance_metrics(
     expected_results: list[dict] | RaisesContext,
 ):
     if isinstance(expected_results, list):
-        results = super_set_performance_metrics(
+        super_set_performance_metrics = SupersetPerformanceMetrics(
             data,
             sensitive,
             real_target,
             predicted_target,
         )
+        results = super_set_performance_metrics.evaluate()
         for result, expected_result in zip(results, expected_results):
             for result_values, expected_result_values in zip(
                 result["result"][1], expected_result["result"][1]
@@ -283,9 +286,9 @@ def test_super_set_performance_metrics(
                         assert value == expected_value
     else:
         with expected_results:
-            super_set_performance_metrics(
+            SupersetPerformanceMetrics(
                 data,
                 sensitive,
                 real_target,
                 predicted_target,
-            )
+            ).evaluate()
