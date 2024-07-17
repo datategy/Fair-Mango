@@ -286,7 +286,7 @@ def super_set_performance_metrics(
             label="selection_rate_in_data",
         )()
         for metric in metrics:
-            if metric.__name__ == "SelectionRate":
+            if metric is SelectionRate:
                 result = SelectionRate(
                     data=data,
                     use_y_true=False,
