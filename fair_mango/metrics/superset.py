@@ -85,22 +85,22 @@ def super_set_fairness_metrics(
     >>> df = pd.DataFrame({
     ...         'gender': ['male', 'male', 'male', 'female', 'female'],
     ...         'race': ['white', 'black', 'black', 'white', 'white'],
-    ...         'real': [1,1,0,0,1],
-    ...         'pred': [0,1,0,0,1]
+    ...         'real_churn': [1,1,0,0,1],
+    ...         'pred_churn': [0,1,0,0,1]
     ... })
     >>> result = super_set_fairness_metrics(
     ...     metric=DemographicParityDifference,
     ...     data=df,
     ...     sensitive=['gender', 'race'],
-    ...     real_target=['real'],
-    ...     predicted_target=['pred'],
+    ...     real_target=['real_churn'],
+    ...     predicted_target=['pred_churn'],
     ... )
     >>> result
     [
         {
             'sensitive': ('gender',),
             'result': {
-                'real': {
+                'real_churn': {
                     ('male',): 0.16666666666666663,
                     ('female',): -0.16666666666666663
                 }
@@ -109,7 +109,7 @@ def super_set_fairness_metrics(
         {
             'sensitive': ('race',),
             'result': {
-                'real': {
+                'real_churn': {
                     ('white',): 0.16666666666666663,
                     ('black',): -0.16666666666666663
                 }
@@ -118,7 +118,7 @@ def super_set_fairness_metrics(
         {
             'sensitive': ('gender', 'race'),
             'result': {
-                'real': {
+                'real_churn': {
                     ('male', 'white'): 0.5,
                     ('female', 'white'): -0.25,
                     ('male', 'black'): -0.25
@@ -212,19 +212,19 @@ def super_set_performance_metrics(
     >>> df = pd.DataFrame({
     ...         'gender': ['male', 'male', 'male', 'male', 'female', 'female'],
     ...         'race': ['white', 'white', 'black', 'black', 'white', 'white'],
-    ...         'real': [1,0,1,0,0,1],
-    ...         'pred': [0,0,1,0,0,1]
+    ...         'real_churn': [1,0,1,0,0,1],
+    ...         'pred_churn': [0,0,1,0,0,1]
     ... })
     >>> result = super_set_performance_metrics(
     ...     data=df,
     ...     sensitive=['gender', 'race'],
-    ...     real_target=['real'],
-    ...     predicted_target=['pred'],
+    ...     real_target=['real_churn'],
+    ...     predicted_target=['pred_churn'],
     ... )
     >>> result
     [
         {'sensitive': ('gender',),
-        'result': (['real'],
+        'result': (['real_churn'],
         [
             {
                 'sensitive': array(['male'], dtype=object),
