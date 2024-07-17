@@ -139,8 +139,8 @@ class SupersetFairnessMetrics:
         self.metric = metric
 
     def rank(self) -> list:
-        """Calculate fairness metrics for different subsets of sensitive
-        attributes. Ex:
+        """Calculate fairness metrics scores for different subsets of sensitive
+        attributes and ranks them. Ex:
         [gender, race] → (gender), (race), (gender, race)
 
         Returns
@@ -219,6 +219,29 @@ class SupersetFairnessMetrics:
 
 
 class SupersetPerformanceMetrics:
+    """Calculate performance evaluation metrics for different subsets of
+    sensitive attributes. Ex:
+    [gender, race] → (gender), (race), (gender, race)
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        The dataset containing the data to be evaluated. If a DataFrame object
+        is passed, it should contain attributes `sensitive`, `real_target`,
+        `predicted_target`, and `positive_target`.
+    sensitive : Sequence[str], optional
+        A Sequence of sensitive attributes (Ex: gender, race...), by default []
+    real_target : Sequence[str] | None, optional
+        A Sequence of column names of actual labels for target variables,
+        by default None
+    predicted_target : Sequence[str] | None, optional
+        A Sequence of column names of predicted labels for target variables,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        A Sequence of the positive labels corresponding to the provided
+        targets, by default None
+    """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -238,6 +261,64 @@ class SupersetPerformanceMetrics:
         self.metrics = [SelectionRate, PerformanceMetric, ConfusionMatrix]
 
     def evaluate(self) -> list[dict]:
+        """Calculate performance evaluation metrics for different subsets of
+        sensitive attributes. Ex:
+        [gender, race] → (gender), (race), (gender, race)
+
+        Returns
+        -------
+        list
+            A list of dictionaries, each containing the sensitive attributes
+            considered and their corresponding performance evaluation metric
+            results.
+
+        Examples
+        --------
+        >>> df = pd.DataFrame({
+        ...         'gender': ['male', 'male', 'male', 'male', 'female', 'female'],
+        ...         'race': ['white', 'white', 'black', 'black', 'white', 'white'],
+        ...         'real_churn': [1,0,1,0,0,1],
+        ...         'pred_churn': [0,0,1,0,0,1]
+        ... })
+        >>> result = super_set_performance_metrics(
+        ...     data=df,
+        ...     sensitive=['gender', 'race'],
+        ...     real_target=['real_churn'],
+        ...     predicted_target=['pred_churn'],
+        ... )
+        >>> result
+        [
+            {'sensitive': ('gender',),
+            'result': (['real_churn'],
+            [
+                {
+                    'sensitive': array(['male'], dtype=object),
+                    'selection_rate_in_data': array(0.5),
+                    'selection_rate_in_predictions': array(0.25),
+                    'accuracy': [0.75],
+                    'balanced accuracy': [0.75],
+                    'precision': [1.0],
+                    'recall': [0.5],
+                    'f1-score': [0.6666666666666666],
+                    'false_negative_rate': [0.5],
+                    'false_positive_rate': [0.0],
+                    'true_negative_rate': [1.0],
+                    'true_positive_rate': [0.5]
+                },
+                {
+                    'sensitive': array(['female'], dtype=object),
+                    ...
+                    'f1-score': [0.0],
+                    'false_negative_rate': [1.0],
+                    'false_positive_rate': [0.0],
+                    'true_negative_rate': [1.0],
+                    'true_positive_rate': [0.0]
+                }
+            ]
+            )
+            }
+        ]
+        """
         results = []
 
         for pair in self.pairs:
