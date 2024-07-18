@@ -1,3 +1,4 @@
+from abc import ABC
 from collections.abc import Sequence
 from itertools import chain, combinations
 
@@ -21,14 +22,8 @@ from fair_mango.metrics.metrics import (
 )
 
 
-def _initialise(
-    data: Dataset | pd.DataFrame,
-    sensitive: Sequence[str] | None = None,
-    real_target: Sequence[str] | None = None,
-    predicted_target: Sequence[str] | None = None,
-    positive_target: Sequence[int | float | str | bool] | None = None,
-) -> tuple:
-    """Initialse values for Superset classes
+class Superset(ABC):
+    """An abstract that gets inhereted by other superset classes
 
     Parameters
     ----------
@@ -48,38 +43,46 @@ def _initialise(
         A Sequence of the positive labels corresponding to the provided
         targets, by default None
 
-    Returns
-    -------
-    tuple
-        A tuple with the values of the initialised parameters
-
     Raises
     ------
     AttributeError
-        if data is a pandas dataframe and 'sensitive' parameter is not provided.
-    """
-    if isinstance(data, Dataset):
-        sensitive = data.sensitive
-        real_target = data.real_target
-        predicted_target = data.predicted_target
-        positive_target = data.positive_target
-        data = data.df
-        if predicted_target == []:
-            predicted_target = None
+        if data is a pandas dataframe and 'sensitive' parameter is not provided."""
 
-    if sensitive is None:
-        raise AttributeError(
-            "'sensitive' attribute is required when data is pandas dataframe"
+    def __init__(
+        self,
+        data: Dataset | pd.DataFrame,
+        sensitive: Sequence[str] | None = None,
+        real_target: Sequence[str] | None = None,
+        predicted_target: Sequence[str] | None = None,
+        positive_target: Sequence[int | float | str | bool] | None = None,
+    ) -> None:
+        if isinstance(data, Dataset):
+            sensitive = data.sensitive
+            real_target = data.real_target
+            predicted_target = data.predicted_target
+            positive_target = data.positive_target
+            data = data.df
+            if predicted_target == []:
+                predicted_target = None
+
+        if sensitive is None:
+            raise AttributeError(
+                "'sensitive' attribute is required when data is pandas dataframe"
+            )
+
+        pairs = chain.from_iterable(
+            combinations(sensitive, r) for r in range(1, len(sensitive) + 1)
         )
 
-    pairs = chain.from_iterable(
-        combinations(sensitive, r) for r in range(1, len(sensitive) + 1)
-    )
+        self.data = data
+        self.sensitive = sensitive
+        self.real_target = real_target
+        self.predicted_target = predicted_target
+        self.positive_target = positive_target
+        self.pairs = pairs
 
-    return data, sensitive, real_target, predicted_target, positive_target, pairs
 
-
-class SupersetFairnessMetrics:
+class SupersetFairnessMetrics(Superset):
     def __init__(
         self,
         metric: (
@@ -128,14 +131,9 @@ class SupersetFairnessMetrics:
             A Sequence of the positive labels corresponding to the provided
             targets, by default None
         """
-        (
-            self.data,
-            self.sensitive,
-            self.real_target,
-            self.predicted_target,
-            self.positive_target,
-            self.pairs,
-        ) = _initialise(data, sensitive, real_target, predicted_target, positive_target)
+        super().__init__(
+            data, sensitive, real_target, predicted_target, positive_target
+        )
         self.metric = metric
 
     def rank(self) -> list:
@@ -218,7 +216,7 @@ class SupersetFairnessMetrics:
         return results
 
 
-class SupersetPerformanceMetrics:
+class SupersetPerformanceMetrics(Superset):
     """Calculate performance evaluation metrics for different subsets of
     sensitive attributes. Ex:
     [gender, race] → (gender), (race), (gender, race)
@@ -250,14 +248,9 @@ class SupersetPerformanceMetrics:
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ) -> None:
-        (
-            self.data,
-            self.sensitive,
-            self.real_target,
-            self.predicted_target,
-            self.positive_target,
-            self.pairs,
-        ) = _initialise(data, sensitive, real_target, predicted_target, positive_target)
+        super().__init__(
+            data, sensitive, real_target, predicted_target, positive_target
+        )
         self.metrics = [SelectionRate, PerformanceMetric, ConfusionMatrix]
 
     def evaluate(self) -> list[dict]:
