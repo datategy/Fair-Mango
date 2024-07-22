@@ -598,7 +598,7 @@ class Dataset:
     def get_predicted_target_for_one_group(
         self, sensitive: Sequence[str]
     ) -> pd.Series | pd.DataFrame:
-        """Retrieve the predicted target corresponding to a specific 
+        """Retrieve the predicted target corresponding to a specific
         demographic group present in the sensitive features.
 
         Parameters
