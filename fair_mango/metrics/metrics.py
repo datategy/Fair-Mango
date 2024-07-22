@@ -25,7 +25,7 @@ from fair_mango.metrics.base import (
 
 class SelectionRate(Metric):
     """Calculate selection rate for different sensitive groups
-    
+
     Parameters
     ----------
     data : Dataset | pd.DataFrame
@@ -71,7 +71,7 @@ class SelectionRate(Metric):
             a tuple containing two elements:
                 targets (Sequence[str]): The target variables used for
                 calculation.
-                results (list[dict]): A list of dictionaries, where each 
+                results (list[dict]): A list of dictionaries, where each
                 dictionary has two keys:
                     sensitive: The name of the sensitive group.
                     result: The selection rate for the sensitive group.
@@ -80,7 +80,7 @@ class SelectionRate(Metric):
         ------
         ValueError
             if no predictions are found and `use_y_true` is False.
-        
+
         Examples
         --------
         >>> import pandas as pd
@@ -130,11 +130,11 @@ class SelectionRate(Metric):
             ['predicted_target_1'],
             [
                 {
-                    'sensitive': array(['male', 'black'], dtype=object), 
+                    'sensitive': array(['male', 'black'], dtype=object),
                     'result': array(0.)
                 },
                 {
-                    'sensitive': array(['female', 'black'], dtype=object), 
+                    'sensitive': array(['female', 'black'], dtype=object),
                     'result': array(1.)
                 },
                 {
@@ -199,7 +199,7 @@ class SelectionRate(Metric):
         -------
         pd.Series
             the target name and the corresponding selection rate.
-        
+
         Examples
         --------
         >>> import pandas as pd
@@ -249,14 +249,14 @@ class ConfusionMatrix(Metric):
     - false negative rate
     - true positive rate
     - true negative rate
-    
+
     Parameters
     ----------
     data : Dataset | pd.DataFrame
         input data
     metrics : Collection | Sequence | None, optional
         a sequence of metrics or a dictionary with keys being custom labels
-        and values a callable that takes as input tp, tn, fp, fn which are 
+        and values a callable that takes as input tp, tn, fp, fn which are
         extracted from the confusion matrix. Available functions in
         fair_mango.metrics.metrics.base are:
         - false_positive_rate()
@@ -275,7 +275,7 @@ class ConfusionMatrix(Metric):
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
         sequence of the positive labels corresponding to the provided targets,
         by default None
-    
+
     Raises
         ------
         ValueError
@@ -344,7 +344,7 @@ class ConfusionMatrix(Metric):
                 results (list[dict]): A list of dictionaries, where the keys:
                     sensitive: The name of the sensitive group.
                     label: The corresponding result for the sensitive group.
-        
+
         Examples
         --------
         >>> import pandas as pd
@@ -406,7 +406,7 @@ class ConfusionMatrix(Metric):
             ['real_target_1'],
             [
                 {
-                    'sensitive': array(['male'], dtype=object), 
+                    'sensitive': array(['male'], dtype=object),
                     'true_negative_rate': [1.0]
                 },
                 {
@@ -427,13 +427,13 @@ class ConfusionMatrix(Metric):
             ['real_target_1'],
             [
                 {
-                    'sensitive': array(['male'], dtype=object), 
-                    'tpr': [0.0], 
+                    'sensitive': array(['male'], dtype=object),
+                    'tpr': [0.0],
                     'tnr': [1.0]
                 },
                 {
-                    'sensitive': array(['female'], dtype=object), 
-                    'tpr': [1.0], 
+                    'sensitive': array(['female'], dtype=object),
+                    'tpr': [1.0],
                     'tnr': [0.0]
                 }
             ]
@@ -481,7 +481,7 @@ class PerformanceMetric(Metric):
     - precision
     - recall
     - f1 score
-    
+
     Parameters
     ----------
     data : Dataset | pd.DataFrame
@@ -495,7 +495,7 @@ class PerformanceMetric(Metric):
         - precision_score()
         - recall_score()
         - f1_score_score()
-        or any custom metric that takes y_true and y_pred and parameters 
+        or any custom metric that takes y_true and y_pred and parameters
         respectively.
     sensitive : Sequence[str] | None, optional if data is a Dataset object
         sequence of column names corresponding to sensitive features
@@ -509,7 +509,7 @@ class PerformanceMetric(Metric):
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
         sequence of the positive labels corresponding to the provided targets,
         by default None
-    
+
     Raises
         ------
         ValueError
@@ -584,7 +584,7 @@ class PerformanceMetric(Metric):
                 results (list[dict]): A list of dictionaries, where the keys:
                     sensitive: The name of the sensitive group.
                     label: The corresponding result for the sensitive group.
-        
+
         Examples
         --------
         >>> import pandas as pd
@@ -649,7 +649,7 @@ class PerformanceMetric(Metric):
             ['real_target_1'],
             [
                 {
-                    'sensitive': array(['male'], dtype=object), 
+                    'sensitive': array(['male'], dtype=object),
                     'f1_score': [0.0]
                 },
                 {
@@ -712,6 +712,34 @@ class PerformanceMetric(Metric):
 
 
 class DemographicParityDifference(FairnessMetricDifference):
+    """Calculate Demographic Parity Fairness Metric using "difference" to
+    calculate the disparity between the different demographic groups present
+    in the sensitive feature.
+
+    Demographic Parity calculates the "difference" in the Selection Rate in the
+    real targets to detect if there is any bias in the **dataset**.
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    label : str
+        the key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference"
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+    """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
