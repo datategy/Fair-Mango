@@ -148,7 +148,7 @@ class Metric(ABC):
     """An abstract class that is inherited by every class that measures some
     metric for the different demographic groups present in the sensitive
     feature.
-    
+
     Parameters
     ----------
     data : Dataset | pd.DataFrame
@@ -224,9 +224,9 @@ def calculate_disparity(
 ) -> dict[tuple, np.ndarray[float]]:
     """Calculate the disparity in the scores between every possible pair in
     the provided groups using two available methods:
-    - difference (Example: for three groups a, b, c: 
+    - difference (Example: for three groups a, b, c:
     [score_a - score_b], [score_a - score_c], [score_b - score_c])
-    - ratio (Example: for three groups a, b, c: 
+    - ratio (Example: for three groups a, b, c:
     [score_a / score_b], [score_a / score_c], [score_b / score_c])
 
     Parameters
@@ -319,6 +319,7 @@ class FairnessMetricDifference(ABC):
     AttributeError
         if metric_type is not 'performance' or 'error'.
     """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -384,7 +385,7 @@ class FairnessMetricDifference(ABC):
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
         """Return the fairness metric value, in other words the biggest
-        disparity found with specifying the priviliged and discriminated 
+        disparity found with specifying the priviliged and discriminated
         groups.
 
         Returns
@@ -396,7 +397,7 @@ class FairnessMetricDifference(ABC):
             variable with:
                 - keys: labels for the biggest disparity, the privileged group
                 and the discriminated group.
-                - values: values for the biggest disparity, the privileged 
+                - values: values for the biggest disparity, the privileged
                 group and the discriminated group.
         """
         if self.results is None:
@@ -428,7 +429,7 @@ class FairnessMetricDifference(ABC):
         """Assign a score to every demographic group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
-        - ['Male': 0.0314]: Males have on average a score higher by 3.14% than 
+        - ['Male': 0.0314]: Males have on average a score higher by 3.14% than
         the Females.
         - ['White': -0.0628]: Whites have on average a score lower by 6.28% than
         other groups (Black, Asian...).
@@ -554,6 +555,7 @@ class FairnessMetricRatio(ABC):
     AttributeError
         if metric_type is not 'performance' or 'error'.
     """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -617,7 +619,7 @@ class FairnessMetricRatio(ABC):
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
         """Return the fairness metric value, in other words the biggest
-        disparity found with specifying the priviliged and discriminated 
+        disparity found with specifying the priviliged and discriminated
         groups.
 
         Returns
@@ -629,7 +631,7 @@ class FairnessMetricRatio(ABC):
             variable with:
                 - keys: labels for the biggest disparity, the privileged group
                 and the discriminated group.
-                - values: values for the biggest disparity, the privileged 
+                - values: values for the biggest disparity, the privileged
                 group and the discriminated group.
         """
         if self.results is None:
@@ -665,7 +667,7 @@ class FairnessMetricRatio(ABC):
         """Assign a score to every demographic group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
-        - ['Male': 0.814]: Males have on average 81.4% the score of the 
+        - ['Male': 0.814]: Males have on average 81.4% the score of the
         Females.
         - ['White': 1.20]: Whites have on average 120% the score of the
         other groups (Black, Asian...).
