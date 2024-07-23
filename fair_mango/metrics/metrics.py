@@ -368,7 +368,7 @@ class ConfusionMatrix(Metric):
         ...     data=df,
         ...     sensitive=['sensitive_1'],
         ...     real_target=['real_target_1'],
-        ...     predicted_target=['predicted_target_1]
+        ...     predicted_target=['predicted_target_1']
         ... )
         >>> confusion_matrix_1()
         (
@@ -609,7 +609,7 @@ class PerformanceMetric(Metric):
         ...     data=df,
         ...     sensitive=['sensitive_1'],
         ...     real_target=['real_target_1'],
-        ...     predicted_target=['predicted_target_1]
+        ...     predicted_target=['predicted_target_1']
         ... )
         >>> performance_metric_1()
         (
@@ -738,6 +738,44 @@ class DemographicParityDifference(FairnessMetricDifference):
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
         sequence of the positive labels corresponding to the provided targets,
         by default None
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from fair_mango.metrics.metrics import DemographicParityDifference
+    >>> data = {
+    ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male', 'male'],
+    ...     'sensitive_2': ['white', 'black', 'black', 'black', 'black', 'white'],
+    ...     'real_target': [1, 0, 0, 1, 0, 1],
+    ...     'predicted_target': [0, 1, 1, 0, 0, 1],
+    ... }
+    >>> df = pd.DataFrame(data)
+    >>> demographic_parity_diff = DemographicParityDifference(
+    ...     data=df,
+    ...     sensitive=['sensitive_1', 'sensitive_2'],
+    ...     real_target=['real_target'],
+    ...     predicted_target=['predicted_target']
+    ... )
+    >>> demographic_parity_diff.summary()
+    {
+        'real_target': {
+            'demographic_parity_difference': np.float64(1.0),
+            'privileged': ('male', 'white'),
+            'unprivileged': ('female', 'black')
+        }
+    }
+    >>> demographic_parity_diff.rank()
+    {
+        'real_target': {
+            ('male', 'white'): np.float64(0.75),
+            ('male', 'black'): np.float64(0.0),
+            ('female', 'black'): np.float64(-0.75)
+        }
+    }
+    >>> demographic_parity_diff.is_biased(0.2)
+    {
+        'real_target': True
+    }
     """
 
     def __init__(
@@ -763,6 +801,72 @@ class DemographicParityDifference(FairnessMetricDifference):
 
 
 class DisparateImpactDifference(FairnessMetricDifference):
+    """Calculate Disparate Impact Fairness Metric using "difference" to
+    calculate the disparity between the different demographic groups present
+    in the sensitive feature.
+
+    Disparate Impact calculates the "difference" in the Selection Rate in the
+    predicted targets to detect if there is any bias in the **model**.
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    label : str
+        the key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference"
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from fair_mango.metrics.metrics import DisparateImpactDifference
+    >>> data = {
+    ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male', 'male'],
+    ...     'sensitive_2': ['white', 'black', 'black', 'black', 'black', 'white'],
+    ...     'real_target': [1, 0, 0, 1, 0, 1],
+    ...     'predicted_target': [0, 1, 1, 0, 0, 1],
+    ... }
+    >>> df = pd.DataFrame(data)
+    >>> disparate_impact_diff = DisparateImpactDifference(
+    ...     data=df,
+    ...     sensitive=['sensitive_1', 'sensitive_2'],
+    ...     real_target=['real_target'],
+    ...     predicted_target=['predicted_target']
+    ... )
+    >>> disparate_impact_diff.summary()
+    {
+        'predicted_target': {
+            'disparate_impact_difference': np.float64(1.0),
+            'privileged': ('female', 'black'),
+            'unprivileged': ('male', 'black')
+        }
+    }
+    >>> disparate_impact_diff.rank()
+    {
+        'real_target': {
+            ('female', 'black'): np.float64(0.75),
+            ('male', 'white'): np.float64(0.0),
+            ('male', 'black'): np.float64(-0.75)
+        }
+    }
+    >>> disparate_impact_diff.is_biased(0.2)
+    {
+        'real_target': True
+    }
+    """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -786,6 +890,72 @@ class DisparateImpactDifference(FairnessMetricDifference):
 
 
 class EqualOpportunityDifference(FairnessMetricDifference):
+    """Calculate Equal Opportunity Fairness Metric using "difference" to
+    calculate the disparity between the different demographic groups present
+    in the sensitive feature.
+
+    Equal Opportunity calculates the "difference" in the True Positive Rate in
+    the targets to detect if there is any bias in the **model**.
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    label : str
+        the key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference"
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from fair_mango.metrics.metrics import EqualOpportunityDifference
+    >>> data = {
+    ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male', 'male'],
+    ...     'sensitive_2': ['white', 'black', 'black', 'black', 'black', 'white'],
+    ...     'real_target': [1, 0, 1, 1, 0, 1],
+    ...     'predicted_target': [0, 1, 1, 0, 0, 1],
+    ... }
+    >>> df = pd.DataFrame(data)
+    >>> equal_opportunity_diff = EqualOpportunityDifference(
+    ...     data=df,
+    ...     sensitive=['sensitive_1', 'sensitive_2'],
+    ...     real_target=['real_target'],
+    ...     predicted_target=['predicted_target']
+    ... )
+    >>> equal_opportunity_diff.summary()
+    {
+        'real_target': {
+            'equal_opportunity_difference': np.float64(1.0),
+            'privileged': ('female', 'black'),
+            'unprivileged': ('male', 'black')
+        }
+    }
+    >>> equal_opportunity_diff.rank()
+    {
+        'real_target': {
+            ('female', 'black'): np.float64(0.75),
+            ('male', 'white'): np.float64(0.0),
+            ('male', 'black'): np.float64(-0.75)
+        }
+    }
+    >>> equal_opportunity_diff.is_biased(0.2)
+    {
+        'real_target': True
+    }
+    """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -809,6 +979,73 @@ class EqualOpportunityDifference(FairnessMetricDifference):
 
 
 class FalsePositiveRateDifference(FairnessMetricDifference):
+    """Calculate False Positive Rate Parity Fairness Metric using "difference"
+    to calculate the disparity between the different demographic groups present
+    in the sensitive feature.
+
+    False Positive Rate Parity calculates the "difference" in the False
+    Positive Rate in the targets to detect if there is any bias in the
+    **model**.
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    label : str
+        the key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference"
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from fair_mango.metrics.metrics import FalsePositiveRateDifference
+    >>> data = {
+    ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male', 'male'],
+    ...     'sensitive_2': ['white', 'black', 'black', 'black', 'black', 'white'],
+    ...     'real_target': [1, 0, 1, 0, 0, 0],
+    ...     'predicted_target': [0, 1, 0, 1, 0, 1],
+    ... }
+    >>> df = pd.DataFrame(data)
+    >>> fpr_parity_diff = FalsePositiveRateDifference(
+    ...     data=df,
+    ...     sensitive=['sensitive_1', 'sensitive_2'],
+    ...     real_target=['real_target'],
+    ...     predicted_target=['predicted_target']
+    ... )
+    >>> fpr_parity_diff.summary()
+    {
+        'real_target': {
+            'false_positive_rate_difference': np.float64(0.5),
+            'privileged': ('male', 'black'),
+            'unprivileged': ('female', 'black')
+        }
+    }
+    >>> fpr_parity_diff.rank()
+    {
+        'real_target': {
+            ('male', 'black'): np.float64(0.5),
+            ('female', 'black'): np.float64(-0.25),
+            ('male', 'white'): np.float64(-0.25)
+        }
+    }
+    >>> fpr_parity_diff.is_biased(0.2)
+    {
+        'real_target': True
+    }
+    """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -832,6 +1069,72 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
 
 
 class DemographicParityRatio(FairnessMetricRatio):
+    """Calculate Demographic Parity Fairness Metric using "ratio" to calculate
+    the disparity between the different demographic groups present in the
+    sensitive feature.
+
+    Demographic Parity calculates the "ratio" of the Selection Rate in the
+    real targets to detect if there is any bias in the **dataset**.
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    label : str
+        the key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference"
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from fair_mango.metrics.metrics import DemographicParityRatio
+    >>> data = {
+    ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male', 'male'],
+    ...     'sensitive_2': ['white', 'black', 'black', 'black', 'black', 'white'],
+    ...     'real_target': [1, 0, 0, 1, 0, 1],
+    ...     'predicted_target': [0, 1, 1, 0, 0, 1],
+    ... }
+    >>> df = pd.DataFrame(data)
+    >>> demographic_parity_ratio = DemographicParityRatio(
+    ...     data=df,
+    ...     sensitive=['sensitive_1', 'sensitive_2'],
+    ...     real_target=['real_target'],
+    ...     predicted_target=['predicted_target']
+    ... )
+    >>> demographic_parity_ratio.summary()
+    {
+        'real_target': {
+            'demographic_parity_ratio': np.float64(0.0),
+            'privileged': ('male', 'black'),
+            'unprivileged': ('female', 'black')
+        }
+    }
+    >>> demographic_parity_ratio.rank()
+    {
+        'real_target': {
+            ('male', 'white'): np.float64(0.25),
+            ('male', 'black'): np.float64(1.0),
+            ('female', 'black'): np.float64(inf)
+        }
+    }
+    >>> demographic_parity_ratio.is_biased(0.8)
+    {
+        'real_target': True
+    }
+    """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -855,6 +1158,72 @@ class DemographicParityRatio(FairnessMetricRatio):
 
 
 class DisparateImpactRatio(FairnessMetricRatio):
+    """Calculate Disparate Impact Fairness Metric using "ratio" to calculate
+    the disparity between the different demographic groups present in the
+    sensitive feature.
+
+    Disparate Impact calculates the "ratio" of the Selection Rate in the
+    predicted targets to detect if there is any bias in the **model**.
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    label : str
+        the key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference"
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from fair_mango.metrics.metrics import DisparateImpactRatio
+    >>> data = {
+    ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male', 'male'],
+    ...     'sensitive_2': ['white', 'black', 'black', 'black', 'black', 'white'],
+    ...     'real_target': [1, 0, 0, 1, 0, 1],
+    ...     'predicted_target': [0, 1, 1, 0, 0, 1],
+    ... }
+    >>> df = pd.DataFrame(data)
+    >>> disparate_impact_ratio = DisparateImpactRatio(
+    ...     data=df,
+    ...     sensitive=['sensitive_1', 'sensitive_2'],
+    ...     real_target=['real_target'],
+    ...     predicted_target=['predicted_target']
+    ... )
+    >>> disparate_impact_ratio.summary()
+    {
+        'predicted_target': {
+            'disparate_impact_ratio': np.float64(0.0),
+            'privileged': ('female', 'black'),
+            'unprivileged': ('male', 'black')
+        }
+    }
+    >>> disparate_impact_ratio.rank()
+    {
+        'real_target': {
+            ('female', 'black'): np.float64(0.25),
+            ('male', 'white'): np.float64(1.0),
+            ('male', 'black'): np.float64(inf)
+        }
+    }
+    >>> disparate_impact_ratio.is_biased(0.8)
+    {
+        'real_target': True
+    }
+    """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -878,6 +1247,72 @@ class DisparateImpactRatio(FairnessMetricRatio):
 
 
 class EqualOpportunityRatio(FairnessMetricRatio):
+    """Calculate Equal Opportunity Fairness Metric using "ratio" to calculate
+    the disparity between the different demographic groups present in the
+    sensitive feature.
+
+    Equal Opportunity calculates the "ratio" of the True Positive Rate in
+    the targets to detect if there is any bias in the **model**.
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    label : str
+        the key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference"
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from fair_mango.metrics.metrics import EqualOpportunityRatio
+    >>> data = {
+    ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male', 'male'],
+    ...     'sensitive_2': ['white', 'black', 'black', 'black', 'black', 'white'],
+    ...     'real_target': [1, 0, 1, 1, 0, 1],
+    ...     'predicted_target': [0, 1, 1, 0, 0, 1],
+    ... }
+    >>> df = pd.DataFrame(data)
+    >>> equal_opportunity_ratio = EqualOpportunityRatio(
+    ...     data=df,
+    ...     sensitive=['sensitive_1', 'sensitive_2'],
+    ...     real_target=['real_target'],
+    ...     predicted_target=['predicted_target']
+    ... )
+    >>> equal_opportunity_ratio.summary()
+    {
+        'real_target': {
+            'equal_opportunity_ratio': np.float64(0.0),
+            'privileged': ('female', 'black'),
+            'unprivileged': ('male', 'black')
+        }
+    }
+    >>> equal_opportunity_ratio.rank()
+    {
+        'real_target': {
+            ('female', 'black'): np.float64(0.25),
+            ('male', 'white'): np.float64(1.0),
+            ('male', 'black'): np.float64(inf)
+        }
+    }
+    >>> equal_opportunity_ratio.is_biased(0.8)
+    {
+        'real_target': True
+    }
+    """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -901,6 +1336,72 @@ class EqualOpportunityRatio(FairnessMetricRatio):
 
 
 class FalsePositiveRateRatio(FairnessMetricRatio):
+    """Calculate False Positive Rate Parity Fairness Metric using "ratio" to
+    calculate the disparity between the different demographic groups present
+    in the sensitive feature.
+
+    False Positive Rate Parity calculates the "ratio" of the False Positive
+    Rate in the targets to detect if there is any bias in the **model**.
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    label : str
+        the key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference"
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from fair_mango.metrics.metrics import FalsePositiveRateRatio
+    >>> data = {
+    ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male', 'male'],
+    ...     'sensitive_2': ['white', 'black', 'black', 'black', 'black', 'white'],
+    ...     'real_target': [1, 0, 1, 0, 0, 0],
+    ...     'predicted_target': [0, 1, 0, 1, 0, 1],
+    ... }
+    >>> df = pd.DataFrame(data)
+    >>> fpr_parity_ratio = FalsePositiveRateRatio(
+    ...     data=df,
+    ...     sensitive=['sensitive_1', 'sensitive_2'],
+    ...     real_target=['real_target'],
+    ...     predicted_target=['predicted_target']
+    ... )
+    >>> fpr_parity_ratio.summary()
+    {
+        'real_target': {
+            'false_positive_rate_ratio': np.float64(0.5),
+            'privileged': ('male', 'black'),
+            'unprivileged': ('female', 'black')
+        }
+    }
+    >>> fpr_parity_ratio.rank()
+    {
+        'real_target': {
+            ('male', 'black'): np.float64(0.5),
+            ('female', 'black'): np.float64(1.5),
+            ('male', 'white'): np.float64(1.5)
+        }
+    }
+    >>> fpr_parity_ratio.is_biased(0.2)
+    {
+        'real_target': True
+    }
+    """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -924,6 +1425,73 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
 
 
 class EqualisedOddsDifference:
+    """Calculate Equalised Odds Fairness Metric using "difference" to calculate
+    the disparity between the different demographic groups present in the
+    sensitive feature.
+
+    Equalised Odds calculates the "difference" in the True Positive Rate and
+    False Positive Rate in the targets to detect if there is any bias in the
+    **model**.
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    label : str
+        the key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference"
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from fair_mango.metrics.metrics import EqualisedOddsDifference
+    >>> data = {
+    ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male', 'male'],
+    ...     'sensitive_2': ['white', 'black', 'black', 'black', 'black', 'white'],
+    ...     'real_target': [1, 0, 1, 0, 0, 0],
+    ...     'predicted_target': [0, 1, 0, 1, 0, 1],
+    ... }
+    >>> df = pd.DataFrame(data)
+    >>> equalised_odds_diff = EqualisedOddsDifference(
+    ...     data=df,
+    ...     sensitive=['sensitive_1', 'sensitive_2'],
+    ...     real_target=['real_target'],
+    ...     predicted_target=['predicted_target']
+    ... )
+    >>> equalised_odds_diff.summary()
+    {
+        'real_target': {
+            'equalised_odds_difference': np.float64(0.5),
+            'privileged': ('male', 'black'),
+            'unprivileged': ('female', 'black')
+        }
+    }
+    >>> equalised_odds_diff.rank()
+    {
+        'real_target': {
+            ('male', 'black'): np.float64(0.5),
+            ('female', 'black'): np.float64(-0.25),
+            ('male', 'white'): np.float64(-0.25)
+        }
+    }
+    >>> equalised_odds_diff.is_biased(0.2)
+    {
+        'real_target': False
+    }
+    """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -953,6 +1521,17 @@ class EqualisedOddsDifference:
     def _compute(
         self,
     ) -> tuple[dict[tuple, np.ndarray[float]], dict[tuple, np.ndarray[float]]]:
+        """Calculate the disparity in the True Positive Rate and False Positive
+        Rate usinf "difference" between every possible pair in the provided
+        groups.
+
+        Returns
+        -------
+        tuple[dict[tuple, np.ndarray[float]], dict[tuple, np.ndarray[float]]]
+            a tuple with two dictionaries with:
+            - keys: tuple with the pair of the sensitive groups labels.
+            - values: a numpy array with the corresponding disparity.
+        """
         tpr = EqualOpportunityDifference(self.data)
         fpr = FalsePositiveRateDifference(self.data)
         tpr.summary()
@@ -963,6 +1542,22 @@ class EqualisedOddsDifference:
         return tpr_diff, fpr_diff
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
+        """Return the Equalised Odds metric value, in other words the biggest
+        disparity found in the True Positive Rate and False Positive Rate with
+        specifying the priviliged and discriminated groups.
+
+        Returns
+        -------
+        dict[str, dict[str, float | tuple | None]]
+            a dictionaty with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the results for that target
+            variable with:
+                - keys: labels for the biggest disparity, the privileged group
+                and the discriminated group.
+                - values: values for the biggest disparity, the privileged
+                group and the discriminated group.
+        """
         self.result: dict = {}
 
         for target in self.data.real_target:
@@ -995,6 +1590,24 @@ class EqualisedOddsDifference:
         return self.result
 
     def rank(self) -> dict[str, dict[tuple[str], float]]:
+        """Assign a score to every demographic group present in the sensitive
+        features and rank them from most privileged to most discriminated.
+        The score can be interpreted like:
+        - ['Male': 0.0314]: Males have on average a score higher by 3.14% than
+        the Females.
+        - ['White': -0.0628]: Whites have on average a score lower by 6.28% than
+        other groups (Black, Asian...).
+
+        Returns
+        -------
+        dict[str, dict[tuple[str], float]]
+            a dictionaty with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the ranking for that target
+            variable with:
+                - keys: a tuple with the demographic group.
+                - values: the corresponding score.
+        """
         result: dict = {}
         self.ranking = {}
 
@@ -1030,6 +1643,27 @@ class EqualisedOddsDifference:
         return self.ranking
 
     def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
+        """Return a decision of whether there is bias or not depending on the
+        provided threshold.
+
+        Parameters
+        ----------
+        threshold : float, optional
+            the threshold to make the decision of whether there is bias or not,
+            by default 0.1
+
+        Returns
+        -------
+        dict[str, bool]
+            a dictionary with:
+            - keys: a string with the target column name.
+            - values: True if there is bias else False.
+
+        Raises
+        ------
+        ValueError
+            if threshold parameter is not in the range of [0, 1].
+        """
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
@@ -1049,6 +1683,73 @@ class EqualisedOddsDifference:
 
 
 class EqualisedOddsRatio:
+    """Calculate Equalised Odds Fairness Metric using "ratio" to calculate
+    the disparity between the different demographic groups present in the
+    sensitive feature.
+
+    Equalised Odds calculates the "ratio" of the True Positive Rate and False
+    Positive Rate in the targets to detect if there is any bias in the
+    **model**.
+
+    Parameters
+    ----------
+    data : Dataset | pd.DataFrame
+        input data
+    label : str
+        the key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference"
+    sensitive : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None
+    real_target : Sequence[str] | None, optional if data is a Dataset object
+        sequence of column names corresponding to the real targets
+        (true labels), by default None
+    predicted_target : Sequence[str] | None, optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        sequence of the positive labels corresponding to the provided targets,
+        by default None
+
+    Example
+    -------
+    >>> import pandas as pd
+    >>> from fair_mango.metrics.metrics import EqualisedOddsRatio
+    >>> data = {
+    ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male', 'male'],
+    ...     'sensitive_2': ['white', 'black', 'black', 'black', 'black', 'white'],
+    ...     'real_target': [1, 0, 1, 0, 0, 0],
+    ...     'predicted_target': [0, 1, 0, 1, 0, 1],
+    ... }
+    >>> df = pd.DataFrame(data)
+    >>> equalised_odds_ratio = EqualisedOddsRatio(
+    ...     data=df,
+    ...     sensitive=['sensitive_1', 'sensitive_2'],
+    ...     real_target=['real_target'],
+    ...     predicted_target=['predicted_target']
+    ... )
+    >>> equalised_odds_ratio.summary()
+    {
+        'real_target': {
+            'equalised_odds_ratio': np.float64(0.5),
+            'privileged': ('male', 'black'),
+            'unprivileged': ('female', 'black')
+        }
+    }
+    >>> equalised_odds_ratio.rank()
+    {
+        'real_target': {
+            ('male', 'black'): np.float64(0.5),
+            ('female', 'black'): np.float64(1.5),
+            ('male', 'white'): np.float64(1.5)
+        }
+    }
+    >>> equalised_odds_ratio.is_biased(0.2)
+    {
+        'real_target': True
+    }
+    """
+
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
@@ -1076,6 +1777,16 @@ class EqualisedOddsRatio:
         self.fpr: dict | None = None
 
     def _compute(self) -> tuple[dict, dict]:
+        """Calculate the disparity in the True Positive Rate and False Positive
+        Rate using "ratio" between every possible pair in the provided groups.
+
+        Returns
+        -------
+        dict[tuple, np.ndarray[float]]
+            a dictionary with:
+            - keys: tuple with the pair of the sensitive groups labels.
+            - values: a numpy array with the corresponding disparity.
+        """
         tpr = EqualOpportunityRatio(self.data)
         fpr = FalsePositiveRateRatio(self.data)
         tpr.summary()
@@ -1086,6 +1797,22 @@ class EqualisedOddsRatio:
         return tpr_ratio, fpr_ratio
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
+        """Return the Equalised Odds metric value, in other words the biggest
+        disparity found in the True Positive Rate and False Positive Rate with
+        specifying the priviliged and discriminated groups.
+
+        Returns
+        -------
+        dict[str, dict[str, float | tuple | None]]
+            a dictionaty with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the results for that target
+            variable with:
+                - keys: labels for the biggest disparity, the privileged group
+                and the discriminated group.
+                - values: values for the biggest disparity, the privileged
+                group and the discriminated group.
+        """
         self.result: dict = {}
 
         for target in self.data.real_target:
@@ -1129,6 +1856,24 @@ class EqualisedOddsRatio:
         return self.result
 
     def rank(self) -> dict[str, dict[tuple[str], float]]:
+        """Assign a score to every demographic group present in the sensitive
+        features and rank them from most privileged to most discriminated.
+        The score can be interpreted like:
+        - ['Male': 0.814]: Males have on average 81.4% the score of the
+        Females.
+        - ['White': 1.20]: Whites have on average 120% the score of the
+        other groups (Black, Asian...).
+
+        Returns
+        -------
+        dict[str, dict[tuple[str], float]]
+            a dictionaty with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the ranking for that target
+            variable with:
+                - keys: a tuple with the demographic group.
+                - values: the corresponding score.
+        """
         result: dict = {}
         self.ranking = {}
 
@@ -1174,6 +1919,27 @@ class EqualisedOddsRatio:
         return self.ranking
 
     def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
+        """Return a decision of whether there is bias or not depending on the
+        provided threshold.
+
+        Parameters
+        ----------
+        threshold : float, optional
+            the threshold to make the decision of whether there is bias or not,
+            by default 0.1
+
+        Returns
+        -------
+        dict[str, bool]
+            a dictionary with:
+            - keys: a string with the target column name.
+            - values: True if there is bias else False.
+
+        Raises
+        ------
+        ValueError
+            if threshold parameter is not in the range of [0, 1].
+        """
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
