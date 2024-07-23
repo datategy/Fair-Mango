@@ -37,12 +37,3 @@ repos:
         # and that typing will be better throughout our modules
         args: [--ignore-missing-imports, "--scripts-are-modules", "--follow-imports", "skip"]
         additional_dependencies: ["types-requests", "types-PyYAML"]
-
-  - repo: local
-    hooks:
-      - id: generate_requirements
-        name: generate_requirements.py
-        language: system
-        # if you are using macos, you may have to add a symlink for python to python3
-        entry: python requirements/generate_requirements.py
-        files: "pyproject.toml|requirements/.*\\.txt|requirements/generate_requirements.py"
