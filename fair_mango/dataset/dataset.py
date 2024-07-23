@@ -13,8 +13,7 @@ def check_column_in_df(df: pd.DataFrame, columns: Sequence) -> None:
     df : pd.DataFrame
         the dataframe to check
     columns : Sequence | None
-        sequence of column names to check if their existance in
-        the dataframe.
+        sequence of column names to check if they exist in the dataframe.
 
     Raises
     ------
