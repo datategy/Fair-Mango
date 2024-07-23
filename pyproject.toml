@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fair-mango"
+dynamic = ["version"]
+dependencies = [
+  "numpy>=1.19.5",
+  "pandas>=1.13.1",
+  "scikit-learn>=1.1.3",
+]
+requires-python = ">=3.10"
+maintainers = [
+  {name = "Marc Bresson", email = "marc.bresson@datategy.net"},
+  {name = "Nacer Kroudir", email = "nacer.kroudir@datategy.net"},
+]
+description = "Explore your AI model's fairness"
+readme = "README.md"
+keywords = ["fairness", "AI", "ML", "machine learning", "XAI", "explanaible AI"]
+classifiers=[
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Typing :: Typed",
+]
+
+[project.urls]
+Repository = "https://github.com/datategy/Fair-Mango.git"
+Issues = "https://github.com/datategy/Fair-Mango/issues"
+Changelog = "https://github.com/datategy/Fair-Mango/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+dev = [
+    "twine",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "fair_mango.__version__"}
