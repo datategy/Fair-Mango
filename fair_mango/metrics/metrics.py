@@ -68,13 +68,13 @@ class SelectionRate(Metric):
         Returns
         -------
         tuple[Sequence[str], list[dict]]
-            a tuple containing two elements:
-                targets (Sequence[str]): The target variables used for
-                calculation.
-                results (list[dict]): A list of dictionaries, where each
-                dictionary has two keys:
-                    sensitive: The name of the sensitive group.
-                    result: The selection rate for the sensitive group.
+        a tuple containing two elements:
+        - targets (Sequence[str]): The target variables used for
+        calculation.
+        - results (list[dict]): A list of dictionaries, where each
+        dictionary has two keys:
+            - sensitive: The name of the sensitive group.
+            - result: The selection rate for the sensitive group.
 
         Raises
         ------
@@ -338,12 +338,12 @@ class ConfusionMatrix(Metric):
         Returns
         -------
         tuple[Sequence, list]
-            a tuple containing two elements:
-                targets (Sequence[str]): The target variables used for
-                calculation.
-                results (list[dict]): A list of dictionaries, where the keys:
-                    sensitive: The name of the sensitive group.
-                    label: The corresponding result for the sensitive group.
+        a tuple containing two elements:
+        - targets (Sequence[str]): The target variables used for
+        calculation.
+        - results (list[dict]): A list of dictionaries, where the keys:
+            - sensitive: The name of the sensitive group.
+            - label: The corresponding result for the sensitive group.
 
         Examples
         --------
@@ -486,7 +486,7 @@ class PerformanceMetric(Metric):
     ----------
     data : Dataset | pd.DataFrame
         input data
-    metrics : Collection | Sequence | None, optional
+    metrics : Collection | None, optional
         a sequence of metrics or a dictionary with keys being custom labels
         and values a callable that takes as input y_true and y_pred. default
         functions from sklearn.metrics are:
@@ -522,7 +522,7 @@ class PerformanceMetric(Metric):
     def __init__(
         self,
         data: Dataset | pd.DataFrame,
-        metrics: Collection | Sequence | None = None,
+        metrics: Collection | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -578,12 +578,12 @@ class PerformanceMetric(Metric):
         Returns
         -------
         tuple[Sequence, list]
-            a tuple containing two elements:
-                targets (Sequence[str]): The target variables used for
-                calculation.
-                results (list[dict]): A list of dictionaries, where the keys:
-                    sensitive: The name of the sensitive group.
-                    label: The corresponding result for the sensitive group.
+        a tuple containing two elements:
+        - targets (Sequence[str]): The target variables used for
+        calculation.
+        - results (list[dict]): A list of dictionaries, where the keys:
+            - sensitive: The name of the sensitive group.
+            - label: The corresponding result for the sensitive group.
 
         Examples
         --------
@@ -1643,8 +1643,8 @@ class EqualisedOddsDifference:
         return self.ranking
 
     def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
-        """Return a decision of whether there is bias or not depending on the
-        provided threshold.
+        """Return a decision of whether there is bias or not for each target
+        depending on the provided threshold.
 
         Parameters
         ----------
@@ -1919,8 +1919,8 @@ class EqualisedOddsRatio:
         return self.ranking
 
     def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
-        """Return a decision of whether there is bias or not depending on the
-        provided threshold.
+        """Return a decision of whether there is bias or not for each target
+        depending on the provided threshold.
 
         Parameters
         ----------

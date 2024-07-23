@@ -437,12 +437,12 @@ class FairnessMetricDifference(ABC):
         Returns
         -------
         dict[str, dict[tuple[str], float]]
-            a dictionaty with:
-            - keys: name of the target variable.
-            - values: a dictionary corresponding to the ranking for that target
-            variable with:
-                - keys: a tuple with the demographic group.
-                - values: the corresponding score.
+        a dictionaty with:
+        - keys: name of the target variable.
+        - values: a dictionary corresponding to the ranking for that target
+        variable with:
+            - keys: a tuple with the demographic group.
+            - values: the corresponding score.
         """
         result: dict = {}
         self.ranking = {}
@@ -478,8 +478,8 @@ class FairnessMetricDifference(ABC):
         return self.ranking
 
     def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
-        """Return a decision of whether there is bias or not depending on the
-        provided threshold.
+        """Return a decision of whether there is bias or not for each target
+        depending on the provided threshold.
 
         Parameters
         ----------
@@ -717,8 +717,8 @@ class FairnessMetricRatio(ABC):
         return self.ranking
 
     def is_biased(self, threshold: float = 0.8) -> dict[str, bool]:
-        """Return a decision of whether there is bias or not depending on the
-        provided threshold.
+        """Return a decision of whether there is bias or not for each target
+        depending on the provided threshold.
 
         Parameters
         ----------
