@@ -1,8 +1,6 @@
 from collections.abc import Sequence
 
-import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 
 
 def check_column_in_df(df: pd.DataFrame, columns: Sequence) -> None:
@@ -140,42 +138,6 @@ class Dataset:
         self.groups_data: list[dict] = []
         self.groups_real_target: list[dict] | None = None
         self.groups_predicted_target: list[dict] | None = None
-        plt.style.use("fivethirtyeight")
-
-    def plot_groups(
-        self,
-        sensitive: Sequence[str] = [],
-        figsize: tuple[int, int] = (16, 6),
-        dpi: int = 200,
-    ):
-        """Plot the distribution of the demographic groups found within the
-        sensitive features.
-
-        Parameters
-        ----------
-        sensitive : Sequence[str], optional
-            sequence of column names corresponding to sensitive features
-            (Ex: gender, race...), by default []
-        figsize : tuple[int, int], optional
-            figure size, by default (16, 6)
-        dpi : int, optional
-            density of pixels per inch, by default 200
-        """
-        _, ax = plt.subplots(figsize=figsize, dpi=dpi)
-        if sensitive == []:
-            sensitive = self.sensitive
-        if len(sensitive) == 1:
-            sns.barplot(x=sensitive[0], y="Count", data=self.groups, ax=ax)
-            plt.show()
-        elif len(sensitive) == 2:
-            # Use the column with the least group as the color variable
-            sensitive = (
-                self.groups[sensitive].nunique().sort_values(ascending=False).index
-            )
-            sns.barplot(
-                x=sensitive[0], y="Count", hue=sensitive[1], data=self.groups, ax=ax
-            )
-            plt.show()
 
     def get_data_for_all_groups(self) -> list[dict]:
         """Retrieve data corresponding to each demographic group present in
