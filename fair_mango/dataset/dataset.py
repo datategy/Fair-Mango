@@ -3,7 +3,6 @@ from collections.abc import Sequence
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 
 
 def check_column_in_df(df: pd.DataFrame, columns: Sequence) -> None:
