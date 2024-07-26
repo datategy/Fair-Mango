@@ -20,22 +20,17 @@ def check_column_in_df(df: pd.DataFrame, columns: Sequence) -> None:
     KeyError
         If the one of the columns does not exist in the dataframe.
     """
+
+    if isinstance(columns, str):
+        columns = [columns]
     if columns != []:
-        if isinstance(columns, str):
-            if columns not in df.columns:
+        for column in columns:
+            if column not in df.columns:
                 raise (
                     KeyError(
-                        f"{columns} column does not exist in the dataframe provided"
+                        f"{column} column does not exist in the dataframe provided"
                     )
                 )
-        else:
-            for column in columns:
-                if column not in df.columns:
-                    raise (
-                        KeyError(
-                            f"{column} column does not exist in the dataframe provided"
-                        )
-                    )
 
 
 def check_real_and_predicted_target_match(
@@ -87,7 +82,7 @@ class Dataset:
         (Ex: gender, race...).
     real_target : Sequence[str]
         sequence of column names corresponding to the real targets
-        (true labels).
+        (true labels). Every target will be processed independently.
     predicted_target : Sequence[str], optional
         sequence of column names corresponding to the predicted targets,
         by default None
