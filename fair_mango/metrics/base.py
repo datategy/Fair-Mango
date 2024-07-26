@@ -204,6 +204,13 @@ class Metric(ABC):
                     encode_target(self.data, ind, col)
             self.real_targets_by_group = self.data.get_real_target_for_all_groups()
             if self.data.predicted_target != []:
+                y = self.data.df[self.data.predicted_target]
+                if len(self.data.predicted_target) > 1:
+                    y = y.squeeze()
+                if is_binary(y):
+                    for ind, col in enumerate(y):
+                        if (np.unique(y[col]) != [0, 1]).all():
+                            encode_target(self.data, ind, col)
                 self.predicted_targets_by_group = (
                     self.data.get_predicted_target_for_all_groups()
                 )
