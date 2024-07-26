@@ -302,9 +302,7 @@ class Dataset:
                 result = result[result[self.sensitive[i]].isin(sensitive)]
         else:
             for item in self.groups_data:
-                if (all(e1 in item["sensitive"] for e1 in sensitive)) and (
-                    all(e2 in sensitive for e2 in item["sensitive"])
-                ):
+                if set(item["sensitive"]) == set(sensitive):
                     result = item["data"]
         if result is None:
             raise (ValueError(f"{sensitive} group does not exist in the dataframe"))
