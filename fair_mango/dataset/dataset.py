@@ -21,16 +21,11 @@ def check_column_in_df(df: pd.DataFrame, columns: Sequence) -> None:
         If the one of the columns does not exist in the dataframe.
     """
 
-    if isinstance(columns, str):
-        columns = [columns]
-    if columns != []:
-        for column in columns:
-            if column not in df.columns:
-                raise (
-                    KeyError(
-                        f"{column} column does not exist in the dataframe provided"
-                    )
-                )
+    for column in columns:
+        if column not in df.columns:
+            raise (
+                KeyError(f"{column} column does not exist in the dataframe provided")
+            )
 
 
 def check_real_and_predicted_target_match(
@@ -52,16 +47,27 @@ def check_real_and_predicted_target_match(
     ValueError
         if the number of real targets and predicted targets does not match.
     """
-    if isinstance(real_target, str) and isinstance(predicted_target, str):
-        return None
-    elif isinstance(real_target, str):
-        if len(predicted_target) != 1:
-            raise ValueError("real_target and predicted_target does not match")
-    elif isinstance(predicted_target, str):
-        if len(real_target) != 1:
-            raise ValueError("real_target and predicted_target does not match")
-    elif len(real_target) != len(predicted_target):
+    if len(real_target) != len(predicted_target):
         raise ValueError("real_target and predicted_target does not match")
+
+
+def convert_to_list(variable: Sequence[str]) -> Sequence:
+    """Convert a variable of type str to a list
+
+    Parameters
+    ----------
+    variable : Sequence[str]
+        sequence of values.
+
+    Returns
+    -------
+    Sequence
+        sequence of the values (not str).
+    """
+    if isinstance(variable, str):
+        return [variable]
+    else:
+        return variable
 
 
 class Dataset:
@@ -99,18 +105,20 @@ class Dataset:
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ):
-        check_column_in_df(df, sensitive)
-        check_column_in_df(df, real_target)
+        self.sensitive = convert_to_list(sensitive)
+        check_column_in_df(df, self.sensitive)
+        self.real_target = convert_to_list(real_target)
+        check_column_in_df(df, self.real_target)
         if predicted_target is not None:
-            check_column_in_df(df, predicted_target)
-            check_real_and_predicted_target_match(real_target, predicted_target)
-            self.predicted_target = predicted_target
+            self.predicted_target = convert_to_list(predicted_target)
+            check_column_in_df(df, self.predicted_target)
+            check_real_and_predicted_target_match(
+                self.real_target, self.predicted_target
+            )
         else:
             self.predicted_target = []
         self.df = df.copy()
         self.shape = df.shape
-        self.sensitive = sensitive
-        self.real_target = real_target
         self.positive_target = positive_target
         if isinstance(sensitive, str):
             self.groups = (
