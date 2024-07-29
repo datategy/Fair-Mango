@@ -6,14 +6,14 @@ import seaborn as sns
 
 
 def check_column_in_df(df: pd.DataFrame, columns: Sequence) -> None:
-    """validate the columns existance in the dataset
+    """Validate the columns existance in the dataset.
 
     Parameters
     ----------
     df : pd.DataFrame
-        the dataframe to check
+        The dataframe to check.
     columns : Sequence | None
-        sequence of column names to check if they exist in the dataframe.
+        Sequence of column names to check if they exist in the dataframe.
 
     Raises
     ------
@@ -41,21 +41,21 @@ def check_column_in_df(df: pd.DataFrame, columns: Sequence) -> None:
 def check_real_and_predicted_target_match(
     real_target: Sequence[str], predicted_target: Sequence[str]
 ) -> None:
-    """check that the number of real targets and number of predicted targets
+    """Check that the number of real targets and number of predicted targets
     match.
 
     Parameters
     ----------
     real_target : Sequence[str]
-        sequence of column names corresponding to the real targets
+        Sequence of column names corresponding to the real targets
         (true labels).
     predicted_target : Sequence[str]
-        sequence of column names corresponding to the predicted targets.
+        Sequence of column names corresponding to the predicted targets.
 
     Raises
     ------
     ValueError
-        if the number of real targets and predicted targets does not match.
+        If the number of real targets and predicted targets does not match.
     """
     if isinstance(real_target, str) and isinstance(predicted_target, str):
         return None
@@ -81,19 +81,19 @@ class Dataset:
     Parameters
     ----------
     df : pd.DataFrame
-        input dataframe
+        Input dataframe.
     sensitive : Sequence[str]
-        sequence of column names corresponding to sensitive features
+        Sequence of column names corresponding to sensitive features
         (Ex: gender, race...).
     real_target : Sequence[str]
-        sequence of column names corresponding to the real targets
+        Sequence of column names corresponding to the real targets
         (true labels).
     predicted_target : Sequence[str], optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
     """
 
     def __init__(
@@ -151,12 +151,12 @@ class Dataset:
         Parameters
         ----------
         sensitive : Sequence[str], optional
-            sequence of column names corresponding to sensitive features
-            (Ex: gender, race...), by default []
+            Sequence of column names corresponding to sensitive features
+            (Ex: gender, race...), by default [].
         figsize : tuple[int, int], optional
-            figure size, by default (16, 6)
+            Figure size, by default (16, 6).
         dpi : int, optional
-            density of pixels per inch, by default 200
+            Density of pixels per inch, by default 200.
         """
         _, ax = plt.subplots(figsize=figsize, dpi=dpi)
         if sensitive == []:
@@ -181,7 +181,7 @@ class Dataset:
         Returns
         -------
         list[dict]
-            list of dictionaries with the sensitive group as keys and the
+            List of dictionaries with the sensitive group as keys and the
             corresponding dataframe as value.
 
         Examples
@@ -280,13 +280,13 @@ class Dataset:
         Parameters
         ----------
         sensitive : Sequence[str]
-            sequence of column names corresponding to sensitive features
+            Sequence of column names corresponding to sensitive features
             (Ex: gender, race...).
 
         Returns
         -------
         pd.DataFrame
-            the dataframe corresponding to the sensitive group specified.
+            The dataframe corresponding to the sensitive group specified.
 
         Examples
         --------
@@ -352,7 +352,7 @@ class Dataset:
         Returns
         -------
         list[dict]
-            list of dictionaries with the sensitive group as keys and the
+            List of dictionaries with the sensitive group as keys and the
             corresponding real target as value.
 
         Examples
@@ -441,13 +441,13 @@ class Dataset:
         Parameters
         ----------
         sensitive : Sequence[str]
-            sequence of column names corresponding to sensitive features
+            Sequence of column names corresponding to sensitive features
             (Ex: gender, race...).
 
         Returns
         -------
-        pd.Seies | pd.DataFrame
-            the pandas series or dataframe corresponding to the sensitive group
+        pd.Series | pd.DataFrame
+            The pandas series or dataframe corresponding to the sensitive group.
 
         Examples
         --------
@@ -510,7 +510,7 @@ class Dataset:
         Returns
         -------
         list[dict]
-            list of dictionaries with the sensitive group as keys and the
+            List of dictionaries with the sensitive group as keys and the
             corresponding predicted target as value.
 
         Examples
@@ -603,13 +603,13 @@ class Dataset:
         Parameters
         ----------
         sensitive : Sequence[str]
-            sequence of column names corresponding to sensitive features
+            Sequence of column names corresponding to sensitive features
             (Ex: gender, race...).
 
         Returns
         -------
         pd.Seies | pd.DataFrame
-            the pandas series or dataframe corresponding to the sensitive group
+            The pandas series or dataframe corresponding to the sensitive group.
 
         Examples
         --------

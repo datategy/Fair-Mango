@@ -23,7 +23,7 @@ from fair_mango.metrics.metrics import (
 
 
 class Superset(ABC):
-    """An abstract that gets inhereted by other superset classes
+    """An abstract that gets inhereted by other superset classes.
 
     Parameters
     ----------
@@ -32,21 +32,22 @@ class Superset(ABC):
         is passed, it should contain attributes `sensitive`, `real_target`,
         `predicted_target`, and `positive_target`.
     sensitive : Sequence[str], optional
-        A Sequence of sensitive attributes (Ex: gender, race...), by default []
-    real_target : Sequence[str] | None, optional
-        A Sequence of column names of actual labels for target variables,
-        by default None
+        Sequence of sensitive attributes (Ex: gender, race...), by default []
+    real_target : Sequence[str] | None, optional.
+        Sequence of column names of actual labels for target variables,
+        by default None.
     predicted_target : Sequence[str] | None, optional
-        A Sequence of column names of predicted labels for target variables,
-        by default None
+        Sequence of column names of predicted labels for target variables,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        A Sequence of the positive labels corresponding to the provided
-        targets, by default None
+        Sequence of the positive labels corresponding to the provided
+        targets, by default None.
 
     Raises
     ------
     AttributeError
-        if data is a pandas dataframe and 'sensitive' parameter is not provided."""
+        If data is a pandas dataframe and 'sensitive' parameter is not provided.
+    """
 
     def __init__(
         self,
@@ -114,22 +115,22 @@ class SupersetFairnessMetrics(Superset):
         type[EqualOpportunityDifference]  |  type[EqualOpportunityRatio]  |
         type[EqualisedOddsDifference]  |  type[EqualisedOddsRatio]  |
         type[FalsePositiveRateDifference]  |  type[FalsePositiveRateRatio]
-            The fairness metric class to be used for evaluation
+            The fairness metric class to be used for evaluation.
         data : Dataset | pd.DataFrame
             The dataset containing the data to be evaluated. If a DataFrame object
             is passed, it should contain attributes `sensitive`, `real_target`,
             `predicted_target`, and `positive_target`.
         sensitive : Sequence[str], optional
-            A Sequence of sensitive attributes (Ex: gender, race...), by default []
+            Sequence of sensitive attributes (Ex: gender, race...), by default [].
         real_target : Sequence[str] | None, optional
-            A Sequence of column names of actual labels for target variables,
-            by default None
+            Sequence of column names of actual labels for target variables,
+            by default None.
         predicted_target : Sequence[str] | None, optional
-            A Sequence of column names of predicted labels for target variables,
-            by default None
+            Sequence of column names of predicted labels for target variables,
+            by default None.
         positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-            A Sequence of the positive labels corresponding to the provided
-            targets, by default None
+            Sequence of the positive labels corresponding to the provided
+            targets, by default None.
         """
         super().__init__(
             data, sensitive, real_target, predicted_target, positive_target
@@ -228,16 +229,16 @@ class SupersetPerformanceMetrics(Superset):
         is passed, it should contain attributes `sensitive`, `real_target`,
         `predicted_target`, and `positive_target`.
     sensitive : Sequence[str], optional
-        A Sequence of sensitive attributes (Ex: gender, race...), by default []
+        Sequence of sensitive attributes (Ex: gender, race...), by default [].
     real_target : Sequence[str] | None, optional
-        A Sequence of column names of actual labels for target variables,
-        by default None
+        Sequence of column names of actual labels for target variables,
+        by default None.
     predicted_target : Sequence[str] | None, optional
-        A Sequence of column names of predicted labels for target variables,
-        by default None
+        Sequence of column names of predicted labels for target variables,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        A Sequence of the positive labels corresponding to the provided
-        targets, by default None
+        Sequence of the positive labels corresponding to the provided
+        targets, by default None.
     """
 
     def __init__(
