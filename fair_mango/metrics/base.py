@@ -22,12 +22,12 @@ def is_binary(y: pd.Series | pd.DataFrame) -> bool:
     bool
         True if data contains two unique values else False
     """
-    try:
+    if isinstance(y, pd.Series):
         if y.nunique() == 2:
             return True
         else:
             return False
-    except ValueError:
+    else:
         if (y.nunique() == 2).all():
             return True
         else:
