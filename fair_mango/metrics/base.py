@@ -227,7 +227,7 @@ class Metric(ABC):
 
 
 def calculate_disparity(
-    result_per_groups: np.ndarray, method: Literal["difference", "ratio"]
+    result_per_groups: list[dict], method: Literal["difference", "ratio"]
 ) -> dict[tuple, np.ndarray[float]]:
     """Calculate the disparity in the scores between every possible pair in
     the provided groups using two available methods:
@@ -238,8 +238,8 @@ def calculate_disparity(
 
     Parameters
     ----------
-    result_per_groups : np.ndarray
-        Array of dictionaries with the sensitive group and the corresponding
+    result_per_groups : list[dict]
+        list of dictionaries with the sensitive group and the corresponding
         score.
     method : Literal['difference', 'ratio']
         Method used to calculate the disparity. Either 'difference' or 'ratio'.
