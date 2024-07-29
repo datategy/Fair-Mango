@@ -34,8 +34,8 @@ def is_binary(y: pd.Series | pd.DataFrame) -> bool:
             return False
 
 
-def encode_target(data: Dataset, ind: int, col: str):
-    """Encode targets as [0,1].
+def encode_target(data: Dataset, ind: int, col: str) -> None:
+    """encode targets as [0,1]
 
     Parameters
     ----------
