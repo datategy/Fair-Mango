@@ -24,26 +24,26 @@ from fair_mango.metrics.base import (
 
 
 class SelectionRate(Metric):
-    """Calculate selection rate for different sensitive groups
+    """Calculate selection rate for different sensitive groups.
 
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     use_y_true : bool, optional
         if True use the real label else use the predictions, by default False
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
     """
 
     def __init__(
@@ -68,7 +68,7 @@ class SelectionRate(Metric):
         Returns
         -------
         tuple[Sequence[str], list[dict]]
-        a tuple containing two elements:
+        A tuple containing two elements:
         - targets (Sequence[str]): The target variables used for
         calculation.
         - results (list[dict]): A list of dictionaries, where each
@@ -79,7 +79,7 @@ class SelectionRate(Metric):
         Raises
         ------
         ValueError
-            if no predictions are found and `use_y_true` is False.
+            If no predictions are found and `use_y_true` is False.
 
         Examples
         --------
@@ -198,7 +198,7 @@ class SelectionRate(Metric):
         Returns
         -------
         pd.Series
-            the target name and the corresponding selection rate.
+            The target name and the corresponding selection rate.
 
         Examples
         --------
@@ -253,35 +253,35 @@ class ConfusionMatrix(Metric):
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     metrics : Collection | Sequence | None, optional
-        a sequence of metrics or a dictionary with keys being custom labels
+        A sequence of metrics or a dictionary with keys being custom labels
         and values a callable that takes as input tp, tn, fp, fn which are
         extracted from the confusion matrix. Available functions in
         fair_mango.metrics.metrics.base are:
-        - false_positive_rate()
-        - false_negative_rate()
-        - true_positive_rate()
-        - true_negative_rate()
+        - false_positive_rate().
+        - false_negative_rate().
+        - true_positive_rate().
+        - true_negative_rate().
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
 
     Raises
         ------
         ValueError
-            if the predictions column is not provided.
+            If the predictions column is not provided.
         KeyError
-            if the key of a metric is 'sensitive' which is already reserved
+            If the key of a metric is 'sensitive' which is already reserved
             to the sensitive groups.
     """
 
@@ -329,16 +329,16 @@ class ConfusionMatrix(Metric):
 
     def __call__(self) -> tuple[Sequence, list]:
         """Calculate confusion matrix related metrics:
-        - false positive rate
-        - false negative rate
-        - true positive rate
-        - true negative rate
+        - false positive rate.
+        - false negative rate.
+        - true positive rate.
+        - true negative rate.
         for the different demographic groups present in the sensitive feature.
 
         Returns
         -------
         tuple[Sequence, list]
-        a tuple containing two elements:
+        A tuple containing two elements:
         - targets (Sequence[str]): The target variables used for
         calculation.
         - results (list[dict]): A list of dictionaries, where the keys:
@@ -476,46 +476,46 @@ class ConfusionMatrix(Metric):
 
 class PerformanceMetric(Metric):
     """Calculate performance related metrics:
-    - accuracy
-    - balanced accuracy
-    - precision
-    - recall
-    - f1 score
+    - accuracy.
+    - balanced accuracy.
+    - precision.
+    - recall.
+    - f1 score.
 
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     metrics : Collection | None, optional
-        a sequence of metrics or a dictionary with keys being custom labels
+        A sequence of metrics or a dictionary with keys being custom labels
         and values a callable that takes as input y_true and y_pred. default
         functions from sklearn.metrics are:
-        - accuracy_score()
-        - balanced_accuracy_score()
-        - precision_score()
-        - recall_score()
-        - f1_score_score()
+        - accuracy_score().
+        - balanced_accuracy_score().
+        - precision_score().
+        - recall_score().
+        - f1_score_score().
         or any custom metric that takes y_true and y_pred and parameters
         respectively.
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
 
     Raises
         ------
         ValueError
-            if the predictions column is not provided.
+            If the predictions column is not provided.
         KeyError
-            if the key of a metric is 'sensitive' which is already reserved
+            If the key of a metric is 'sensitive' which is already reserved
             to the sensitive groups.
     """
 
@@ -568,17 +568,17 @@ class PerformanceMetric(Metric):
 
     def __call__(self) -> tuple[Sequence, list]:
         """Calculate performance related metrics:
-        - accuracy
-        - balanced accuracy
-        - precision
-        - recall
-        - f1 score
+        - accuracy.
+        - balanced accuracy.
+        - precision.
+        - recall.
+        - f1 score.
         for the different demographic groups present in the sensitive feature.
 
         Returns
         -------
         tuple[Sequence, list]
-        a tuple containing two elements:
+        A tuple containing two elements:
         - targets (Sequence[str]): The target variables used for
         calculation.
         - results (list[dict]): A list of dictionaries, where the keys:
@@ -722,22 +722,22 @@ class DemographicParityDifference(FairnessMetricDifference):
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     label : str
-        the key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference"
+        The key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference".
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
 
     Example
     -------
@@ -811,22 +811,22 @@ class DisparateImpactDifference(FairnessMetricDifference):
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     label : str
-        the key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference"
+        The key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference".
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
 
     Example
     -------
@@ -900,22 +900,22 @@ class EqualOpportunityDifference(FairnessMetricDifference):
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     label : str
-        the key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference"
+        The key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference".
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
 
     Example
     -------
@@ -990,22 +990,22 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     label : str
-        the key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference"
+        The key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference".
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
 
     Example
     -------
@@ -1079,22 +1079,22 @@ class DemographicParityRatio(FairnessMetricRatio):
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     label : str
-        the key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference"
+        The key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference".
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
 
     Example
     -------
@@ -1168,22 +1168,22 @@ class DisparateImpactRatio(FairnessMetricRatio):
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     label : str
-        the key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference"
+        The key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference".
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
 
     Example
     -------
@@ -1257,22 +1257,22 @@ class EqualOpportunityRatio(FairnessMetricRatio):
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     label : str
-        the key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference"
+        The key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference".
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
 
     Example
     -------
@@ -1346,22 +1346,22 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     label : str
-        the key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference"
+        The key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference".
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
 
     Example
     -------
@@ -1436,22 +1436,22 @@ class EqualisedOddsDifference:
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     label : str
-        the key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference"
+        The key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference".
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
 
     Example
     -------
@@ -1522,13 +1522,13 @@ class EqualisedOddsDifference:
         self,
     ) -> tuple[dict[tuple, np.ndarray[float]], dict[tuple, np.ndarray[float]]]:
         """Calculate the disparity in the True Positive Rate and False Positive
-        Rate usinf "difference" between every possible pair in the provided
+        Rate using "difference" between every possible pair in the provided
         groups.
 
         Returns
         -------
         tuple[dict[tuple, np.ndarray[float]], dict[tuple, np.ndarray[float]]]
-            a tuple with two dictionaries with:
+            A tuple with two dictionaries with:
             - keys: tuple with the pair of the sensitive groups labels.
             - values: a numpy array with the corresponding disparity.
         """
@@ -1549,14 +1549,14 @@ class EqualisedOddsDifference:
         Returns
         -------
         dict[str, dict[str, float | tuple | None]]
-            a dictionaty with:
-            - keys: name of the target variable.
-            - values: a dictionary corresponding to the results for that target
-            variable with:
-                - keys: labels for the biggest disparity, the privileged group
-                and the discriminated group.
-                - values: values for the biggest disparity, the privileged
-                group and the discriminated group.
+        A dictionary with:
+        - keys: name of the target variable.
+        - values: a dictionary corresponding to the results for that target
+        variable with:
+            - keys: labels for the biggest disparity, the privileged group
+            and the discriminated group.
+            - values: values for the biggest disparity, the privileged
+            group and the discriminated group.
         """
         self.result: dict = {}
 
@@ -1601,12 +1601,12 @@ class EqualisedOddsDifference:
         Returns
         -------
         dict[str, dict[tuple[str], float]]
-            a dictionaty with:
-            - keys: name of the target variable.
-            - values: a dictionary corresponding to the ranking for that target
-            variable with:
-                - keys: a tuple with the demographic group.
-                - values: the corresponding score.
+        A dictionary with:
+        - keys: name of the target variable.
+        - values: a dictionary corresponding to the ranking for that target
+        variable with:
+            - keys: a tuple with the demographic group.
+            - values: the corresponding score.
         """
         result: dict = {}
         self.ranking = {}
@@ -1649,20 +1649,20 @@ class EqualisedOddsDifference:
         Parameters
         ----------
         threshold : float, optional
-            the threshold to make the decision of whether there is bias or not,
-            by default 0.1
+            The threshold to make the decision of whether there is bias or not,
+            by default 0.1.
 
         Returns
         -------
         dict[str, bool]
-            a dictionary with:
+            A dictionary with:
             - keys: a string with the target column name.
             - values: True if there is bias else False.
 
         Raises
         ------
         ValueError
-            if threshold parameter is not in the range of [0, 1].
+            If threshold parameter is not in the range of [0, 1].
         """
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
@@ -1694,22 +1694,22 @@ class EqualisedOddsRatio:
     Parameters
     ----------
     data : Dataset | pd.DataFrame
-        input data
+        Input data.
     label : str
-        the key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference"
+        The key to give to the result in the different returned dictionaries,
+        by default "demographic_parity_difference".
     sensitive : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        sequence of column names corresponding to the real targets
-        (true labels), by default None
+        Sequence of column names corresponding to the real targets
+        (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        sequence of the positive labels corresponding to the provided targets,
-        by default None
+        Sequence of the positive labels corresponding to the provided targets,
+        by default None.
 
     Example
     -------
@@ -1783,7 +1783,7 @@ class EqualisedOddsRatio:
         Returns
         -------
         dict[tuple, np.ndarray[float]]
-            a dictionary with:
+            A dictionary with:
             - keys: tuple with the pair of the sensitive groups labels.
             - values: a numpy array with the corresponding disparity.
         """
@@ -1804,14 +1804,14 @@ class EqualisedOddsRatio:
         Returns
         -------
         dict[str, dict[str, float | tuple | None]]
-            a dictionaty with:
-            - keys: name of the target variable.
-            - values: a dictionary corresponding to the results for that target
-            variable with:
-                - keys: labels for the biggest disparity, the privileged group
-                and the discriminated group.
-                - values: values for the biggest disparity, the privileged
-                group and the discriminated group.
+        A dictionary with:
+        - keys: name of the target variable.
+        - values: a dictionary corresponding to the results for that target
+        variable with:
+            - keys: labels for the biggest disparity, the privileged group
+            and the discriminated group.
+            - values: values for the biggest disparity, the privileged
+            group and the discriminated group.
         """
         self.result: dict = {}
 
@@ -1867,12 +1867,12 @@ class EqualisedOddsRatio:
         Returns
         -------
         dict[str, dict[tuple[str], float]]
-            a dictionaty with:
-            - keys: name of the target variable.
-            - values: a dictionary corresponding to the ranking for that target
-            variable with:
-                - keys: a tuple with the demographic group.
-                - values: the corresponding score.
+        A dictionary with:
+        - keys: name of the target variable.
+        - values: a dictionary corresponding to the ranking for that target
+        variable with:
+            - keys: a tuple with the demographic group.
+            - values: the corresponding score.
         """
         result: dict = {}
         self.ranking = {}
@@ -1925,20 +1925,20 @@ class EqualisedOddsRatio:
         Parameters
         ----------
         threshold : float, optional
-            the threshold to make the decision of whether there is bias or not,
-            by default 0.1
+            The threshold to make the decision of whether there is bias or not,
+            by default 0.1.
 
         Returns
         -------
         dict[str, bool]
-            a dictionary with:
+            A dictionary with:
             - keys: a string with the target column name.
             - values: True if there is bias else False.
 
         Raises
         ------
         ValueError
-            if threshold parameter is not in the range of [0, 1].
+            If threshold parameter is not in the range of [0, 1].
         """
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
