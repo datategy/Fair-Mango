@@ -6,7 +6,7 @@ from _pytest.python_api import RaisesContext
 
 from fair_mango.dataset.dataset import (
     Dataset,
-    check_column_in_df,
+    check_column_existence_in_df,
     check_real_and_predicted_target_match,
 )
 
@@ -39,14 +39,14 @@ dataset5 = Dataset(
         (df2, ["D"], pytest.raises(KeyError)),
     ],
 )
-def test_check_column_in_df(
+def test_check_column_existence_in_df(
     df: pd.DataFrame,
     columns: Sequence,
     expected_result: None | RaisesContext,
 ):
     if expected_result is not None:
         with expected_result:
-            check_column_in_df(df, columns)
+            check_column_existence_in_df(df, columns)
 
 
 @pytest.mark.parametrize(
