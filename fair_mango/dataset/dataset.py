@@ -3,8 +3,8 @@ from collections.abc import Sequence
 import pandas as pd
 
 
-def check_column_existance_in_df(df: pd.DataFrame, columns: Sequence) -> None:
-    """validate the columns existance in the dataset
+def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence) -> None:
+    """validate the columns existence in the dataset
 
     Parameters
     ----------
@@ -104,12 +104,12 @@ class Dataset:
         positive_target: Sequence[int | float | str | bool] | None = None,
     ):
         self.sensitive = convert_to_list(sensitive)
-        check_column_existance_in_df(df, self.sensitive)
+        check_column_existence_in_df(df, self.sensitive)
         self.real_target = convert_to_list(real_target)
-        check_column_existance_in_df(df, self.real_target)
+        check_column_existence_in_df(df, self.real_target)
         if predicted_target is not None:
             self.predicted_target = convert_to_list(predicted_target)
-            check_column_existance_in_df(df, self.predicted_target)
+            check_column_existence_in_df(df, self.predicted_target)
             check_real_and_predicted_target_match(
                 self.real_target, self.predicted_target
             )
