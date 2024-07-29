@@ -392,7 +392,7 @@ class FairnessMetricDifference(ABC):
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
         """Return the fairness metric value, in other words the biggest
-        disparity found with specifying the priviliged and discriminated
+        disparity found with specifying the privileged and discriminated
         groups.
 
         Returns
@@ -626,7 +626,7 @@ class FairnessMetricRatio(ABC):
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
         """Return the fairness metric value, in other words the biggest
-        disparity found with specifying the priviliged and discriminated
+        disparity found with specifying the privileged and discriminated
         groups.
 
         Returns
