@@ -608,7 +608,7 @@ class Dataset:
 
         Returns
         -------
-        pd.Seies | pd.DataFrame
+        pd.Series | pd.DataFrame
             The pandas series or dataframe corresponding to the sensitive group.
 
         Examples
