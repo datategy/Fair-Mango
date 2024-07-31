@@ -280,8 +280,10 @@ class Dataset:
         Parameters
         ----------
         sensitive : Sequence[str]
-            Sequence of column names corresponding to sensitive features
-            (Ex: gender, race...).
+            Sequence of sensitive group values corresponding to sensitive
+            features. Ex:
+            - gender -> male, female
+            - race -> white, black, asian...
 
         Returns
         -------
@@ -441,8 +443,10 @@ class Dataset:
         Parameters
         ----------
         sensitive : Sequence[str]
-            Sequence of column names corresponding to sensitive features
-            (Ex: gender, race...).
+            Sequence of sensitive group values corresponding to sensitive
+            features. Ex:
+            - gender -> male, female
+            - race -> white, black, asian...
 
         Returns
         -------
@@ -603,8 +607,10 @@ class Dataset:
         Parameters
         ----------
         sensitive : Sequence[str]
-            Sequence of column names corresponding to sensitive features
-            (Ex: gender, race...).
+            Sequence of sensitive group values corresponding to sensitive
+            features. Ex:
+            - gender -> male, female
+            - race -> white, black, asian...
 
         Returns
         -------
