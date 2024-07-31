@@ -51,6 +51,23 @@ def check_real_and_predicted_target_match(
         raise ValueError("real_target and predicted_target does not match")
 
 
+def validate_columns(
+    sensitive: Sequence[str],
+    real_target: Sequence[str],
+    predicted_target: Sequence[str] | None = None,
+) -> None:
+    overlap = set(sensitive).intersection(real_target)
+
+    if predicted_target is not None:
+        overlap.update(set(sensitive).intersection(predicted_target))
+        overlap.update(set(real_target).intersection(predicted_target))
+
+    if overlap:
+        raise AttributeError(
+            "Same column name can't be assigned to multiple" f" parameters {overlap}"
+        )
+
+
 def convert_to_list(variable: Sequence[str]) -> Sequence:
     """Convert a variable of type str to a list
 
@@ -117,6 +134,7 @@ class Dataset:
             )
         else:
             self.predicted_target = []
+        validate_columns(self.sensitive, self.real_target, self.predicted_target)
         self.df = df.copy()
         self.shape = df.shape
         self.positive_target = positive_target
