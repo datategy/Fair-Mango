@@ -56,6 +56,27 @@ def validate_columns(
     real_target: Sequence[str],
     predicted_target: Sequence[str] | None = None,
 ) -> None:
+    """Make sure that the columns provided as parameters are different.
+    A column cannot be a sensitive column and a target at the same time.
+    A column cannot be a real target and a predicted target at the same time.
+
+    Parameters
+    ----------
+    sensitive : Sequence[str]
+        sequence of column names corresponding to sensitive features
+        (Ex: gender, race...).
+    real_target : Sequence[str]
+        sequence of column names corresponding to the real targets
+        (true labels). Every target will be processed independently.
+    predicted_target : Sequence[str], optional
+        sequence of column names corresponding to the predicted targets,
+        by default None
+
+    Raises
+    ------
+    AttributeError
+        if the same column is assigned to different parameters at the same time.
+    """
     overlap = set(sensitive).intersection(real_target)
 
     if predicted_target is not None:
