@@ -1,4 +1,5 @@
-from collections.abc import Callable, Sequence
+from collections.abc import Collection, Sequence
+from typing import overload
 
 import numpy as np
 import pandas as pd
@@ -51,15 +52,30 @@ class SelectionRate(Metric):
         by default None.
     """
 
+    @overload
+    def __init__(self, data: Dataset, use_y_true: bool, label: str): ...
+
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
-        use_y_true: bool = False,
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-        label: str = "result",
+        data: pd.DataFrame,
+        use_y_true: bool,
+        sensitive: Sequence[str],
+        real_target: Sequence[str],
+        predicted_target: Sequence[str],
+        positive_target: Sequence[int | float | str | bool],
+        label: str,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        use_y_true=False,
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
+        label="result",
     ):
         super().__init__(
             data, sensitive, real_target, predicted_target, positive_target
@@ -293,14 +309,32 @@ class ConfusionMatrix(Metric):
         to the sensitive groups.
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
-        metrics: Sequence[Callable] | set[Callable] | dict[str, Callable] | None = None,
+        data: Dataset,
+        metrics: Collection | Sequence | None = None,
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        metrics: Collection | Sequence | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        metrics=None,
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         super().__init__(
             data, sensitive, real_target, predicted_target, positive_target
@@ -528,14 +562,32 @@ class PerformanceMetric(Metric):
         to the sensitive groups.
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
-        metrics: set[Callable] | dict[str, Callable] | None = None,
+        data: Dataset,
+        metrics: Collection | None = None,
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        metrics: Collection | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        metrics=None,
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         super().__init__(
             data, sensitive, real_target, predicted_target, positive_target
@@ -791,14 +843,32 @@ class DemographicParityDifference(FairnessMetricDifference):
     }
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset,
+        label: str = "demographic_parity_difference",
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
         label: str = "demographic_parity_difference",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        label="demographic_parity_difference",
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         super().__init__(
             data,
@@ -884,14 +954,32 @@ class DisparateImpactDifference(FairnessMetricDifference):
     }
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset,
+        label: str = "disparate_impact_difference",
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
         label: str = "disparate_impact_difference",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        label="disparate_impact_difference",
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         super().__init__(
             data,
@@ -977,14 +1065,32 @@ class EqualOpportunityDifference(FairnessMetricDifference):
     }
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset,
+        label: str = "equal_opportunity_difference",
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
         label: str = "equal_opportunity_difference",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        label="equal_opportunity_difference",
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         super().__init__(
             data,
@@ -1072,14 +1178,32 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
     }
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset,
+        label: str = "false_positive_rate_difference",
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
         label: str = "false_positive_rate_difference",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        label="false_positive_rate_difference",
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         super().__init__(
             data,
@@ -1165,14 +1289,32 @@ class DemographicParityRatio(FairnessMetricRatio):
     }
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset,
+        label: str = "demographic_parity_ratio",
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
         label: str = "demographic_parity_ratio",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        label="demographic_parity_ratio",
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         super().__init__(
             data,
@@ -1258,14 +1400,32 @@ class DisparateImpactRatio(FairnessMetricRatio):
     }
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset,
+        label: str = "disparate_impact_ratio",
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
         label: str = "disparate_impact_ratio",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        label="disparate_impact_ratio",
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         super().__init__(
             data,
@@ -1351,14 +1511,32 @@ class EqualOpportunityRatio(FairnessMetricRatio):
     }
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset,
+        label: str = "equal_opportunity_ratio",
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
         label: str = "equal_opportunity_ratio",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        label="equal_opportunity_ratio",
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         super().__init__(
             data,
@@ -1445,14 +1623,32 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
     }
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset,
+        label: str = "false_positive_rate_ratio",
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
         label: str = "false_positive_rate_ratio",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        label="false_positive_rate_ratio",
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         super().__init__(
             data,
@@ -1544,13 +1740,29 @@ class EqualisedOddsDifference:
     }
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset,
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         if isinstance(data, Dataset):
             self.data = data
@@ -1811,13 +2023,29 @@ class EqualisedOddsRatio:
     }
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset,
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         if isinstance(data, Dataset):
             self.data = data
