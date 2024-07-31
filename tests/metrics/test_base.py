@@ -19,7 +19,7 @@ dataset5 = Dataset(
     df,
     ["Sex"],
     ["HeartDisease", "ExerciseAngina"],
-    ["HeartDiseasePred", "ExerciseAngina"],
+    ["HeartDiseasePred", "ExerciseAnginaPred"],
     [1, "Y"],
 )
 
@@ -27,7 +27,7 @@ dataset6 = Dataset(
     df,
     ["Sex", "ChestPainType"],
     ["HeartDisease", "ExerciseAngina"],
-    ["HeartDiseasePred", "ExerciseAngina"],
+    ["HeartDiseasePred", "ExerciseAnginaPred"],
     [1, "Y"],
 )
 

@@ -44,7 +44,7 @@ dataset5 = Dataset(
     df,
     ["Sex"],
     ["HeartDisease", "ExerciseAngina"],
-    ["HeartDiseasePred", "ExerciseAngina"],
+    ["HeartDiseasePred", "ExerciseAnginaPred"],
     [1, "Y"],
 )
 
@@ -52,7 +52,7 @@ dataset6 = Dataset(
     df,
     ["Sex", "ChestPainType"],
     ["HeartDisease", "ExerciseAngina"],
-    ["HeartDiseasePred", "ExerciseAngina"],
+    ["HeartDiseasePred", "ExerciseAnginaPred"],
     [1, "Y"],
 )
 
@@ -576,7 +576,7 @@ did_expected_result_6 = [
             "privileged": ("M", "ASY"),
             "unprivileged": ("F", "NAP"),
         },
-        "ExerciseAngina": {
+        "ExerciseAnginaPred": {
             "disparate_impact_difference": 0.6197183098591549,
             "privileged": ("M", "ASY"),
             "unprivileged": ("F", "TA"),
@@ -627,7 +627,7 @@ did_expected_result_6 = [
             "disparate_impact_difference",
             ["Sex", "ChestPainType"],
             ["HeartDisease", "ExerciseAngina"],
-            ["HeartDiseasePred", "ExerciseAngina"],
+            ["HeartDiseasePred", "ExerciseAnginaPred"],
             [1, "Y"],
             0.45,
             did_expected_result_6,
@@ -635,7 +635,7 @@ did_expected_result_6 = [
     ],
 )
 def test_disparate_impact_difference(
-    data: Dataset,
+    data: Dataset | pd.DataFrame,
     label: str,
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
@@ -707,7 +707,7 @@ dir_expected_result_6 = [
             "privileged": ("M", "ASY"),
             "unprivileged": ("F", "NAP"),
         },
-        "ExerciseAngina": {
+        "ExerciseAnginaPred": {
             "disparate_impact_ratio": 0.0,
             "privileged": ("F", "TA"),
             "unprivileged": ("M", "ASY"),
@@ -781,7 +781,7 @@ dir_expected_result_6 = [
     ],
 )
 def test_disparate_impact_ratio(
-    data: Dataset,
+    data: Dataset | pd.DataFrame,
     label: str,
     sensitive: Sequence[str] | None,
     real_target: Sequence[str] | None,
