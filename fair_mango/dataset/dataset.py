@@ -273,17 +273,17 @@ class Dataset:
             self.groups_data.append({"sensitive": row[:-1], "data": result})
         return self.groups_data
 
-    def get_data_for_one_group(self, sensitive: Sequence[str]) -> pd.DataFrame:
+    def get_data_for_one_group(self, sensitive_group: Sequence[str]) -> pd.DataFrame:
         """Retrieve data corresponding to a specific demographic group present
         in the sensitive features.
 
         Parameters
         ----------
         sensitive : Sequence[str]
-            Sequence of sensitive group values corresponding to sensitive
-            features. Ex:
-            - gender -> male, female
-            - race -> white, black, asian...
+            Sequence of sensitive values must be in the same order as `sensitive`
+            attribute, and so `sensitive_group` must be the same length as
+            `sensitive`. For instance, if your `sensitive` attribute were
+            `["race", "gender"]`, you can pass `sensitive_group=["white", "male"]`.
 
         Returns
         -------
@@ -335,16 +335,18 @@ class Dataset:
         result = None
         if self.groups_data == []:
             result = self.df
-            for i in range(len(sensitive)):
-                result = result[result[self.sensitive[i]].isin(sensitive)]
+            for i in range(len(sensitive_group)):
+                result = result[result[self.sensitive[i]].isin(sensitive_group)]
         else:
             for item in self.groups_data:
-                if (all(e1 in item["sensitive"] for e1 in sensitive)) and (
-                    all(e2 in sensitive for e2 in item["sensitive"])
+                if (all(e1 in item["sensitive"] for e1 in sensitive_group)) and (
+                    all(e2 in sensitive_group for e2 in item["sensitive"])
                 ):
                     result = item["data"]
         if result is None:
-            raise (ValueError(f"{sensitive} group does not exist in the dataframe"))
+            raise (
+                ValueError(f"{sensitive_group} group does not exist in the dataframe")
+            )
         return result
 
     def get_real_target_for_all_groups(self) -> list[dict]:
@@ -435,7 +437,7 @@ class Dataset:
         return self.groups_real_target
 
     def get_real_target_for_one_group(
-        self, sensitive: Sequence[str]
+        self, sensitive_group: Sequence[str]
     ) -> pd.Series | pd.DataFrame:
         """Retrieve the real target corresponding to a specific demographic
         group present in the sensitive features.
@@ -443,10 +445,10 @@ class Dataset:
         Parameters
         ----------
         sensitive : Sequence[str]
-            Sequence of sensitive group values corresponding to sensitive
-            features. Ex:
-            - gender -> male, female
-            - race -> white, black, asian...
+            Sequence of sensitive values must be in the same order as `sensitive`
+            attribute, and so `sensitive_group` must be the same length as
+            `sensitive`. For instance, if your `sensitive` attribute were
+            `["race", "gender"]`, you can pass `sensitive_group=["white", "male"]`.
 
         Returns
         -------
@@ -494,17 +496,19 @@ class Dataset:
         result = None
         if self.groups_real_target is None:
             result = self.df
-            for i in range(len(sensitive)):
-                result = result[result[self.sensitive[i]].isin(sensitive)]
+            for i in range(len(sensitive_group)):
+                result = result[result[self.sensitive[i]].isin(sensitive_group)]
             result = result[self.real_target]
         else:
             for item in self.groups_real_target:
-                if (item["sensitive"] == sensitive).all() or (
-                    item["sensitive"] == sensitive[::-1]
+                if (item["sensitive"] == sensitive_group).all() or (
+                    item["sensitive"] == sensitive_group[::-1]
                 ).all():
                     result = item["data"]
         if result is None:
-            raise (ValueError(f"{sensitive} group does not exist in the dataframe"))
+            raise (
+                ValueError(f"{sensitive_group} group does not exist in the dataframe")
+            )
         return result.squeeze()
 
     def get_predicted_target_for_all_groups(self) -> list[dict]:
@@ -599,7 +603,7 @@ class Dataset:
         return self.groups_predicted_target
 
     def get_predicted_target_for_one_group(
-        self, sensitive: Sequence[str]
+        self, sensitive_group: Sequence[str]
     ) -> pd.Series | pd.DataFrame:
         """Retrieve the predicted target corresponding to a specific
         demographic group present in the sensitive features.
@@ -607,10 +611,10 @@ class Dataset:
         Parameters
         ----------
         sensitive : Sequence[str]
-            Sequence of sensitive group values corresponding to sensitive
-            features. Ex:
-            - gender -> male, female
-            - race -> white, black, asian...
+            Sequence of sensitive values must be in the same order as `sensitive`
+            attribute, and so `sensitive_group` must be the same length as
+            `sensitive`. For instance, if your `sensitive` attribute were
+            `["race", "gender"]`, you can pass `sensitive_group=["white", "male"]`.
 
         Returns
         -------
@@ -662,15 +666,17 @@ class Dataset:
         result = None
         if self.groups_predicted_target is None:
             result = self.df
-            for i in range(len(sensitive)):
-                result = result[result[self.sensitive[i]].isin(sensitive)]
+            for i in range(len(sensitive_group)):
+                result = result[result[self.sensitive[i]].isin(sensitive_group)]
             result = result[self.predicted_target]
         else:
             for item in self.groups_predicted_target:
-                if (item["sensitive"] == sensitive).all() or (
-                    item["sensitive"] == sensitive[::-1]
+                if (item["sensitive"] == sensitive_group).all() or (
+                    item["sensitive"] == sensitive_group[::-1]
                 ).all():
                     result = item["data"]
         if result is None:
-            raise (ValueError(f"{sensitive} group does not exist in the dataframe"))
+            raise (
+                ValueError(f"{sensitive_group} group does not exist in the dataframe")
+            )
         return result.squeeze()
