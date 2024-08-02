@@ -391,7 +391,7 @@ class FairnessMetricDifference(ABC):
         Returns
         -------
         dict[str, dict[str, float | tuple | None]]
-        A dictionaty with:
+        A dictionary with:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the results for that target
         variable with:
@@ -437,7 +437,7 @@ class FairnessMetricDifference(ABC):
         Returns
         -------
         dict[str, dict[tuple[str], float]]
-        A dictionaty with:
+        A dictionary with:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the ranking for that target
         variable with:
@@ -625,7 +625,7 @@ class FairnessMetricRatio(ABC):
         Returns
         -------
         dict[str, dict[str, float | tuple | None]]
-        A dictionaty with:
+        A dictionary with:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the results for that target
         variable with:
@@ -675,7 +675,7 @@ class FairnessMetricRatio(ABC):
         Returns
         -------
         dict[str, dict[tuple[str], float]]
-        A dictionaty with:
+        A dictionary with:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the ranking for that target
         variable with:
