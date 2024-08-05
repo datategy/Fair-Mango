@@ -170,7 +170,7 @@ class Metric(ABC):
     ------
     ValueError
         - If data is a DataFrame and the parameters 'sensitive' and 'real_target'
-        are not provided.
+          are not provided.
         - If the target variable is not binary (has two unique values).
     """
 
@@ -225,9 +225,9 @@ def calculate_disparity(
     """Calculate the disparity in the scores between every possible pair in
     the provided groups using two available methods:
     - difference (Example: for three groups a, b, c:
-    [score_a - score_b], [score_a - score_c], [score_b - score_c]).
+      `[score_a - score_b], [score_a - score_c], [score_b - score_c]`).
     - ratio (Example: for three groups a, b, c:
-    [score_a / score_b], [score_a / score_c], [score_b / score_c]).
+      `[score_a / score_b], [score_a / score_c], [score_b / score_c]`).
 
     Parameters
     ----------
@@ -394,11 +394,11 @@ class FairnessMetricDifference(ABC):
         A dictionary with:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the results for that target
-        variable with:
+          variable with:
             - keys: labels for the biggest disparity, the privileged group
-            and the discriminated group.
+              and the discriminated group.
             - values: values for the biggest disparity, the privileged
-            group and the discriminated group.
+              group and the discriminated group.
         """
         if self.results is None:
             self.results = self._compute()
@@ -430,9 +430,9 @@ class FairnessMetricDifference(ABC):
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
         - ['Male': 0.0314]: Males have on average a score higher by 3.14% than
-        the Females.
+          the Females.
         - ['White': -0.0628]: Whites have on average a score lower by 6.28% than
-        other groups (Black, Asian...).
+          other groups (Black, Asian...).
 
         Returns
         -------
@@ -440,7 +440,7 @@ class FairnessMetricDifference(ABC):
         A dictionary with:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the ranking for that target
-        variable with:
+          variable with:
             - keys: a tuple with the sensitive group.
             - values: the corresponding score.
         """
@@ -628,11 +628,11 @@ class FairnessMetricRatio(ABC):
         A dictionary with:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the results for that target
-        variable with:
+          variable with:
             - keys: labels for the biggest disparity, the privileged group
-            and the discriminated group.
+              and the discriminated group.
             - values: values for the biggest disparity, the privileged
-            group and the discriminated group.
+              group and the discriminated group.
         """
         if self.results is None:
             self.results = self._compute()
@@ -668,9 +668,9 @@ class FairnessMetricRatio(ABC):
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
         - ['Male': 0.814]: Males have on average 81.4% the score of the
-        Females.
+          Females.
         - ['White': 1.20]: Whites have on average 120% the score of the
-        other groups (Black, Asian...).
+          other groups (Black, Asian...).
 
         Returns
         -------
@@ -678,7 +678,7 @@ class FairnessMetricRatio(ABC):
         A dictionary with:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the ranking for that target
-        variable with:
+          variable with:
             - keys: a tuple with the sensitive group.
             - values: the corresponding score.
         """
