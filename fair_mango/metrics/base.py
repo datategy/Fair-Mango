@@ -146,7 +146,7 @@ def true_positive_rate(fn: int, tp: int, **kwargs) -> float:
 
 class Metric(ABC):
     """An abstract class that is inherited by every class that measures some
-    metric for the different demographic groups present in the sensitive
+    metric for the different sensitive groups present in the sensitive
     feature.
 
     Parameters
@@ -283,7 +283,7 @@ def calculate_disparity(
 
 class FairnessMetricDifference(ABC):
     """An abstract class that is inherited by every fairness metric that is
-    based on the 'difference' to calculate disparity between the demographic
+    based on the 'difference' to calculate disparity between the sensitive
     groups present in the sensitive feature.
 
     Parameters
@@ -426,7 +426,7 @@ class FairnessMetricDifference(ABC):
         return self.result
 
     def rank(self) -> dict[str, dict[tuple[str], float]]:
-        """Assign a score to every demographic group present in the sensitive
+        """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
         - ['Male': 0.0314]: Males have on average a score higher by 3.14% than
@@ -441,7 +441,7 @@ class FairnessMetricDifference(ABC):
         - keys: name of the target variable.
         - values: a dictionary corresponding to the ranking for that target
         variable with:
-            - keys: a tuple with the demographic group.
+            - keys: a tuple with the sensitive group.
             - values: the corresponding score.
         """
         result: dict = {}
@@ -519,7 +519,7 @@ class FairnessMetricDifference(ABC):
 
 class FairnessMetricRatio(ABC):
     """An abstract class that is inherited by every fairness metric that is
-    based on the 'ratio' to calculate disparity between the demographic groups
+    based on the 'ratio' to calculate disparity between the sensitive groups
     present in the sensitive feature.
 
     Parameters
@@ -664,7 +664,7 @@ class FairnessMetricRatio(ABC):
         return self.result
 
     def rank(self) -> dict[str, dict[tuple[str], float]]:
-        """Assign a score to every demographic group present in the sensitive
+        """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
         - ['Male': 0.814]: Males have on average 81.4% the score of the
@@ -679,7 +679,7 @@ class FairnessMetricRatio(ABC):
         - keys: name of the target variable.
         - values: a dictionary corresponding to the ranking for that target
         variable with:
-            - keys: a tuple with the demographic group.
+            - keys: a tuple with the sensitive group.
             - values: the corresponding score.
         """
         result: dict = {}

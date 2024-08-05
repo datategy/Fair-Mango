@@ -333,7 +333,7 @@ class ConfusionMatrix(Metric):
         - false negative rate.
         - true positive rate.
         - true negative rate.
-        for the different demographic groups present in the sensitive feature.
+        for the different sensitive groups present in the sensitive feature.
 
         Returns
         -------
@@ -573,7 +573,7 @@ class PerformanceMetric(Metric):
         - precision.
         - recall.
         - f1 score.
-        for the different demographic groups present in the sensitive feature.
+        for the different sensitive groups present in the sensitive feature.
 
         Returns
         -------
@@ -713,7 +713,7 @@ class PerformanceMetric(Metric):
 
 class DemographicParityDifference(FairnessMetricDifference):
     """Calculate Demographic Parity Fairness Metric using "difference" to
-    calculate the disparity between the different demographic groups present
+    calculate the disparity between the different sensitive groups present
     in the sensitive feature.
 
     Demographic Parity calculates the "difference" in the Selection Rate in the
@@ -802,7 +802,7 @@ class DemographicParityDifference(FairnessMetricDifference):
 
 class DisparateImpactDifference(FairnessMetricDifference):
     """Calculate Disparate Impact Fairness Metric using "difference" to
-    calculate the disparity between the different demographic groups present
+    calculate the disparity between the different sensitive groups present
     in the sensitive feature.
 
     Disparate Impact calculates the "difference" in the Selection Rate in the
@@ -891,7 +891,7 @@ class DisparateImpactDifference(FairnessMetricDifference):
 
 class EqualOpportunityDifference(FairnessMetricDifference):
     """Calculate Equal Opportunity Fairness Metric using "difference" to
-    calculate the disparity between the different demographic groups present
+    calculate the disparity between the different sensitive groups present
     in the sensitive feature.
 
     Equal Opportunity calculates the "difference" in the True Positive Rate in
@@ -980,7 +980,7 @@ class EqualOpportunityDifference(FairnessMetricDifference):
 
 class FalsePositiveRateDifference(FairnessMetricDifference):
     """Calculate False Positive Rate Parity Fairness Metric using "difference"
-    to calculate the disparity between the different demographic groups present
+    to calculate the disparity between the different sensitive groups present
     in the sensitive feature.
 
     False Positive Rate Parity calculates the "difference" in the False
@@ -1070,7 +1070,7 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
 
 class DemographicParityRatio(FairnessMetricRatio):
     """Calculate Demographic Parity Fairness Metric using "ratio" to calculate
-    the disparity between the different demographic groups present in the
+    the disparity between the different sensitive groups present in the
     sensitive feature.
 
     Demographic Parity calculates the "ratio" of the Selection Rate in the
@@ -1159,7 +1159,7 @@ class DemographicParityRatio(FairnessMetricRatio):
 
 class DisparateImpactRatio(FairnessMetricRatio):
     """Calculate Disparate Impact Fairness Metric using "ratio" to calculate
-    the disparity between the different demographic groups present in the
+    the disparity between the different sensitive groups present in the
     sensitive feature.
 
     Disparate Impact calculates the "ratio" of the Selection Rate in the
@@ -1248,7 +1248,7 @@ class DisparateImpactRatio(FairnessMetricRatio):
 
 class EqualOpportunityRatio(FairnessMetricRatio):
     """Calculate Equal Opportunity Fairness Metric using "ratio" to calculate
-    the disparity between the different demographic groups present in the
+    the disparity between the different sensitive groups present in the
     sensitive feature.
 
     Equal Opportunity calculates the "ratio" of the True Positive Rate in
@@ -1337,7 +1337,7 @@ class EqualOpportunityRatio(FairnessMetricRatio):
 
 class FalsePositiveRateRatio(FairnessMetricRatio):
     """Calculate False Positive Rate Parity Fairness Metric using "ratio" to
-    calculate the disparity between the different demographic groups present
+    calculate the disparity between the different sensitive groups present
     in the sensitive feature.
 
     False Positive Rate Parity calculates the "ratio" of the False Positive
@@ -1426,7 +1426,7 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
 
 class EqualisedOddsDifference:
     """Calculate Equalised Odds Fairness Metric using "difference" to calculate
-    the disparity between the different demographic groups present in the
+    the disparity between the different sensitive groups present in the
     sensitive feature.
 
     Equalised Odds calculates the "difference" in the True Positive Rate and
@@ -1590,7 +1590,7 @@ class EqualisedOddsDifference:
         return self.result
 
     def rank(self) -> dict[str, dict[tuple[str], float]]:
-        """Assign a score to every demographic group present in the sensitive
+        """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
         - ['Male': 0.0314]: Males have on average a score higher by 3.14% than
@@ -1605,7 +1605,7 @@ class EqualisedOddsDifference:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the ranking for that target
         variable with:
-            - keys: a tuple with the demographic group.
+            - keys: a tuple with the sensitive group.
             - values: the corresponding score.
         """
         result: dict = {}
@@ -1684,7 +1684,7 @@ class EqualisedOddsDifference:
 
 class EqualisedOddsRatio:
     """Calculate Equalised Odds Fairness Metric using "ratio" to calculate
-    the disparity between the different demographic groups present in the
+    the disparity between the different sensitive groups present in the
     sensitive feature.
 
     Equalised Odds calculates the "ratio" of the True Positive Rate and False
@@ -1856,7 +1856,7 @@ class EqualisedOddsRatio:
         return self.result
 
     def rank(self) -> dict[str, dict[tuple[str], float]]:
-        """Assign a score to every demographic group present in the sensitive
+        """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
         - ['Male': 0.814]: Males have on average 81.4% the score of the
@@ -1871,7 +1871,7 @@ class EqualisedOddsRatio:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the ranking for that target
         variable with:
-            - keys: a tuple with the demographic group.
+            - keys: a tuple with the sensitive group.
             - values: the corresponding score.
         """
         result: dict = {}
