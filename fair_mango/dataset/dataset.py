@@ -183,6 +183,11 @@ class Dataset:
         """Retrieve data corresponding to each sensitive group present in
         the sensitive features.
 
+        If you have two sensitive attributes `gender` (male, female) and `race`
+        (white, black), this function would return the data for the combination
+        of the two sensitive features; Hence, all of the following groups:
+        (male, white), (female, white), (female, black), (male, black)
+
         Returns
         -------
         list[dict[str, np.ndarray | pd.DataFrame]]
@@ -282,6 +287,14 @@ class Dataset:
         """Retrieve data corresponding to a specific sensitive group present
         in the sensitive features.
 
+        If you have two sensitive attributes `gender` (male, female) and `race`
+        (white, black), this function would return the data for the combination
+        of the two sensitive features; Hence, it expects the `sensitive_group`
+        parameter to match the `sensitive` parameter when  creating the
+        `Dataset`. For example: `sensitive = ['Sex', 'Race']` then
+        `sensitive_group = ['male', 'Asian']` (The order of the values matters
+        and exchanging the places will not work!)
+
         Parameters
         ----------
         sensitive : Sequence[str]
@@ -359,6 +372,11 @@ class Dataset:
     ) -> list[dict[str, np.ndarray | pd.Series | pd.DataFrame]]:
         """Retrieve the real target corresponding to each sensitive group
         present in the sensitive features.
+
+        If you have two sensitive attributes `gender` (male, female) and `race`
+        (white, black), this function would return the real target for the
+        combination of the two sensitive features; Hence, all of the following
+        groups: (male, white), (female, white), (female, black), (male, black)
 
         Returns
         -------
@@ -449,6 +467,14 @@ class Dataset:
         """Retrieve the real target corresponding to a specific sensitive
         group present in the sensitive features.
 
+        If you have two sensitive attributes `gender` (male, female) and `race`
+        (white, black), this function would return the real target for the
+        combination of the two sensitive features; Hence, it expects the
+        `sensitive_group` parameter to match the `sensitive` parameter when
+        creating the `Dataset`. For example: `sensitive = ['Sex', 'Race']` then
+        `sensitive_group = ['male', 'Asian']` (The order of the values matters
+        and exchanging the places will not work!)
+
         Parameters
         ----------
         sensitive : Sequence[str]
@@ -523,6 +549,11 @@ class Dataset:
     ) -> list[dict[str, np.ndarray | pd.Series | pd.DataFrame]]:
         """Retrieve the predicted target corresponding to each sensitive
         group present in the sensitive features.
+
+        If you have two sensitive attributes `gender` (male, female) and `race`
+        (white, black), this function would return the predicted target for the
+        combination of the two sensitive features; Hence, all of the following
+        groups: (male, white), (female, white), (female, black), (male, black)
 
         Returns
         -------
@@ -616,6 +647,14 @@ class Dataset:
     ) -> pd.Series | pd.DataFrame:
         """Retrieve the predicted target corresponding to a specific sensitive
         group present in the sensitive features.
+
+        If you have two sensitive attributes `gender` (male, female) and `race`
+        (white, black), this function would return the predicted target for the
+        combination of the two sensitive features; Hence, it expects the
+        `sensitive_group` parameter to match the `sensitive` parameter when
+        creating the `Dataset`. For example: `sensitive = ['Sex', 'Race']` then
+        `sensitive_group = ['male', 'Asian']` (The order of the values matters
+        and exchanging the places will not work!)
 
         Parameters
         ----------
