@@ -63,17 +63,17 @@ class SelectionRate(Metric):
         self.use_y_true = use_y_true
         self.label = label
 
-    def __call__(self) -> tuple[Sequence[str], list[dict]]:
+    def __call__(self) -> tuple[Sequence[str], list[dict[str, np.ndarray]]]:
         """Calculate the selection rates for all the different sensitive groups
         present in the sensitive feature.
 
         Returns
         -------
-        tuple[Sequence[str], list[dict]]
+        tuple[Sequence[str], list[dict[str, np.ndarray]]]
         A tuple containing two elements:
         - targets (Sequence[str]): The target variables used for
           calculation.
-        - results (list[dict]): A list of dictionaries, where each
+        - results (list[dict[str, np.ndarray]]): A list of dictionaries, where each
           dictionary has two keys:
             - sensitive: The name of the sensitive group.
             - result: The selection rate for the sensitive group.
