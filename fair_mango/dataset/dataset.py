@@ -73,9 +73,9 @@ class Dataset:
     """A class for handling datasets with sensitive attributes and target
     variables.
 
-    This class separates a dataframe into different demographic groups present
+    This class separates a dataframe into different sensitive groups present
     in the dataframe. Any object of this class will serve as a building block
-    for evaluating the performance of different demographic groups and
+    for evaluating the performance of different sensitive groups and
     calculating the fairness metrics.
 
     Parameters
@@ -145,7 +145,7 @@ class Dataset:
         figsize: tuple[int, int] = (16, 6),
         dpi: int = 200,
     ):
-        """Plot the distribution of the demographic groups found within the
+        """Plot the distribution of the sensitive groups found within the
         sensitive features.
 
         Parameters
@@ -175,7 +175,7 @@ class Dataset:
             plt.show()
 
     def get_data_for_all_groups(self) -> list[dict]:
-        """Retrieve data corresponding to each demographic group present in
+        """Retrieve data corresponding to each sensitive group present in
         the sensitive features.
 
         Returns
@@ -274,7 +274,7 @@ class Dataset:
         return self.groups_data
 
     def get_data_for_one_group(self, sensitive_group: Sequence[str]) -> pd.DataFrame:
-        """Retrieve data corresponding to a specific demographic group present
+        """Retrieve data corresponding to a specific sensitive group present
         in the sensitive features.
 
         Parameters
@@ -350,7 +350,7 @@ class Dataset:
         return result
 
     def get_real_target_for_all_groups(self) -> list[dict]:
-        """Retrieve the real target corresponding to each demographic group
+        """Retrieve the real target corresponding to each sensitive group
         present in the sensitive features.
 
         Returns
@@ -439,7 +439,7 @@ class Dataset:
     def get_real_target_for_one_group(
         self, sensitive_group: Sequence[str]
     ) -> pd.Series | pd.DataFrame:
-        """Retrieve the real target corresponding to a specific demographic
+        """Retrieve the real target corresponding to a specific sensitive
         group present in the sensitive features.
 
         Parameters
@@ -512,7 +512,7 @@ class Dataset:
         return result.squeeze()
 
     def get_predicted_target_for_all_groups(self) -> list[dict]:
-        """Retrieve the predicted target corresponding to each demographic
+        """Retrieve the predicted target corresponding to each sensitive
         group present in the sensitive features.
 
         Returns
@@ -606,7 +606,7 @@ class Dataset:
         self, sensitive_group: Sequence[str]
     ) -> pd.Series | pd.DataFrame:
         """Retrieve the predicted target corresponding to a specific
-        demographic group present in the sensitive features.
+        sensitive group present in the sensitive features.
 
         Parameters
         ----------
