@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -134,9 +135,13 @@ class Dataset:
                 .sort_values("Count", ascending=False)
             )
         self.n_groups: int = len(self.groups)
-        self.groups_data: list[dict] = []
-        self.groups_real_target: list[dict] | None = None
-        self.groups_predicted_target: list[dict] | None = None
+        self.groups_data: list[dict[str, np.ndarray | pd.DataFrame]] = []
+        self.groups_real_target: (
+            list[dict[str, np.ndarray | pd.Series | pd.DataFrame]] | None
+        ) = None
+        self.groups_predicted_target: (
+            list[dict[str, np.ndarray | pd.Series | pd.DataFrame]] | None
+        ) = None
         plt.style.use("fivethirtyeight")
 
     def plot_groups(
@@ -174,13 +179,13 @@ class Dataset:
             )
             plt.show()
 
-    def get_data_for_all_groups(self) -> list[dict]:
+    def get_data_for_all_groups(self) -> list[dict[str, np.ndarray | pd.DataFrame]]:
         """Retrieve data corresponding to each sensitive group present in
         the sensitive features.
 
         Returns
         -------
-        list[dict]
+        list[dict[str, np.ndarray | pd.DataFrame]]
             List of dictionaries with the sensitive group as keys and the
             corresponding dataframe as value.
 
@@ -349,13 +354,15 @@ class Dataset:
             )
         return result
 
-    def get_real_target_for_all_groups(self) -> list[dict]:
+    def get_real_target_for_all_groups(
+        self,
+    ) -> list[dict[str, np.ndarray | pd.Series | pd.DataFrame]]:
         """Retrieve the real target corresponding to each sensitive group
         present in the sensitive features.
 
         Returns
         -------
-        list[dict]
+        list[dict[str, np.ndarray | pd.Series | pd.DataFrame]]
             List of dictionaries with the sensitive group as keys and the
             corresponding real target as value.
 
@@ -511,13 +518,15 @@ class Dataset:
             )
         return result.squeeze()
 
-    def get_predicted_target_for_all_groups(self) -> list[dict]:
+    def get_predicted_target_for_all_groups(
+        self,
+    ) -> list[dict[str, np.ndarray | pd.Series | pd.DataFrame]]:
         """Retrieve the predicted target corresponding to each sensitive
         group present in the sensitive features.
 
         Returns
         -------
-        list[dict]
+        list[dict[str, np.ndarray | pd.Series | pd.DataFrame]]
             List of dictionaries with the sensitive group as keys and the
             corresponding predicted target as value.
 
@@ -605,8 +614,8 @@ class Dataset:
     def get_predicted_target_for_one_group(
         self, sensitive_group: Sequence[str]
     ) -> pd.Series | pd.DataFrame:
-        """Retrieve the predicted target corresponding to a specific
-        sensitive group present in the sensitive features.
+        """Retrieve the predicted target corresponding to a specific sensitive
+        group present in the sensitive features.
 
         Parameters
         ----------
