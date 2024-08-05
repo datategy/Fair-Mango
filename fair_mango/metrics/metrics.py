@@ -24,7 +24,8 @@ from fair_mango.metrics.base import (
 
 
 class SelectionRate(Metric):
-    """Calculate selection rate for different sensitive groups.
+    """Calculate the selection rates for all the different sensitive groups
+    present in the sensitive feature.
 
     Parameters
     ----------
@@ -63,7 +64,8 @@ class SelectionRate(Metric):
         self.label = label
 
     def __call__(self) -> tuple[Sequence[str], list[dict]]:
-        """Calculates selection rate for different sensitive groups.
+        """Calculate the selection rates for all the different sensitive groups
+        present in the sensitive feature.
 
         Returns
         -------
@@ -244,11 +246,12 @@ class SelectionRate(Metric):
 
 
 class ConfusionMatrix(Metric):
-    """Calculate confusion matrix related metrics:
+    """Calculate the confusion matrix related metrics:
     - false positive rate
     - false negative rate
     - true positive rate
     - true negative rate
+    for all the different sensitive groups present in the sensitive feature.
 
     Parameters
     ----------
@@ -328,12 +331,12 @@ class ConfusionMatrix(Metric):
                     self.metrics[metric.__name__] = metric
 
     def __call__(self) -> tuple[Sequence, list]:
-        """Calculate confusion matrix related metrics:
+        """Calculate the confusion matrix related metrics:
         - false positive rate.
         - false negative rate.
         - true positive rate.
         - true negative rate.
-        for the different sensitive groups present in the sensitive feature.
+        for all the different sensitive groups present in the sensitive feature.
 
         Returns
         -------
@@ -481,6 +484,7 @@ class PerformanceMetric(Metric):
     - precision.
     - recall.
     - f1 score.
+    for all the different sensitive groups present in the sensitive feature.
 
     Parameters
     ----------
@@ -573,7 +577,7 @@ class PerformanceMetric(Metric):
         - precision.
         - recall.
         - f1 score.
-        for the different sensitive groups present in the sensitive feature.
+        for all the different sensitive groups present in the sensitive feature.
 
         Returns
         -------
