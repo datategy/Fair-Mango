@@ -29,7 +29,7 @@ class SelectionRate(Metric):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     use_y_true : bool, optional
         if True use the real label else use the predictions, by default False
@@ -49,7 +49,7 @@ class SelectionRate(Metric):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         use_y_true: bool = False,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
@@ -255,7 +255,7 @@ class ConfusionMatrix(Metric):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     metrics : Collection | Sequence | None, optional
         A sequence of metrics or a dictionary with keys being custom labels
@@ -290,7 +290,7 @@ class ConfusionMatrix(Metric):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         metrics: Collection | Sequence | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
@@ -488,7 +488,7 @@ class PerformanceMetric(Metric):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     metrics : Collection | None, optional
         A sequence of metrics or a dictionary with keys being custom labels
@@ -525,7 +525,7 @@ class PerformanceMetric(Metric):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         metrics: Collection | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
@@ -725,7 +725,7 @@ class DemographicParityDifference(FairnessMetricDifference):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -784,7 +784,7 @@ class DemographicParityDifference(FairnessMetricDifference):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         label: str = "demographic_parity_difference",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
@@ -814,7 +814,7 @@ class DisparateImpactDifference(FairnessMetricDifference):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -873,7 +873,7 @@ class DisparateImpactDifference(FairnessMetricDifference):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         label: str = "disparate_impact_difference",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
@@ -903,7 +903,7 @@ class EqualOpportunityDifference(FairnessMetricDifference):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -962,7 +962,7 @@ class EqualOpportunityDifference(FairnessMetricDifference):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         label: str = "equal_opportunity_difference",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
@@ -993,7 +993,7 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1052,7 +1052,7 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         label: str = "false_positive_rate_difference",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
@@ -1082,7 +1082,7 @@ class DemographicParityRatio(FairnessMetricRatio):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1141,7 +1141,7 @@ class DemographicParityRatio(FairnessMetricRatio):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         label: str = "demographic_parity_ratio",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
@@ -1171,7 +1171,7 @@ class DisparateImpactRatio(FairnessMetricRatio):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1230,7 +1230,7 @@ class DisparateImpactRatio(FairnessMetricRatio):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         label: str = "disparate_impact_ratio",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
@@ -1260,7 +1260,7 @@ class EqualOpportunityRatio(FairnessMetricRatio):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1319,7 +1319,7 @@ class EqualOpportunityRatio(FairnessMetricRatio):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         label: str = "equal_opportunity_ratio",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
@@ -1349,7 +1349,7 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1408,7 +1408,7 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         label: str = "false_positive_rate_ratio",
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
@@ -1439,7 +1439,7 @@ class EqualisedOddsDifference:
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1498,7 +1498,7 @@ class EqualisedOddsDifference:
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -1697,7 +1697,7 @@ class EqualisedOddsRatio:
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1756,7 +1756,7 @@ class EqualisedOddsRatio:
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,

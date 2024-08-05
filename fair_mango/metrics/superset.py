@@ -27,7 +27,7 @@ class Superset(ABC):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         The dataset containing the data to be evaluated. If a DataFrame object
         is passed, it should contain attributes `sensitive`, `real_target`,
         `predicted_target`, and `positive_target`.
@@ -51,7 +51,7 @@ class Superset(ABC):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -98,7 +98,7 @@ class SupersetFairnessMetrics(Superset):
             | type[FalsePositiveRateDifference]
             | type[FalsePositiveRateRatio]
         ),
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -116,7 +116,7 @@ class SupersetFairnessMetrics(Superset):
         type[EqualisedOddsDifference]  |  type[EqualisedOddsRatio]  |
         type[FalsePositiveRateDifference]  |  type[FalsePositiveRateRatio]
             The fairness metric class to be used for evaluation.
-        data : Dataset | pd.DataFrame
+        data : type[Dataset] | pd.DataFrame
             The dataset containing the data to be evaluated. If a DataFrame object
             is passed, it should contain attributes `sensitive`, `real_target`,
             `predicted_target`, and `positive_target`.
@@ -224,7 +224,7 @@ class SupersetPerformanceMetrics(Superset):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : type[Dataset] | pd.DataFrame
         The dataset containing the data to be evaluated. If a DataFrame object
         is passed, it should contain attributes `sensitive`, `real_target`,
         `predicted_target`, and `positive_target`.
@@ -243,7 +243,7 @@ class SupersetPerformanceMetrics(Superset):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: type[Dataset] | pd.DataFrame,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
