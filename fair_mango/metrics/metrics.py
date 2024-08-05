@@ -1,4 +1,4 @@
-from collections.abc import Collection, Sequence
+from collections.abc import Callable, Sequence
 
 import numpy as np
 import pandas as pd
@@ -257,7 +257,7 @@ class ConfusionMatrix(Metric):
     ----------
     data : type[Dataset] | pd.DataFrame
         Input data.
-    metrics : Collection | Sequence | None, optional
+    metrics : Sequence[Callable] | set[Callable] | dict[str, Callable] | None, optional
         A sequence of metrics or a dictionary with keys being custom labels
         and values a callable that takes as input tp, tn, fp, fn which are
         extracted from the confusion matrix. Available functions in
@@ -291,7 +291,7 @@ class ConfusionMatrix(Metric):
     def __init__(
         self,
         data: type[Dataset] | pd.DataFrame,
-        metrics: Collection | Sequence | None = None,
+        metrics: Sequence[Callable] | set[Callable] | dict[str, Callable] | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -490,7 +490,7 @@ class PerformanceMetric(Metric):
     ----------
     data : type[Dataset] | pd.DataFrame
         Input data.
-    metrics : Collection | None, optional
+    metrics : set[Callable] | dict[str, Callable] | None, optional
         A sequence of metrics or a dictionary with keys being custom labels
         and values a callable that takes as input y_true and y_pred. default
         functions from sklearn.metrics are:
@@ -526,7 +526,7 @@ class PerformanceMetric(Metric):
     def __init__(
         self,
         data: type[Dataset] | pd.DataFrame,
-        metrics: Collection | None = None,
+        metrics: set[Callable] | dict[str, Callable] | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
