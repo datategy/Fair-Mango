@@ -70,9 +70,9 @@ class SelectionRate(Metric):
         tuple[Sequence[str], list[dict]]
         A tuple containing two elements:
         - targets (Sequence[str]): The target variables used for
-        calculation.
+          calculation.
         - results (list[dict]): A list of dictionaries, where each
-        dictionary has two keys:
+          dictionary has two keys:
             - sensitive: The name of the sensitive group.
             - result: The selection rate for the sensitive group.
 
@@ -277,12 +277,12 @@ class ConfusionMatrix(Metric):
         by default None.
 
     Raises
-        ------
-        ValueError
-            If the predictions column is not provided.
-        KeyError
-            If the key of a metric is 'sensitive' which is already reserved
-            to the sensitive groups.
+    ------
+    ValueError
+        If the predictions column is not provided.
+    KeyError
+        If the key of a metric is 'sensitive' which is already reserved
+        to the sensitive groups.
     """
 
     def __init__(
@@ -340,7 +340,7 @@ class ConfusionMatrix(Metric):
         tuple[Sequence, list]
         A tuple containing two elements:
         - targets (Sequence[str]): The target variables used for
-        calculation.
+          calculation.
         - results (list[dict]): A list of dictionaries, where the keys:
             - sensitive: The name of the sensitive group.
             - label: The corresponding result for the sensitive group.
@@ -511,12 +511,12 @@ class PerformanceMetric(Metric):
         by default None.
 
     Raises
-        ------
-        ValueError
-            If the predictions column is not provided.
-        KeyError
-            If the key of a metric is 'sensitive' which is already reserved
-            to the sensitive groups.
+    ------
+    ValueError
+        If the predictions column is not provided.
+    KeyError
+        If the key of a metric is 'sensitive' which is already reserved
+        to the sensitive groups.
     """
 
     def __init__(
@@ -580,7 +580,7 @@ class PerformanceMetric(Metric):
         tuple[Sequence, list]
         A tuple containing two elements:
         - targets (Sequence[str]): The target variables used for
-        calculation.
+          calculation.
         - results (list[dict]): A list of dictionaries, where the keys:
             - sensitive: The name of the sensitive group.
             - label: The corresponding result for the sensitive group.
@@ -1552,11 +1552,11 @@ class EqualisedOddsDifference:
         A dictionary with:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the results for that target
-        variable with:
+          variable with:
             - keys: labels for the biggest disparity, the privileged group
-            and the discriminated group.
+              and the discriminated group.
             - values: values for the biggest disparity, the privileged
-            group and the discriminated group.
+              group and the discriminated group.
         """
         self.result: dict = {}
 
@@ -1594,9 +1594,9 @@ class EqualisedOddsDifference:
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
         - ['Male': 0.0314]: Males have on average a score higher by 3.14% than
-        the Females.
+          the Females.
         - ['White': -0.0628]: Whites have on average a score lower by 6.28% than
-        other groups (Black, Asian...).
+          other groups (Black, Asian...).
 
         Returns
         -------
@@ -1604,7 +1604,7 @@ class EqualisedOddsDifference:
         A dictionary with:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the ranking for that target
-        variable with:
+          variable with:
             - keys: a tuple with the sensitive group.
             - values: the corresponding score.
         """
@@ -1807,11 +1807,11 @@ class EqualisedOddsRatio:
         A dictionary with:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the results for that target
-        variable with:
+          variable with:
             - keys: labels for the biggest disparity, the privileged group
-            and the discriminated group.
+              and the discriminated group.
             - values: values for the biggest disparity, the privileged
-            group and the discriminated group.
+              group and the discriminated group.
         """
         self.result: dict = {}
 
@@ -1860,9 +1860,9 @@ class EqualisedOddsRatio:
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
         - ['Male': 0.814]: Males have on average 81.4% the score of the
-        Females.
+          Females.
         - ['White': 1.20]: Whites have on average 120% the score of the
-        other groups (Black, Asian...).
+          other groups (Black, Asian...).
 
         Returns
         -------
@@ -1870,7 +1870,7 @@ class EqualisedOddsRatio:
         A dictionary with:
         - keys: name of the target variable.
         - values: a dictionary corresponding to the ranking for that target
-        variable with:
+          variable with:
             - keys: a tuple with the sensitive group.
             - values: the corresponding score.
         """
