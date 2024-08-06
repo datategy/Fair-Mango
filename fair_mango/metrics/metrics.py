@@ -200,7 +200,8 @@ class SelectionRate(Metric):
         Returns
         -------
         pd.Series
-            The target name and the corresponding selection rate.
+            The target name as the index and the corresponding selection rate
+            as the value.
 
         Examples
         --------
