@@ -70,13 +70,13 @@ class SelectionRate(Metric):
         Returns
         -------
         tuple[Sequence[str], list[dict[str, np.ndarray]]]
-        A tuple containing two elements:
-        - targets (Sequence[str]): The target variables used for
-          calculation.
-        - results (list[dict[str, np.ndarray]]): A list of dictionaries, where each
-          dictionary has two keys:
-            - sensitive: The name of the sensitive group.
-            - result: The selection rate for the sensitive group.
+            A tuple containing two elements:
+            - targets (Sequence[str]): The target variables used for
+              calculation.
+            - results (list[dict[str, np.ndarray]]): A list of dictionaries,
+              where each dictionary has two keys:
+                1. sensitive: The name of the sensitive group.
+                2. result: The selection rate for the sensitive group.
 
         Raises
         ------
@@ -341,12 +341,12 @@ class ConfusionMatrix(Metric):
         Returns
         -------
         tuple[Sequence, list]
-        A tuple containing two elements:
-        - targets (Sequence[str]): The target variables used for
-          calculation.
-        - results (list[dict]): A list of dictionaries, where the keys:
-            - sensitive: The name of the sensitive group.
-            - label: The corresponding result for the sensitive group.
+            A tuple containing two elements:
+            - targets (Sequence[str]): The target variables used for
+              calculation.
+            - results (list[dict]): A list of dictionaries, where the keys:
+                1. sensitive: The name of the sensitive group.
+                2. label: The corresponding result for the sensitive group.
 
         Examples
         --------
@@ -582,12 +582,12 @@ class PerformanceMetric(Metric):
         Returns
         -------
         tuple[Sequence, list]
-        A tuple containing two elements:
-        - targets (Sequence[str]): The target variables used for
-          calculation.
-        - results (list[dict]): A list of dictionaries, where the keys:
-            - sensitive: The name of the sensitive group.
-            - label: The corresponding result for the sensitive group.
+            A tuple containing two elements:
+            - targets (Sequence[str]): The target variables used for
+              calculation.
+            - results (list[dict]): A list of dictionaries, where the keys:
+                1. sensitive: The name of the sensitive group.
+                2. label: The corresponding result for the sensitive group.
 
         Examples
         --------
@@ -1553,14 +1553,14 @@ class EqualisedOddsDifference:
         Returns
         -------
         dict[str, dict[str, float | tuple | None]]
-        A dictionary with:
-        - keys: name of the target variable.
-        - values: a dictionary corresponding to the results for that target
-          variable with:
-            - keys: labels for the biggest disparity, the privileged group
-              and the discriminated group.
-            - values: values for the biggest disparity, the privileged
-              group and the discriminated group.
+            A dictionary with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the results for that target
+              variable with:
+                1. keys: labels for the biggest disparity, the privileged group
+                   and the discriminated group.
+                2. values: values for the biggest disparity, the privileged
+                   group and the discriminated group.
         """
         self.result: dict = {}
 
@@ -1605,12 +1605,12 @@ class EqualisedOddsDifference:
         Returns
         -------
         dict[str, dict[tuple[str], float]]
-        A dictionary with:
-        - keys: name of the target variable.
-        - values: a dictionary corresponding to the ranking for that target
-          variable with:
-            - keys: a tuple with the sensitive group.
-            - values: the corresponding score.
+            A dictionary with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the ranking for that target
+              variable with:
+                1. keys: a tuple with the sensitive group.
+                2. values: the corresponding score.
         """
         result: dict = {}
         self.ranking = {}
@@ -1808,14 +1808,14 @@ class EqualisedOddsRatio:
         Returns
         -------
         dict[str, dict[str, float | tuple | None]]
-        A dictionary with:
-        - keys: name of the target variable.
-        - values: a dictionary corresponding to the results for that target
-          variable with:
-            - keys: labels for the biggest disparity, the privileged group
-              and the discriminated group.
-            - values: values for the biggest disparity, the privileged
-              group and the discriminated group.
+            A dictionary with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the results for that target
+              variable with:
+                1. keys: labels for the biggest disparity, the privileged group
+                   and the discriminated group.
+                2. values: values for the biggest disparity, the privileged
+                   group and the discriminated group.
         """
         self.result: dict = {}
 
@@ -1871,12 +1871,12 @@ class EqualisedOddsRatio:
         Returns
         -------
         dict[str, dict[tuple[str], float]]
-        A dictionary with:
-        - keys: name of the target variable.
-        - values: a dictionary corresponding to the ranking for that target
-          variable with:
-            - keys: a tuple with the sensitive group.
-            - values: the corresponding score.
+            A dictionary with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the ranking for that target
+              variable with:
+                1. keys: a tuple with the sensitive group.
+                2. values: the corresponding score.
         """
         result: dict = {}
         self.ranking = {}

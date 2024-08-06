@@ -391,14 +391,14 @@ class FairnessMetricDifference(ABC):
         Returns
         -------
         dict[str, dict[str, float | tuple | None]]
-        A dictionary with:
-        - keys: name of the target variable.
-        - values: a dictionary corresponding to the results for that target
-          variable with:
-            - keys: labels for the biggest disparity, the privileged group
-              and the discriminated group.
-            - values: values for the biggest disparity, the privileged
-              group and the discriminated group.
+            A dictionary with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the results for that target
+              variable with:
+                1. keys: labels for the biggest disparity, the privileged group
+                   and the discriminated group.
+                2. values: values for the biggest disparity, the privileged
+                   group and the discriminated group.
         """
         if self.results is None:
             self.results = self._compute()
@@ -437,12 +437,12 @@ class FairnessMetricDifference(ABC):
         Returns
         -------
         dict[str, dict[tuple[str], float]]
-        A dictionary with:
-        - keys: name of the target variable.
-        - values: a dictionary corresponding to the ranking for that target
-          variable with:
-            - keys: a tuple with the sensitive group.
-            - values: the corresponding score.
+            A dictionary with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the ranking for that target
+              variable with:
+                1. keys: a tuple with the sensitive group.
+                2. values: the corresponding score.
         """
         result: dict = {}
         self.ranking = {}
@@ -625,14 +625,14 @@ class FairnessMetricRatio(ABC):
         Returns
         -------
         dict[str, dict[str, float | tuple | None]]
-        A dictionary with:
-        - keys: name of the target variable.
-        - values: a dictionary corresponding to the results for that target
-          variable with:
-            - keys: labels for the biggest disparity, the privileged group
-              and the discriminated group.
-            - values: values for the biggest disparity, the privileged
-              group and the discriminated group.
+            A dictionary with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the results for that target
+              variable with:
+                1. keys: labels for the biggest disparity, the privileged group
+                   and the discriminated group.
+                2. values: values for the biggest disparity, the privileged
+                   group and the discriminated group.
         """
         if self.results is None:
             self.results = self._compute()
@@ -675,12 +675,12 @@ class FairnessMetricRatio(ABC):
         Returns
         -------
         dict[str, dict[tuple[str], float]]
-        A dictionary with:
-        - keys: name of the target variable.
-        - values: a dictionary corresponding to the ranking for that target
-          variable with:
-            - keys: a tuple with the sensitive group.
-            - values: the corresponding score.
+            A dictionary with:
+            - keys: name of the target variable.
+            - values: a dictionary corresponding to the ranking for that target
+              variable with:
+                1. keys: a tuple with the sensitive group.
+                2. values: the corresponding score.
         """
         result: dict = {}
         self.ranking = {}
