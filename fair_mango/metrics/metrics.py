@@ -27,6 +27,10 @@ class SelectionRate(Metric):
     """Calculate the selection rates for all the different sensitive groups
     present in the sensitive feature.
 
+    The Selection Rate is the ratio of the number of instances selected
+    (predicted as positive) to the total number of instances. It is a measure
+    of the proportion of the population that chosen.
+
     Parameters
     ----------
     data : type[Dataset] | pd.DataFrame
@@ -724,6 +728,10 @@ class DemographicParityDifference(FairnessMetricDifference):
     Demographic Parity calculates the "difference" in the Selection Rate in the
     real targets to detect if there is any bias in the **dataset**.
 
+    The Selection Rate is the ratio of the number of instances selected
+    (predicted as positive) to the total number of instances. It is a measure
+    of the proportion of the population that chosen.
+
     Parameters
     ----------
     data : type[Dataset] | pd.DataFrame
@@ -813,6 +821,10 @@ class DisparateImpactDifference(FairnessMetricDifference):
     Disparate Impact calculates the "difference" in the Selection Rate in the
     predicted targets to detect if there is any bias in the **model**.
 
+    The Selection Rate is the ratio of the number of instances selected
+    (predicted as positive) to the total number of instances. It is a measure
+    of the proportion of the population that chosen.
+
     Parameters
     ----------
     data : type[Dataset] | pd.DataFrame
@@ -901,6 +913,10 @@ class EqualOpportunityDifference(FairnessMetricDifference):
 
     Equal Opportunity calculates the "difference" in the True Positive Rate in
     the targets to detect if there is any bias in the **model**.
+
+    The True Positive Rate (TPR) is the ratio of correctly predicted positive
+    observations to all actual positives. It is a measure of a model's ability
+    to correctly identify positive instances.
 
     Parameters
     ----------
@@ -992,6 +1008,11 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
     Positive Rate in the targets to detect if there is any bias in the
     **model**.
 
+    The False Positive Rate (FPR) is the ratio of incorrectly predicted
+    positive observations to all actual negatives. It is a measure of the
+    proportion of negatives that are incorrectly identified as positives by
+    the model.
+
     Parameters
     ----------
     data : type[Dataset] | pd.DataFrame
@@ -1080,6 +1101,10 @@ class DemographicParityRatio(FairnessMetricRatio):
 
     Demographic Parity calculates the "ratio" of the Selection Rate in the
     real targets to detect if there is any bias in the **dataset**.
+
+    The Selection Rate is the ratio of the number of instances selected
+    (predicted as positive) to the total number of instances. It is a measure
+    of the proportion of the population that chosen.
 
     Parameters
     ----------
@@ -1170,6 +1195,10 @@ class DisparateImpactRatio(FairnessMetricRatio):
     Disparate Impact calculates the "ratio" of the Selection Rate in the
     predicted targets to detect if there is any bias in the **model**.
 
+    The Selection Rate is the ratio of the number of instances selected
+    (predicted as positive) to the total number of instances. It is a measure
+    of the proportion of the population that chosen.
+
     Parameters
     ----------
     data : type[Dataset] | pd.DataFrame
@@ -1258,6 +1287,10 @@ class EqualOpportunityRatio(FairnessMetricRatio):
 
     Equal Opportunity calculates the "ratio" of the True Positive Rate in
     the targets to detect if there is any bias in the **model**.
+
+    The True Positive Rate (TPR) is the ratio of correctly predicted positive
+    observations to all actual positives. It is a measure of a model's ability
+    to correctly identify positive instances.
 
     Parameters
     ----------
@@ -1348,6 +1381,11 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
     False Positive Rate Parity calculates the "ratio" of the False Positive
     Rate in the targets to detect if there is any bias in the **model**.
 
+    The False Positive Rate (FPR) is the ratio of incorrectly predicted
+    positive observations to all actual negatives. It is a measure of the
+    proportion of negatives that are incorrectly identified as positives by
+    the model.
+
     Parameters
     ----------
     data : type[Dataset] | pd.DataFrame
@@ -1437,6 +1475,15 @@ class EqualisedOddsDifference:
     Equalised Odds calculates the "difference" in the True Positive Rate and
     False Positive Rate in the targets to detect if there is any bias in the
     **model**.
+
+    The True Positive Rate (TPR) is the ratio of correctly predicted positive
+    observations to all actual positives. It is a measure of a model's ability
+    to correctly identify positive instances.
+
+    The False Positive Rate (FPR) is the ratio of incorrectly predicted
+    positive observations to all actual negatives. It is a measure of the
+    proportion of negatives that are incorrectly identified as positives by
+    the model.
 
     Parameters
     ----------
@@ -1695,6 +1742,15 @@ class EqualisedOddsRatio:
     Equalised Odds calculates the "ratio" of the True Positive Rate and False
     Positive Rate in the targets to detect if there is any bias in the
     **model**.
+
+    The True Positive Rate (TPR) is the ratio of correctly predicted positive
+    observations to all actual positives. It is a measure of a model's ability
+    to correctly identify positive instances.
+
+    The False Positive Rate (FPR) is the ratio of incorrectly predicted
+    positive observations to all actual negatives. It is a measure of the
+    proportion of negatives that are incorrectly identified as positives by
+    the model.
 
     Parameters
     ----------
