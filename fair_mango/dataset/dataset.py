@@ -463,7 +463,7 @@ class Dataset:
 
     def get_real_target_for_one_group(
         self, sensitive_group: Sequence[str]
-    ) -> pd.Series | pd.DataFrame:
+    ) -> pd.DataFrame:
         """Retrieve the real target corresponding to a specific sensitive
         group present in the sensitive features.
 
@@ -485,8 +485,8 @@ class Dataset:
 
         Returns
         -------
-        pd.Series | pd.DataFrame
-            The pandas series or dataframe corresponding to the sensitive group.
+        pd.DataFrame
+            The pandas dataframe corresponding to the sensitive group.
 
         Examples
         --------
@@ -542,7 +542,7 @@ class Dataset:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
             )
-        return result.squeeze()
+        return result
 
     def get_predicted_target_for_all_groups(
         self,
@@ -644,7 +644,7 @@ class Dataset:
 
     def get_predicted_target_for_one_group(
         self, sensitive_group: Sequence[str]
-    ) -> pd.Series | pd.DataFrame:
+    ) -> pd.DataFrame:
         """Retrieve the predicted target corresponding to a specific sensitive
         group present in the sensitive features.
 
@@ -666,8 +666,8 @@ class Dataset:
 
         Returns
         -------
-        pd.Series | pd.DataFrame
-            The pandas series or dataframe corresponding to the sensitive group.
+        pd.DataFrame
+            The pandas dataframe corresponding to the sensitive group.
 
         Examples
         --------
@@ -727,4 +727,4 @@ class Dataset:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
             )
-        return result.squeeze()
+        return result
