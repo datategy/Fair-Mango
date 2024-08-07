@@ -3,10 +3,14 @@ site_name: My Docs
 theme:
   name: "material"
 
+watch:
+- fair_mango
+
 plugins:
 - mkdocstrings:
     handlers:
       python:
+        paths: [.]
         options:
           docstring_style: numpy
 
