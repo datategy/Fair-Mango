@@ -804,8 +804,8 @@ class DemographicParityDifference(FairnessMetricDifference):
         Sequence of the positive labels corresponding to the provided targets,
         by default None.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd
     >>> from fair_mango.metrics.metrics import DemographicParityDifference
     >>> data = {
@@ -915,8 +915,8 @@ class DisparateImpactDifference(FairnessMetricDifference):
         Sequence of the positive labels corresponding to the provided targets,
         by default None.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd
     >>> from fair_mango.metrics.metrics import DisparateImpactDifference
     >>> data = {
@@ -1026,8 +1026,8 @@ class EqualOpportunityDifference(FairnessMetricDifference):
         Sequence of the positive labels corresponding to the provided targets,
         by default None.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd
     >>> from fair_mango.metrics.metrics import EqualOpportunityDifference
     >>> data = {
@@ -1139,8 +1139,8 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
         Sequence of the positive labels corresponding to the provided targets,
         by default None.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd
     >>> from fair_mango.metrics.metrics import FalsePositiveRateDifference
     >>> data = {
@@ -1250,8 +1250,8 @@ class DemographicParityRatio(FairnessMetricRatio):
         Sequence of the positive labels corresponding to the provided targets,
         by default None.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd
     >>> from fair_mango.metrics.metrics import DemographicParityRatio
     >>> data = {
@@ -1361,8 +1361,8 @@ class DisparateImpactRatio(FairnessMetricRatio):
         Sequence of the positive labels corresponding to the provided targets,
         by default None.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd
     >>> from fair_mango.metrics.metrics import DisparateImpactRatio
     >>> data = {
@@ -1472,8 +1472,8 @@ class EqualOpportunityRatio(FairnessMetricRatio):
         Sequence of the positive labels corresponding to the provided targets,
         by default None.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd
     >>> from fair_mango.metrics.metrics import EqualOpportunityRatio
     >>> data = {
@@ -1584,8 +1584,8 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
         Sequence of the positive labels corresponding to the provided targets,
         by default None.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd
     >>> from fair_mango.metrics.metrics import FalsePositiveRateRatio
     >>> data = {
@@ -1701,8 +1701,8 @@ class EqualisedOddsDifference:
         Sequence of the positive labels corresponding to the provided targets,
         by default None.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd
     >>> from fair_mango.metrics.metrics import EqualisedOddsDifference
     >>> data = {
@@ -1984,8 +1984,8 @@ class EqualisedOddsRatio:
         Sequence of the positive labels corresponding to the provided targets,
         by default None.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd
     >>> from fair_mango.metrics.metrics import EqualisedOddsRatio
     >>> data = {
