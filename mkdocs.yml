@@ -1,22 +1,85 @@
-site_name: My Docs
+site_name: FairMango Documentation
+site_description: Explainable Fairness in Machine Learning and AI
 
 theme:
   name: "material"
+  palette:
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    primary: green
+    accent: green
+    toggle:
+      icon: material/weather-night
+      name: "Switch to dark mode"
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    primary: orange
+    accent: orange
+    toggle:
+      icon: material/weather-sunny
+      name: "Switch to light mode"
+  features:
+    - content.tabs.link
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - announce.dismiss
+    - navigation.tabs
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.preview
+    - navigation.instant.progress
+    - navigation.path
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - search.suggest
+    - toc.follow
 
 watch:
 - fair_mango
 
 plugins:
+- search
 - mkdocstrings:
     handlers:
       python:
         paths: [.]
         options:
           docstring_style: numpy
+          docstring_section_style: list
 
 nav:
-  - Home: index.md
+  - Get Started:
+    - Welcome to FairMango: index.md
+    - Why use FairMango: why_use_fairmango.md
+    - Contribution Guide: contribution_guide.md
+  - Concepts:
+    - Fairness: concepts/fairness.md
+    - Demographic Parity: concepts/demographic_parity.md
+    - Disparate Impact: concepts/disparate_impact.md
+    - Equal Opportunity: concepts/equal_opportunity.md
+    - False Positive Rate Parity: concepts/fpr_parity.md
+    - Equalised Odds: concepts/equalised_odds.md
+  - API Documentation:
+    - Dataset: api_documentation/dataset.md
+    - Base: api_documentation/base.md
+    - Metrics: api_documentation/metrics.md
+    - Superset: api_documentation/superset.md
   - Tutorials: tutorials.md
   - How-To Guides: how-to-guides.md
-  - Reference: reference.md
-  - Explanation: explanation.md
+
+
+
+markdown_extensions:
+  - tables
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences

@@ -8,12 +8,12 @@
 
 ## Sections
 
-The documentation follows the best practice for project documentation as described by Daniele Procida in the [Diátaxis documentation framework](https://diataxis.fr/) and consists of four separate parts:
+The documentation follows the best practice for project documentation and consists of four separate parts:
 
-1. [Tutorials](tutorials.md)
-2. [How-To Guides](how-to-guides.md)
-3. [Reference](reference.md)
-4. [Explanation](explanation.md)
+1. [Concepts](concepts.md)
+2. [API Documentation](api_documentation/dataset.md)
+3. [Tutorials](tutorials.md)
+4. [How-To Guides](how-to-guides.md)
 
 ---
 
@@ -73,7 +73,7 @@ More detailed documentation and tutorials are available to help you integrate Fa
 
 Join our community to stay updated on the latest developments, share your experiences, and get support:
 
-GitHub: [FairMango GitHub Repository](https://github.com/datategy/Fair-Mango)
+GitHub: [FairMango GitHub Repository](https://github.com/datategy/Fair-Mango)<br>
 Contact Us: [Support Email](mailto:contact@datategy.net)
 
 ---
