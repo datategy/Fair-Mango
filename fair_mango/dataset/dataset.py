@@ -3,6 +3,7 @@ from collections.abc import Sequence
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 
 
 def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence) -> None:
@@ -224,6 +225,8 @@ class Dataset:
         """Retrieve data corresponding to each sensitive group present in
         the sensitive features.
 
+        Tip
+        ---
         If you have two sensitive attributes `gender` (male, female) and `race`
         (white, black), this function would return the data for the combination
         of the two sensitive features; Hence, all of the following groups:
@@ -265,7 +268,6 @@ class Dataset:
                     0        male       white      ...         0                 no
                     3        male       black      ...         0                yes
                     4        male       black      ...         0                yes
-
                 [3 rows x 8 columns]
             },
             {
@@ -273,7 +275,6 @@ class Dataset:
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                      1      female       white     ...        1                 no
                      2      female       black     ...        1                yes
-
                 [2 rows x 8 columns]
             }
         ]
@@ -291,28 +292,24 @@ class Dataset:
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     3        male       black      ...         0                yes
                     4        male       black      ...         0                yes
-
                 [2 rows x 8 columns]
             },
             {
                 'sensitive': array(['female', 'black'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     2      female       black      ...         1                yes
-
                 [1 rows x 8 columns]
             },
             {
                 'sensitive': array(['female', 'white'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     1      female       white      ...         1                 no
-
                 [1 rows x 8 columns]
             },
             {
                 'sensitive': array(['male', 'white'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     0        male       white      ...         0                 no
-
                 [1 rows x 8 columns]
             }
         ]
@@ -328,6 +325,8 @@ class Dataset:
         """Retrieve data corresponding to a specific sensitive group present
         in the sensitive features.
 
+        Tip
+        ---
         If you have two sensitive attributes `gender` (male, female) and `race`
         (white, black), this function would return the data for the combination
         of the two sensitive features; Hence, it expects the `sensitive_group`
@@ -375,7 +374,6 @@ class Dataset:
             sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
         1      female       white    ...         1                 no
         2      female       black    ...         1                yes
-
         [2 rows x 8 columns]
         >>> dataset2 = Dataset(
         ...     df=df,
@@ -388,7 +386,6 @@ class Dataset:
             sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
         3        male       black    ...         0                yes
         4        male       black    ...         0                yes
-
         [2 rows x 8 columns]
         """
         result = None
@@ -414,6 +411,8 @@ class Dataset:
         """Retrieve the real target corresponding to each sensitive group
         present in the sensitive features.
 
+        Tip
+        ---
         If you have two sensitive attributes `gender` (male, female) and `race`
         (white, black), this function would return the real target for the
         combination of the two sensitive features; Hence, all of the following
@@ -508,6 +507,8 @@ class Dataset:
         """Retrieve the real target corresponding to a specific sensitive
         group present in the sensitive features.
 
+        Tip
+        ---
         If you have two sensitive attributes `gender` (male, female) and `race`
         (white, black), this function would return the real target for the
         combination of the two sensitive features; Hence, it expects the
@@ -591,6 +592,8 @@ class Dataset:
         """Retrieve the predicted target corresponding to each sensitive
         group present in the sensitive features.
 
+        Tip
+        ---
         If you have two sensitive attributes `gender` (male, female) and `race`
         (white, black), this function would return the predicted target for the
         combination of the two sensitive features; Hence, all of the following
@@ -689,6 +692,8 @@ class Dataset:
         """Retrieve the predicted target corresponding to a specific sensitive
         group present in the sensitive features.
 
+        Tip
+        ---
         If you have two sensitive attributes `gender` (male, female) and `race`
         (white, black), this function would return the predicted target for the
         combination of the two sensitive features; Hence, it expects the
