@@ -5,14 +5,14 @@ import numpy as np
 import pandas as pd
 
 
-def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence) -> None:
+def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence[str]) -> None:
     """Validate the columns existence in the dataset.
 
     Parameters
     ----------
     df : pd.DataFrame
         The dataframe to check.
-    columns : Sequence | None
+    columns : Sequence[str]
         Sequence of column names to check if they exist in the dataframe.
 
     Raises
