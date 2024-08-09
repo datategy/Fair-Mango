@@ -6,7 +6,7 @@ import pandas as pd
 
 
 def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence) -> None:
-    """validate the columns existence in the dataset
+    """Validate the columns existence in the dataset.
 
     Parameters
     ----------
@@ -63,19 +63,19 @@ def validate_columns(
     Parameters
     ----------
     sensitive : Sequence[str]
-        sequence of column names corresponding to sensitive features
+        Sequence of column names corresponding to sensitive features
         (Ex: gender, race...).
     real_target : Sequence[str]
-        sequence of column names corresponding to the real targets
+        Sequence of column names corresponding to the real targets
         (true labels). Every target will be processed independently.
     predicted_target : Sequence[str], optional
-        sequence of column names corresponding to the predicted targets,
-        by default None
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
 
     Raises
     ------
     AttributeError
-        if the same column is assigned to different parameters at the same time.
+        If the same column is assigned to different parameters at the same time.
     """
     overlap = set(sensitive).intersection(real_target)
 
@@ -90,17 +90,17 @@ def validate_columns(
 
 
 def convert_to_list(variable: Sequence[str]) -> Sequence:
-    """Convert a variable of type str to a list
+    """Convert a variable of type str to a list.
 
     Parameters
     ----------
     variable : Sequence[str]
-        sequence of values.
+        Sequence of values.
 
     Returns
     -------
     Sequence
-        sequence of the values (not str).
+        Sequence of the values (not str).
     """
     if isinstance(variable, str):
         return [variable]
@@ -184,41 +184,6 @@ class Dataset:
             list[dict[str, np.ndarray | pd.Series | pd.DataFrame]] | None
         ) = None
         plt.style.use("fivethirtyeight")
-
-    def plot_groups(
-        self,
-        sensitive: Sequence[str] = [],
-        figsize: tuple[int, int] = (16, 6),
-        dpi: int = 200,
-    ):
-        """Plot the distribution of the sensitive groups found within the
-        sensitive features.
-
-        Parameters
-        ----------
-        sensitive : Sequence[str], optional
-            Sequence of column names corresponding to sensitive features
-            (Ex: gender, race...), by default [].
-        figsize : tuple[int, int], optional
-            Figure size, by default (16, 6).
-        dpi : int, optional
-            Density of pixels per inch, by default 200.
-        """
-        _, ax = plt.subplots(figsize=figsize, dpi=dpi)
-        if sensitive == []:
-            sensitive = self.sensitive
-        if len(sensitive) == 1:
-            sns.barplot(x=sensitive[0], y="Count", data=self.groups, ax=ax)
-            plt.show()
-        elif len(sensitive) == 2:
-            # Use the column with the least group as the color variable
-            sensitive = (
-                self.groups[sensitive].nunique().sort_values(ascending=False).index
-            )
-            sns.barplot(
-                x=sensitive[0], y="Count", hue=sensitive[1], data=self.groups, ax=ax
-            )
-            plt.show()
 
     def get_data_for_all_groups(self) -> list[dict[str, np.ndarray | pd.DataFrame]]:
         """Retrieve data corresponding to each sensitive group present in
