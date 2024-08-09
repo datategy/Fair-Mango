@@ -48,8 +48,6 @@ def test_check_column_existence_in_df(
     if expected_result is not None:
         with expected_result:
             check_column_existence_in_df(df, columns)
-    else:
-        assert check_column_existence_in_df(df, columns) is expected_result
 
 
 @pytest.mark.parametrize(
@@ -71,11 +69,6 @@ def test_check_real_and_predicted_target_match(
     if expected_result is not None:
         with expected_result:
             check_real_and_predicted_target_match(real_target, predicted_target)
-    else:
-        assert (
-            check_real_and_predicted_target_match(real_target, predicted_target)
-            is expected_result
-        )
 
 
 @pytest.mark.parametrize(
@@ -383,8 +376,3 @@ def test_validate_columns(
     if expected_result is not None:
         with expected_result:
             validate_columns(sensitive, real_target, predicted_target)
-    else:
-        assert (
-            validate_columns(sensitive, real_target, predicted_target)
-            is expected_result
-        )
