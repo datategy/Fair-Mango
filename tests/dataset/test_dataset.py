@@ -6,8 +6,9 @@ from _pytest.python_api import RaisesContext
 
 from fair_mango.dataset.dataset import (
     Dataset,
-    check_column_in_df,
+    check_column_existence_in_df,
     check_real_and_predicted_target_match,
+    validate_columns,
 )
 
 df = pd.read_csv("tests/data/heart_data.csv")
@@ -26,7 +27,7 @@ dataset5 = Dataset(
     df,
     ["Sex"],
     ["HeartDisease", "ExerciseAngina"],
-    ["HeartDiseasePred", "ExerciseAngina"],
+    ["HeartDiseasePred", "ExerciseAnginaPred"],
     [1, "Y"],
 )
 
@@ -39,14 +40,14 @@ dataset5 = Dataset(
         (df2, ["D"], pytest.raises(KeyError)),
     ],
 )
-def test_check_column_in_df(
+def test_check_column_existence_in_df(
     df: pd.DataFrame,
     columns: Sequence,
     expected_result: None | RaisesContext,
 ):
     if expected_result is not None:
         with expected_result:
-            check_column_in_df(df, columns)
+            check_column_existence_in_df(df, columns)
 
 
 @pytest.mark.parametrize(
@@ -91,7 +92,7 @@ def test_check_real_and_predicted_target_match(
             df,
             ["Sex"],
             ["HeartDisease", "ExerciseAngina"],
-            ["HeartDiseasePred", "ExerciseAngina"],
+            ["HeartDiseasePred", "ExerciseAnginaPred"],
             [1, "Y"],
             (725, 193),
             None,
@@ -152,7 +153,7 @@ def test_dataset_init(
 @pytest.mark.parametrize(
     "dataset, sensitive_groups, data_shape",
     [
-        (dataset2, [["M"], ["F"]], [(725, 13), (193, 13)]),
+        (dataset2, [["M"], ["F"]], [(725, 14), (193, 14)]),
         (
             dataset3,
             [
@@ -166,14 +167,14 @@ def test_dataset_init(
                 ["F", "TA"],
             ],
             [
-                (426, 13),
-                (150, 13),
-                (113, 13),
-                (70, 13),
-                (60, 13),
-                (53, 13),
-                (36, 13),
-                (10, 13),
+                (426, 14),
+                (150, 14),
+                (113, 14),
+                (70, 14),
+                (60, 14),
+                (53, 14),
+                (36, 14),
+                (10, 14),
             ],
         ),
     ],
@@ -195,10 +196,10 @@ def test_get_data_for_all_groups(
 @pytest.mark.parametrize(
     "dataset, group, expected_data_shape",
     [
-        (dataset1, ["M"], (725, 13)),
-        (dataset3, ["M", "ATA"], (113, 13)),
-        (dataset3, ["F", "TA"], (10, 13)),
-        (dataset4, ["F"], (193, 13)),
+        (dataset1, ["M"], (725, 14)),
+        (dataset3, ["M", "ATA"], (113, 14)),
+        (dataset3, ["F", "TA"], (10, 14)),
+        (dataset4, ["F"], (193, 14)),
     ],
 )
 def test_get_data_for_one_group(
@@ -354,3 +355,24 @@ def test_get_predicted_target_for_one_group(
     else:
         with exception:
             dataset.get_predicted_target_for_one_group(sensitive_groups)
+
+
+@pytest.mark.parametrize(
+    "sensitive, real_target, predicted_target, expected_result",
+    [
+        (["gender"], ["r1", "r2"], None, None),
+        (["gender", "race"], ["r1", "r2"], ["p1", "p2"], None),
+        (["gender"], ["r1", "r2"], ["r1", "p2"], pytest.raises(AttributeError)),
+        (["race"], ["race", "r2"], None, pytest.raises(AttributeError)),
+        (["gender", "race"], ["r1"], ["gender"], pytest.raises(AttributeError)),
+    ],
+)
+def test_validate_columns(
+    sensitive: Sequence[str],
+    real_target: Sequence[str],
+    predicted_target: Sequence[str] | None,
+    expected_result: None | RaisesContext,
+):
+    if expected_result is not None:
+        with expected_result:
+            validate_columns(sensitive, real_target, predicted_target)

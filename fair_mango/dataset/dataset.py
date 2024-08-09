@@ -3,11 +3,10 @@ from collections.abc import Sequence
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 
 
-def check_column_in_df(df: pd.DataFrame, columns: Sequence) -> None:
-    """Validate the columns existance in the dataset.
+def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence) -> None:
+    """Validate the columns existence in the dataset.
 
     Parameters
     ----------
@@ -21,22 +20,12 @@ def check_column_in_df(df: pd.DataFrame, columns: Sequence) -> None:
     KeyError
         If the one of the columns does not exist in the dataframe.
     """
-    if columns != []:
-        if isinstance(columns, str):
-            if columns not in df.columns:
-                raise (
-                    KeyError(
-                        f"{columns} column does not exist in the dataframe provided"
-                    )
-                )
-        else:
-            for column in columns:
-                if column not in df.columns:
-                    raise (
-                        KeyError(
-                            f"{column} column does not exist in the dataframe provided"
-                        )
-                    )
+
+    for column in columns:
+        if column not in df.columns:
+            raise (
+                KeyError(f"{column} column does not exist in the dataframe provided")
+            )
 
 
 def check_real_and_predicted_target_match(
@@ -58,16 +47,65 @@ def check_real_and_predicted_target_match(
     ValueError
         If the number of real targets and predicted targets does not match.
     """
-    if isinstance(real_target, str) and isinstance(predicted_target, str):
-        return None
-    elif isinstance(real_target, str):
-        if len(predicted_target) != 1:
-            raise ValueError("real_target and predicted_target does not match")
-    elif isinstance(predicted_target, str):
-        if len(real_target) != 1:
-            raise ValueError("real_target and predicted_target does not match")
-    elif len(real_target) != len(predicted_target):
+    if len(real_target) != len(predicted_target):
         raise ValueError("real_target and predicted_target does not match")
+
+
+def validate_columns(
+    sensitive: Sequence[str],
+    real_target: Sequence[str],
+    predicted_target: Sequence[str] | None = None,
+) -> None:
+    """Make sure that the columns provided as parameters are different.
+    A column cannot be a sensitive column and a target at the same time.
+    A column cannot be a real target and a predicted target at the same time.
+
+    Parameters
+    ----------
+    sensitive : Sequence[str]
+        Sequence of column names corresponding to sensitive features
+        (Ex: gender, race...).
+    real_target : Sequence[str]
+        Sequence of column names corresponding to the real targets
+        (true labels). Every target will be processed independently.
+    predicted_target : Sequence[str], optional
+        Sequence of column names corresponding to the predicted targets,
+        by default None.
+
+    Raises
+    ------
+    AttributeError
+        If the same column is assigned to different parameters at the same time.
+    """
+    overlap = set(sensitive).intersection(real_target)
+
+    if predicted_target is not None:
+        overlap.update(set(sensitive).intersection(predicted_target))
+        overlap.update(set(real_target).intersection(predicted_target))
+
+    if overlap:
+        raise AttributeError(
+            "Same column name can't be assigned to multiple" f" parameters {overlap}"
+        )
+
+
+def convert_to_list(variable: Sequence[str]) -> Sequence:
+    """Convert a variable of type str to a list.
+
+    Parameters
+    ----------
+    variable : Sequence[str]
+        Sequence of values.
+
+    Returns
+    -------
+    Sequence
+        Sequence of the values (not str).
+    """
+    if isinstance(variable, str):
+        return [variable]
+    else:
+        return variable
 
 
 class Dataset:
@@ -105,18 +143,21 @@ class Dataset:
         predicted_target: Sequence[str] | None = None,
         positive_target: Sequence[int | float | str | bool] | None = None,
     ):
-        check_column_in_df(df, sensitive)
-        check_column_in_df(df, real_target)
+        self.sensitive = convert_to_list(sensitive)
+        check_column_existence_in_df(df, self.sensitive)
+        self.real_target = convert_to_list(real_target)
+        check_column_existence_in_df(df, self.real_target)
         if predicted_target is not None:
-            check_column_in_df(df, predicted_target)
-            check_real_and_predicted_target_match(real_target, predicted_target)
-            self.predicted_target = predicted_target
+            self.predicted_target = convert_to_list(predicted_target)
+            check_column_existence_in_df(df, self.predicted_target)
+            check_real_and_predicted_target_match(
+                self.real_target, self.predicted_target
+            )
         else:
             self.predicted_target = []
+        validate_columns(self.sensitive, self.real_target, self.predicted_target)
         self.df = df.copy()
         self.shape = df.shape
-        self.sensitive = sensitive
-        self.real_target = real_target
         self.positive_target = positive_target
         if isinstance(sensitive, str):
             self.groups = (
@@ -143,41 +184,6 @@ class Dataset:
             list[dict[str, np.ndarray | pd.Series | pd.DataFrame]] | None
         ) = None
         plt.style.use("fivethirtyeight")
-
-    def plot_groups(
-        self,
-        sensitive: Sequence[str] = [],
-        figsize: tuple[int, int] = (16, 6),
-        dpi: int = 200,
-    ):
-        """Plot the distribution of the sensitive groups found within the
-        sensitive features.
-
-        Parameters
-        ----------
-        sensitive : Sequence[str], optional
-            Sequence of column names corresponding to sensitive features
-            (Ex: gender, race...), by default [].
-        figsize : tuple[int, int], optional
-            Figure size, by default (16, 6).
-        dpi : int, optional
-            Density of pixels per inch, by default 200.
-        """
-        _, ax = plt.subplots(figsize=figsize, dpi=dpi)
-        if sensitive == []:
-            sensitive = self.sensitive
-        if len(sensitive) == 1:
-            sns.barplot(x=sensitive[0], y="Count", data=self.groups, ax=ax)
-            plt.show()
-        elif len(sensitive) == 2:
-            # Use the column with the least group as the color variable
-            sensitive = (
-                self.groups[sensitive].nunique().sort_values(ascending=False).index
-            )
-            sns.barplot(
-                x=sensitive[0], y="Count", hue=sensitive[1], data=self.groups, ax=ax
-            )
-            plt.show()
 
     def get_data_for_all_groups(self) -> list[dict[str, np.ndarray | pd.DataFrame]]:
         """Retrieve data corresponding to each sensitive group present in

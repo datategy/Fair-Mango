@@ -22,20 +22,20 @@ def is_binary(y: pd.Series | pd.DataFrame) -> bool:
     bool
         True if data contains two unique values else False.
     """
-    try:
+    if isinstance(y, pd.Series):
         if y.nunique() == 2:
             return True
         else:
             return False
-    except ValueError:
+    else:
         if (y.nunique() == 2).all():
             return True
         else:
             return False
 
 
-def encode_target(data: Dataset, ind: int, col: str):
-    """Encode targets as [0,1].
+def encode_target(data: Dataset, ind: int, col: str) -> None:
+    """encode targets as [0,1]
 
     Parameters
     ----------
@@ -204,6 +204,13 @@ class Metric(ABC):
                     encode_target(self.data, ind, col)
             self.real_targets_by_group = self.data.get_real_target_for_all_groups()
             if self.data.predicted_target != []:
+                y = self.data.df[self.data.predicted_target]
+                if len(self.data.predicted_target) > 1:
+                    y = y.squeeze()
+                if is_binary(y):
+                    for ind, col in enumerate(y):
+                        if (np.unique(y[col]) != [0, 1]).all():
+                            encode_target(self.data, ind, col)
                 self.predicted_targets_by_group = (
                     self.data.get_predicted_target_for_all_groups()
                 )
@@ -220,7 +227,7 @@ class Metric(ABC):
 
 
 def calculate_disparity(
-    result_per_groups: np.ndarray, method: Literal["difference", "ratio"]
+    result_per_groups: list[dict], method: Literal["difference", "ratio"]
 ) -> dict[tuple, np.ndarray[float]]:
     """Calculate the disparity in the scores between every possible pair in
     the provided groups using two available methods:
@@ -231,8 +238,8 @@ def calculate_disparity(
 
     Parameters
     ----------
-    result_per_groups : np.ndarray
-        Array of dictionaries with the sensitive group and the corresponding
+    result_per_groups : list[dict]
+        list of dictionaries with the sensitive group and the corresponding
         score.
     method : Literal['difference', 'ratio']
         Method used to calculate the disparity. Either 'difference' or 'ratio'.
@@ -385,7 +392,7 @@ class FairnessMetricDifference(ABC):
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
         """Return the fairness metric value, in other words the biggest
-        disparity found with specifying the priviliged and discriminated
+        disparity found with specifying the privileged and discriminated
         groups.
 
         Returns
@@ -619,7 +626,7 @@ class FairnessMetricRatio(ABC):
 
     def summary(self) -> dict[str, dict[str, float | tuple | None]]:
         """Return the fairness metric value, in other words the biggest
-        disparity found with specifying the priviliged and discriminated
+        disparity found with specifying the privileged and discriminated
         groups.
 
         Returns
