@@ -239,7 +239,7 @@ def calculate_disparity(
     Parameters
     ----------
     result_per_groups : list[dict]
-        list of dictionaries with the sensitive group and the corresponding
+        List of dictionaries with the sensitive group and the corresponding
         score.
     method : Literal['difference', 'ratio']
         Method used to calculate the disparity. Either 'difference' or 'ratio'.

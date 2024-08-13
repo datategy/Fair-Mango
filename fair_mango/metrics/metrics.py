@@ -320,7 +320,7 @@ class ConfusionMatrix(Metric):
     def __init__(
         self,
         data: pd.DataFrame,
-        metrics: Collection | Sequence | None = None,
+        metrics: Collection | None = None,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
