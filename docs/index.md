@@ -65,7 +65,7 @@ is_biased = demographic_parity_diff.is_biased(0.2)
 print(is_biased)
 ```
 
-More detailed documentation and tutorials are available to help you integrate FairMango into your workflow. Visit our [reference](reference.md) and [Tutorials](tutorials.md) pages to learn more.
+More detailed documentation and tutorials are available to help you integrate FairMango into your workflow. Visit our [API Documentation](api_documentation/dataset.md) and [Tutorials](tutorials.md) pages to learn more.
 
 ---
 
