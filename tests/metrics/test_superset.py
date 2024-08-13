@@ -180,13 +180,19 @@ def test_super_set_fairness_metrics(
     predicted_target: Sequence[str] | None,
     expected_results: Sequence[dict[str, dict]] | RaisesContext,
 ):
-    super_set_fairness_metrics = SupersetFairnessMetrics(
-        metric,
-        data,
-        sensitive,
-        real_target,
-        predicted_target,
-    )
+    if isinstance(data, pd.DataFrame):
+        super_set_fairness_metrics = SupersetFairnessMetrics(  # type: ignore[call-overload]
+            metric,
+            data,
+            sensitive,
+            real_target,
+            predicted_target,
+        )
+    else:
+        super_set_fairness_metrics = SupersetFairnessMetrics(
+            metric,
+            data,
+        )
     results = super_set_fairness_metrics.rank()
 
     assert results == expected_results
@@ -266,12 +272,17 @@ def test_super_set_performance_metrics(
     expected_results: list[dict] | RaisesContext,
 ):
     if isinstance(expected_results, list):
-        super_set_performance_metrics = SupersetPerformanceMetrics(
-            data,
-            sensitive,
-            real_target,
-            predicted_target,
-        )
+        if isinstance(data, pd.DataFrame):
+            super_set_performance_metrics = SupersetPerformanceMetrics(  # type: ignore[call-overload]
+                data,
+                sensitive,
+                real_target,
+                predicted_target,
+            )
+        else:
+            super_set_performance_metrics = SupersetPerformanceMetrics(
+                data,
+            )
         results = super_set_performance_metrics.evaluate()
         for result, expected_result in zip(results, expected_results):
             for result_values, expected_result_values in zip(
@@ -286,9 +297,14 @@ def test_super_set_performance_metrics(
                         assert value == expected_value
     else:
         with expected_results:
-            SupersetPerformanceMetrics(
-                data,
-                sensitive,
-                real_target,
-                predicted_target,
-            ).evaluate()
+            if isinstance(data, pd.DataFrame):
+                SupersetPerformanceMetrics(  # type: ignore[call-overload]
+                    data,
+                    sensitive,
+                    real_target,
+                    predicted_target,
+                ).evaluate()
+            else:
+                SupersetPerformanceMetrics(
+                    data,
+                ).evaluate()
