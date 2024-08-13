@@ -85,7 +85,7 @@ def validate_columns(
 
     if overlap:
         raise AttributeError(
-            "Same column name can't be assigned to multiple" f" parameters {overlap}"
+            f"Columns must be different, You provided the same column in {overlap}"
         )
 
 
