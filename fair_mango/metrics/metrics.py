@@ -53,7 +53,7 @@ class SelectionRate(Metric):
     """
 
     @overload
-    def __init__(self, data: Dataset, use_y_true: bool, label: str): ...
+    def __init__(self, data: Dataset, use_y_true: bool, label: str = "result"): ...
 
     @overload
     def __init__(
