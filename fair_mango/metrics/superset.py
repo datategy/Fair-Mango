@@ -1,6 +1,7 @@
 from abc import ABC
 from collections.abc import Sequence
 from itertools import chain, combinations
+from typing import overload
 
 import pandas as pd
 
@@ -49,13 +50,29 @@ class Superset(ABC):
         If data is a pandas dataframe and 'sensitive' parameter is not provided.
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
+        data: Dataset,
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        sensitive: Sequence[str],
+        real_target: Sequence[str],
+        predicted_target: Sequence[str],
+        positive_target: Sequence[int | float | str | bool],
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         if isinstance(data, Dataset):
             sensitive = data.sensitive
@@ -84,6 +101,36 @@ class Superset(ABC):
 
 
 class SupersetFairnessMetrics(Superset):
+    """Calculate fairness metrics score for different subsets of sensitive
+    attributes and ranks them. Ex:
+    [gender, race] → (gender), (race), (gender, race)
+
+    Parameters
+    ----------
+    metric : type[DemographicParityDifference]  |  type[DemographicParityRatio]
+    |  type[DisparateImpactDifference]  |  type[DisparateImpactRatio]  |
+    type[EqualOpportunityDifference]  |  type[EqualOpportunityRatio]  |
+    type[EqualisedOddsDifference]  |  type[EqualisedOddsRatio]  |
+    type[FalsePositiveRateDifference]  |  type[FalsePositiveRateRatio]
+        The fairness metric class to be used for evaluation.
+    data : type[Dataset] | pd.DataFrame
+        The dataset containing the data to be evaluated. If a DataFrame object
+        is passed, it should contain attributes `sensitive`, `real_target`,
+        `predicted_target`, and `positive_target`.
+    sensitive : Sequence[str], optional
+        Sequence of sensitive attributes (Ex: gender, race...), by default [].
+    real_target : Sequence[str] | None, optional
+        Sequence of column names of actual labels for target variables,
+        by default None.
+    predicted_target : Sequence[str] | None, optional
+        Sequence of column names of predicted labels for target variables,
+        by default None.
+    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
+        Sequence of the positive labels corresponding to the provided
+        targets, by default None.
+    """
+
+    @overload
     def __init__(
         self,
         metric: (
@@ -98,40 +145,40 @@ class SupersetFairnessMetrics(Superset):
             | type[FalsePositiveRateDifference]
             | type[FalsePositiveRateRatio]
         ),
-        data: type[Dataset] | pd.DataFrame,
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ) -> None:
-        """Calculate fairness metrics score for different subsets of sensitive
-        attributes and ranks them. Ex:
-        [gender, race] → (gender), (race), (gender, race)
+        data: Dataset,
+    ): ...
 
-        Parameters
-        ----------
-        metric : type[DemographicParityDifference]  |  type[DemographicParityRatio]
-        |  type[DisparateImpactDifference]  |  type[DisparateImpactRatio]  |
-        type[EqualOpportunityDifference]  |  type[EqualOpportunityRatio]  |
-        type[EqualisedOddsDifference]  |  type[EqualisedOddsRatio]  |
-        type[FalsePositiveRateDifference]  |  type[FalsePositiveRateRatio]
-            The fairness metric class to be used for evaluation.
-        data : type[Dataset] | pd.DataFrame
-            The dataset containing the data to be evaluated. If a DataFrame object
-            is passed, it should contain attributes `sensitive`, `real_target`,
-            `predicted_target`, and `positive_target`.
-        sensitive : Sequence[str], optional
-            Sequence of sensitive attributes (Ex: gender, race...), by default [].
-        real_target : Sequence[str] | None, optional
-            Sequence of column names of actual labels for target variables,
-            by default None.
-        predicted_target : Sequence[str] | None, optional
-            Sequence of column names of predicted labels for target variables,
-            by default None.
-        positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-            Sequence of the positive labels corresponding to the provided
-            targets, by default None.
-        """
+    @overload
+    def __init__(
+        self,
+        metric: (
+            type[DemographicParityDifference]
+            | type[DemographicParityRatio]
+            | type[DisparateImpactDifference]
+            | type[DisparateImpactRatio]
+            | type[EqualOpportunityDifference]
+            | type[EqualOpportunityRatio]
+            | type[EqualisedOddsDifference]
+            | type[EqualisedOddsRatio]
+            | type[FalsePositiveRateDifference]
+            | type[FalsePositiveRateRatio]
+        ),
+        data: pd.DataFrame,
+        sensitive: Sequence[str],
+        real_target: Sequence[str],
+        predicted_target: Sequence[str],
+        positive_target: Sequence[int | float | str | bool],
+    ): ...
+
+    def __init__(
+        self,
+        metric,
+        data,
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
+    ) -> None:
         super().__init__(
             data, sensitive, real_target, predicted_target, positive_target
         )
@@ -241,13 +288,29 @@ class SupersetPerformanceMetrics(Superset):
         targets, by default None.
     """
 
+    @overload
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
+        data: Dataset,
+    ): ...
+
+    @overload
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        sensitive: Sequence[str],
+        real_target: Sequence[str],
+        predicted_target: Sequence[str],
+        positive_target: Sequence[int | float | str | bool],
+    ): ...
+
+    def __init__(
+        self,
+        data,
+        sensitive=None,
+        real_target=None,
+        predicted_target=None,
+        positive_target=None,
     ) -> None:
         super().__init__(
             data, sensitive, real_target, predicted_target, positive_target
