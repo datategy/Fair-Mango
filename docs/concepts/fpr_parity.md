@@ -1,4 +1,4 @@
-# What is Equal Opportunity?
+# What is False Positive Rate Parity?
 
 False Positive Rate Parity is a fairness metric used to evaluate the performance of a machine learning model with respect to a sensitive attribute, such as race or gender, specifically in binary classification tasks. It measures the difference in false positive rates (also known as sensitivity or recall) between the different sensitive groups.
 

@@ -22,6 +22,7 @@ The documentation follows the best practice for project documentation and consis
 - **Data Handling 📊:** Separate your data using multiple sensitive features and handle each sensitive group with ease.
 - **Performance Metrics 🔍:** Evaluate the model performance on different sensitive groups using many metrics.
 - **Fairness Metrics 📏:** Implement and evaluate various state of art fairness metrics.
+- **Two Ways to Calculate Disparity 🔢:** Calculate the disparity using *Difference* or *Ratio*.
 - **Explainability 💬:** Every result is explainable and can be put into easy to understand words.
 
 ---
@@ -34,7 +35,7 @@ The documentation follows the best practice for project documentation and consis
 pip install fair-mango
 ```
 
-### Quick Start Guide:
+### Quick Start Guide
 
 ```python
 import pandas as pd
