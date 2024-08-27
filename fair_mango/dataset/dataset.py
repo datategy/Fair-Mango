@@ -89,7 +89,7 @@ def validate_columns(
         )
 
 
-def convert_to_list(variable: Sequence[str]) -> Sequence:
+def convert_to_list(variable: Sequence[str] | str) -> Sequence[str]:
     """Convert a variable of type str to a list.
 
     Parameters
