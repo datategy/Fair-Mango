@@ -34,4 +34,4 @@ Equal Opportunity is calculated using a similar algorithm to disparate impact wi
 
 ## Example using FairMango
 
-Checkout the [API Documentation](api_documentation/metrics.md) and the [Tutorials](tutorials.md) page for more details and examples.
+Checkout the API documentation for [equal opportunity difference](/api_documentation/metrics/#fair_mango.metrics.metrics.EqualOpportunityDifference) and for [equal opportunity ration](/api_documentation/metrics/#fair_mango.metrics.metrics.EqualOpportunityRatio).
