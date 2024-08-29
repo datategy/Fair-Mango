@@ -151,7 +151,7 @@ class Metric(ABC):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     sensitive : Sequence[str] | None, optional if data is a Dataset object
         Sequence of column names corresponding to sensitive features
@@ -176,7 +176,7 @@ class Metric(ABC):
 
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset | pd.DataFrame,
         sensitive: Sequence[str] | None = None,
         real_target: Sequence[str] | None = None,
         predicted_target: Sequence[str] | None = None,
@@ -295,7 +295,7 @@ class FairnessMetricDifference(ABC):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     metric : type[Metric]
         A sequence of metrics or a dictionary with keys being custom labels
@@ -329,7 +329,7 @@ class FairnessMetricDifference(ABC):
 
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset | pd.DataFrame,
         metric: type[Metric],
         label: str,
         sensitive: Sequence[str] | None = None,
@@ -531,7 +531,7 @@ class FairnessMetricRatio(ABC):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     metric : type[Metric]
         A sequence of metrics or a dictionary with keys being custom labels
@@ -565,7 +565,7 @@ class FairnessMetricRatio(ABC):
 
     def __init__(
         self,
-        data: type[Dataset] | pd.DataFrame,
+        data: Dataset | pd.DataFrame,
         metric: type[Metric],
         label: str,
         sensitive: Sequence[str] | None = None,

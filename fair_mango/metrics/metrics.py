@@ -34,7 +34,7 @@ class SelectionRate(Metric):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     use_y_true : bool, optional
         if True use the real label else use the predictions, by default False
@@ -276,7 +276,7 @@ class ConfusionMatrix(Metric):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     metrics : Sequence[Callable] | set[Callable] | dict[str, Callable] | None, optional
         A sequence of metrics or a dictionary with keys being custom labels
@@ -527,7 +527,7 @@ class PerformanceMetric(Metric):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     metrics : set[Callable] | dict[str, Callable] | None, optional
         A sequence of metrics or a dictionary with keys being custom labels
@@ -786,7 +786,7 @@ class DemographicParityDifference(FairnessMetricDifference):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -897,7 +897,7 @@ class DisparateImpactDifference(FairnessMetricDifference):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1008,7 +1008,7 @@ class EqualOpportunityDifference(FairnessMetricDifference):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1121,7 +1121,7 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1232,7 +1232,7 @@ class DemographicParityRatio(FairnessMetricRatio):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1343,7 +1343,7 @@ class DisparateImpactRatio(FairnessMetricRatio):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1454,7 +1454,7 @@ class EqualOpportunityRatio(FairnessMetricRatio):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1566,7 +1566,7 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
@@ -1683,11 +1683,8 @@ class EqualisedOddsDifference:
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
-    label : str
-        The key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference".
     sensitive : Sequence[str] | None, optional if data is a Dataset object
         Sequence of column names corresponding to sensitive features
         (Ex: gender, race...), by default None.
@@ -1966,11 +1963,8 @@ class EqualisedOddsRatio:
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         Input data.
-    label : str
-        The key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference".
     sensitive : Sequence[str] | None, optional if data is a Dataset object
         Sequence of column names corresponding to sensitive features
         (Ex: gender, race...), by default None.
