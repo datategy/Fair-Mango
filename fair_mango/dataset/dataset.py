@@ -3,7 +3,6 @@ from collections.abc import Sequence
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 
 
 def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence[str]) -> None:
@@ -290,22 +289,12 @@ class Dataset:
         """Retrieve data corresponding to a specific sensitive group present
         in the sensitive features.
 
-        Tip
-        ---
-        If you have two sensitive attributes `gender` (male, female) and `race`
-        (white, black), this function would return the data for the combination
-        of the two sensitive features; Hence, it expects the `sensitive_group`
-        parameter to match the `sensitive` parameter when  creating the
-        `Dataset`. For example: `sensitive = ['Sex', 'Race']` then
-        `sensitive_group = ['male', 'Asian']` (The order of the values matters
-        and exchanging the places will not work!)
-
         Parameters
         ----------
-        sensitive : Sequence[str]
+        sensitive_group : Sequence[str]
             Sequence of sensitive values must be in the same order as `sensitive`
             attribute, and so `sensitive_group` must be the same length as
-            `sensitive`. For instance, if your `sensitive` attribute were
+            `sensitive`. For instance, if your `sensitive` attributes were
             `["race", "gender"]`, you can pass `sensitive_group=["white", "male"]`.
 
         Returns
@@ -472,19 +461,9 @@ class Dataset:
         """Retrieve the real target corresponding to a specific sensitive
         group present in the sensitive features.
 
-        Tip
-        ---
-        If you have two sensitive attributes `gender` (male, female) and `race`
-        (white, black), this function would return the real target for the
-        combination of the two sensitive features; Hence, it expects the
-        `sensitive_group` parameter to match the `sensitive` parameter when
-        creating the `Dataset`. For example: `sensitive = ['Sex', 'Race']` then
-        `sensitive_group = ['male', 'Asian']` (The order of the values matters
-        and exchanging the places will not work!)
-
         Parameters
         ----------
-        sensitive : Sequence[str]
+        sensitive_group : Sequence[str]
             Sequence of sensitive values must be in the same order as `sensitive`
             attribute, and so `sensitive_group` must be the same length as
             `sensitive`. For instance, if your `sensitive` attribute were
@@ -657,23 +636,13 @@ class Dataset:
         """Retrieve the predicted target corresponding to a specific sensitive
         group present in the sensitive features.
 
-        Tip
-        ---
-        If you have two sensitive attributes `gender` (male, female) and `race`
-        (white, black), this function would return the predicted target for the
-        combination of the two sensitive features; Hence, it expects the
-        `sensitive_group` parameter to match the `sensitive` parameter when
-        creating the `Dataset`. For example: `sensitive = ['Sex', 'Race']` then
-        `sensitive_group = ['male', 'Asian']` (The order of the values matters
-        and exchanging the places will not work!)
-
         Parameters
         ----------
-        sensitive : Sequence[str]
+        sensitive_group : Sequence[str]
             Sequence of sensitive values must be in the same order as `sensitive`
             attribute, and so `sensitive_group` must be the same length as
             `sensitive`. For instance, if your `sensitive` attribute were
-            `["race", "gender"]`, you can pass `sensitive_group=["white", "male"]`.
+            `['Sex', 'Race']`, you can pass `sensitive_group=['male', 'Asian']`.
 
         Returns
         -------
