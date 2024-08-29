@@ -28,7 +28,7 @@ class Superset(ABC):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         The dataset containing the data to be evaluated. If a DataFrame object
         is passed, it should contain attributes `sensitive`, `real_target`,
         `predicted_target`, and `positive_target`.
@@ -107,13 +107,13 @@ class SupersetFairnessMetrics(Superset):
 
     Parameters
     ----------
-    metric : type[DemographicParityDifference]  |  type[DemographicParityRatio]
-    |  type[DisparateImpactDifference]  |  type[DisparateImpactRatio]  |
-    type[EqualOpportunityDifference]  |  type[EqualOpportunityRatio]  |
-    type[EqualisedOddsDifference]  |  type[EqualisedOddsRatio]  |
-    type[FalsePositiveRateDifference]  |  type[FalsePositiveRateRatio]
+    metric : type[DemographicParityDifference] | type[DemographicParityRatio]\
+            | type[DisparateImpactDifference] | type[DisparateImpactRatio]\
+            | type[EqualOpportunityDifference] | type[EqualOpportunityRatio]\
+            | type[EqualisedOddsDifference] | type[EqualisedOddsRatio]\
+            | type[FalsePositiveRateDifference] | type[FalsePositiveRateRatio]
         The fairness metric class to be used for evaluation.
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         The dataset containing the data to be evaluated. If a DataFrame object
         is passed, it should contain attributes `sensitive`, `real_target`,
         `predicted_target`, and `positive_target`.
@@ -271,7 +271,7 @@ class SupersetPerformanceMetrics(Superset):
 
     Parameters
     ----------
-    data : type[Dataset] | pd.DataFrame
+    data : Dataset | pd.DataFrame
         The dataset containing the data to be evaluated. If a DataFrame object
         is passed, it should contain attributes `sensitive`, `real_target`,
         `predicted_target`, and `positive_target`.
