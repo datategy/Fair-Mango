@@ -35,4 +35,4 @@ Equalized Odds is calculated and applied following the next steps:
 
 ## Example using FairMango
 
-Checkout the API documentation for [equalised odds difference](/api_documentation/metrics/#fair_mango.metrics.metrics.EqualisedOddsDifference) and for [equalised odds ration](/api_documentation/metrics/#fair_mango.metrics.metrics.EqualisedOddsRatio).
+Checkout the API documentation for [equalised odds difference](../api_documentation/metrics.md#fair_mango.metrics.metrics.EqualisedOddsDifference) and for [equalised odds ration](../api_documentation/metrics.md#fair_mango.metrics.metrics.EqualisedOddsRatio).

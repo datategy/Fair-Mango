@@ -21,7 +21,7 @@ This part is dedicated to the all the performance and fairness metrics available
 - Equalised Odds.
 
 !!! info
-    For more info about the fairness metrics, checkout the [Explanation](../explanation.md) section.
+    For more info about the fairness metrics, checkout the [concept guide](../concepts/fairness.md).
 
 ---
 

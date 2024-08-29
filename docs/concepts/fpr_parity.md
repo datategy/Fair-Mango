@@ -34,4 +34,4 @@ False Positive Rate Parity is calculated using a similar algorithm to disparate 
 
 ## Example using FairMango
 
-Checkout the API documentation for [false positive rate difference](/api_documentation/metrics/#fair_mango.metrics.metrics.FalsePositiveRateDifference) and for [false positive rate ration](/api_documentation/metrics/#fair_mango.metrics.metrics.FalsePositiveRateRatio).
+Checkout the API documentation for [false positive rate difference](../api_documentation/metrics.md#fair_mango.metrics.metrics.FalsePositiveRateDifference) and for [false positive rate ration](../api_documentation/metrics.md#fair_mango.metrics.metrics.FalsePositiveRateRatio).
