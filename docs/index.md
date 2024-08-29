@@ -10,10 +10,8 @@
 
 The documentation follows the best practice for project documentation and consists of four separate parts:
 
-1. [Concepts](concepts.md)
+1. [Concepts](concepts/fairness.md)
 2. [API Documentation](api_documentation/dataset.md)
-3. [Tutorials](tutorials.md)
-4. [How-To Guides](how-to-guides.md)
 
 ---
 
