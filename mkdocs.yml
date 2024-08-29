@@ -53,7 +53,6 @@ nav:
   - Get Started:
     - Welcome to FairMango: index.md
     - Why use FairMango: why_use_fairmango.md
-    - Contribution Guide: contribution_guide.md
   - Concepts:
     - Fairness: concepts/fairness.md
     - Demographic Parity: concepts/demographic_parity.md
@@ -66,8 +65,6 @@ nav:
     - Base: api_documentation/base.md
     - Metrics: api_documentation/metrics.md
     - Superset: api_documentation/superset.md
-  - Tutorials: tutorials.md
-  - How-To Guides: how-to-guides.md
 
 
 

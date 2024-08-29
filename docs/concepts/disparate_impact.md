@@ -38,4 +38,4 @@ Disparate impact is typically calculated following these steps:
 
 ## Example using FairMango
 
-Checkout the API documentation for [disparate impact difference](/api_documentation/metrics/#fair_mango.metrics.metrics.DisparateImpactDifference) and for [disparate impact ration](/api_documentation/metrics/#fair_mango.metrics.metrics.DisparateImpactRatio).
+Checkout the API documentation for [disparate impact difference](../api_documentation/metrics.md#fair_mango.metrics.metrics.DisparateImpactDifference) and for [disparate impact ration](../api_documentation/metrics.md#fair_mango.metrics.metrics.DisparateImpactRatio).

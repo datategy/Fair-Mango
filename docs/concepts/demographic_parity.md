@@ -38,4 +38,4 @@ Demographic Parity is typically defined and calculated as:
 
 ## Example using FairMango
 
-Checkout the API documentation for [demographic parity difference](/api_documentation/metrics/#fair_mango.metrics.metrics.DemographicParityDifference) and for [demographic parity ration](/api_documentation/metrics/#fair_mango.metrics.metrics.DemographicParityRatio).
+Checkout the API documentation for [demographic parity difference](../api_documentation/metrics.md#fair_mango.metrics.metrics.DemographicParityDifference) and for [demographic parity ration](../api_documentation/metrics.md#fair_mango.metrics.metrics.DemographicParityRatio).

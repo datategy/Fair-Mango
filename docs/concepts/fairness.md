@@ -54,7 +54,7 @@ Proxy variables are variables that, while not directly representing a sensitive 
 
 !!! note
 
-    Handling proxy variables is not supported on FairMango yet. Maybe you can help us implementing it! Check out our [contribution guide](../contribution_guide.md).
+    Handling proxy variables is not supported on FairMango yet. We welcome any help on that matter!
 
 ---
 
