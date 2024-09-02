@@ -1,17 +1,7 @@
-# Welcome to MkDocs
+# Why use fair mango ?
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Fair mango is a state-of-the-art library to computes fairness across all the sensitive groups in datasets. Not only does it give you key dataset metrics, it also underlines how one sensitive group might be priviledged compared another.
 
-## Commands
+# How does it compare to fairlearn ?
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+Fairlearn and fair mango have the same metrics available. However, fair mango compares fairness metrics for each combination of groups. For instance, if you are studing sensitive features `gender` (with values `male` and `female`) and `race` (with values `caucasian`, `north african`, `east asian`), fair mango will give you results for `caucasian males` vs `caucasian females`, `caucasian females` vs `north african males`, `east asian males` vs `north african females`, and so on...
