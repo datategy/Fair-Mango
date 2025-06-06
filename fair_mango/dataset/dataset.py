@@ -20,7 +20,6 @@ def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence[str]) -> No
     KeyError
         If the one of the columns does not exist in the dataframe.
     """
-
     for column in columns:
         if column not in df.columns:
             raise (
@@ -170,27 +169,21 @@ class Dataset:
         else:
             self.groups = (
                 df[sensitive]
-                .groupby(sensitive)
+                .groupby(list(sensitive))
                 .size()
                 .reset_index(name="Count")
                 .sort_values("Count", ascending=False)
             )
         self.n_groups: int = len(self.groups)
-        self.groups_data: list[dict[str, np.ndarray | pd.DataFrame]] = []
-        self.groups_real_target: (
-            list[dict[str, np.ndarray | pd.Series | pd.DataFrame]] | None
-        ) = None
-        self.groups_predicted_target: (
-            list[dict[str, np.ndarray | pd.Series | pd.DataFrame]] | None
-        ) = None
+        self.groups_data: list[dict[str, pd.DataFrame]] = []
+        self.groups_real_target: list[dict[str, pd.DataFrame]] | None = None
+        self.groups_predicted_target: list[dict[str, pd.DataFrame]] | None = None
         plt.style.use("fivethirtyeight")
 
-    def get_data_for_all_groups(self) -> list[dict[str, np.ndarray | pd.DataFrame]]:
+    def get_data_for_all_groups(self) -> list[dict[str, pd.DataFrame]]:
         """Retrieve data corresponding to each sensitive group present in
         the sensitive features.
 
-        Tip
-        ---
         If you have two sensitive attributes `gender` (male, female) and `race`
         (white, black), this function would return the data for the combination
         of the two sensitive features; Hence, all of the following groups:
@@ -232,6 +225,7 @@ class Dataset:
                     0        male       white      ...         0                 no
                     3        male       black      ...         0                yes
                     4        male       black      ...         0                yes
+
                 [3 rows x 8 columns]
             },
             {
@@ -239,6 +233,7 @@ class Dataset:
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                      1      female       white     ...        1                 no
                      2      female       black     ...        1                yes
+
                 [2 rows x 8 columns]
             }
         ]
@@ -256,24 +251,28 @@ class Dataset:
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     3        male       black      ...         0                yes
                     4        male       black      ...         0                yes
+
                 [2 rows x 8 columns]
             },
             {
                 'sensitive': array(['female', 'black'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     2      female       black      ...         1                yes
+
                 [1 rows x 8 columns]
             },
             {
                 'sensitive': array(['female', 'white'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     1      female       white      ...         1                 no
+
                 [1 rows x 8 columns]
             },
             {
                 'sensitive': array(['male', 'white'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     0        male       white      ...         0                 no
+
                 [1 rows x 8 columns]
             }
         ]
@@ -289,12 +288,20 @@ class Dataset:
         """Retrieve data corresponding to a specific sensitive group present
         in the sensitive features.
 
+        If you have two sensitive attributes `gender` (male, female) and `race`
+        (white, black), this function would return the data for the combination
+        of the two sensitive features; Hence, it expects the `sensitive_group`
+        parameter to match the `sensitive` parameter when  creating the
+        `Dataset`. For example: `sensitive = ['Sex', 'Race']` then
+        `sensitive_group = ['male', 'Asian']` (The order of the values matters
+        and exchanging the places will not work!)
+
         Parameters
         ----------
-        sensitive_group : Sequence[str]
+        sensitive : Sequence[str]
             Sequence of sensitive values must be in the same order as `sensitive`
             attribute, and so `sensitive_group` must be the same length as
-            `sensitive`. For instance, if your `sensitive` attributes were
+            `sensitive`. For instance, if your `sensitive` attribute were
             `["race", "gender"]`, you can pass `sensitive_group=["white", "male"]`.
 
         Returns
@@ -328,6 +335,7 @@ class Dataset:
             sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
         1      female       white    ...         1                 no
         2      female       black    ...         1                yes
+
         [2 rows x 8 columns]
         >>> dataset2 = Dataset(
         ...     df=df,
@@ -340,6 +348,7 @@ class Dataset:
             sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
         3        male       black    ...         0                yes
         4        male       black    ...         0                yes
+
         [2 rows x 8 columns]
         """
         result = None
@@ -352,7 +361,10 @@ class Dataset:
                 if (all(e1 in item["sensitive"] for e1 in sensitive_group)) and (
                     all(e2 in sensitive_group for e2 in item["sensitive"])
                 ):
-                    result = item["data"]
+                    if isinstance(item["data"], np.ndarray):
+                        result = pd.DataFrame(item["data"])
+                    else:
+                        result = item["data"]
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
@@ -361,12 +373,10 @@ class Dataset:
 
     def get_real_target_for_all_groups(
         self,
-    ) -> list[dict[str, np.ndarray | pd.Series | pd.DataFrame]]:
+    ) -> list[dict[str, pd.DataFrame]]:
         """Retrieve the real target corresponding to each sensitive group
         present in the sensitive features.
 
-        Tip
-        ---
         If you have two sensitive attributes `gender` (male, female) and `race`
         (white, black), this function would return the real target for the
         combination of the two sensitive features; Hence, all of the following
@@ -451,7 +461,7 @@ class Dataset:
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
             self.groups_real_target.append(
-                {"sensitive": row[:-1], "data": result[self.real_target].squeeze()}
+                {"sensitive": row[:-1], "data": result[self.real_target]}
             )
         return self.groups_real_target
 
@@ -461,9 +471,17 @@ class Dataset:
         """Retrieve the real target corresponding to a specific sensitive
         group present in the sensitive features.
 
+        If you have two sensitive attributes `gender` (male, female) and `race`
+        (white, black), this function would return the real target for the
+        combination of the two sensitive features; Hence, it expects the
+        `sensitive_group` parameter to match the `sensitive` parameter when
+        creating the `Dataset`. For example: `sensitive = ['Sex', 'Race']` then
+        `sensitive_group = ['male', 'Asian']` (The order of the values matters
+        and exchanging the places will not work!)
+
         Parameters
         ----------
-        sensitive_group : Sequence[str]
+        sensitive : Sequence[str]
             Sequence of sensitive values must be in the same order as `sensitive`
             attribute, and so `sensitive_group` must be the same length as
             `sensitive`. For instance, if your `sensitive` attribute were
@@ -523,7 +541,10 @@ class Dataset:
                 if (item["sensitive"] == sensitive_group).all() or (
                     item["sensitive"] == sensitive_group[::-1]
                 ).all():
-                    result = item["data"]
+                    if isinstance(item["data"], (np.ndarray, pd.Series)):
+                        result = pd.DataFrame(item["data"])
+                    else:
+                        result = item["data"]
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
@@ -532,12 +553,10 @@ class Dataset:
 
     def get_predicted_target_for_all_groups(
         self,
-    ) -> list[dict[str, np.ndarray | pd.Series | pd.DataFrame]]:
+    ) -> list[dict[str, pd.DataFrame]]:
         """Retrieve the predicted target corresponding to each sensitive
         group present in the sensitive features.
 
-        Tip
-        ---
         If you have two sensitive attributes `gender` (male, female) and `race`
         (white, black), this function would return the predicted target for the
         combination of the two sensitive features; Hence, all of the following
@@ -625,8 +644,9 @@ class Dataset:
             result = self.df
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
+            print(result[self.predicted_target].shape)
             self.groups_predicted_target.append(
-                {"sensitive": row[:-1], "data": result[self.predicted_target].squeeze()}
+                {"sensitive": row[:-1], "data": result[self.predicted_target]}
             )
         return self.groups_predicted_target
 
@@ -636,13 +656,21 @@ class Dataset:
         """Retrieve the predicted target corresponding to a specific sensitive
         group present in the sensitive features.
 
+        If you have two sensitive attributes `gender` (male, female) and `race`
+        (white, black), this function would return the predicted target for the
+        combination of the two sensitive features; Hence, it expects the
+        `sensitive_group` parameter to match the `sensitive` parameter when
+        creating the `Dataset`. For example: `sensitive = ['Sex', 'Race']` then
+        `sensitive_group = ['male', 'Asian']` (The order of the values matters
+        and exchanging the places will not work!)
+
         Parameters
         ----------
-        sensitive_group : Sequence[str]
+        sensitive : Sequence[str]
             Sequence of sensitive values must be in the same order as `sensitive`
             attribute, and so `sensitive_group` must be the same length as
             `sensitive`. For instance, if your `sensitive` attribute were
-            `['Sex', 'Race']`, you can pass `sensitive_group=['male', 'Asian']`.
+            `["race", "gender"]`, you can pass `sensitive_group=["white", "male"]`.
 
         Returns
         -------
@@ -702,7 +730,10 @@ class Dataset:
                 if (item["sensitive"] == sensitive_group).all() or (
                     item["sensitive"] == sensitive_group[::-1]
                 ).all():
-                    result = item["data"]
+                    if isinstance(item["data"], (np.ndarray, pd.Series)):
+                        result = pd.DataFrame(item["data"])
+                    else:
+                        result = item["data"]
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")

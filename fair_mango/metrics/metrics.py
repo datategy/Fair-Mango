@@ -1,9 +1,9 @@
 from collections.abc import Collection, Sequence
-from typing import overload
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import (
+from numpy.typing import NDArray
+from sklearn.metrics import (  # type: ignore
     accuracy_score,
     balanced_accuracy_score,
     confusion_matrix,
@@ -52,33 +52,14 @@ class SelectionRate(Metric):
         by default None.
     """
 
-    @overload
-    def __init__(self, data: Dataset, use_y_true: bool, label: str = "result"): ...
-
-    @overload
     def __init__(
         self,
-        data: pd.DataFrame,
-        use_y_true: bool,
-        sensitive: Sequence[str],
-        real_target: Sequence[str],
-        predicted_target: Sequence[str],
-        positive_target: Sequence[int | float | str | bool],
-        label: str,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        use_y_true=False,
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
-        label="result",
+        data: Dataset,
+        use_y_true: bool = False,
+        label: str = "result",
     ):
         super().__init__(
-            data, sensitive, real_target, predicted_target, positive_target
+            data,
         )
         self.use_y_true = use_y_true
         self.label = label
@@ -309,36 +290,12 @@ class ConfusionMatrix(Metric):
         to the sensitive groups.
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
         metrics: Collection | Sequence | None = None,
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        metrics: Collection | None = None,
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        metrics=None,
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
-        super().__init__(
-            data, sensitive, real_target, predicted_target, positive_target
-        )
+        super().__init__(data)
         if self.predicted_targets_by_group == []:
             raise ValueError(
                 "No predictions found, provide predicted_target parameter "
@@ -355,7 +312,7 @@ class ConfusionMatrix(Metric):
             if isinstance(metrics, dict):
                 if "sensitive" in metrics.keys():
                     raise KeyError(
-                        "metric label cannot be 'sensitive'. Change the label " "to fix"
+                        "metric label cannot be 'sensitive'. Change the label to fix"
                     )
                 self.metrics = metrics
             else:
@@ -496,9 +453,8 @@ class ConfusionMatrix(Metric):
                     real_values = real_y_group[real_col]
                     predicted_values = predicted_y_group[predicted_col]
                 else:
-                    real_values = real_y_group
-                    predicted_values = predicted_y_group
-
+                    real_values = real_y_group.iloc[:, 0]
+                    predicted_values = predicted_y_group.iloc[:, 0]
                 conf_matrix = confusion_matrix(
                     real_values, predicted_values, labels=[0, 1]
                 )
@@ -508,9 +464,12 @@ class ConfusionMatrix(Metric):
                 fp = conf_matrix[0, 1]
 
                 for metric_name, metric in self.metrics.items():
-                    result_for_group.setdefault(metric_name, []).append(
-                        metric(tn=tn, fp=fp, fn=fn, tp=tp)  # type: ignore[call-arg]
+                    if metric_name not in result_for_group:
+                        result_for_group[metric_name] = []  # type: ignore
+                    result_for_group[metric_name].append(  # type: ignore
+                        metric(tn=tn, fp=fp, fn=fn, tp=tp)  # type: ignore
                     )
+
             results.append(result_for_group)
 
         return self.data.real_target, results
@@ -527,7 +486,7 @@ class PerformanceMetric(Metric):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
     metrics : set[Callable] | dict[str, Callable] | None, optional
         A sequence of metrics or a dictionary with keys being custom labels
@@ -540,18 +499,6 @@ class PerformanceMetric(Metric):
         - f1_score_score().
         or any custom metric that takes y_true and y_pred and parameters
         respectively.
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
 
     Raises
     ------
@@ -562,36 +509,12 @@ class PerformanceMetric(Metric):
         to the sensitive groups.
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
         metrics: Collection | None = None,
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        metrics: Collection | None = None,
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        metrics=None,
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
-        super().__init__(
-            data, sensitive, real_target, predicted_target, positive_target
-        )
+        super().__init__(data)
 
         if self.predicted_targets_by_group == []:
             raise ValueError(
@@ -612,7 +535,7 @@ class PerformanceMetric(Metric):
             if isinstance(metrics, dict):
                 if "sensitive" in metrics.keys():
                     raise KeyError(
-                        "metric label cannot be 'sensitive'. Change the label " "to fix"
+                        "metric label cannot be 'sensitive'. Change the label to fix"
                     )
                 self.metrics = metrics
 
@@ -759,11 +682,13 @@ class PerformanceMetric(Metric):
                     real_values = real_y_group[real_col]
                     predicted_values = predicted_y_group[predicted_col]
                 else:
-                    real_values = real_y_group
-                    predicted_values = predicted_y_group
+                    real_values = real_y_group.iloc[:, 0]
+                    predicted_values = predicted_y_group.iloc[:, 0]
 
                 for metric_name, metric in self.metrics.items():
-                    result_for_group.setdefault(metric_name, []).append(
+                    if metric_name not in result_for_group:
+                        result_for_group[metric_name] = []  # type: ignore
+                    result_for_group[metric_name].append(  # type: ignore
                         metric(real_values, predicted_values)
                     )
 
@@ -786,23 +711,11 @@ class DemographicParityDifference(FairnessMetricDifference):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
         by default "demographic_parity_difference".
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
 
     Examples
     --------
@@ -843,41 +756,15 @@ class DemographicParityDifference(FairnessMetricDifference):
     }
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
         label: str = "demographic_parity_difference",
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        label: str = "demographic_parity_difference",
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        label="demographic_parity_difference",
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
         super().__init__(
             data,
             SelectionRate,
             label,
-            sensitive,
-            real_target,
-            predicted_target,
-            positive_target,
             "performance",
             **{"use_y_true": True},
         )
@@ -897,23 +784,11 @@ class DisparateImpactDifference(FairnessMetricDifference):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
         by default "demographic_parity_difference".
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
 
     Examples
     --------
@@ -954,41 +829,15 @@ class DisparateImpactDifference(FairnessMetricDifference):
     }
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
         label: str = "disparate_impact_difference",
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        label: str = "disparate_impact_difference",
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        label="disparate_impact_difference",
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
         super().__init__(
             data,
             SelectionRate,
             label,
-            sensitive,
-            real_target,
-            predicted_target,
-            positive_target,
             "performance",
             **{"use_y_true": False},
         )
@@ -1008,23 +857,11 @@ class EqualOpportunityDifference(FairnessMetricDifference):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
         by default "demographic_parity_difference".
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
 
     Examples
     --------
@@ -1065,41 +902,15 @@ class EqualOpportunityDifference(FairnessMetricDifference):
     }
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
         label: str = "equal_opportunity_difference",
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        label: str = "equal_opportunity_difference",
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        label="equal_opportunity_difference",
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
         super().__init__(
             data,
             ConfusionMatrix,
             label,
-            sensitive,
-            real_target,
-            predicted_target,
-            positive_target,
             "performance",
             **{"metrics": {"result": true_positive_rate}},
         )
@@ -1121,23 +932,11 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
         by default "demographic_parity_difference".
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
 
     Examples
     --------
@@ -1178,41 +977,15 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
     }
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
         label: str = "false_positive_rate_difference",
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        label: str = "false_positive_rate_difference",
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        label="false_positive_rate_difference",
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
         super().__init__(
             data,
             ConfusionMatrix,
             label,
-            sensitive,
-            real_target,
-            predicted_target,
-            positive_target,
             "error",
             **{"metrics": {"result": false_positive_rate}},
         )
@@ -1232,23 +1005,8 @@ class DemographicParityRatio(FairnessMetricRatio):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
-    label : str
-        The key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference".
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
 
     Examples
     --------
@@ -1289,41 +1047,15 @@ class DemographicParityRatio(FairnessMetricRatio):
     }
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
         label: str = "demographic_parity_ratio",
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        label: str = "demographic_parity_ratio",
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        label="demographic_parity_ratio",
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
         super().__init__(
             data,
             SelectionRate,
             label,
-            sensitive,
-            real_target,
-            predicted_target,
-            positive_target,
             "performance",
             **{"use_y_true": True},
         )
@@ -1343,23 +1075,8 @@ class DisparateImpactRatio(FairnessMetricRatio):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
-    label : str
-        The key to give to the result in the different returned dictionaries,
-        by default "demographic_parity_difference".
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
 
     Examples
     --------
@@ -1400,41 +1117,15 @@ class DisparateImpactRatio(FairnessMetricRatio):
     }
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
         label: str = "disparate_impact_ratio",
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        label: str = "disparate_impact_ratio",
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        label="disparate_impact_ratio",
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
         super().__init__(
             data,
             SelectionRate,
             label,
-            sensitive,
-            real_target,
-            predicted_target,
-            positive_target,
             "performance",
             **{"use_y_true": False},
         )
@@ -1454,23 +1145,11 @@ class EqualOpportunityRatio(FairnessMetricRatio):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
         by default "demographic_parity_difference".
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
 
     Examples
     --------
@@ -1511,41 +1190,15 @@ class EqualOpportunityRatio(FairnessMetricRatio):
     }
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
         label: str = "equal_opportunity_ratio",
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        label: str = "equal_opportunity_ratio",
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        label="equal_opportunity_ratio",
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
         super().__init__(
             data,
             ConfusionMatrix,
             label,
-            sensitive,
-            real_target,
-            predicted_target,
-            positive_target,
             "performance",
             **{"metrics": {"result": true_positive_rate}},
         )
@@ -1566,23 +1219,11 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
     label : str
         The key to give to the result in the different returned dictionaries,
         by default "demographic_parity_difference".
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
 
     Examples
     --------
@@ -1623,41 +1264,15 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
     }
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
         label: str = "false_positive_rate_ratio",
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        label: str = "false_positive_rate_ratio",
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        label="false_positive_rate_ratio",
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
         super().__init__(
             data,
             ConfusionMatrix,
             label,
-            sensitive,
-            real_target,
-            predicted_target,
-            positive_target,
             "error",
             **{"metrics": {"result": false_positive_rate}},
         )
@@ -1683,20 +1298,8 @@ class EqualisedOddsDifference:
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
 
     Examples
     --------
@@ -1737,43 +1340,11 @@ class EqualisedOddsDifference:
     }
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
-        if isinstance(data, Dataset):
-            self.data = data
-        else:
-            if sensitive is None or real_target is None:
-                raise ValueError(
-                    "When providing a DataFrame, 'sensitive' and 'real_target'"
-                    " must be specified."
-                )
-
-            self.data = Dataset(
-                data, sensitive, real_target, predicted_target, positive_target
-            )
-
+        self.data = data
         self.label = "equalised_odds_difference"
         self.ranking: dict | None = None
         self.tpr: dict | None = None
@@ -1781,7 +1352,7 @@ class EqualisedOddsDifference:
 
     def _compute(
         self,
-    ) -> tuple[dict[tuple, np.ndarray[float]], dict[tuple, np.ndarray[float]]]:
+    ) -> tuple[dict[tuple, NDArray[np.float64]], dict[tuple, NDArray[np.float64]]]:
         """Calculate the disparity in the True Positive Rate and False Positive
         Rate using "difference" between every possible pair in the provided
         groups.
@@ -1963,20 +1534,8 @@ class EqualisedOddsRatio:
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
 
     Examples
     --------
@@ -2017,43 +1576,11 @@ class EqualisedOddsRatio:
     }
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
-        if isinstance(data, Dataset):
-            self.data = data
-        else:
-            if sensitive is None or real_target is None:
-                raise ValueError(
-                    "When providing a DataFrame, 'sensitive' and 'real_target'"
-                    " must be specified."
-                )
-
-            self.data = Dataset(
-                data, sensitive, real_target, predicted_target, positive_target
-            )
-
+        self.data = data
         self.label = "equalised_odds_ratio"
         self.ranking: dict | None = None
         self.tpr: dict | None = None

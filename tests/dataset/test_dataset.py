@@ -1,8 +1,9 @@
 from collections.abc import Sequence
+from contextlib import AbstractContextManager
 
+import numpy as np
 import pandas as pd
 import pytest
-from _pytest.python_api import RaisesContext
 
 from fair_mango.dataset.dataset import (
     Dataset,
@@ -43,7 +44,7 @@ dataset5 = Dataset(
 def test_check_column_existence_in_df(
     df: pd.DataFrame,
     columns: Sequence,
-    expected_result: None | RaisesContext,
+    expected_result: None | AbstractContextManager,
 ):
     if expected_result is not None:
         with expected_result:
@@ -66,7 +67,7 @@ def test_check_column_existence_in_df(
 def test_check_real_and_predicted_target_match(
     real_target: Sequence[str],
     predicted_target: Sequence[str],
-    expected_result: None | RaisesContext,
+    expected_result: None | AbstractContextManager,
 ):
     if expected_result is not None:
         with expected_result:
@@ -138,7 +139,7 @@ def test_dataset_init(
     predicted_target: Sequence[str],
     positive_target: Sequence[int | float | str | bool] | None,
     group_count: Sequence[int],
-    expected_result: None | RaisesContext,
+    expected_result: None | AbstractContextManager,
 ):
     if expected_result is None:
         dataset = Dataset(df, sensitive, real_target, predicted_target, positive_target)
@@ -148,7 +149,7 @@ def test_dataset_init(
         if "ChestPainType" in dataset.groups:
             for val in dataset.groups["ChestPainType"].unique():
                 assert val in ["ASY", "NAP", "ATA", "TA"]
-        assert (dataset.groups["Count"].values == group_count).all()
+        assert np.all(dataset.groups["Count"].values == group_count)
     else:
         with expected_result:
             Dataset(df, sensitive, real_target, predicted_target, positive_target)
@@ -213,15 +214,15 @@ def test_get_data_for_one_group(
 ):
     result = dataset.get_data_for_one_group(group)
     assert isinstance(result, pd.DataFrame)
-    assert (result[dataset.sensitive].nunique().values == 1).all()
+    assert np.all(result[dataset.sensitive].nunique().values == 1)
     assert result.shape == expected_data_shape
 
 
 @pytest.mark.parametrize(
     "dataset, sensitive_groups, expected_data_type, expected_data_shape",
     [
-        (dataset1, [["M"], ["F"]], pd.Series, [(725,), (193,)]),
-        (dataset2, [["M"], ["F"]], pd.Series, [(725,), (193,)]),
+        (dataset1, [["M"], ["F"]], pd.DataFrame, [(725, 1), (193, 1)]),
+        (dataset2, [["M"], ["F"]], pd.DataFrame, [(725, 1), (193, 1)]),
         (
             dataset3,
             [
@@ -234,8 +235,8 @@ def test_get_data_for_one_group(
                 ["M", "TA"],
                 ["F", "TA"],
             ],
-            pd.Series,
-            [(426,), (150,), (113,), (70,), (60,), (53,), (36,), (10,)],
+            pd.DataFrame,
+            [(426, 1), (150, 1), (113, 1), (70, 1), (60, 1), (53, 1), (36, 1), (10, 1)],
         ),
         (dataset4, [["M"], ["F"]], pd.DataFrame, [(725, 2), (193, 2)]),
         (dataset5, [["M"], ["F"]], pd.DataFrame, [(725, 2), (193, 2)]),
@@ -244,7 +245,7 @@ def test_get_data_for_one_group(
 def test_get_real_target_for_all_groups(
     dataset: Dataset,
     sensitive_groups: Sequence,
-    expected_data_type: pd.Series | pd.DataFrame,
+    expected_data_type: type[pd.DataFrame],
     expected_data_shape: Sequence,
 ):
     results = dataset.get_real_target_for_all_groups()
@@ -263,11 +264,11 @@ def test_get_real_target_for_all_groups(
         (
             dataset1,
             [["M"], ["F"]],
-            pd.Series,
-            [(725,), (193,)],
+            pd.DataFrame,
+            [(725, 1), (193, 1)],
             pytest.raises(ValueError),
         ),
-        (dataset2, [["M"], ["F"]], pd.Series, [(725,), (193,)], None),
+        (dataset2, [["M"], ["F"]], pd.DataFrame, [(725, 1), (193, 1)], None),
         (
             dataset3,
             [
@@ -280,8 +281,8 @@ def test_get_real_target_for_all_groups(
                 ["M", "TA"],
                 ["F", "TA"],
             ],
-            pd.Series,
-            [(426,), (150,), (113,), (70,), (60,), (53,), (36,), (10,)],
+            pd.DataFrame,
+            [(426, 1), (150, 1), (113, 1), (70, 1), (60, 1), (53, 1), (36, 1), (10, 1)],
             None,
         ),
         (
@@ -297,9 +298,9 @@ def test_get_real_target_for_all_groups(
 def test_get_predicted_target_for_all_groups(
     dataset: Dataset,
     sensitive_groups: Sequence,
-    expected_data_type: pd.Series | pd.DataFrame,
+    expected_data_type: type[pd.DataFrame],
     expected_data_shape: Sequence,
-    exception: RaisesContext | None,
+    exception: None | AbstractContextManager,
 ):
     if exception is None:
         results = dataset.get_predicted_target_for_all_groups()
@@ -318,16 +319,16 @@ def test_get_predicted_target_for_all_groups(
 @pytest.mark.parametrize(
     "dataset, sensitive_groups, expected_data_type, expected_data_shape",
     [
-        (dataset1, ["M"], pd.Series, (725,)),
+        (dataset1, ["M"], pd.DataFrame, (725, 1)),
         (dataset4, "F", pd.DataFrame, (193, 2)),
-        (dataset3, ["M", "ASY"], pd.Series, (426,)),
-        (dataset3, ["F", "ASY"], pd.Series, (70,)),
+        (dataset3, ["M", "ASY"], pd.DataFrame, (426, 1)),
+        (dataset3, ["F", "ASY"], pd.DataFrame, (70, 1)),
     ],
 )
 def test_get_real_target_for_one_group(
     dataset: Dataset,
     sensitive_groups: Sequence,
-    expected_data_type: pd.Series | pd.DataFrame,
+    expected_data_type: type[pd.DataFrame],
     expected_data_shape: Sequence,
 ):
     result = dataset.get_real_target_for_one_group(sensitive_groups)
@@ -338,19 +339,19 @@ def test_get_real_target_for_one_group(
 @pytest.mark.parametrize(
     "dataset, sensitive_groups, expected_data_type, expected_data_shape, exception",
     [
-        (dataset1, ["M"], pd.Series, (725,), pytest.raises(ValueError)),
+        (dataset1, ["M"], pd.DataFrame, (725, 1), pytest.raises(ValueError)),
         (dataset4, "F", pd.DataFrame, (193, 2), pytest.raises(ValueError)),
-        (dataset3, ["M", "ASY"], pd.Series, (426,), None),
-        (dataset3, ["F", "ASY"], pd.Series, (70,), None),
+        (dataset3, ["M", "ASY"], pd.DataFrame, (426, 1), None),
+        (dataset3, ["F", "ASY"], pd.DataFrame, (70, 1), None),
         (dataset5, "F", pd.DataFrame, (193, 2), None),
     ],
 )
 def test_get_predicted_target_for_one_group(
     dataset: Dataset,
     sensitive_groups: Sequence,
-    expected_data_type: pd.Series | pd.DataFrame,
+    expected_data_type: type[pd.DataFrame],
     expected_data_shape: Sequence,
-    exception: RaisesContext | None,
+    exception: None | AbstractContextManager,
 ):
     if exception is None:
         result = dataset.get_predicted_target_for_one_group(sensitive_groups)
@@ -375,7 +376,7 @@ def test_validate_columns(
     sensitive: Sequence[str],
     real_target: Sequence[str],
     predicted_target: Sequence[str] | None,
-    expected_result: None | RaisesContext,
+    expected_result: None | AbstractContextManager,
 ):
     if expected_result is not None:
         with expected_result:
