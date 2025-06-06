@@ -1,10 +1,11 @@
-from abc import ABC, abstractmethod
-from collections.abc import Sequence
+from abc import ABC
+from collections.abc import Hashable, Sequence
 from itertools import combinations
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
+from numpy.typing import NDArray
 
 from fair_mango.dataset.dataset import Dataset
 
@@ -34,7 +35,7 @@ def is_binary(y: pd.Series | pd.DataFrame) -> bool:
             return False
 
 
-def encode_target(data: Dataset, ind: int, col: str) -> None:
+def encode_target(data: Dataset, ind: int, col: str | Hashable) -> None:
     """encode targets as [0,1]
 
     Parameters
@@ -151,20 +152,8 @@ class Metric(ABC):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
 
     Raises
     ------
@@ -174,43 +163,35 @@ class Metric(ABC):
         - If the target variable is not binary (has two unique values).
     """
 
-    def __init__(
-        self,
-        data: Dataset | pd.DataFrame,
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
-    ) -> None:
-        if isinstance(data, Dataset):
-            self.data = data
-        else:
-            if sensitive is None or real_target is None:
-                raise ValueError(
-                    "When providing a DataFrame, 'sensitive' and 'real_target'"
-                    " must be specified."
-                )
-            self.data = Dataset(
-                data, sensitive, real_target, predicted_target, positive_target
-            )
-
+    def __init__(self, data: Dataset) -> None:
+        self.data = data
         self.predicted_targets_by_group = []
-        y = self.data.df[self.data.real_target]
+        y: Any = self.data.df[self.data.real_target]
         if len(self.data.real_target) > 1:
             y = y.squeeze()
         if is_binary(y):
-            for ind, col in enumerate(y):
-                if (np.unique(y[col]) != [0, 1]).all():
-                    encode_target(self.data, ind, col)
+            if isinstance(y, pd.Series):
+                if (np.unique(y) != [0, 1]).all():
+                    encode_target(self.data, 0, y.name)
+            else:
+                for ind, col in enumerate(y.columns):
+                    if (np.unique(y[col]) != [0, 1]).all():
+                        encode_target(self.data, ind, col)
+
             self.real_targets_by_group = self.data.get_real_target_for_all_groups()
+
             if self.data.predicted_target != []:
                 y = self.data.df[self.data.predicted_target]
                 if len(self.data.predicted_target) > 1:
                     y = y.squeeze()
                 if is_binary(y):
-                    for ind, col in enumerate(y):
-                        if (np.unique(y[col]) != [0, 1]).all():
-                            encode_target(self.data, ind, col)
+                    if isinstance(y, pd.Series):
+                        if (np.unique(y) != [0, 1]).all():
+                            encode_target(self.data, 0, y.name)
+                    else:
+                        for ind, col in enumerate(y.columns):
+                            if (np.unique(y[col]) != [0, 1]).all():
+                                encode_target(self.data, ind, str(col))
                 self.predicted_targets_by_group = (
                     self.data.get_predicted_target_for_all_groups()
                 )
@@ -222,13 +203,13 @@ class Metric(ABC):
                 )
             )
 
-    @abstractmethod
-    def __call__(self): ...
+    def __call__(self):
+        pass
 
 
 def calculate_disparity(
     result_per_groups: list[dict], method: Literal["difference", "ratio"]
-) -> dict[tuple, np.ndarray[float]]:
+) -> dict[tuple, NDArray[np.float64]]:
     """Calculate the disparity in the scores between every possible pair in
     the provided groups using two available methods:
     - difference (Example: for three groups a, b, c:
@@ -281,8 +262,7 @@ def calculate_disparity(
             result[key] = result_i / result_j
         else:
             raise AttributeError(
-                f"method {method} not recognised. Use 'difference' or "
-                "'ratio' instead."
+                f"method {method} not recognised. Use 'difference' or 'ratio' instead."
             )
 
     return result
@@ -295,25 +275,13 @@ class FairnessMetricDifference(ABC):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
     metric : type[Metric]
         A sequence of metrics or a dictionary with keys being custom labels
         and values a callable that calculates the score.
     label : str
         The key to give to the result in the different returned dictionaries.
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
     metric_type : str, optional
         Whether the metric measures performance or error. Either 'performance'
         or 'error', by default 'performance'.
@@ -329,35 +297,19 @@ class FairnessMetricDifference(ABC):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: Dataset,
         metric: type[Metric],
         label: str,
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
         metric_type: str = "performance",
         **kwargs,
     ) -> None:
-        if isinstance(data, Dataset):
-            self.data = data
-        else:
-            if sensitive is None or real_target is None:
-                raise ValueError(
-                    "When providing a DataFrame, 'sensitive' and 'real_target'"
-                    " must be specified."
-                )
-            self.data = Dataset(
-                data, sensitive, real_target, predicted_target, positive_target
-            )
-
         self.metric = metric
         self.label = label
         self.kwargs = kwargs
         self.targets: Sequence
         self.metric_results: list
         self.metric_type = metric_type
-
+        self.data = data
         if metric_type == "performance":
             self.label1 = "privileged"
             self.label2 = "unprivileged"
@@ -366,15 +318,14 @@ class FairnessMetricDifference(ABC):
             self.label2 = "privileged"
         else:
             raise AttributeError(
-                "Metric type not recognized. accepted values 'performance' or "
-                "'error'"
+                "Metric type not recognized. accepted values 'performance' or 'error'"
             )
 
         self.result: dict | None = None
         self.ranking: dict | None = None
         self.results: dict | None = None
 
-    def _compute(self) -> dict[tuple, np.ndarray[float]]:
+    def _compute(self) -> dict[tuple, NDArray[np.float64]]:
         """Calculate the disparity in the scores between every possible pair in
         the provided groups.
 
@@ -531,25 +482,13 @@ class FairnessMetricRatio(ABC):
 
     Parameters
     ----------
-    data : Dataset | pd.DataFrame
+    data : Dataset
         Input data.
     metric : type[Metric]
         A sequence of metrics or a dictionary with keys being custom labels
         and values a callable that calculates the score.
     label : str
         The key to give to the result in the different returned dictionaries.
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
-        by default None.
     metric_type : str, optional
         Whether the metric measures performance or error. Either 'performance'
         or 'error', by default 'performance'.
@@ -565,26 +504,13 @@ class FairnessMetricRatio(ABC):
 
     def __init__(
         self,
-        data: Dataset | pd.DataFrame,
+        data: Dataset,
         metric: type[Metric],
         label: str,
-        sensitive: Sequence[str] | None = None,
-        real_target: Sequence[str] | None = None,
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
         metric_type: str = "performance",
         **kwargs,
     ) -> None:
-        if isinstance(data, Dataset):
-            self.data = data
-        else:
-            if sensitive is None or real_target is None:
-                raise ValueError(
-                    "When providing a DataFrame, 'sensitive' and 'real_target' must be specified."
-                )
-            self.data = Dataset(
-                data, sensitive, real_target, predicted_target, positive_target
-            )
+        self.data = data
         self.metric = metric
 
         if metric_type == "performance":
@@ -595,8 +521,7 @@ class FairnessMetricRatio(ABC):
             self.label2 = "privileged"
         else:
             raise AttributeError(
-                "Metric type not recognized. accepted values 'performance' or "
-                "'error'"
+                "Metric type not recognized. accepted values 'performance' or 'error'"
             )
 
         self.kwargs = kwargs
@@ -608,7 +533,7 @@ class FairnessMetricRatio(ABC):
         self.ranking: dict | None = None
         self.results: dict | None = None
 
-    def _compute(self) -> dict[tuple, np.ndarray[float]]:
+    def _compute(self) -> dict[tuple, NDArray[np.float64]]:
         """Calculate the disparity in the scores between every possible pair in
         the provided groups.
 

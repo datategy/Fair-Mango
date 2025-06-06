@@ -1,6 +1,7 @@
+from contextlib import AbstractContextManager
+
 import pandas as pd
 import pytest
-from _pytest.python_api import RaisesContext
 
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.metrics.base import encode_target, is_binary
@@ -55,7 +56,7 @@ def test_is_binary(y: pd.Series | pd.DataFrame, expected_result: bool):
     ],
 )
 def test_encode_target(
-    data: Dataset, ind: int, col: str, expected_result: None | RaisesContext
+    data: Dataset, ind: int, col: str, expected_result: None | AbstractContextManager
 ):
     if expected_result is None:
         encode_target(data, ind, col)

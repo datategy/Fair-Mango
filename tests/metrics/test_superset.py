@@ -1,9 +1,9 @@
 from collections.abc import Sequence
+from contextlib import AbstractContextManager
 
 import numpy as np
 import pandas as pd
 import pytest
-from _pytest.python_api import RaisesContext
 
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.metrics.metrics import (
@@ -133,30 +133,23 @@ super_set_fairness_metrics_expected_result_3 = [
 
 
 @pytest.mark.parametrize(
-    "metric, data, sensitive, real_target, predicted_target, expected_results",
+    "metric, data, expected_results",
     [
         (
             DemographicParityDifference,
             dataset1,
-            None,
-            None,
-            None,
             super_set_fairness_metrics_expected_result_1,
         ),
         (
             DisparateImpactRatio,
-            df,
-            ["Sex", "ChestPainType"],
-            ["HeartDisease"],
-            ["HeartDiseasePred"],
+            Dataset(
+                df, ["Sex", "ChestPainType"], ["HeartDisease"], ["HeartDiseasePred"]
+            ),
             super_set_fairness_metrics_expected_result_2,
         ),
         (
             EqualisedOddsDifference,
             dataset3,
-            None,
-            None,
-            None,
             super_set_fairness_metrics_expected_result_3,
         ),
     ],
@@ -174,25 +167,13 @@ def test_super_set_fairness_metrics(
         | type[FalsePositiveRateDifference]
         | type[FalsePositiveRateRatio]
     ),
-    data: pd.DataFrame | Dataset,
-    sensitive: Sequence[str] | None,
-    real_target: Sequence[str] | None,
-    predicted_target: Sequence[str] | None,
-    expected_results: Sequence[dict[str, dict]] | RaisesContext,
+    data: Dataset,
+    expected_results: Sequence[dict[str, dict]] | AbstractContextManager,
 ):
-    if isinstance(data, pd.DataFrame):
-        super_set_fairness_metrics = SupersetFairnessMetrics(  # type: ignore[call-overload]
-            metric,
-            data,
-            sensitive,
-            real_target,
-            predicted_target,
-        )
-    else:
-        super_set_fairness_metrics = SupersetFairnessMetrics(
-            metric,
-            data,
-        )
+    super_set_fairness_metrics = SupersetFairnessMetrics(
+        metric,
+        data,
+    )
     results = super_set_fairness_metrics.rank()
 
     assert results == expected_results
@@ -239,50 +220,30 @@ super_set_performance_metrics_expected_result_2 = [
 
 
 @pytest.mark.parametrize(
-    "data, sensitive, real_target, predicted_target, expected_results",
+    "data, expected_results",
     [
         (
             dataset1,
-            None,
-            None,
-            None,
             pytest.raises(ValueError),
         ),
         (
             dataset2,
-            None,
-            None,
-            None,
             super_set_performance_metrics_expected_result_2,
         ),
         (
-            df,
-            ["Sex"],
-            ["HeartDisease"],
-            ["HeartDiseasePred"],
+            Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"]),
             super_set_performance_metrics_expected_result_2,
         ),
     ],
 )
 def test_super_set_performance_metrics(
-    data: pd.DataFrame | Dataset,
-    sensitive: Sequence[str] | None,
-    real_target: Sequence[str] | None,
-    predicted_target: Sequence[str] | None,
-    expected_results: list[dict] | RaisesContext,
+    data: Dataset,
+    expected_results: list[dict] | AbstractContextManager,
 ):
     if isinstance(expected_results, list):
-        if isinstance(data, pd.DataFrame):
-            super_set_performance_metrics = SupersetPerformanceMetrics(  # type: ignore[call-overload]
-                data,
-                sensitive,
-                real_target,
-                predicted_target,
-            )
-        else:
-            super_set_performance_metrics = SupersetPerformanceMetrics(
-                data,
-            )
+        super_set_performance_metrics = SupersetPerformanceMetrics(
+            data,
+        )
         results = super_set_performance_metrics.evaluate()
         for result, expected_result in zip(results, expected_results):
             for result_values, expected_result_values in zip(
@@ -297,14 +258,6 @@ def test_super_set_performance_metrics(
                         assert value == expected_value
     else:
         with expected_results:
-            if isinstance(data, pd.DataFrame):
-                SupersetPerformanceMetrics(  # type: ignore[call-overload]
-                    data,
-                    sensitive,
-                    real_target,
-                    predicted_target,
-                ).evaluate()
-            else:
-                SupersetPerformanceMetrics(
-                    data,
-                ).evaluate()
+            SupersetPerformanceMetrics(
+                data,
+            ).evaluate()

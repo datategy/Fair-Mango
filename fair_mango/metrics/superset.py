@@ -1,9 +1,5 @@
 from abc import ABC
-from collections.abc import Sequence
 from itertools import chain, combinations
-from typing import overload
-
-import pandas as pd
 
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.metrics.metrics import (
@@ -50,39 +46,17 @@ class Superset(ABC):
         If data is a pandas dataframe and 'sensitive' parameter is not provided.
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        sensitive: Sequence[str],
-        real_target: Sequence[str],
-        predicted_target: Sequence[str],
-        positive_target: Sequence[int | float | str | bool],
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
-        if isinstance(data, Dataset):
-            sensitive = data.sensitive
-            real_target = data.real_target
-            predicted_target = data.predicted_target
-            positive_target = data.positive_target
-            data = data.df
-            if predicted_target == []:
-                predicted_target = None
-
+        sensitive = data.sensitive
+        real_target = data.real_target
+        predicted_target = data.predicted_target
+        positive_target = data.positive_target
+        df = data.df
+        if predicted_target == []:
+            predicted_target = None  # type: ignore
         if sensitive is None:
             raise AttributeError(
                 "'sensitive' attribute is required when data is pandas dataframe"
@@ -92,7 +66,7 @@ class Superset(ABC):
             combinations(sensitive, r) for r in range(1, len(sensitive) + 1)
         )
 
-        self.data = data
+        self.df = df
         self.sensitive = sensitive
         self.real_target = real_target
         self.predicted_target = predicted_target
@@ -130,7 +104,6 @@ class SupersetFairnessMetrics(Superset):
         targets, by default None.
     """
 
-    @overload
     def __init__(
         self,
         metric: (
@@ -146,42 +119,8 @@ class SupersetFairnessMetrics(Superset):
             | type[FalsePositiveRateRatio]
         ),
         data: Dataset,
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        metric: (
-            type[DemographicParityDifference]
-            | type[DemographicParityRatio]
-            | type[DisparateImpactDifference]
-            | type[DisparateImpactRatio]
-            | type[EqualOpportunityDifference]
-            | type[EqualOpportunityRatio]
-            | type[EqualisedOddsDifference]
-            | type[EqualisedOddsRatio]
-            | type[FalsePositiveRateDifference]
-            | type[FalsePositiveRateRatio]
-        ),
-        data: pd.DataFrame,
-        sensitive: Sequence[str],
-        real_target: Sequence[str],
-        predicted_target: Sequence[str],
-        positive_target: Sequence[int | float | str | bool],
-    ): ...
-
-    def __init__(
-        self,
-        metric,
-        data,
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
     ) -> None:
-        super().__init__(
-            data, sensitive, real_target, predicted_target, positive_target
-        )
+        super().__init__(data)
         self.metric = metric
 
     def rank(self) -> list:
@@ -246,13 +185,15 @@ class SupersetFairnessMetrics(Superset):
         results = []
 
         for pair in self.pairs:
-            result = self.metric(
-                data=self.data,
-                sensitive=list(pair),
-                real_target=self.real_target,
-                predicted_target=self.predicted_target,
-                positive_target=self.positive_target,
-            ).rank()
+            dataset = Dataset(
+                self.df,
+                list(pair),
+                self.real_target,
+                self.predicted_target,
+                self.positive_target,
+            )
+
+            result = self.metric(dataset).rank()
 
             results.append(
                 {
@@ -288,33 +229,11 @@ class SupersetPerformanceMetrics(Superset):
         targets, by default None.
     """
 
-    @overload
     def __init__(
         self,
         data: Dataset,
-    ): ...
-
-    @overload
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        sensitive: Sequence[str],
-        real_target: Sequence[str],
-        predicted_target: Sequence[str],
-        positive_target: Sequence[int | float | str | bool],
-    ): ...
-
-    def __init__(
-        self,
-        data,
-        sensitive=None,
-        real_target=None,
-        predicted_target=None,
-        positive_target=None,
-    ) -> None:
-        super().__init__(
-            data, sensitive, real_target, predicted_target, positive_target
-        )
+    ):
+        super().__init__(data)
         self.metrics = [SelectionRate, PerformanceMetric, ConfusionMatrix]
 
     def evaluate(self) -> list[dict]:
@@ -379,35 +298,28 @@ class SupersetPerformanceMetrics(Superset):
         results = []
 
         for pair in self.pairs:
+            dataset = Dataset(
+                self.df,
+                list(pair),
+                self.real_target,
+                self.predicted_target,
+                self.positive_target,
+            )
             concatenated_results = SelectionRate(
-                data=self.data,
+                data=dataset,
                 use_y_true=True,
-                sensitive=list(pair),
-                real_target=self.real_target,
-                predicted_target=self.predicted_target,
-                positive_target=self.positive_target,
                 label="selection_rate_in_data",
             )()
 
             for metric in self.metrics:
                 if metric is SelectionRate:
                     result = SelectionRate(
-                        data=self.data,
+                        data=dataset,
                         use_y_true=False,
-                        sensitive=list(pair),
-                        real_target=self.real_target,
-                        predicted_target=self.predicted_target,
-                        positive_target=self.positive_target,
                         label="selection_rate_in_predictions",
                     )()[1]
                 else:
-                    result = metric(
-                        data=self.data,
-                        sensitive=list(pair),
-                        real_target=self.real_target,
-                        predicted_target=self.predicted_target,
-                        positive_target=self.positive_target,
-                    )()[1]
+                    result = metric(data=dataset)()[1]
 
                 for concatenated_result, res in zip(concatenated_results[1], result):
                     concatenated_result.update(res)
