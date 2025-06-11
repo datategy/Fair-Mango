@@ -166,14 +166,14 @@ class Dataset:
     sensitive : Sequence[str]
         Sequence of column names corresponding to sensitive features
         (Ex: gender, race...).
-    real_target : Sequence[str]
-        Sequence of column names corresponding to the real target
-        (true labels).
-    predicted_target : Sequence[str], optional
-        Sequence of column names corresponding to the predicted target,
+    real_target : str
+        The column name corresponding to the real target
+        (true label).
+    predicted_target : str, optional
+        The column name corresponding to the predicted target,
         by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided target,
+    positive_target : int  |  float  |  str  |  bool | None, optional
+        The positive label corresponding to the provided target,
         by default None.
     """
 
@@ -714,7 +714,7 @@ class Dataset:
 
         Parameters
         ----------
-        sensitive : Sequence[str]
+        sensitive_group : Sequence[str]
             Sequence of sensitive values must be in the same order as `sensitive`
             attribute, and so `sensitive_group` must be the same length as
             `sensitive`. For instance, if your `sensitive` attribute were

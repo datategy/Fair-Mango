@@ -39,10 +39,9 @@ dataset6 = Dataset(
         (df["Sex"], True),
         (df["ExerciseAngina"], True),
         (df["ChestPainType"], False),
-        (df[["ExerciseAngina", "Sex"]], True),
     ],
 )
-def test_is_binary(y: pd.Series | pd.DataFrame, expected_result: bool):
+def test_is_binary(y: pd.Series, expected_result: bool):
     assert is_binary(y) == expected_result
 
 

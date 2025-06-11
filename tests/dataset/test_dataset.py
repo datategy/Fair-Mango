@@ -341,10 +341,9 @@ def test_get_predicted_target_for_one_group(
 @pytest.mark.parametrize(
     "sensitive, real_target, predicted_target, expected_result",
     [
-        # (["gender"], ["r1", "r2"], None, None),
-        # (["gender", "race"], ["r1", "r2"], ["p1", "p2"], None),
-        # (["gender"], ["r1", "r2"], ["r1", "p2"], pytest.raises(AttributeError)),
-        # (["race"], ["race", "r2"], None, pytest.raises(AttributeError)),
+        (["gender"], "r1", None, None),
+        (["gender", "race"], "r1", "p1", None),
+        (["race"], "race", None, pytest.raises(AttributeError)),
         (["gender", "race"], "r1", "gender", pytest.raises(AttributeError)),
     ],
 )

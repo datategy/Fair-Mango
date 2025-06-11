@@ -1,7 +1,6 @@
 from collections.abc import Collection, Sequence
 
 import numpy as np
-import pandas as pd
 from numpy.typing import NDArray
 from sklearn.metrics import (  # type: ignore
     accuracy_score,
@@ -195,7 +194,7 @@ class SelectionRate(Metric):
 
     def all_data(
         self,
-    ) -> pd.Series:  # j'ai pas bien compris l'interet mais je vais trouver
+    ) -> dict[str, float]:
         """Compute overall selection rate corresponding to the whole dataset.
 
         Returns
@@ -242,9 +241,13 @@ class SelectionRate(Metric):
         dtype: float64
         """
         if self.use_y_true:
-            return self.data.df[self.data.real_target].mean()
+            return {self.data.real_target: self.data.df[self.data.real_target].mean()}
         else:
-            return self.data.df[self.data.predicted_target].mean()
+            return {
+                self.data.predicted_target: self.data.df[
+                    self.data.predicted_target
+                ].mean()
+            }
 
 
 class ConfusionMatrix(Metric):
