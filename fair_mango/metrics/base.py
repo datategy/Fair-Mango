@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from collections.abc import Hashable, Sequence
 from itertools import combinations
 from typing import Any, Literal
@@ -203,6 +203,7 @@ class Metric(ABC):
                 )
             )
 
+    @abstractmethod
     def __call__(self):
         pass
 
