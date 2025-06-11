@@ -35,8 +35,8 @@ def is_binary(y: pd.Series | pd.DataFrame) -> bool:
             return False
 
 
-def encode_target(data: Dataset, ind: int, col: str | Hashable) -> None:
-    """encode targets as [0,1]
+def encode_target(data: Dataset, col: str | Hashable) -> None:
+    """encode target as [0,1]
 
     Parameters
     ----------
@@ -62,13 +62,13 @@ def encode_target(data: Dataset, ind: int, col: str | Hashable) -> None:
             "the dataset to solve this issue."
         )
     else:
-        if data.positive_target[ind] in data.df[col].unique():
-            mapping = {data.positive_target[ind]: 1}
+        if data.positive_target in data.df[col].unique():
+            mapping = {data.positive_target: 1}
             data.df[col] = data.df[col].map(mapping).fillna(0).astype(int)
         else:
             raise KeyError(
                 "Positive target value provided does not exist in the column. "
-                f"{data.positive_target[ind]} does not exist in column {col}: "
+                f"{data.positive_target} does not exist in column {col}: "
                 f"{data.df[col].unique()}"
             )
 
@@ -165,34 +165,19 @@ class Metric(ABC):
 
     def __init__(self, data: Dataset) -> None:
         self.data = data
-        self.predicted_targets_by_group = []
+        self.predicted_target_by_group = []
         y: Any = self.data.df[self.data.real_target]
-        if len(self.data.real_target) > 1:
-            y = y.squeeze()
+
         if is_binary(y):
-            if isinstance(y, pd.Series):
-                if (np.unique(y) != [0, 1]).all():
-                    encode_target(self.data, 0, y.name)
-            else:
-                for ind, col in enumerate(y.columns):
-                    if (np.unique(y[col]) != [0, 1]).all():
-                        encode_target(self.data, ind, col)
+            if (np.unique(y) != [0, 1]).all():
+                encode_target(self.data, y.name)
+            self.real_target_by_group = self.data.get_real_target_for_all_groups()
 
-            self.real_targets_by_group = self.data.get_real_target_for_all_groups()
-
-            if self.data.predicted_target != []:
+            if self.data.predicted_target is not None:
                 y = self.data.df[self.data.predicted_target]
-                if len(self.data.predicted_target) > 1:
-                    y = y.squeeze()
-                if is_binary(y):
-                    if isinstance(y, pd.Series):
-                        if (np.unique(y) != [0, 1]).all():
-                            encode_target(self.data, 0, y.name)
-                    else:
-                        for ind, col in enumerate(y.columns):
-                            if (np.unique(y[col]) != [0, 1]).all():
-                                encode_target(self.data, ind, str(col))
-                self.predicted_targets_by_group = (
+                if is_binary(y) and (np.unique(y) != [0, 1]).all():
+                    encode_target(self.data, y.name)
+                self.predicted_target_by_group = (
                     self.data.get_predicted_target_for_all_groups()
                 )
         else:
@@ -307,7 +292,7 @@ class FairnessMetricDifference(ABC):
         self.metric = metric
         self.label = label
         self.kwargs = kwargs
-        self.targets: Sequence
+        self.target: str
         self.metric_results: list
         self.metric_type = metric_type
         self.data = data
@@ -338,7 +323,7 @@ class FairnessMetricDifference(ABC):
             - values: a numpy array with the corresponding disparity.
         """
         metric = self.metric(self.data, **self.kwargs)
-        self.targets, self.metric_results = metric()
+        self.target, self.metric_results = metric()
         results = calculate_disparity(self.metric_results, "difference")
         return results
 
@@ -361,26 +346,24 @@ class FairnessMetricDifference(ABC):
         """
         if self.results is None:
             self.results = self._compute()
-        self.differences = self.targets, self.results
+        self.differences = self.target, self.results
         self.result = {}
-
-        for target in self.targets:
-            self.result[target] = {
-                self.label: 0.0,
-                "privileged": None,
-                "unprivileged": None,
-            }
+        target = self.target
+        self.result[target] = {
+            self.label: 0.0,
+            "privileged": None,
+            "unprivileged": None,
+        }
 
         for key, value in self.results.items():
-            for ind, target in enumerate(self.targets):
-                if np.abs(value[ind]) > self.result[target][self.label]:
-                    self.result[target][self.label] = np.abs(value[ind])
-                    if value[ind] > 0:
-                        self.result[target][self.label1] = key[0]
-                        self.result[target][self.label2] = key[1]
-                    else:
-                        self.result[target][self.label1] = key[1]
-                        self.result[target][self.label2] = key[0]
+            if np.abs(value[0]) > self.result[target][self.label]:
+                self.result[target][self.label] = np.abs(value[0])
+                if value[0] > 0:
+                    self.result[target][self.label1] = key[0]
+                    self.result[target][self.label2] = key[1]
+                else:
+                    self.result[target][self.label1] = key[1]
+                    self.result[target][self.label2] = key[0]
 
         return self.result
 
@@ -405,34 +388,33 @@ class FairnessMetricDifference(ABC):
         """
         result: dict = {}
         self.ranking = {}
+        target = self.data.real_target
 
-        for target in self.data.real_target:
-            result.setdefault(target, {})
-            self.ranking.setdefault(target, {})
+        result.setdefault(target, {})
+        self.ranking.setdefault(target, {})
 
         if self.results is None:
             self.results = self._compute()
 
         for key, values in self.results.items():
-            for target, value in zip(self.data.real_target, values):
+            for value in values:
                 if self.metric_type == "performance":
                     result[target].setdefault(key[0], []).append(value)
                     result[target].setdefault(key[1], []).append(-value)
                 elif self.metric_type == "error":
                     result[target].setdefault(key[0], []).append(-value)
                     result[target].setdefault(key[1], []).append(value)
-
-        for target, target_result in result.items():
-            for group, differences in target_result.items():
-                difference = np.mean(np.array(differences))
-                self.ranking[target].setdefault(group, difference)
-            self.ranking[target] = dict(
-                sorted(
-                    self.ranking[target].items(),
-                    key=lambda item: item[1],
-                    reverse=True,
-                )
+        target_result = result[target]
+        for group, differences in target_result.items():
+            difference = np.mean(np.array(differences))
+            self.ranking[target].setdefault(group, difference)
+        self.ranking[target] = dict(
+            sorted(
+                self.ranking[target].items(),
+                key=lambda item: item[1],
+                reverse=True,
             )
+        )
 
         return self.ranking
 
@@ -465,13 +447,14 @@ class FairnessMetricDifference(ABC):
             self.ranking = self.rank()
 
         bias: dict = {}
+        target = self.data.real_target
+        dicts = self.ranking[target]
 
-        for target, dicts in self.ranking.items():
-            max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
-            if max_diff > threshold or min_diff < -threshold:
-                bias[target] = True
-            else:
-                bias[target] = False
+        max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
+        if max_diff > threshold or min_diff < -threshold:
+            bias[target] = True
+        else:
+            bias[target] = False
 
         return bias
 
@@ -528,7 +511,7 @@ class FairnessMetricRatio(ABC):
         self.kwargs = kwargs
         self.label = label
         self.metric_type = metric_type
-        self.targets: Sequence
+        self.target: Sequence
         self.metric_results: list
         self.result: dict | None = None
         self.ranking: dict | None = None
@@ -546,7 +529,7 @@ class FairnessMetricRatio(ABC):
             - values: a numpy array with the corresponding disparity.
         """
         metric = self.metric(self.data, **self.kwargs)
-        self.targets, self.metric_results = metric()
+        self.target, self.metric_results = metric()
         results = calculate_disparity(self.metric_results, "ratio")
         return results
 
@@ -570,29 +553,28 @@ class FairnessMetricRatio(ABC):
         if self.results is None:
             self.results = self._compute()
 
-        self.ratios = self.targets, self.results
+        self.ratios = self.target, self.results
         self.result = {}
+        target = self.target
 
-        for target in self.targets:
-            self.result[target] = {
-                self.label: 1.0,
-                "privileged": None,
-                "unprivileged": None,
-            }
+        self.result[target] = {
+            self.label: 1.0,
+            "privileged": None,
+            "unprivileged": None,
+        }
 
         for key, value in self.results.items():
-            for ind, target in enumerate(self.targets):
-                if value[ind] > 1:
-                    temp = 1 / value[ind]
-                    key = list(key)
-                    key[0], key[1] = key[1], key[0]
-                else:
-                    temp = value[ind]
+            if value[0] > 1:
+                temp = 1 / value[0]
+                key = list(key)
+                key[0], key[1] = key[1], key[0]
+            else:
+                temp = value[0]
 
-                if temp < self.result[target][self.label]:
-                    self.result[target][self.label] = temp
-                    self.result[target][self.label1] = key[1]
-                    self.result[target][self.label2] = key[0]
+            if temp < self.result[target][self.label]:
+                self.result[target][self.label] = temp
+                self.result[target][self.label1] = key[1]
+                self.result[target][self.label2] = key[0]
 
         return self.result
 
@@ -617,35 +599,34 @@ class FairnessMetricRatio(ABC):
         """
         result: dict = {}
         self.ranking = {}
+        target = self.data.real_target
 
-        for target in self.data.real_target:
-            result.setdefault(target, {})
-            self.ranking.setdefault(target, {})
+        result.setdefault(target, {})
+        self.ranking.setdefault(target, {})
 
         if self.results is None:
             self.results = self._compute()
 
         for key, values in self.results.items():
-            for target, value in zip(self.data.real_target, values):
+            for value in values:
                 if self.metric_type == "performance":
                     result[target].setdefault(key[0], []).append(1 / value)
                     result[target].setdefault(key[1], []).append(value)
                 elif self.metric_type == "error":
                     result[target].setdefault(key[0], []).append(value)
                     result[target].setdefault(key[1], []).append(1 / value)
+        target_result = result[target]
+        for group, ratios in target_result.items():
+            ratio = np.mean(np.array(ratios))
+            self.ranking[target].setdefault(group, ratio)
 
-        for target, target_result in result.items():
-            for group, ratios in target_result.items():
-                ratio = np.mean(np.array(ratios))
-                self.ranking[target].setdefault(group, ratio)
-
-            self.ranking[target] = dict(
-                sorted(
-                    self.ranking[target].items(),
-                    key=lambda item: item[1],
-                    reverse=False,
-                )
+        self.ranking[target] = dict(
+            sorted(
+                self.ranking[target].items(),
+                key=lambda item: item[1],
+                reverse=False,
             )
+        )
 
         return self.ranking
 
@@ -678,12 +659,13 @@ class FairnessMetricRatio(ABC):
             self.ranking = self.rank()
 
         bias: dict = {}
+        target = self.data.real_target
+        dicts = self.ranking[target]
 
-        for target, dicts in self.ranking.items():
-            min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
-            if max_ratio > (1 / threshold) or min_ratio < threshold:
-                bias[target] = True
-            else:
-                bias[target] = False
+        min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
+        if max_ratio > (1 / threshold) or min_ratio < threshold:
+            bias[target] = True
+        else:
+            bias[target] = False
 
         return bias

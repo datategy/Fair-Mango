@@ -42,13 +42,13 @@ class SelectionRate(Metric):
         Sequence of column names corresponding to sensitive features
         (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
+        Sequence of column names corresponding to the real target
         (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
+        Sequence of column names corresponding to the predicted target,
         by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
+        Sequence of the positive labels corresponding to the provided target,
         by default None.
     """
 
@@ -70,7 +70,7 @@ class SelectionRate(Metric):
         -------
         tuple[Sequence[str], list[dict[str, np.ndarray]]]
             A tuple containing two elements:
-            - targets (Sequence[str]): The target variables used for
+            - target (Sequence[str]): The target variables used for
               calculation.
             - results (list[dict[str, np.ndarray]]): A list of dictionaries,
               where each dictionary has two keys:
@@ -176,24 +176,26 @@ class SelectionRate(Metric):
         """
         results: list = []
         if self.use_y_true:
-            targets = self.data.real_target
-            targets_by_group = self.real_targets_by_group
+            target = self.data.real_target
+            target_by_group = self.real_target_by_group
         else:
-            if self.predicted_targets_by_group == []:
+            if self.predicted_target_by_group == []:
                 raise ValueError(
                     "No predictions found, provide predicted_target parameter "
                     "when creating the dataset or set use_y_true to True to "
                     "use the real labels"
                 )
-            targets = self.data.predicted_target
-            targets_by_group = self.predicted_targets_by_group
-        for group in targets_by_group:
+            target = self.data.predicted_target
+            target_by_group = self.predicted_target_by_group
+        for group in target_by_group:
             group_ = group["sensitive"]
             y_group = group["data"]
             results.append({"sensitive": group_, self.label: np.array(y_group.mean())})
-        return targets, results
+        return target, results
 
-    def all_data(self) -> pd.Series:
+    def all_data(
+        self,
+    ) -> pd.Series:  # j'ai pas bien compris l'interet mais je vais trouver
         """Compute overall selection rate corresponding to the whole dataset.
 
         Returns
@@ -270,13 +272,13 @@ class ConfusionMatrix(Metric):
         Sequence of column names corresponding to sensitive features
         (Ex: gender, race...), by default None.
     real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real targets
+        Sequence of column names corresponding to the real target
         (true labels), by default None.
     predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted targets,
+        Sequence of column names corresponding to the predicted target,
         by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
+        Sequence of the positive labels corresponding to the provided target,
         by default None.
 
     Raises
@@ -294,7 +296,7 @@ class ConfusionMatrix(Metric):
         metrics: Collection | Sequence | None = None,
     ) -> None:
         super().__init__(data)
-        if self.predicted_targets_by_group == []:
+        if self.predicted_target_by_group == []:
             raise ValueError(
                 "No predictions found, provide predicted_target parameter "
                 "when creating the dataset"
@@ -336,7 +338,7 @@ class ConfusionMatrix(Metric):
         -------
         tuple[Sequence, list]
             A tuple containing two elements:
-            - targets (Sequence[str]): The target variables used for
+            - target (Sequence[str]): The target variables used for
               calculation.
             - results (list[dict]): A list of dictionaries, where the keys:
                 1. sensitive: The name of the sensitive group.
@@ -438,35 +440,25 @@ class ConfusionMatrix(Metric):
         """
         results: list = []
         for real_group, predicted_group in zip(
-            self.real_targets_by_group, self.predicted_targets_by_group
+            self.real_target_by_group, self.predicted_target_by_group
         ):
             group_ = real_group["sensitive"]
-            real_y_group = real_group["data"]
-            predicted_y_group = predicted_group["data"]
+            real_values = real_group["data"]
+            predicted_values = predicted_group["data"]
             result_for_group = {"sensitive": group_}
-            for real_col, predicted_col in zip(
-                self.data.real_target, self.data.predicted_target
-            ):
-                if len(self.data.real_target) != 1:
-                    real_values = real_y_group[real_col]
-                    predicted_values = predicted_y_group[predicted_col]
-                else:
-                    real_values = real_y_group.iloc[:, 0]
-                    predicted_values = predicted_y_group.iloc[:, 0]
-                conf_matrix = confusion_matrix(
-                    real_values, predicted_values, labels=[0, 1]
-                )
-                tn = conf_matrix[0, 0]
-                tp = conf_matrix[1, 1]
-                fn = conf_matrix[1, 0]
-                fp = conf_matrix[0, 1]
 
-                for metric_name, metric in self.metrics.items():
-                    if metric_name not in result_for_group:
-                        result_for_group[metric_name] = []  # type: ignore
-                    result_for_group[metric_name].append(  # type: ignore
-                        metric(tn=tn, fp=fp, fn=fn, tp=tp)  # type: ignore
-                    )
+            conf_matrix = confusion_matrix(real_values, predicted_values, labels=[0, 1])
+            tn = conf_matrix[0, 0]
+            tp = conf_matrix[1, 1]
+            fn = conf_matrix[1, 0]
+            fp = conf_matrix[0, 1]
+
+            for metric_name, metric in self.metrics.items():
+                if metric_name not in result_for_group:
+                    result_for_group[metric_name] = []  # type: ignore
+                result_for_group[metric_name].append(  # type: ignore
+                    metric(tn=tn, fp=fp, fn=fn, tp=tp)  # type: ignore
+                )
 
             results.append(result_for_group)
 
@@ -514,7 +506,7 @@ class PerformanceMetric(Metric):
     ) -> None:
         super().__init__(data)
 
-        if self.predicted_targets_by_group == []:
+        if self.predicted_target_by_group == []:
             raise ValueError(
                 "No predictions found, provide predicted_target parameter "
                 "when creating the dataset"
@@ -561,7 +553,7 @@ class PerformanceMetric(Metric):
         -------
         tuple[Sequence, list]
             A tuple containing two elements:
-            - targets (Sequence[str]): The target variables used for
+            - target (Sequence[str]): The target variables used for
               calculation.
             - results (list[dict]): A list of dictionaries, where the keys:
                 1. sensitive: The name of the sensitive group.
@@ -666,29 +658,19 @@ class PerformanceMetric(Metric):
         """
         results: list = []
         for real_group, predicted_group in zip(
-            self.real_targets_by_group, self.predicted_targets_by_group
+            self.real_target_by_group, self.predicted_target_by_group
         ):
             group_ = real_group["sensitive"]
-            real_y_group = real_group["data"]
-            predicted_y_group = predicted_group["data"]
-            result_for_group: dict[str, list | pd.DataFrame] = {"sensitive": group_}
+            real_values = real_group["data"]
+            predicted_values = predicted_group["data"]
+            result_for_group = {"sensitive": group_}
 
-            for real_col, predicted_col in zip(
-                self.data.real_target, self.data.predicted_target
-            ):
-                if len(self.data.real_target) != 1:
-                    real_values: pd.Series = real_y_group[real_col]
-                    predicted_values: pd.Series = predicted_y_group[predicted_col]
-                else:
-                    real_values = real_y_group.iloc[:, 0]
-                    predicted_values = predicted_y_group.iloc[:, 0]
-
-                for metric_name, metric in self.metrics.items():
-                    if metric_name not in result_for_group:
-                        result_for_group[metric_name] = []
-                    result_for_group[metric_name].append(
-                        metric(real_values, predicted_values)
-                    )
+            for metric_name, metric in self.metrics.items():
+                if metric_name not in result_for_group:
+                    result_for_group[metric_name] = []  # type: ignore
+                result_for_group[metric_name].append(  # type: ignore
+                    metric(real_values, predicted_values)
+                )
 
             results.append(result_for_group)
 
@@ -701,7 +683,7 @@ class DemographicParityDifference(FairnessMetricDifference):
     in the sensitive feature.
 
     Demographic Parity calculates the "difference" in the Selection Rate in the
-    real targets to detect if there is any bias in the **dataset**.
+    real target to detect if there is any bias in the **dataset**.
 
     The Selection Rate is the ratio of the number of instances selected
     (predicted as positive) to the total number of instances. It is a measure
@@ -774,7 +756,7 @@ class DisparateImpactDifference(FairnessMetricDifference):
     in the sensitive feature.
 
     Disparate Impact calculates the "difference" in the Selection Rate in the
-    predicted targets to detect if there is any bias in the **model**.
+    predicted target to detect if there is any bias in the **model**.
 
     The Selection Rate is the ratio of the number of instances selected
     (predicted as positive) to the total number of instances. It is a measure
@@ -847,7 +829,7 @@ class EqualOpportunityDifference(FairnessMetricDifference):
     in the sensitive feature.
 
     Equal Opportunity calculates the "difference" in the True Positive Rate in
-    the targets to detect if there is any bias in the **model**.
+    the target to detect if there is any bias in the **model**.
 
     The True Positive Rate (TPR) is the ratio of correctly predicted positive
     observations to all actual positives. It is a measure of a model's ability
@@ -920,7 +902,7 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
     in the sensitive feature.
 
     False Positive Rate Parity calculates the "difference" in the False
-    Positive Rate in the targets to detect if there is any bias in the
+    Positive Rate in the target to detect if there is any bias in the
     **model**.
 
     The False Positive Rate (FPR) is the ratio of incorrectly predicted
@@ -995,7 +977,7 @@ class DemographicParityRatio(FairnessMetricRatio):
     sensitive feature.
 
     Demographic Parity calculates the "ratio" of the Selection Rate in the
-    real targets to detect if there is any bias in the **dataset**.
+    real target to detect if there is any bias in the **dataset**.
 
     The Selection Rate is the ratio of the number of instances selected
     (predicted as positive) to the total number of instances. It is a measure
@@ -1065,7 +1047,7 @@ class DisparateImpactRatio(FairnessMetricRatio):
     sensitive feature.
 
     Disparate Impact calculates the "ratio" of the Selection Rate in the
-    predicted targets to detect if there is any bias in the **model**.
+    predicted target to detect if there is any bias in the **model**.
 
     The Selection Rate is the ratio of the number of instances selected
     (predicted as positive) to the total number of instances. It is a measure
@@ -1135,7 +1117,7 @@ class EqualOpportunityRatio(FairnessMetricRatio):
     sensitive feature.
 
     Equal Opportunity calculates the "ratio" of the True Positive Rate in
-    the targets to detect if there is any bias in the **model**.
+    the target to detect if there is any bias in the **model**.
 
     The True Positive Rate (TPR) is the ratio of correctly predicted positive
     observations to all actual positives. It is a measure of a model's ability
@@ -1208,7 +1190,7 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
     in the sensitive feature.
 
     False Positive Rate Parity calculates the "ratio" of the False Positive
-    Rate in the targets to detect if there is any bias in the **model**.
+    Rate in the target to detect if there is any bias in the **model**.
 
     The False Positive Rate (FPR) is the ratio of incorrectly predicted
     positive observations to all actual negatives. It is a measure of the
@@ -1282,7 +1264,7 @@ class EqualisedOddsDifference:
     sensitive feature.
 
     Equalised Odds calculates the "difference" in the True Positive Rate and
-    False Positive Rate in the targets to detect if there is any bias in the
+    False Positive Rate in the target to detect if there is any bias in the
     **model**.
 
     The True Positive Rate (TPR) is the ratio of correctly predicted positive
@@ -1389,17 +1371,17 @@ class EqualisedOddsDifference:
                    group and the discriminated group.
         """
         self.result: dict = {}
+        target = self.data.real_target
 
-        for target in self.data.real_target:
-            self.result.setdefault(
-                target, {self.label: 0.0, "privileged": None, "unprivileged": None}
-            )
+        self.result.setdefault(
+            target, {self.label: 0.0, "privileged": None, "unprivileged": None}
+        )
 
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
 
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
-            for target, value1, value2 in zip(self.data.real_target, values1, values2):
+            for value1, value2 in zip(values1, values2):
                 if np.abs(value1) > self.result[target][self.label]:
                     self.result[target][self.label] = np.abs(value1)
                     if value1 > 0:
@@ -1440,16 +1422,16 @@ class EqualisedOddsDifference:
         """
         result: dict = {}
         self.ranking = {}
+        target = self.data.real_target
 
-        for target in self.data.real_target:
-            result.setdefault(target, {})
-            self.ranking.setdefault(target, {})
+        result.setdefault(target, {})
+        self.ranking.setdefault(target, {})
 
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
 
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
-            for target, value1, value2 in zip(self.data.real_target, values1, values2):
+            for value1, value2 in zip(values1, values2):
                 if np.abs(value1) > np.abs(value2):
                     result[target].setdefault(key1[0], []).append(value1)
                     result[target].setdefault(key1[1], []).append(-value1)
@@ -1457,18 +1439,17 @@ class EqualisedOddsDifference:
                     result[target].setdefault(key1[0], []).append(-value2)
                     result[target].setdefault(key1[1], []).append(value2)
 
-        for target, target_result in result.items():
-            for group, differences in target_result.items():
-                difference = np.mean(np.array(differences))
-                self.ranking[target].setdefault(group, difference)
-
-            self.ranking[target] = dict(
-                sorted(
-                    self.ranking[target].items(),
-                    key=lambda item: item[1],
-                    reverse=True,
-                )
+        target_result = result[target]
+        for group, differences in target_result.items():
+            difference = np.mean(np.array(differences))
+            self.ranking[target].setdefault(group, difference)
+        self.ranking[target] = dict(
+            sorted(
+                self.ranking[target].items(),
+                key=lambda item: item[1],
+                reverse=True,
             )
+        )
 
         return self.ranking
 
@@ -1501,13 +1482,14 @@ class EqualisedOddsDifference:
             self.ranking = self.rank()
 
         bias: dict = {}
+        target = self.data.real_target
+        dicts = self.ranking[target]
 
-        for target, dicts in self.ranking.items():
-            max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
-            if max_diff > threshold or min_diff < -threshold:
-                bias[target] = True
-            else:
-                bias[target] = False
+        max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
+        if max_diff > threshold or min_diff < -threshold:
+            bias[target] = True
+        else:
+            bias[target] = False
 
         return bias
 
@@ -1518,7 +1500,7 @@ class EqualisedOddsRatio:
     sensitive feature.
 
     Equalised Odds calculates the "ratio" of the True Positive Rate and False
-    Positive Rate in the targets to detect if there is any bias in the
+    Positive Rate in the target to detect if there is any bias in the
     **model**.
 
     The True Positive Rate (TPR) is the ratio of correctly predicted positive
@@ -1622,17 +1604,17 @@ class EqualisedOddsRatio:
                    group and the discriminated group.
         """
         self.result: dict = {}
+        target = self.data.real_target
 
-        for target in self.data.real_target:
-            self.result.setdefault(
-                target, {self.label: 1.0, "privileged": None, "unprivileged": None}
-            )
+        self.result.setdefault(
+            target, {self.label: 1.0, "privileged": None, "unprivileged": None}
+        )
 
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
 
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
-            for target, value1, value2 in zip(self.data.real_target, values1, values2):
+            for value1, value2 in zip(values1, values2):
                 if value1 > 1:
                     temp = 1 / value1
                 else:
@@ -1685,15 +1667,16 @@ class EqualisedOddsRatio:
         result: dict = {}
         self.ranking = {}
 
-        for target in self.data.real_target:
-            result.setdefault(target, {})
-            self.ranking.setdefault(target, {})
+        target = self.data.real_target
+
+        result.setdefault(target, {})
+        self.ranking.setdefault(target, {})
 
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
 
         for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
-            for target, value1, value2 in zip(self.data.real_target, values1, values2):
+            for value1, value2 in zip(values1, values2):
                 if value1 > 1:
                     temp1 = 1 / value1
                 else:
@@ -1711,18 +1694,18 @@ class EqualisedOddsRatio:
                     result[target].setdefault(key1[0], []).append(value2)
                     result[target].setdefault(key1[1], []).append(1 / value2)
 
-        for target, target_result in result.items():
-            for group, ratios in target_result.items():
-                ratio = np.mean(np.array(ratios))
-                self.ranking[target].setdefault(group, ratio)
+        target_result = result[target]
+        for group, ratios in target_result.items():
+            ratio = np.mean(np.array(ratios))
+            self.ranking[target].setdefault(group, ratio)
 
-            self.ranking[target] = dict(
-                sorted(
-                    self.ranking[target].items(),
-                    key=lambda item: item[1],
-                    reverse=False,
-                )
+        self.ranking[target] = dict(
+            sorted(
+                self.ranking[target].items(),
+                key=lambda item: item[1],
+                reverse=False,
             )
+        )
 
         return self.ranking
 
@@ -1756,11 +1739,12 @@ class EqualisedOddsRatio:
 
         bias: dict = {}
 
-        for target, dicts in self.ranking.items():
-            min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
-            if max_ratio > (1 / threshold) or min_ratio < threshold:
-                bias[target] = True
-            else:
-                bias[target] = False
+        target = self.data.real_target
+        dicts = self.ranking[target]
+        min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
+        if max_ratio > (1 / threshold) or min_ratio < threshold:
+            bias[target] = True
+        else:
+            bias[target] = False
 
         return bias

@@ -1,7 +1,6 @@
 from collections.abc import Sequence
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 
@@ -27,33 +26,10 @@ def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence[str]) -> No
             )
 
 
-def check_real_and_predicted_target_match(
-    real_target: Sequence[str], predicted_target: Sequence[str]
-) -> None:
-    """Check that the number of real targets and number of predicted targets
-    match.
-
-    Parameters
-    ----------
-    real_target : Sequence[str]
-        Sequence of column names corresponding to the real targets
-        (true labels).
-    predicted_target : Sequence[str]
-        Sequence of column names corresponding to the predicted targets.
-
-    Raises
-    ------
-    ValueError
-        If the number of real targets and predicted targets does not match.
-    """
-    if len(real_target) != len(predicted_target):
-        raise ValueError("real_target and predicted_target does not match")
-
-
 def validate_columns(
     sensitive: Sequence[str],
-    real_target: Sequence[str],
-    predicted_target: Sequence[str] | None = None,
+    real_target: str,
+    predicted_target: str | None = None,
 ) -> None:
     """Make sure that the columns provided as parameters are different.
     A column cannot be a sensitive column and a target at the same time.
@@ -65,10 +41,10 @@ def validate_columns(
         Sequence of column names corresponding to sensitive features
         (Ex: gender, race...).
     real_target : Sequence[str]
-        Sequence of column names corresponding to the real targets
+        Sequence of column names corresponding to the real target
         (true labels). Every target will be processed independently.
     predicted_target : Sequence[str], optional
-        Sequence of column names corresponding to the predicted targets,
+        Sequence of column names corresponding to the predicted target,
         by default None.
 
     Raises
@@ -76,11 +52,17 @@ def validate_columns(
     AttributeError
         If the same column is assigned to different parameters at the same time.
     """
-    overlap = set(sensitive).intersection(real_target)
+    sensitive_set = set(sensitive)
+
+    overlap = set()
+    if real_target in sensitive_set:
+        overlap.add(real_target)
 
     if predicted_target is not None:
-        overlap.update(set(sensitive).intersection(predicted_target))
-        overlap.update(set(real_target).intersection(predicted_target))
+        if predicted_target in sensitive_set:
+            overlap.add(predicted_target)
+        if predicted_target == real_target:
+            overlap.add(predicted_target)
 
     if overlap:
         raise AttributeError(
@@ -107,6 +89,67 @@ def convert_to_list(variable: Sequence[str] | str) -> Sequence[str]:
         return variable
 
 
+def type_verification(
+    df: pd.DataFrame,
+    sensitive: Sequence[str] | str,
+    real_target: str,
+    predicted_target: str | None = None,
+    positive_target: int | float | str | bool | None = None,
+):
+    """
+    Verifies the types of the input arguments.
+
+    Parameters:
+    ------------
+        df: A pandas DataFrame.
+        sensitive: A sequence of strings or a single string.
+        real_target: A string.
+        predicted_target: A string or None.
+        positive_target: An int, float, string, bool, or None.
+
+    Raises:
+        TypeError: If any of the input arguments have the wrong type.
+    """
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError(
+            f"df must be a pandas DataFrame, "
+            f"but got an object of type {type(df).__name__}"
+        )
+
+    if not isinstance(sensitive, str):
+        if isinstance(sensitive, Sequence):
+            if not all(isinstance(x, str) for x in sensitive):
+                raise TypeError(
+                    "sensitive must be a Sequence of strings or a string, "
+                    "but got a Sequence with non-string elements"
+                )
+        else:
+            raise TypeError(
+                f"sensitive must be a Sequence of strings or a string, "
+                f"but got an object of type {type(sensitive).__name__}"
+            )
+
+    if not isinstance(real_target, str):
+        raise TypeError(
+            f"real_target must be a string, "
+            f"but got an object of type {type(real_target).__name__}"
+        )
+
+    if predicted_target is not None and not isinstance(predicted_target, str):
+        raise TypeError(
+            f"predicted_target must be a string or None, "
+            f"but got an object of type {type(predicted_target).__name__}"
+        )
+
+    if positive_target is not None and not isinstance(
+        positive_target, (int, float, str, bool)
+    ):
+        raise TypeError(
+            f"positive_target must be an int, float, string, bool, or None, "
+            f"but got an object of type {type(positive_target).__name__}"
+        )
+
+
 class Dataset:
     """A class for handling datasets with sensitive attributes and target
     variables.
@@ -124,36 +167,34 @@ class Dataset:
         Sequence of column names corresponding to sensitive features
         (Ex: gender, race...).
     real_target : Sequence[str]
-        Sequence of column names corresponding to the real targets
+        Sequence of column names corresponding to the real target
         (true labels).
     predicted_target : Sequence[str], optional
-        Sequence of column names corresponding to the predicted targets,
+        Sequence of column names corresponding to the predicted target,
         by default None.
     positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided targets,
+        Sequence of the positive labels corresponding to the provided target,
         by default None.
     """
 
     def __init__(
         self,
         df: pd.DataFrame,
-        sensitive: Sequence[str],
-        real_target: Sequence[str],
-        predicted_target: Sequence[str] | None = None,
-        positive_target: Sequence[int | float | str | bool] | None = None,
+        sensitive: Sequence[str] | str,
+        real_target: str,
+        predicted_target: str | None = None,
+        positive_target: int | float | str | bool | None = None,
     ):
+        type_verification(df, sensitive, real_target, predicted_target, positive_target)
         self.sensitive = convert_to_list(sensitive)
         check_column_existence_in_df(df, self.sensitive)
-        self.real_target = convert_to_list(real_target)
-        check_column_existence_in_df(df, self.real_target)
+        self.real_target = real_target
+        check_column_existence_in_df(df, [self.real_target])
         if predicted_target is not None:
-            self.predicted_target = convert_to_list(predicted_target)
-            check_column_existence_in_df(df, self.predicted_target)
-            check_real_and_predicted_target_match(
-                self.real_target, self.predicted_target
-            )
+            self.predicted_target = predicted_target
+            check_column_existence_in_df(df, [self.predicted_target])
         else:
-            self.predicted_target = []
+            self.predicted_target = None  # type: ignore
         validate_columns(self.sensitive, self.real_target, self.predicted_target)
         self.df = df.copy()
         self.shape = df.shape
@@ -470,7 +511,7 @@ class Dataset:
 
     def get_real_target_for_one_group(
         self, sensitive_group: Sequence[str]
-    ) -> pd.DataFrame:
+    ) -> pd.Series:
         """Retrieve the real target corresponding to a specific sensitive
         group present in the sensitive features.
 
@@ -537,19 +578,18 @@ class Dataset:
         """
         result = None
         if self.groups_real_target is None:
-            result = self.df
+            filtered_df = self.df
             for i in range(len(sensitive_group)):
-                result = result[result[self.sensitive[i]].isin(sensitive_group)]
-            result = result[self.real_target]
+                filtered_df = filtered_df[
+                    filtered_df[self.sensitive[i]].isin(sensitive_group)
+                ]
+            result = filtered_df[self.real_target]
         else:
             for item in self.groups_real_target:
                 if (item["sensitive"] == sensitive_group).all() or (
                     item["sensitive"] == sensitive_group[::-1]
                 ).all():
-                    if isinstance(item["data"], (np.ndarray, pd.Series)):
-                        result = pd.DataFrame(item["data"])
-                    else:
-                        result = item["data"]
+                    result = item["data"]
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
@@ -642,7 +682,7 @@ class Dataset:
             }
         ]
         """
-        if self.predicted_target == []:
+        if self.predicted_target is None:
             raise ValueError(
                 "predicted_target parameter is required when creating the dataset"
             )
@@ -658,7 +698,7 @@ class Dataset:
 
     def get_predicted_target_for_one_group(
         self, sensitive_group: Sequence[str]
-    ) -> pd.DataFrame:
+    ) -> pd.Series:
         """Retrieve the predicted target corresponding to a specific sensitive
         group present in the sensitive features.
 
@@ -723,25 +763,24 @@ class Dataset:
         3           0                yes
         4           0                yes
         """
-        if self.predicted_target == []:
+        if self.predicted_target is None:
             raise ValueError(
                 "predicted_target parameter is required when creating the dataset"
             )
         result = None
         if self.groups_predicted_target is None:
-            result = self.df
+            filtered_df = self.df
             for i in range(len(sensitive_group)):
-                result = result[result[self.sensitive[i]].isin(sensitive_group)]
-            result = result[self.predicted_target]
+                filtered_df = filtered_df[
+                    filtered_df[self.sensitive[i]].isin(sensitive_group)
+                ]
+            result = filtered_df[self.predicted_target]
         else:
             for item in self.groups_predicted_target:
                 if (item["sensitive"] == sensitive_group).all() or (
                     item["sensitive"] == sensitive_group[::-1]
                 ).all():
-                    if isinstance(item["data"], (np.ndarray, pd.Series)):
-                        result = pd.DataFrame(item["data"])
-                    else:
-                        result = item["data"]
+                    result = item["data"]
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")

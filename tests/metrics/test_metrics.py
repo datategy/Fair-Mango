@@ -32,28 +32,28 @@ from fair_mango.metrics.metrics import (
 
 df = pd.read_csv("tests/data/heart_data.csv")
 
-dataset1 = Dataset(df, ["Sex"], ["HeartDisease"])
+dataset1 = Dataset(df, "Sex", "HeartDisease")
 
-dataset2 = Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"])
+dataset2 = Dataset(df, ["Sex"], "HeartDisease", "HeartDiseasePred")
 
-dataset3 = Dataset(df, ["Sex", "ChestPainType"], ["HeartDisease"], ["HeartDiseasePred"])
+dataset3 = Dataset(df, ["Sex", "ChestPainType"], "HeartDisease", "HeartDiseasePred")
 
-dataset4 = Dataset(df, ["Sex"], ["HeartDisease", "ExerciseAngina"], None, [1, "Y"])
+dataset4 = Dataset(df, ["Sex"], "HeartDisease", None, 1)
 
 dataset5 = Dataset(
     df,
     ["Sex"],
-    ["HeartDisease", "ExerciseAngina"],
-    ["HeartDiseasePred", "ExerciseAnginaPred"],
-    [1, "Y"],
+    "ExerciseAngina",
+    "ExerciseAnginaPred",
+    "Y",
 )
 
 dataset6 = Dataset(
     df,
     ["Sex", "ChestPainType"],
-    ["HeartDisease", "ExerciseAngina"],
-    ["HeartDiseasePred", "ExerciseAnginaPred"],
-    [1, "Y"],
+    "HeartDisease",
+    "HeartDiseasePred",
+    1,
 )
 
 
@@ -250,7 +250,7 @@ def test_confusionmatrix(
                 else:
                     for val, expected_val in zip(res[key], expected_result[i][key]):
                         if np.isnan(val) and np.isnan(expected_val):
-                            assert True
+                            continue
                         else:
                             assert (np.isclose(val, expected_val)).all()
 
@@ -344,8 +344,8 @@ dpd_expected_result_6 = [
             Dataset(
                 df,
                 ["Sex", "ChestPainType"],
-                ["HeartDisease"],
-                ["HeartDiseasePred"],
+                "HeartDisease",
+                "HeartDiseasePred",
             ),
             "demographic_parity_difference",
             0.1,
@@ -469,7 +469,7 @@ dpr_expected_result_6 = [
     [
         (dataset1, "dpr", 1.2, dpr_expected_result_1),
         (
-            Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"]),
+            Dataset(df, "Sex", "HeartDisease", "HeartDiseasePred"),
             "dpr",
             0.4,
             dpr_expected_result_2,
@@ -594,13 +594,7 @@ did_expected_result_6 = [
             did_expected_result_3,
         ),
         (
-            Dataset(
-                df,
-                ["Sex", "ChestPainType"],
-                ["HeartDisease", "ExerciseAngina"],
-                ["HeartDiseasePred", "ExerciseAnginaPred"],
-                [1, "Y"],
-            ),
+            dataset6,
             "disparate_impact_difference",
             0.45,
             did_expected_result_6,
@@ -713,7 +707,7 @@ dir_expected_result_6 = [
             pytest.raises(ValueError),
         ),
         (
-            Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"]),
+            Dataset(df, ["Sex"], "HeartDisease", "HeartDiseasePred"),
             "dir",
             0.4,
             dir_expected_result_2,
@@ -837,8 +831,8 @@ eod_expected_result_6 = [
             Dataset(
                 df,
                 ["Sex", "ChestPainType"],
-                ["HeartDisease"],
-                ["HeartDiseasePred"],
+                "HeartDisease",
+                "HeartDiseasePred",
             ),
             "equal_opportunity_difference",
             0.2,
@@ -959,7 +953,7 @@ eor_expected_result_6 = [
             pytest.raises(ValueError),
         ),
         (
-            Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"]),
+            Dataset(df, ["Sex"], "HeartDisease", "HeartDiseasePred"),
             "eor",
             0.4,
             eor_expected_result_2,
@@ -1130,7 +1124,7 @@ performancemetrics_expected_result_6 = [
             pytest.raises(KeyError),
         ),
         (
-            Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"]),
+            Dataset(df, ["Sex"], "HeartDisease", "HeartDiseasePred"),
             None,
             performancemetrics_expected_result_2,
         ),
@@ -1258,9 +1252,7 @@ eod_expected_result_6 = [
     [
         (dataset2, 0.1, eod_expected_result_2),
         (
-            Dataset(
-                df, ["Sex", "ChestPainType"], ["HeartDisease"], ["HeartDiseasePred"]
-            ),
+            Dataset(df, ["Sex", "ChestPainType"], "HeartDisease", "HeartDiseasePred"),
             0.2,
             eod_expected_result_3,
         ),
@@ -1337,7 +1329,7 @@ eor_expected_result_3 = [
             pytest.raises(ValueError),
         ),
         (
-            Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"]),
+            Dataset(df, "Sex", "HeartDisease", "HeartDiseasePred"),
             0.4,
             eor_expected_result_2,
         ),
@@ -1345,7 +1337,7 @@ eor_expected_result_3 = [
             dataset3,
             0.8,
             eor_expected_result_3,
-        ),
+        ),  # rajouter un test ici
     ],
 )
 def test_equalised_odds_ratio(
