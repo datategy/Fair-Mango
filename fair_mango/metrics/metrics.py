@@ -671,7 +671,7 @@ class PerformanceMetric(Metric):
             group_ = real_group["sensitive"]
             real_y_group = real_group["data"]
             predicted_y_group = predicted_group["data"]
-            result_for_group = {"sensitive": group_}
+            result_for_group: dict[str, list | pd.DataFrame] = {"sensitive": group_}
 
             for real_col, predicted_col in zip(
                 self.data.real_target, self.data.predicted_target
@@ -685,8 +685,8 @@ class PerformanceMetric(Metric):
 
                 for metric_name, metric in self.metrics.items():
                     if metric_name not in result_for_group:
-                        result_for_group[metric_name] = []  # type: ignore
-                    result_for_group[metric_name].append(  # type: ignore
+                        result_for_group[metric_name] = []
+                    result_for_group[metric_name].append(
                         metric(real_values, predicted_values)
                     )
 
