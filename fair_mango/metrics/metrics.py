@@ -58,9 +58,7 @@ class SelectionRate(Metric):
         use_y_true: bool = False,
         label: str = "result",
     ):
-        super().__init__(
-            data,
-        )
+        super().__init__(data)
         self.use_y_true = use_y_true
         self.label = label
 
@@ -679,8 +677,8 @@ class PerformanceMetric(Metric):
                 self.data.real_target, self.data.predicted_target
             ):
                 if len(self.data.real_target) != 1:
-                    real_values = real_y_group[real_col]
-                    predicted_values = predicted_y_group[predicted_col]
+                    real_values: pd.Series = real_y_group[real_col]
+                    predicted_values: pd.Series = predicted_y_group[predicted_col]
                 else:
                     real_values = real_y_group.iloc[:, 0]
                     predicted_values = predicted_y_group.iloc[:, 0]
