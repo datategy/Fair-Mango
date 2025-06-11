@@ -8,28 +8,28 @@ from fair_mango.metrics.base import encode_target, is_binary
 
 df = pd.read_csv("tests/data/heart_data.csv")
 
-dataset1 = Dataset(df, ["Sex"], ["HeartDisease"])
+dataset1 = Dataset(df, ["Sex"], "HeartDisease")
 
-dataset2 = Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"])
+dataset2 = Dataset(df, ["Sex"], "HeartDisease", "HeartDiseasePred")
 
-dataset3 = Dataset(df, ["Sex", "ChestPainType"], ["HeartDisease"], ["HeartDiseasePred"])
+dataset3 = Dataset(df, ["Sex", "ChestPainType"], "HeartDisease", "HeartDiseasePred")
 
-dataset4 = Dataset(df, ["Sex"], ["HeartDisease", "ExerciseAngina"], None, [1, "Y"])
+dataset4 = Dataset(df, ["Sex"], "HeartDisease", None, 1)
 
 dataset5 = Dataset(
     df,
     ["Sex"],
-    ["HeartDisease", "ExerciseAngina"],
-    ["HeartDiseasePred", "ExerciseAnginaPred"],
-    [1, "Y"],
+    "ExerciseAngina",
+    "ExerciseAnginaPred",
+    "Y",
 )
 
 dataset6 = Dataset(
     df,
     ["Sex", "ChestPainType"],
-    ["HeartDisease", "ExerciseAngina"],
-    ["HeartDiseasePred", "ExerciseAnginaPred"],
-    [1, "Y"],
+    "HeartDisease",
+    "HeartDiseasePred",
+    1,
 )
 
 
@@ -47,20 +47,20 @@ def test_is_binary(y: pd.Series | pd.DataFrame, expected_result: bool):
 
 
 @pytest.mark.parametrize(
-    "data, ind, col, expected_result",
+    "data, col, expected_result",
     [
-        (dataset4, 0, "HeartDisease", None),
-        (dataset5, 1, "ExerciseAngina", None),
-        (dataset5, 1, "HeartDiseasePred", pytest.raises(KeyError)),
-        (dataset3, 0, "ExerciseAngina", pytest.raises(ValueError)),
+        (dataset4, "HeartDisease", None),
+        (dataset5, "ExerciseAngina", None),
+        (dataset5, "HeartDiseasePred", pytest.raises(KeyError)),
+        (dataset3, "ExerciseAngina", pytest.raises(ValueError)),
     ],
 )
 def test_encode_target(
-    data: Dataset, ind: int, col: str, expected_result: None | AbstractContextManager
+    data: Dataset, col: str, expected_result: None | AbstractContextManager
 ):
     if expected_result is None:
-        encode_target(data, ind, col)
+        encode_target(data, col)
         assert sorted(data.df[col].unique()) == [0, 1]
     else:
         with expected_result:
-            encode_target(data, ind, col)
+            encode_target(data, col)

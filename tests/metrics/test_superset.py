@@ -25,28 +25,28 @@ from fair_mango.metrics.superset import (
 
 df = pd.read_csv("tests/data/heart_data.csv")
 
-dataset1 = Dataset(df, ["Sex"], ["HeartDisease"])
+dataset1 = Dataset(df, ["Sex"], "HeartDisease")
 
-dataset2 = Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"])
+dataset2 = Dataset(df, ["Sex"], "HeartDisease", "HeartDiseasePred")
 
-dataset3 = Dataset(df, ["Sex", "ChestPainType"], ["HeartDisease"], ["HeartDiseasePred"])
+dataset3 = Dataset(df, ["Sex", "ChestPainType"], "HeartDisease", "HeartDiseasePred")
 
-dataset4 = Dataset(df, ["Sex"], ["HeartDisease", "ExerciseAngina"], None, [1, "Y"])
+dataset4 = Dataset(df, ["Sex"], "HeartDisease", None, 1)
 
 dataset5 = Dataset(
     df,
     ["Sex"],
-    ["HeartDisease", "ExerciseAngina"],
-    ["HeartDiseasePred", "ExerciseAnginaPred"],
-    [1, "Y"],
+    "ExerciseAngina",
+    "ExerciseAnginaPred",
+    "Y",
 )
 
 dataset6 = Dataset(
     df,
     ["Sex", "ChestPainType"],
-    ["HeartDisease", "ExerciseAngina"],
-    ["HeartDiseasePred", "ExerciseAnginaPred"],
-    [1, "Y"],
+    "HeartDisease",
+    "HeartDiseasePred",
+    1,
 )
 
 
@@ -142,9 +142,7 @@ super_set_fairness_metrics_expected_result_3 = [
         ),
         (
             DisparateImpactRatio,
-            Dataset(
-                df, ["Sex", "ChestPainType"], ["HeartDisease"], ["HeartDiseasePred"]
-            ),
+            Dataset(df, ["Sex", "ChestPainType"], "HeartDisease", "HeartDiseasePred"),
             super_set_fairness_metrics_expected_result_2,
         ),
         (
@@ -231,7 +229,7 @@ super_set_performance_metrics_expected_result_2 = [
             super_set_performance_metrics_expected_result_2,
         ),
         (
-            Dataset(df, ["Sex"], ["HeartDisease"], ["HeartDiseasePred"]),
+            Dataset(df, ["Sex"], "HeartDisease", "HeartDiseasePred"),
             super_set_performance_metrics_expected_result_2,
         ),
     ],
