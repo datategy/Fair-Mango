@@ -114,13 +114,13 @@ dataset6 = Dataset(
             dataset5,
             True,
             ["M", "F"],
-            [[0.63172414, 0.45241379], [0.25906736, 0.22279793]],
+            [0.45241379, 0.22279793],
         ),
         (
             dataset5,
             False,
             ["M", "F"],
-            [[0.6262069, 0.45241379], [0.2642487, 0.22279793]],
+            [0.45241379, 0.22279793],
         ),
     ],
 )
@@ -179,43 +179,45 @@ confusionmatrix_expected_result_3 = [
 confusionmatrix_expected_result_6 = [
     {
         "sensitive": np.array(["M", "ASY"]),
-        "true_negative_rate": [0.9863013698630136, 1.0],
-        "false_negative_rate": [0.014164305949008499, 0.0],
+        "true_negative_rate": [0.9863013698630136],
+        "false_negative_rate": [0.014164305949008499],
     },
     {
         "sensitive": np.array(["M", "NAP"]),
-        "true_negative_rate": [0.9880952380952381, 1.0],
-        "false_negative_rate": [0.015151515151515152, 0.0],
+        "true_negative_rate": [0.9880952380952381],
+        "false_negative_rate": [0.015151515151515152],
     },
     {
         "sensitive": np.array(["M", "ATA"]),
-        "true_negative_rate": [0.989247311827957, 1.0],
-        "false_negative_rate": [0.05, 0.0],
+        "true_negative_rate": [0.989247311827957],
+        "false_negative_rate": [0.05],
     },
     {
         "sensitive": np.array(["F", "ASY"]),
-        "true_negative_rate": [0.9032258064516129, 1.0],
-        "false_negative_rate": [0.02564102564102564, 0.0],
+        "true_negative_rate": [0.9032258064516129],
+        "false_negative_rate": [0.02564102564102564],
     },
     {
         "sensitive": np.array(["F", "ATA"]),
-        "true_negative_rate": [0.9821428571428571, 1.0],
-        "false_negative_rate": [0.0, 0.0],
+        "true_negative_rate": [0.9821428571428571],
+        "false_negative_rate": [
+            0.0,
+        ],
     },
     {
         "sensitive": np.array(["F", "NAP"]),
-        "true_negative_rate": [1.0, 1.0],
-        "false_negative_rate": [0.3333333333333333, 0.0],
+        "true_negative_rate": [1.0],
+        "false_negative_rate": [0.3333333333333333],
     },
     {
         "sensitive": np.array(["M", "TA"]),
-        "true_negative_rate": [0.8235294117647058, 1.0],
-        "false_negative_rate": [0.15789473684210525, 0.0],
+        "true_negative_rate": [0.8235294117647058],
+        "false_negative_rate": [0.15789473684210525],
     },
     {
         "sensitive": np.array(["F", "TA"]),
-        "true_negative_rate": [1.0, 1.0],
-        "false_negative_rate": [0.0, np.nan],
+        "true_negative_rate": [1.0],
+        "false_negative_rate": [0.0],
     },
 ]
 
@@ -248,7 +250,9 @@ def test_confusionmatrix(
                 if key == "sensitive":
                     assert (res[key] == expected_result[i][key]).all()
                 else:
-                    for val, expected_val in zip(res[key], expected_result[i][key]):
+                    for val, expected_val in zip(
+                        res[key], expected_result[i][key], strict=True
+                    ):
                         if np.isnan(val) and np.isnan(expected_val):
                             continue
                         else:
@@ -304,11 +308,6 @@ dpd_expected_result_6 = [
             "privileged": ("M", "ASY"),
             "unprivileged": ("F", "ATA"),
         },
-        "ExerciseAngina": {
-            "demographic_parity_difference": 0.6197183098591549,
-            "privileged": ("M", "ASY"),
-            "unprivileged": ("F", "TA"),
-        },
     },
     {
         "HeartDisease": {
@@ -321,18 +320,8 @@ dpd_expected_result_6 = [
             ("F", "TA"): -0.28720349955031044,
             ("F", "ATA"): -0.32529873764554856,
         },
-        "ExerciseAngina": {
-            ("M", "ASY"): 0.44419980257312147,
-            ("F", "ASY"): 0.27472581579531175,
-            ("M", "NAP"): 0.08642649606742059,
-            ("M", "TA"): -0.07357350393257941,
-            ("M", "ATA"): -0.14268433410535647,
-            ("F", "NAP"): -0.1562329828184734,
-            ("F", "ATA"): -0.16881159917067465,
-            ("F", "TA"): -0.26404969440876985,
-        },
     },
-    {"HeartDisease": True, "ExerciseAngina": False},
+    {"HeartDisease": True},
 ]
 
 
@@ -432,11 +421,6 @@ dpr_expected_result_6 = [
             "privileged": ("M", "ASY"),
             "unprivileged": ("F", "ATA"),
         },
-        "ExerciseAngina": {
-            "demographic_parity_ratio": 0.0,
-            "privileged": ("F", "TA"),
-            "unprivileged": ("M", "ASY"),
-        },
     },
     {
         "HeartDisease": {
@@ -449,18 +433,8 @@ dpr_expected_result_6 = [
             ("F", "ASY"): 0.5777645230023888,
             ("M", "ASY"): 0.341659585454887,
         },
-        "ExerciseAngina": {
-            ("F", "TA"): np.inf,
-            ("F", "ATA"): 3.0257391900480957,
-            ("F", "NAP"): 2.6560696178758176,
-            ("M", "ATA"): 2.34361081282544,
-            ("M", "TA"): 1.4414410235954764,
-            ("M", "NAP"): 0.7181744693453675,
-            ("F", "ASY"): 0.4172482695250963,
-            ("M", "ASY"): 0.28322304584791763,
-        },
     },
-    {"HeartDisease": True, "ExerciseAngina": True},
+    {"HeartDisease": True},
 ]
 
 
@@ -551,11 +525,6 @@ did_expected_result_6 = [
             "privileged": ("M", "ASY"),
             "unprivileged": ("F", "NAP"),
         },
-        "ExerciseAnginaPred": {
-            "disparate_impact_difference": 0.6197183098591549,
-            "privileged": ("M", "ASY"),
-            "unprivileged": ("F", "TA"),
-        },
     },
     {
         "HeartDisease": {
@@ -568,18 +537,8 @@ did_expected_result_6 = [
             ("F", "ASY"): 0.26816817343458915,
             ("M", "ASY"): 0.5350647912366394,
         },
-        "ExerciseAngina": {
-            ("F", "TA"): -0.26404969440876985,
-            ("F", "ATA"): -0.16881159917067465,
-            ("F", "NAP"): -0.1562329828184734,
-            ("M", "ATA"): -0.14268433410535647,
-            ("M", "TA"): -0.07357350393257941,
-            ("M", "NAP"): 0.08642649606742059,
-            ("F", "ASY"): 0.27472581579531175,
-            ("M", "ASY"): 0.44419980257312147,
-        },
     },
-    {"HeartDisease": True, "ExerciseAngina": False},
+    {"HeartDisease": True},
 ]
 
 
@@ -665,11 +624,6 @@ dir_expected_result_6 = [
             "privileged": ("M", "ASY"),
             "unprivileged": ("F", "NAP"),
         },
-        "ExerciseAnginaPred": {
-            "disparate_impact_ratio": 0.0,
-            "privileged": ("F", "TA"),
-            "unprivileged": ("M", "ASY"),
-        },
     },
     {
         "HeartDisease": {
@@ -682,18 +636,8 @@ dir_expected_result_6 = [
             ("F", "ASY"): 0.5421518990141162,
             ("M", "ASY"): 0.3468836645650188,
         },
-        "ExerciseAngina": {
-            ("F", "TA"): np.inf,
-            ("F", "ATA"): 3.0257391900480957,
-            ("F", "NAP"): 2.6560696178758176,
-            ("M", "ATA"): 2.34361081282544,
-            ("M", "TA"): 1.4414410235954764,
-            ("M", "NAP"): 0.7181744693453675,
-            ("F", "ASY"): 0.4172482695250963,
-            ("M", "ASY"): 0.28322304584791763,
-        },
     },
-    {"HeartDisease": True, "ExerciseAngina": True},
+    {"HeartDisease": True},
 ]
 
 
@@ -791,11 +735,6 @@ eod_expected_result_6 = [
             "privileged": ("F", "ATA"),
             "unprivileged": ("F", "NAP"),
         },
-        "ExerciseAngina": {
-            "equal_opportunity_difference": 0.0,
-            "privileged": None,
-            "unprivileged": None,
-        },
     },
     {
         "HeartDisease": {
@@ -808,18 +747,8 @@ eod_expected_result_6 = [
             ("M", "TA"): -0.09528185397426492,
             ("F", "NAP"): -0.29578310710709704,
         },
-        "ExerciseAngina": {
-            ("M", "ASY"): np.nan,
-            ("M", "NAP"): np.nan,
-            ("M", "ATA"): np.nan,
-            ("F", "ASY"): np.nan,
-            ("F", "ATA"): np.nan,
-            ("F", "NAP"): np.nan,
-            ("M", "TA"): np.nan,
-            ("F", "TA"): np.nan,
-        },
     },
-    {"HeartDisease": True, "ExerciseAngina": False},
+    {"HeartDisease": True},
 ]
 
 
@@ -911,11 +840,6 @@ eor_expected_result_6 = [
             "privileged": ("F", "ATA"),
             "unprivileged": ("F", "NAP"),
         },
-        "ExerciseAngina": {
-            "equal_opportunity_ratio": 1.0,
-            "privileged": None,
-            "unprivileged": None,
-        },
     },
     {
         "HeartDisease": {
@@ -928,18 +852,8 @@ eor_expected_result_6 = [
             ("M", "TA"): 1.1131472015944397,
             ("F", "NAP"): 1.4436746606606454,
         },
-        "ExerciseAngina": {
-            ("M", "ASY"): np.nan,
-            ("M", "NAP"): np.nan,
-            ("M", "ATA"): np.nan,
-            ("F", "ASY"): np.nan,
-            ("F", "ATA"): np.nan,
-            ("F", "NAP"): np.nan,
-            ("M", "TA"): np.nan,
-            ("F", "TA"): np.nan,
-        },
     },
-    {"HeartDisease": True, "ExerciseAngina": False},
+    {"HeartDisease": True},
 ]
 
 
@@ -1065,51 +979,73 @@ performancemetrics_expected_result_3 = [
 performancemetrics_expected_result_6 = [
     {
         "sensitive": np.array(["M", "ASY"], dtype=object),
-        "precision_score": [0.997134670487106, 1.0],
-        "recall_score": [0.9858356940509915, 1.0],
-        "f1_score": [0.9914529914529915, 1.0],
+        "precision_score": [0.997134670487106],
+        "recall_score": [
+            0.9858356940509915,
+        ],
+        "f1_score": [
+            0.9914529914529915,
+        ],
     },
     {
         "sensitive": np.array(["M", "NAP"], dtype=object),
-        "precision_score": [0.9848484848484849, 1.0],
-        "recall_score": [0.9848484848484849, 1.0],
-        "f1_score": [0.9848484848484849, 1.0],
+        "precision_score": [
+            0.9848484848484849,
+        ],
+        "recall_score": [
+            0.9848484848484849,
+        ],
+        "f1_score": [
+            0.9848484848484849,
+        ],
     },
     {
         "sensitive": np.array(["M", "ATA"], dtype=object),
-        "precision_score": [0.95, 1.0],
-        "recall_score": [0.95, 1.0],
-        "f1_score": [0.95, 1.0],
+        "precision_score": [
+            0.95,
+        ],
+        "recall_score": [
+            0.95,
+        ],
+        "f1_score": [
+            0.95,
+        ],
     },
     {
         "sensitive": np.array(["F", "ASY"], dtype=object),
-        "precision_score": [0.926829268292683, 1.0],
-        "recall_score": [0.9743589743589743, 1.0],
-        "f1_score": [0.95, 1.0],
+        "precision_score": [
+            0.926829268292683,
+        ],
+        "recall_score": [
+            0.9743589743589743,
+        ],
+        "f1_score": [
+            0.95,
+        ],
     },
     {
         "sensitive": np.array(["F", "ATA"], dtype=object),
-        "precision_score": [0.8, 1.0],
-        "recall_score": [1.0, 1.0],
-        "f1_score": [0.8888888888888888, 1.0],
+        "precision_score": [0.8],
+        "recall_score": [1.0],
+        "f1_score": [0.8888888888888888],
     },
     {
         "sensitive": np.array(["F", "NAP"], dtype=object),
-        "precision_score": [1.0, 1.0],
-        "recall_score": [0.6666666666666666, 1.0],
-        "f1_score": [0.8, 1.0],
+        "precision_score": [1.0],
+        "recall_score": [0.6666666666666666],
+        "f1_score": [0.8],
     },
     {
         "sensitive": np.array(["M", "TA"], dtype=object),
-        "precision_score": [0.8421052631578947, 1.0],
-        "recall_score": [0.8421052631578947, 1.0],
-        "f1_score": [0.8421052631578947, 1.0],
+        "precision_score": [0.8421052631578947],
+        "recall_score": [0.8421052631578947],
+        "f1_score": [0.8421052631578947],
     },
     {
         "sensitive": np.array(["F", "TA"], dtype=object),
-        "precision_score": [1.0, 0.0],
-        "recall_score": [1.0, 0.0],
-        "f1_score": [1.0, 0.0],
+        "precision_score": [1.0],
+        "recall_score": [1.0],
+        "f1_score": [1.0],
     },
 ]
 
@@ -1215,11 +1151,6 @@ eod_expected_result_6 = [
             "privileged": ("F", "ATA"),
             "unprivileged": ("F", "NAP"),
         },
-        "ExerciseAngina": {
-            "equalised_odds_difference": 0.0,
-            "privileged": None,
-            "unprivileged": None,
-        },
     },
     {
         "HeartDisease": {
@@ -1232,18 +1163,8 @@ eod_expected_result_6 = [
             ("M", "TA"): -0.16240914536313006,
             ("F", "NAP"): -0.24551036643187954,
         },
-        "ExerciseAngina": {
-            ("M", "ASY"): 0.0,
-            ("M", "NAP"): 0.0,
-            ("M", "ATA"): 0.0,
-            ("F", "ASY"): 0.0,
-            ("F", "ATA"): 0.0,
-            ("F", "NAP"): 0.0,
-            ("M", "TA"): 0.0,
-            ("F", "TA"): 0.0,
-        },
     },
-    {"HeartDisease": True, "ExerciseAngina": False},
+    {"HeartDisease": True},
 ]
 
 
@@ -1319,6 +1240,29 @@ eor_expected_result_3 = [
     {"HeartDisease": False},
 ]
 
+eor_expected_result_6 = [
+    {
+        "HeartDisease": {
+            "equalised_odds_ratio": np.float64(0.0),
+            "privileged": ("F", "NAP"),
+            "unprivileged": ("M", "ASY"),
+        }
+    },
+    {
+        "HeartDisease": {
+            ("M", "ASY"): np.inf,
+            ("M", "NAP"): np.inf,
+            ("M", "ATA"): np.inf,
+            ("F", "ASY"): np.inf,
+            ("F", "ATA"): np.inf,
+            ("F", "NAP"): np.nan,
+            ("M", "TA"): np.inf,
+            ("F", "TA"): np.nan,
+        }
+    },
+    {"HeartDisease": False},
+]
+
 
 @pytest.mark.parametrize(
     "data, threshold, expected_result",
@@ -1337,7 +1281,8 @@ eor_expected_result_3 = [
             dataset3,
             0.8,
             eor_expected_result_3,
-        ),  # rajouter un test ici
+        ),
+        (dataset6, None, eor_expected_result_6),
     ],
 )
 def test_equalised_odds_ratio(
@@ -1357,7 +1302,10 @@ def test_equalised_odds_ratio(
             for val, expected_val in zip(ranking.values(), expected_ranking.values()):
                 if not np.isnan(val) and not np.isnan(expected_val):
                     assert np.isclose(val, expected_val)
-        is_biased = eor.is_biased(threshold)
+        if threshold is None:
+            is_biased = eor.is_biased()
+        else:
+            is_biased = eor.is_biased(threshold)
         assert is_biased == expected_result[2]
     else:
         with expected_result:

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Hashable, Sequence
 from itertools import combinations
-from typing import Any, Literal
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -10,12 +10,12 @@ from numpy.typing import NDArray
 from fair_mango.dataset.dataset import Dataset
 
 
-def is_binary(y: pd.Series | pd.DataFrame) -> bool:
+def is_binary(y: pd.Series) -> bool:
     """Check if a data contains two unique values.
 
     Parameters
     ----------
-    y : pd.Series | pd.DataFrame
+    y : pd.Series
         Input data.
 
     Returns
@@ -23,16 +23,10 @@ def is_binary(y: pd.Series | pd.DataFrame) -> bool:
     bool
         True if data contains two unique values else False.
     """
-    if isinstance(y, pd.Series):
-        if y.nunique() == 2:
-            return True
-        else:
-            return False
+    if y.nunique() == 2:
+        return True
     else:
-        if (y.nunique() == 2).all():
-            return True
-        else:
-            return False
+        return False
 
 
 def encode_target(data: Dataset, col: str | Hashable) -> None:
@@ -166,7 +160,7 @@ class Metric(ABC):
     def __init__(self, data: Dataset) -> None:
         self.data = data
         self.predicted_target_by_group = []
-        y: Any = self.data.df[self.data.real_target]
+        y: pd.Series = self.data.df[self.data.real_target]
 
         if is_binary(y):
             if (np.unique(y) != [0, 1]).all():
