@@ -489,7 +489,7 @@ class Dataset:
         sensitive : Sequence[str]
             Sequence of sensitive values must be in the same order as `sensitive`
             attribute, and so `sensitive_group` must be the same length as
-            `sensitive`. For instance, if your `sensitive` attribute were
+            `sensitive`. For instance, if your `sensitive` attributes were
             `["race", "gender"]`, you can pass `sensitive_group=["white", "male"]`.
 
         Returns
