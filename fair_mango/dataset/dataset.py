@@ -89,65 +89,30 @@ def convert_to_list(variable: Sequence[str] | str) -> Sequence[str]:
         return variable
 
 
-def type_verification(
-    df: pd.DataFrame,
-    sensitive: Sequence[str] | str,
-    real_target: str,
-    predicted_target: str | None = None,
-    positive_target: int | float | str | bool | None = None,
-):
+def df_filtration(
+    df: pd.DataFrame, sensitive_group: Sequence[str], sensitive: Sequence[str]
+) -> pd.DataFrame:
+    """Filters a DataFrame to only take the sensitive groups
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        df of the dataset
+
+    sensitive : Sequence[str]
+            Sequence of sensitive values must be in the same order as `sensitive`
+            attribute, and so `sensitive_group` must be the same length as
+            `sensitive`. For instance, if your `sensitive` attributes were
+            `["race", "gender"]`, you can pass `sensitive_group=["white", "male"]`.
+
+    Returns
+    -------
+    pd.Dataframe
     """
-    Verifies the types of the input arguments.
-
-    Parameters:
-    ------------
-        df: A pandas DataFrame.
-        sensitive: A sequence of strings or a single string.
-        real_target: A string.
-        predicted_target: A string or None.
-        positive_target: An int, float, string, bool, or None.
-
-    Raises:
-        TypeError: If any of the input arguments have the wrong type.
-    """
-    if not isinstance(df, pd.DataFrame):
-        raise TypeError(
-            f"df must be a pandas DataFrame, "
-            f"but got an object of type {type(df).__name__}"
-        )
-
-    if not isinstance(sensitive, str):
-        if isinstance(sensitive, Sequence):
-            if not all(isinstance(x, str) for x in sensitive):
-                raise TypeError(
-                    "sensitive must be a Sequence of strings or a string, "
-                    "but got a Sequence with non-string elements"
-                )
-        else:
-            raise TypeError(
-                f"sensitive must be a Sequence of strings or a string, "
-                f"but got an object of type {type(sensitive).__name__}"
-            )
-
-    if not isinstance(real_target, str):
-        raise TypeError(
-            f"real_target must be a string, "
-            f"but got an object of type {type(real_target).__name__}"
-        )
-
-    if predicted_target is not None and not isinstance(predicted_target, str):
-        raise TypeError(
-            f"predicted_target must be a string or None, "
-            f"but got an object of type {type(predicted_target).__name__}"
-        )
-
-    if positive_target is not None and not isinstance(
-        positive_target, (int, float, str, bool)
-    ):
-        raise TypeError(
-            f"positive_target must be an int, float, string, bool, or None, "
-            f"but got an object of type {type(positive_target).__name__}"
-        )
+    mask = pd.Series(True, index=df.index)
+    for column, value in zip(sensitive, sensitive_group):
+        mask &= df[column] == value
+    return df[mask]
 
 
 class Dataset:
@@ -185,7 +150,6 @@ class Dataset:
         predicted_target: str | None = None,
         positive_target: int | float | str | bool | None = None,
     ):
-        type_verification(df, sensitive, real_target, predicted_target, positive_target)
         self.sensitive = convert_to_list(sensitive)
         check_column_existence_in_df(df, self.sensitive)
         self.real_target = real_target
@@ -194,7 +158,7 @@ class Dataset:
             self.predicted_target = predicted_target
             check_column_existence_in_df(df, [self.predicted_target])
         else:
-            self.predicted_target = None  # type: ignore
+            self.predicted_targe = None
         validate_columns(self.sensitive, self.real_target, self.predicted_target)
         self.df = df.copy()
         self.shape = df.shape
@@ -398,9 +362,7 @@ class Dataset:
         """
         result = None
         if self.groups_data == []:
-            result = self.df
-            for i in range(len(sensitive_group)):
-                result = result[result[self.sensitive[i]].isin(sensitive_group)]
+            result = df_filtration(self.df, sensitive_group, self.sensitive)
         else:
             for item in self.groups_data:
                 if (all(e1 in item["sensitive"] for e1 in sensitive_group)) and (
@@ -578,11 +540,7 @@ class Dataset:
         """
         result = None
         if self.groups_real_target is None:
-            filtered_df = self.df
-            for i in range(len(sensitive_group)):
-                filtered_df = filtered_df[
-                    filtered_df[self.sensitive[i]].isin(sensitive_group)
-                ]
+            filtered_df = df_filtration(self.df, sensitive_group, self.sensitive)
             result = filtered_df[self.real_target]
         else:
             for item in self.groups_real_target:
@@ -769,11 +727,7 @@ class Dataset:
             )
         result = None
         if self.groups_predicted_target is None:
-            filtered_df = self.df
-            for i in range(len(sensitive_group)):
-                filtered_df = filtered_df[
-                    filtered_df[self.sensitive[i]].isin(sensitive_group)
-                ]
+            filtered_df = df_filtration(self.df, sensitive_group, self.sensitive)
             result = filtered_df[self.predicted_target]
         else:
             for item in self.groups_predicted_target:
