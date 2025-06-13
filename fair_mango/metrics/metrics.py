@@ -192,9 +192,7 @@ class SelectionRate(Metric):
             results.append({"sensitive": group_, self.label: np.array(y_group.mean())})
         return target, results
 
-    def all_data(
-        self,
-    ) -> dict[str, float]:
+    def all_data(self) -> dict[str, float]:
         """Compute overall selection rate corresponding to the whole dataset.
 
         Returns
