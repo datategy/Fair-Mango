@@ -175,10 +175,10 @@ class SelectionRate(Metric):
         """
         results: list = []
         if self.use_y_true:
-            target = self.data.real_target
+            target: str = self.data.real_target
             target_by_group = self.real_target_by_group
         else:
-            if self.predicted_target_by_group == []:
+            if self.data.predicted_target is None:
                 raise ValueError(
                     "No predictions found, provide predicted_target parameter "
                     "when creating the dataset or set use_y_true to True to "
@@ -241,11 +241,18 @@ class SelectionRate(Metric):
         if self.use_y_true:
             return {self.data.real_target: self.data.df[self.data.real_target].mean()}
         else:
-            return {
-                self.data.predicted_target: self.data.df[
-                    self.data.predicted_target
-                ].mean()
-            }
+            if self.data.predicted_target is None:
+                raise ValueError(
+                    "No predictions found, provide predicted_target parameter "
+                    "when creating the dataset or set use_y_true to True to "
+                    "use the real labels"
+                )
+            else:
+                return {
+                    self.data.predicted_target: self.data.df[
+                        self.data.predicted_target
+                    ].mean()
+                }
 
 
 class ConfusionMatrix(Metric):

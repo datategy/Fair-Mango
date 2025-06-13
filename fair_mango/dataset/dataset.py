@@ -100,17 +100,17 @@ def df_filtration(
         df of the dataset
 
     sensitive : Sequence[str]
-            Sequence of sensitive values must be in the same order as `sensitive`
-            attribute, and so `sensitive_group` must be the same length as
-            `sensitive`. For instance, if your `sensitive` attributes were
-            `["race", "gender"]`, you can pass `sensitive_group=["white", "male"]`.
+        Sequence of sensitive values must be in the same order as `sensitive`
+        attribute, and so `sensitive_group` must be the same length as
+        `sensitive`. For instance, if your `sensitive` attributes were
+        `["race", "gender"]`, you can pass `sensitive_group=["white", "male"]`.
 
     Returns
     -------
     pd.Dataframe
     """
     mask = pd.Series(True, index=df.index)
-    for column, value in zip(sensitive, sensitive_group):
+    for column, value in zip(sensitive, sensitive_group, strict=True):
         mask &= df[column] == value
     return df[mask]
 
@@ -154,11 +154,9 @@ class Dataset:
         check_column_existence_in_df(df, self.sensitive)
         self.real_target = real_target
         check_column_existence_in_df(df, [self.real_target])
-        if predicted_target is not None:
-            self.predicted_target = predicted_target
+        self.predicted_target = predicted_target
+        if self.predicted_target is not None:
             check_column_existence_in_df(df, [self.predicted_target])
-        else:
-            self.predicted_targe = None
         validate_columns(self.sensitive, self.real_target, self.predicted_target)
         self.df = df.copy()
         self.shape = df.shape
