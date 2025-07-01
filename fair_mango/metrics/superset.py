@@ -17,6 +17,7 @@ from fair_mango.metrics.metrics import (
     PerformanceMetric,
     SelectionRate,
 )
+from fair_mango.typing import SupersetFairnessRank, SupersetPerformanceEvaluation
 
 
 class Superset(ABC):
@@ -123,15 +124,15 @@ class SupersetFairnessMetrics(Superset):
         super().__init__(data)
         self.metric = metric
 
-    def rank(self) -> list:
+    def rank(self) -> list[SupersetFairnessRank]:
         """Calculate fairness metrics scores for different subsets of sensitive
         attributes and ranks them. Ex:
         [gender, race] → (gender), (race), (gender, race)
 
         Returns
         -------
-        list
-            A list of dictionaries, each containing the sensitive attributes
+        list[SupersetFairnessRank]
+            A list of SupersetFairnessRank dictionaries, each containing the sensitive attributes
             considered and their corresponding fairness metric result.
 
         Examples
@@ -236,15 +237,15 @@ class SupersetPerformanceMetrics(Superset):
         super().__init__(data)
         self.metrics = [SelectionRate, PerformanceMetric, ConfusionMatrix]
 
-    def evaluate(self) -> list[dict]:
+    def evaluate(self) -> list[SupersetPerformanceEvaluation]:
         """Calculate performance evaluation metrics for different subsets of
         sensitive attributes. Ex:
         [gender, race] → (gender), (race), (gender, race)
 
         Returns
         -------
-        list
-            A list of dictionaries, each containing the sensitive attributes
+        list[SupersetPerformanceEvaluation]
+            A list of SupersetPerformanceEvaluation dictionaries, , each containing the sensitive attributes
             considered and their corresponding performance evaluation metric
             results.
 

@@ -1,7 +1,10 @@
 from collections.abc import Sequence
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+
+from fair_mango.typing import MetricResult
 
 
 def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence[str]) -> None:
@@ -375,7 +378,7 @@ class Dataset:
 
     def get_real_target_for_all_groups(
         self,
-    ) -> list[dict[str, pd.DataFrame]]:
+    ) -> list[MetricResult]:
         """Retrieve the real target corresponding to each sensitive group
         present in the sensitive features.
 
@@ -388,9 +391,8 @@ class Dataset:
 
         Returns
         -------
-        list[dict[str, np.ndarray | pd.Series | pd.DataFrame]]
-            List of dictionaries with the sensitive group as keys and the
-            corresponding real target as value.
+        list[MetricResult]
+            List of MetricResult dictionaries with standardized structure.
 
         Examples
         --------
@@ -464,9 +466,14 @@ class Dataset:
             result = self.df
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
-            self.groups_real_target.append(
-                {"sensitive": row[:-1], "data": result[self.real_target]}
-            )
+            
+            sensitive_group = np.array(row[:-1], dtype=str) 
+            target_data = result[self.real_target] 
+            
+            self.groups_real_target.append({
+                "sensitive": sensitive_group,
+                "data": target_data
+            })
         return self.groups_real_target
 
     def get_real_target_for_one_group(
@@ -554,7 +561,7 @@ class Dataset:
 
     def get_predicted_target_for_all_groups(
         self,
-    ) -> list[dict[str, pd.DataFrame]]:
+    ) -> list[MetricResult]:
         """Retrieve the predicted target corresponding to each sensitive
         group present in the sensitive features.
 
@@ -567,9 +574,8 @@ class Dataset:
 
         Returns
         -------
-        list[dict[str, np.ndarray | pd.Series | pd.DataFrame]]
-            List of dictionaries with the sensitive group as keys and the
-            corresponding predicted target as value.
+        list[MetricResult]
+            List of MetricResult dictionaries with standardized structure.
 
         Examples
         --------
@@ -647,9 +653,14 @@ class Dataset:
             result = self.df
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
-            self.groups_predicted_target.append(
-                {"sensitive": row[:-1], "data": result[self.predicted_target]}
-            )
+            
+            sensitive_group = np.array(row[:-1], dtype=str)
+            target_data = result[self.predicted_target] 
+            
+            self.groups_predicted_target.append({
+                "sensitive": sensitive_group,
+                "data": target_data
+            })
         return self.groups_predicted_target
 
     def get_predicted_target_for_one_group(
