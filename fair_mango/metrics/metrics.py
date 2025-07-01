@@ -1,6 +1,8 @@
 from collections.abc import Collection, Sequence
 
 import numpy as np
+import pandas as pd
+
 from numpy.typing import NDArray
 from sklearn.metrics import (  # type: ignore
     accuracy_score,
@@ -9,8 +11,7 @@ from sklearn.metrics import (  # type: ignore
     f1_score,
     precision_score,
     recall_score,
-)
-
+)            
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.metrics.base import (
     FairnessMetricDifference,
@@ -21,6 +22,7 @@ from fair_mango.metrics.base import (
     true_negative_rate,
     true_positive_rate,
 )
+from fair_mango.typing import MetricResult
 
 
 class SelectionRate(Metric):
@@ -61,17 +63,18 @@ class SelectionRate(Metric):
         self.use_y_true = use_y_true
         self.label = label
 
-    def __call__(self) -> tuple[Sequence[str], list[dict[str, np.ndarray]]]:
+    def __call__(self) -> tuple[str, list[MetricResult]]:
         """Calculate the selection rates for all the different sensitive groups
         present in the sensitive feature.
 
         Returns
         -------
-        tuple[Sequence[str], list[dict[str, np.ndarray]]]
+        tuple[Sequence[str], list[MetricResult]]
+            A tuple containing the target name and list of MetricResult dictionaries.
             A tuple containing two elements:
             - target (Sequence[str]): The target variables used for
               calculation.
-            - results (list[dict[str, np.ndarray]]): A list of dictionaries,
+            - results (list[MetricResult]): A list of MetricResult,
               where each dictionary has two keys:
                 1. sensitive: The name of the sensitive group.
                 2. result: The selection rate for the sensitive group.
@@ -173,9 +176,9 @@ class SelectionRate(Metric):
             ]
         )
         """
-        results: list = []
+        results: list[MetricResult] = []
         if self.use_y_true:
-            target: str = self.data.real_target
+            target = self.data.real_target
             target_by_group = self.real_target_by_group
         else:
             if self.data.predicted_target is None:
@@ -184,12 +187,17 @@ class SelectionRate(Metric):
                     "when creating the dataset or set use_y_true to True to "
                     "use the real labels"
                 )
-            target = self.data.predicted_target
+            target= self.data.predicted_target
             target_by_group = self.predicted_target_by_group
+        
         for group in target_by_group:
-            group_ = group["sensitive"]
-            y_group = group["data"]
-            results.append({"sensitive": group_, self.label: np.array(y_group.mean())})
+            group_sensitive = group["sensitive"]
+            y_group = group["data"] 
+            
+            results.append({
+                "sensitive": group_sensitive,  
+                self.label: pd.Series([y_group.mean()], dtype=float) 
+            })
         return target, results
 
     def all_data(self) -> dict[str, float]:
@@ -752,9 +760,8 @@ class DemographicParityDifference(FairnessMetricDifference):
         super().__init__(
             data,
             SelectionRate,
-            label,
             "performance",
-            **{"use_y_true": True},
+            **{"use_y_true": True, "label": label},
         )
 
 
@@ -825,9 +832,8 @@ class DisparateImpactDifference(FairnessMetricDifference):
         super().__init__(
             data,
             SelectionRate,
-            label,
             "performance",
-            **{"use_y_true": False},
+            **{"use_y_true": False, "label": label},
         )
 
 
@@ -898,9 +904,8 @@ class EqualOpportunityDifference(FairnessMetricDifference):
         super().__init__(
             data,
             ConfusionMatrix,
-            label,
             "performance",
-            **{"metrics": {"result": true_positive_rate}},
+            **{"metrics": {"result": true_positive_rate}, "label": label},
         )
 
 
@@ -973,9 +978,8 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
         super().__init__(
             data,
             ConfusionMatrix,
-            label,
             "error",
-            **{"metrics": {"result": false_positive_rate}},
+            **{"metrics": {"result": false_positive_rate}, "label": label},
         )
 
 
@@ -1043,9 +1047,8 @@ class DemographicParityRatio(FairnessMetricRatio):
         super().__init__(
             data,
             SelectionRate,
-            label,
             "performance",
-            **{"use_y_true": True},
+            **{"use_y_true": True, "label": label},
         )
 
 
@@ -1113,9 +1116,8 @@ class DisparateImpactRatio(FairnessMetricRatio):
         super().__init__(
             data,
             SelectionRate,
-            label,
             "performance",
-            **{"use_y_true": False},
+            **{"use_y_true": False, "label": label},
         )
 
 
@@ -1186,9 +1188,8 @@ class EqualOpportunityRatio(FairnessMetricRatio):
         super().__init__(
             data,
             ConfusionMatrix,
-            label,
             "performance",
-            **{"metrics": {"result": true_positive_rate}},
+            **{"metrics": {"result": true_positive_rate}, "label": label},
         )
 
 
@@ -1260,9 +1261,8 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
         super().__init__(
             data,
             ConfusionMatrix,
-            label,
             "error",
-            **{"metrics": {"result": false_positive_rate}},
+            **{"metrics": {"result": false_positive_rate}, "label": label},
         )
 
 
