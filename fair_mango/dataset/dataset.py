@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from fair_mango.typing import MetricResult
+from fair_mango.typing import DatasetTargetResult
 
 
 def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence[str]) -> None:
@@ -182,8 +182,8 @@ class Dataset:
             )
         self.n_groups: int = len(self.groups)
         self.groups_data: list[dict[str, pd.DataFrame]] = []
-        self.groups_real_target: list[dict[str, pd.DataFrame]] | None = None
-        self.groups_predicted_target: list[dict[str, pd.DataFrame]] | None = None
+        self.groups_real_target: list[DatasetTargetResult] | None = None
+        self.groups_predicted_target: list[DatasetTargetResult] | None = None
         plt.style.use("fivethirtyeight")
 
     def get_data_for_all_groups(self) -> list[dict[str, pd.DataFrame]]:
@@ -289,7 +289,7 @@ class Dataset:
             result = self.df
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
-            self.groups_data.append({"sensitive": row[:-1], "data": result})
+            self.groups_data.append({"sensitive": [str(x) for x in row[:-1]], "result": result})
         return self.groups_data
 
     def get_data_for_one_group(self, sensitive_group: Sequence[str]) -> pd.DataFrame:
@@ -366,10 +366,8 @@ class Dataset:
             result = df_filtration(self.df, sensitive_group, self.sensitive)
         else:
             for item in self.groups_data:
-                if (all(e1 in item["sensitive"] for e1 in sensitive_group)) and (
-                    all(e2 in sensitive_group for e2 in item["sensitive"])
-                ):
-                    result = item["data"]
+                if item["sensitive"] == sensitive_group or item["sensitive"] == sensitive_group[::-1]:
+                    result = item["result"]
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
@@ -378,7 +376,7 @@ class Dataset:
 
     def get_real_target_for_all_groups(
         self,
-    ) -> list[MetricResult]:
+    ) -> list[DatasetTargetResult]:
         """Retrieve the real target corresponding to each sensitive group
         present in the sensitive features.
 
@@ -467,17 +465,17 @@ class Dataset:
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
             
-            sensitive_group = np.array(row[:-1], dtype=str) 
+            sensitive_group = [str(x) for x in row[:-1]] 
             target_data = result[self.real_target] 
             
             self.groups_real_target.append({
                 "sensitive": sensitive_group,
-                "data": target_data
+                "result": target_data 
             })
         return self.groups_real_target
 
     def get_real_target_for_one_group(
-        self, sensitive_group: Sequence[str]
+        self, sensitive_group: Sequence[str] | str
     ) -> pd.Series:
         """Retrieve the real target corresponding to a specific sensitive
         group present in the sensitive features.
@@ -543,16 +541,15 @@ class Dataset:
         3         1           yes
         4         0            no
         """
+        sensitive_group = convert_to_list(sensitive_group)
         result = None
         if self.groups_real_target is None:
             filtered_df = df_filtration(self.df, sensitive_group, self.sensitive)
             result = filtered_df[self.real_target]
         else:
             for item in self.groups_real_target:
-                if (item["sensitive"] == sensitive_group).all() or (
-                    item["sensitive"] == sensitive_group[::-1]
-                ).all():
-                    result = item["data"]
+                if item["sensitive"] == sensitive_group or item["sensitive"] == sensitive_group[::-1]:
+                    result = item["result"]
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
@@ -561,7 +558,7 @@ class Dataset:
 
     def get_predicted_target_for_all_groups(
         self,
-    ) -> list[MetricResult]:
+    ) -> list[DatasetTargetResult]:
         """Retrieve the predicted target corresponding to each sensitive
         group present in the sensitive features.
 
@@ -654,17 +651,17 @@ class Dataset:
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
             
-            sensitive_group = np.array(row[:-1], dtype=str)
+            sensitive_group = [str(x) for x in row[:-1]] 
             target_data = result[self.predicted_target] 
             
             self.groups_predicted_target.append({
                 "sensitive": sensitive_group,
-                "data": target_data
+                "result": target_data  
             })
         return self.groups_predicted_target
 
     def get_predicted_target_for_one_group(
-        self, sensitive_group: Sequence[str]
+        self, sensitive_group: Sequence[str] | str
     ) -> pd.Series:
         """Retrieve the predicted target corresponding to a specific sensitive
         group present in the sensitive features.
@@ -734,16 +731,16 @@ class Dataset:
             raise ValueError(
                 "predicted_target parameter is required when creating the dataset"
             )
+        sensitive_group = convert_to_list(sensitive_group)
+        
         result = None
         if self.groups_predicted_target is None:
             filtered_df = df_filtration(self.df, sensitive_group, self.sensitive)
             result = filtered_df[self.predicted_target]
         else:
             for item in self.groups_predicted_target:
-                if (item["sensitive"] == sensitive_group).all() or (
-                    item["sensitive"] == sensitive_group[::-1]
-                ).all():
-                    result = item["data"]
+                if item["sensitive"] == sensitive_group or item["sensitive"] == sensitive_group[::-1]:
+                    result = item["result"]
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
