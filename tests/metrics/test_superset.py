@@ -54,7 +54,10 @@ super_set_fairness_metrics_expected_result_1 = [
     {
         "sensitive": ("Sex",),
         "result": {
-            "HeartDisease": {("M",): 0.3726567804180811, ("F",): -0.3726567804180811}
+            "HeartDisease": [
+                {"sensitive": ["M"], "score": 0.3726567804180811}, 
+                {"sensitive": ["F"], "score": -0.3726567804180811}
+            ]
         },
     }
 ]
@@ -64,33 +67,36 @@ super_set_fairness_metrics_expected_result_2 = [
     {
         "sensitive": ("Sex",),
         "result": {
-            "HeartDisease": {("M",): 0.4219830636141608, ("F",): 2.369763353617309}
+            "HeartDisease": [
+                {"sensitive": ["M"], "score": 0.4219830636141608}, 
+                {"sensitive": ["F"], "score": 2.369763353617309}
+            ]
         },
     },
     {
         "sensitive": ("ChestPainType",),
         "result": {
-            "HeartDisease": {
-                ("ASY",): 0.3917632113245289,
-                ("TA",): 0.9779803774692927,
-                ("NAP",): 1.3200622150699777,
-                ("ATA",): 3.612010526994567,
-            }
+            "HeartDisease": [
+                {"sensitive": ["ASY"], "score": 0.3917632113245289},
+                {"sensitive": ["TA"], "score": 0.9779803774692927},
+                {"sensitive": ["NAP"], "score": 1.3200622150699777},
+                {"sensitive": ["ATA"], "score": 3.612010526994567},
+            ]
         },
     },
     {
         "sensitive": ("Sex", "ChestPainType"),
         "result": {
-            "HeartDisease": {
-                ("M", "ASY"): 0.3468836645650188,
-                ("F", "ASY"): 0.5421518990141162,
-                ("M", "TA"): 0.6173483803022393,
-                ("M", "NAP"): 0.7690055427507021,
-                ("M", "ATA"): 2.1240334935639593,
-                ("F", "TA"): 3.869338673817374,
-                ("F", "ATA"): 4.671777837152278,
-                ("F", "NAP"): 5.173302314236593,
-            }
+            "HeartDisease": [
+                {"sensitive": ["M", "ASY"], "score": 0.3468836645650188},
+                {"sensitive": ["F", "ASY"], "score": 0.5421518990141162},
+                {"sensitive": ["M", "TA"], "score": 0.6173483803022393},
+                {"sensitive": ["M", "NAP"], "score": 0.7690055427507021},
+                {"sensitive": ["M", "ATA"], "score": 2.1240334935639593},
+                {"sensitive": ["F", "TA"], "score": 3.869338673817374},
+                {"sensitive": ["F", "ATA"], "score": 4.671777837152278},
+                {"sensitive": ["F", "NAP"], "score": 5.173302314236593},
+            ]
         },
     },
 ]
@@ -100,33 +106,36 @@ super_set_fairness_metrics_expected_result_3 = [
     {
         "sensitive": ("Sex",),
         "result": {
-            "HeartDisease": {("M",): 0.03816593886462882, ("F",): -0.03816593886462882}
+            "HeartDisease": [
+                {"sensitive": ["M"], "score": 0.03816593886462882}, 
+                {"sensitive": ["F"], "score": -0.03816593886462882}
+            ]
         },
     },
     {
         "sensitive": ("ChestPainType",),
         "result": {
-            "HeartDisease": {
-                ("NAP",): 0.048316838338099695,
-                ("ASY",): 0.04340882369780954,
-                ("ATA",): 0.025394519369986518,
-                ("TA",): -0.11712018140589575,
-            }
+            "HeartDisease": [
+                {"sensitive": ["NAP"], "score": 0.048316838338099695},
+                {"sensitive": ["ASY"], "score": 0.04340882369780954},
+                {"sensitive": ["ATA"], "score": 0.025394519369986518},
+                {"sensitive": ["TA"], "score": -0.11712018140589575},
+            ]
         },
     },
     {
         "sensitive": ("Sex", "ChestPainType"),
         "result": {
-            "HeartDisease": {
-                ("F", "TA"): 0.10053586843924016,
-                ("F", "ATA"): 0.09033178680658709,
-                ("M", "NAP"): 0.08199377127623639,
-                ("M", "ASY"): 0.08153282325925479,
-                ("M", "ATA"): 0.05205550855335028,
-                ("F", "ASY"): 0.0014697534603408588,
-                ("M", "TA"): -0.16240914536313006,
-                ("F", "NAP"): -0.24551036643187954,
-            }
+            "HeartDisease": [
+                {"sensitive": ["F", "TA"], "score": 0.10053586843924016},
+                {"sensitive": ["F", "ATA"], "score": 0.09033178680658709},
+                {"sensitive": ["M", "NAP"], "score": 0.08199377127623639},
+                {"sensitive": ["M", "ASY"], "score": 0.08153282325925479},
+                {"sensitive": ["M", "ATA"], "score": 0.05205550855335028},
+                {"sensitive": ["F", "ASY"], "score": 0.0014697534603408588},
+                {"sensitive": ["M", "TA"], "score": -0.16240914536313006},
+                {"sensitive": ["F", "NAP"], "score": -0.24551036643187954},
+            ]
         },
     },
 ]

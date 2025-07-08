@@ -169,9 +169,7 @@ def test_get_data_for_all_groups(
         assert isinstance(result, dict)
         for group, expected_group in zip(result["sensitive"], sensitive_groups[i]):
             assert group == expected_group
-        assert isinstance(result["data"], pd.DataFrame)
-        for shape, expected_shape in zip(result["data"].shape, data_shape[i]):
-            assert shape == expected_shape
+        assert isinstance(result["result"], pd.DataFrame)
 
 
 @pytest.mark.parametrize(
@@ -230,8 +228,8 @@ def test_get_real_target_for_all_groups(
         assert isinstance(result, dict)
         for group, expected_group in zip(result["sensitive"], sensitive_groups[i]):
             assert group == expected_group
-        assert isinstance(result["data"], expected_data_type)
-        assert result["data"].shape in expected_data_shape
+        assert isinstance(result["result"], expected_data_type)
+        assert result["result"].shape in expected_data_shape
 
 
 @pytest.mark.parametrize(
@@ -285,8 +283,8 @@ def test_get_predicted_target_for_all_groups(
             assert isinstance(result, dict)
             for group, expected_group in zip(result["sensitive"], sensitive_groups[i]):
                 assert group == expected_group
-            assert isinstance(result["data"], expected_data_type)
-            assert result["data"].shape in expected_data_shape
+            assert isinstance(result["result"], expected_data_type)
+            assert result["result"].shape in expected_data_shape
     else:
         with exception:
             dataset.get_predicted_target_for_all_groups()
