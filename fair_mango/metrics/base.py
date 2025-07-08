@@ -11,6 +11,7 @@ from fair_mango.typing import (
     FairnessSummaryResult,
     FairnessRatioSummaryResult,
     RankResult,
+    FairnessRankingResult,
 )
 
 
@@ -415,7 +416,7 @@ class FairnessMetricDifference(ABC):
             "unprivileged_group": unprivileged_group,
         }
 
-    def rank(self) -> dict[str, list[RankResult]]:
+    def rank(self) -> dict[str, list[dict[str, object]]]:
         """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
@@ -426,10 +427,10 @@ class FairnessMetricDifference(ABC):
 
         Returns
         -------
-        dict[str, list[RankResult]]
-            A dictionary with:
-            - keys: name of the target variable.
-            - values: a list of RankResult dictionaries with sensitive group and score.
+        FairnessRankingResult
+            A dataclass containing:
+            - target: name of the target variable.
+            - rankings: a list of RankResult dataclasses with sensitive group and score.
         """
         result: dict = {}
         ranking: dict[tuple, float] = {}
@@ -471,12 +472,16 @@ class FairnessMetricDifference(ABC):
        
         rank_results = []
         for group_tuple, score in ranking.items():
-            rank_results.append({
-                "sensitive": list(group_tuple),
-                "score": float(score)
-            })
+            rank_results.append(RankResult(
+                sensitive=list(group_tuple),
+                score=float(score)
+            ))
 
-        return {self.data.real_target: rank_results}
+        ranking_result = FairnessRankingResult(
+            target=self.data.real_target,
+            rankings=rank_results
+        )
+        return ranking_result.to_dict()
 
     def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
         """Return a decision of whether there is bias or not
@@ -501,24 +506,22 @@ class FairnessMetricDifference(ABC):
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
-        ranking_nested = self.rank()
+        ranking_dict = self.rank()
         
-        if not ranking_nested:
+        if not ranking_dict:
             return {self.data.real_target: False}
 
+        ranking_list = list(ranking_dict.values())[0]
         
-        ranking = list(ranking_nested.values())[0]
-        
-        if not ranking:
+        if not ranking_list:
             return {self.data.real_target: False}
 
-        scores = [item["score"] for item in ranking]
-        max_diff = scores[0] if scores else 0
-        min_diff = scores[-1] if scores else 0
-        is_biased = max_diff > threshold or min_diff < -threshold
+        scores = [item["score"] for item in ranking_list]  # type: ignore[misc]
+        max_diff = scores[0] if scores else 0.0
+        min_diff = scores[-1] if scores else 0.0
+        is_biased_value = max_diff > threshold or min_diff < -threshold
         
-        
-        return {self.data.real_target: is_biased}
+        return {self.data.real_target: is_biased_value}
 
 
 class FairnessMetricRatio(ABC):
@@ -735,7 +738,7 @@ class FairnessMetricRatio(ABC):
         if not ranking:
             return {self.data.real_target: False}
 
-        scores = [item["score"] for item in ranking]
+        scores = [item["score"] for item in ranking]  # type: ignore[misc]
         min_ratio = scores[0] if scores else 1.0
         max_ratio = scores[-1] if scores else 1.0
         is_biased = max_ratio > (1 / threshold) or min_ratio < threshold
