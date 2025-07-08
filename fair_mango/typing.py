@@ -1,61 +1,129 @@
-from typing import TypedDict
+from dataclasses import dataclass, asdict
+
 import pandas as pd
 
-
-class DatasetTargetResult(TypedDict):
+ 
+@dataclass
+class DatasetTargetResult:
     """Result of target data for a sensitive group from Dataset."""
     sensitive: list[str]
     result: pd.Series  
 
-class MetricResult(TypedDict):
+@dataclass
+class MetricResult:
     """Result of a metric for a single sensitive group."""
-    sensitive: list[str] 
-    result: float 
+    sensitive: list[str]  
+    result: float   
 
-class DisparityResult(TypedDict):
+@dataclass
+class DisparityResult:
     """Result of disparity calculation between two groups."""
     group_1: list[str]
     group_2: list[str]
     disparity: float
 
-class FairnessSummaryResult(TypedDict):
+@dataclass
+class FairnessSummaryResult:
     """Summary of a difference-based fairness metric."""
     disparity: float
     privileged_group: list[str] | None  
-    unprivileged_group: list[str] | None 
+    unprivileged_group: list[str] | None  
 
-class FairnessRatioSummaryResult(TypedDict):
+@dataclass
+class FairnessRatioSummaryResult:
     """Summary of a ratio-based fairness metric."""
     ratio: float
-    privileged_group: list[str] | None 
-    unprivileged_group: list[str] | None 
+    privileged_group: list[str] | None   
+    unprivileged_group: list[str] | None   
 
-class RankResult(TypedDict):
+@dataclass
+class RankResult:
     """Individual rank result for a group."""
     sensitive: list[str]  # Changed from tuple to list[str]
     score: float
 
-class DetailedPerformanceMetricsResult(TypedDict):
+    def to_dict(self) -> dict[str, object]:
+        """Convert to dictionary for backward compatibility."""
+        return asdict(self)
+
+@dataclass
+class DetailedPerformanceMetricsResult:
     """A collection of all performance metrics for a single sensitive group."""
     sensitive: list[str]  
     selection_rate_in_data: float  
-    selection_rate_in_predictions: float 
-    accuracy: float 
+    selection_rate_in_predictions: float   
+    accuracy: float  
     balanced_accuracy: float  
     precision: float  
     recall: float  
-    f1_score: float  
+    f1_score: float   
     false_negative_rate: float  
     false_positive_rate: float  
     true_negative_rate: float  
     true_positive_rate: float  
 
-class SupersetFairnessRank(TypedDict):
+@dataclass
+class SupersetFairnessRank:
     """Result of a superset fairness ranking."""
-    sensitive_attributes: list[str]
-    rank: list[RankResult] 
+    sensitive_attributes: list[str]   
+    rank: list[RankResult]   
 
-class SupersetPerformanceEvaluation(TypedDict):
+@dataclass
+class SupersetPerformanceEvaluation:
     """Result of a superset performance evaluation."""
     sensitive_attributes: list[str]  
-    results: list[DetailedPerformanceMetricsResult]  
+    results: list[DetailedPerformanceMetricsResult]
+
+# Additional dataclasses for specific metric results
+
+@dataclass  
+class FairnessRankingResult:
+    """Result container for fairness metric rankings."""
+    target: str
+    rankings: list[RankResult]
+
+    def to_dict(self) -> dict[str, list[dict[str, object]]]:
+        """Convert to dictionary format for backward compatibility."""
+        return {
+            self.target: [rank.to_dict() for rank in self.rankings]
+        }
+
+@dataclass
+class DemographicParitySummaryResult:
+    """Summary result for Demographic Parity metrics."""
+    demographic_parity_difference: float | None = None
+    demographic_parity_ratio: float | None = None
+    privileged_group: list[str] | None = None
+    unprivileged_group: list[str] | None = None
+
+@dataclass
+class DisparateImpactSummaryResult:
+    """Summary result for Disparate Impact metrics."""
+    disparate_impact_difference: float | None = None
+    disparate_impact_ratio: float | None = None
+    privileged_group: list[str] | None = None
+    unprivileged_group: list[str] | None = None
+
+@dataclass
+class EqualOpportunitySummaryResult:
+    """Summary result for Equal Opportunity metrics."""
+    equal_opportunity_difference: float | None = None
+    equal_opportunity_ratio: float | None = None
+    privileged_group: list[str] | None = None
+    unprivileged_group: list[str] | None = None
+
+@dataclass
+class FalsePositiveRateSummaryResult:
+    """Summary result for False Positive Rate metrics."""
+    false_positive_rate_difference: float | None = None
+    false_positive_rate_ratio: float | None = None
+    privileged_group: list[str] | None = None
+    unprivileged_group: list[str] | None = None
+
+@dataclass
+class EqualisedOddsSummaryResult:
+    """Summary result for Equalised Odds metrics."""
+    equalised_odds_difference: float | None = None
+    equalised_odds_ratio: float | None = None
+    privileged_group: list[str] | None = None
+    unprivileged_group: list[str] | None = None 
