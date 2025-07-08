@@ -60,7 +60,7 @@ dataset6 = Dataset(
 @pytest.mark.parametrize(
     "data, use_y_true, expected_groups, expected_result",
     [
-        (dataset1, True, ["M", "F"], [0.63172414, 0.25906736]),
+        (dataset1, True, [["M"], ["F"]], [0.63172414, 0.25906736]),
         (dataset1, False, [], pytest.raises(ValueError)),
         (
             dataset3,
@@ -113,13 +113,13 @@ dataset6 = Dataset(
         (
             dataset5,
             True,
-            ["M", "F"],
+            [["M"], ["F"]],
             [0.45241379, 0.22279793],
         ),
         (
             dataset5,
             False,
-            ["M", "F"],
+            [["M"], ["F"]],
             [0.45241379, 0.22279793],
         ),
     ],
@@ -138,8 +138,8 @@ def test_selectionrate(
         else:
             assert result[0] == data.predicted_target
         for i, res in enumerate(result[1]):
-            assert (res["sensitive"] == expected_groups[i]).all()
-            assert (np.isclose(res["result"], expected_result[i])).all()
+            assert res["sensitive"] == expected_groups[i]
+            assert np.isclose(res["result"], expected_result[i])
     else:
         with expected_result:
             sr = SelectionRate(data, use_y_true)
@@ -266,36 +266,32 @@ def test_confusionmatrix(
 
 dpd_expected_result_2 = [
     {
-        "HeartDisease": {
-            "dpd": 0.3726567804180811,
-            "privileged": ("M",),
-            "unprivileged": ("F",),
-        }
+        "dpd": 0.3726567804180811,
+        "privileged_group": ["M"],
+        "unprivileged_group": ["F"],
     },
-    {"HeartDisease": {("M",): 0.3726567804180811, ("F",): -0.3726567804180811}},
+    {"HeartDisease": [{"sensitive": ["M"], "score": 0.3726567804180811}, {"sensitive": ["F"], "score": -0.3726567804180811}]},
     {"HeartDisease": True},
 ]
 
 
 dpd_expected_result_3 = [
     {
-        "HeartDisease": {
-            "demographic_parity_difference": 0.7619718309859155,
-            "privileged": ("M", "ASY"),
-            "unprivileged": ("F", "ATA"),
-        }
+        "demographic_parity_difference": 0.7619718309859155,
+        "privileged_group": ["M", "ASY"],
+        "unprivileged_group": ["F", "ATA"],
     },
     {
-        "HeartDisease": {
-            ("F", "ATA"): -0.32529873764554856,
-            ("F", "TA"): -0.28720349955031044,
-            ("F", "NAP"): -0.27210915992766893,
-            ("M", "ATA"): -0.19921361333033571,
-            ("M", "NAP"): 0.10136792902111814,
-            ("M", "TA"): 0.20168538933857846,
-            ("F", "ASY"): 0.23524548004152632,
-            ("M", "ASY"): 0.5455262120526406,
-        }
+        "HeartDisease": [
+            {"sensitive": ["M", "ASY"], "score": 0.5455262120526406},
+            {"sensitive": ["F", "ASY"], "score": 0.23524548004152632},
+            {"sensitive": ["M", "TA"], "score": 0.20168538933857846},
+            {"sensitive": ["M", "NAP"], "score": 0.10136792902111814},
+            {"sensitive": ["M", "ATA"], "score": -0.19921361333033571},
+            {"sensitive": ["F", "NAP"], "score": -0.27210915992766893},
+            {"sensitive": ["F", "TA"], "score": -0.28720349955031044},
+            {"sensitive": ["F", "ATA"], "score": -0.32529873764554856},
+        ]
     },
     {"HeartDisease": True},
 ]
@@ -303,23 +299,21 @@ dpd_expected_result_3 = [
 
 dpd_expected_result_6 = [
     {
-        "HeartDisease": {
-            "demographic_parity_difference": 0.7619718309859155,
-            "privileged": ("M", "ASY"),
-            "unprivileged": ("F", "ATA"),
-        },
+        "demographic_parity_difference": 0.7619718309859155,
+        "privileged_group": ["M", "ASY"],
+        "unprivileged_group": ["F", "ATA"],
     },
     {
-        "HeartDisease": {
-            ("M", "ASY"): 0.5455262120526406,
-            ("F", "ASY"): 0.23524548004152632,
-            ("M", "TA"): 0.20168538933857846,
-            ("M", "NAP"): 0.10136792902111814,
-            ("M", "ATA"): -0.19921361333033571,
-            ("F", "NAP"): -0.27210915992766893,
-            ("F", "TA"): -0.28720349955031044,
-            ("F", "ATA"): -0.32529873764554856,
-        },
+        "HeartDisease": [
+            {"sensitive": ["M", "ASY"], "score": 0.5455262120526406},
+            {"sensitive": ["F", "ASY"], "score": 0.23524548004152632},
+            {"sensitive": ["M", "TA"], "score": 0.20168538933857846},
+            {"sensitive": ["M", "NAP"], "score": 0.10136792902111814},
+            {"sensitive": ["M", "ATA"], "score": -0.19921361333033571},
+            {"sensitive": ["F", "NAP"], "score": -0.27210915992766893},
+            {"sensitive": ["F", "TA"], "score": -0.28720349955031044},
+            {"sensitive": ["F", "ATA"], "score": -0.32529873764554856},
+        ]
     },
     {"HeartDisease": True},
 ]
@@ -366,49 +360,43 @@ def test_demographic_parity_difference(
 
 dpr_expected_result_1 = [
     {
-        "HeartDisease": {
-            "dpr": 0.4100957078534742,
-            "privileged": ("M",),
-            "unprivileged": ("F",),
-        }
+        "dpr": 0.4100957078534742,
+        "privileged_group": ["M"],
+        "unprivileged_group": ["F"],
     },
-    {"HeartDisease": {("M",): 0.4100957078534742, ("F",): 2.4384551724137933}},
+    {"HeartDisease": [{"sensitive": ["M"], "score": 0.4100957078534742}, {"sensitive": ["F"], "score": 2.4384551724137933}]},
     pytest.raises(ValueError),
 ]
 
 
 dpr_expected_result_2 = [
     {
-        "HeartDisease": {
-            "dpr": 0.4100957078534742,
-            "privileged": ("M",),
-            "unprivileged": ("F",),
-        }
+        "dpr": 0.4100957078534742,
+        "privileged_group": ["M"],
+        "unprivileged_group": ["F"],
     },
-    {"HeartDisease": {("M",): 0.4100957078534742, ("F",): 2.4384551724137933}},
+    {"HeartDisease": [{"sensitive": ["M"], "score": 0.4100957078534742}, {"sensitive": ["F"], "score": 2.4384551724137933}]},
     {"HeartDisease": False},
 ]
 
 
 dpr_expected_result_3 = [
     {
-        "HeartDisease": {
-            "demographic_parity_ratio": 0.08045325779036827,
-            "privileged": ("M", "ASY"),
-            "unprivileged": ("F", "ATA"),
-        }
+        "demographic_parity_ratio": 0.08045325779036827,
+        "privileged_group": ["M", "ASY"],
+        "unprivileged_group": ["F", "ATA"],
     },
     {
-        "HeartDisease": {
-            ("M", "ASY"): 0.341659585454887,
-            ("F", "ASY"): 0.5777645230023888,
-            ("M", "TA"): 0.6178592623058512,
-            ("M", "NAP"): 0.7696183431338224,
-            ("M", "ATA"): 2.125556915316397,
-            ("F", "NAP"): 3.403630912694409,
-            ("F", "TA"): 3.8720349955031037,
-            ("F", "ATA"): 5.879481064683228,
-        }
+        "HeartDisease": [
+            {"sensitive": ["M", "ASY"], "score": 0.341659585454887},
+            {"sensitive": ["F", "ASY"], "score": 0.5777645230023888},
+            {"sensitive": ["M", "TA"], "score": 0.6178592623058512},
+            {"sensitive": ["M", "NAP"], "score": 0.7696183431338224},
+            {"sensitive": ["M", "ATA"], "score": 2.125556915316397},
+            {"sensitive": ["F", "NAP"], "score": 3.403630912694409},
+            {"sensitive": ["F", "TA"], "score": 3.8720349955031037},
+            {"sensitive": ["F", "ATA"], "score": 5.879481064683228},
+        ]
     },
     {"HeartDisease": True},
 ]
@@ -416,23 +404,21 @@ dpr_expected_result_3 = [
 
 dpr_expected_result_6 = [
     {
-        "HeartDisease": {
-            "demographic_parity_ratio": 0.08045325779036827,
-            "privileged": ("M", "ASY"),
-            "unprivileged": ("F", "ATA"),
-        },
+        "demographic_parity_ratio": 0.08045325779036827,
+        "privileged_group": ["M", "ASY"],
+        "unprivileged_group": ["F", "ATA"],
     },
     {
-        "HeartDisease": {
-            ("F", "ATA"): 5.879481064683228,
-            ("F", "TA"): 3.8720349955031037,
-            ("F", "NAP"): 3.403630912694409,
-            ("M", "ATA"): 2.125556915316397,
-            ("M", "NAP"): 0.7696183431338224,
-            ("M", "TA"): 0.6178592623058512,
-            ("F", "ASY"): 0.5777645230023888,
-            ("M", "ASY"): 0.341659585454887,
-        },
+        "HeartDisease": [
+            {"sensitive": ["M", "ASY"], "score": 0.341659585454887},
+            {"sensitive": ["F", "ASY"], "score": 0.5777645230023888},
+            {"sensitive": ["M", "TA"], "score": 0.6178592623058512},
+            {"sensitive": ["M", "NAP"], "score": 0.7696183431338224},
+            {"sensitive": ["M", "ATA"], "score": 2.125556915316397},
+            {"sensitive": ["F", "NAP"], "score": 3.403630912694409},
+            {"sensitive": ["F", "TA"], "score": 3.8720349955031037},
+            {"sensitive": ["F", "ATA"], "score": 5.879481064683228},
+        ]
     },
     {"HeartDisease": True},
 ]
@@ -483,60 +469,54 @@ def test_demographic_parity_ratio(
 
 did_expected_result_2 = [
     {
-        "HeartDiseasePred": {
-            "did": 0.3619581918885117,
-            "privileged": ("M",),
-            "unprivileged": ("F",),
-        }
+        "did": 0.3619581918885117,
+        "privileged_group": ["M"],
+        "unprivileged_group": ["F"],
     },
-    {"HeartDisease": {("F",): -0.3619581918885117, ("M",): 0.3619581918885117}},
+    {"HeartDisease": [{"sensitive": ["M"], "score": 0.3619581918885117}, {"sensitive": ["F"], "score": -0.3619581918885117}]},
     {"HeartDisease": True},
 ]
 
 
 did_expected_result_3 = [
     {
-        "HeartDiseasePred": {
-            "disparate_impact_difference": 0.7437771281778722,
-            "privileged": ("M", "ASY"),
-            "unprivileged": ("F", "NAP"),
-        }
+        "disparate_impact_difference": 0.7437771281778722,
+        "privileged_group": ["M", "ASY"],
+        "unprivileged_group": ["F", "NAP"],
     },
     {
-        "HeartDisease": {
-            ("M", "ASY"): 0.5350647912366394,
-            ("F", "ASY"): 0.26816817343458915,
-            ("M", "TA"): 0.2019550215071515,
-            ("M", "NAP"): 0.10163756118969114,
-            ("M", "ATA"): -0.19894398116176273,
-            ("F", "TA"): -0.28693386738173743,
-            ("F", "ATA"): -0.30598148642935646,
-            ("F", "NAP"): -0.31496621239521455,
-        }
+        "HeartDisease": [
+            {"sensitive": ["M", "ASY"], "score": 0.5350647912366394},
+            {"sensitive": ["F", "ASY"], "score": 0.26816817343458915},
+            {"sensitive": ["M", "TA"], "score": 0.2019550215071515},
+            {"sensitive": ["M", "NAP"], "score": 0.10163756118969114},
+            {"sensitive": ["M", "ATA"], "score": -0.19894398116176273},
+            {"sensitive": ["F", "TA"], "score": -0.28693386738173743},
+            {"sensitive": ["F", "ATA"], "score": -0.30598148642935646},
+            {"sensitive": ["F", "NAP"], "score": -0.31496621239521455},
+        ]
     },
-    pytest.raises(ValueError),
+    {"HeartDisease": True},
 ]
 
 
 did_expected_result_6 = [
     {
-        "HeartDiseasePred": {
-            "disparate_impact_difference": 0.7437771281778722,
-            "privileged": ("M", "ASY"),
-            "unprivileged": ("F", "NAP"),
-        },
+        "disparate_impact_difference": 0.7437771281778722,
+        "privileged_group": ["M", "ASY"],
+        "unprivileged_group": ["F", "NAP"],
     },
     {
-        "HeartDisease": {
-            ("F", "NAP"): -0.31496621239521455,
-            ("F", "ATA"): -0.30598148642935646,
-            ("F", "TA"): -0.28693386738173743,
-            ("M", "ATA"): -0.19894398116176273,
-            ("M", "NAP"): 0.10163756118969114,
-            ("M", "TA"): 0.2019550215071515,
-            ("F", "ASY"): 0.26816817343458915,
-            ("M", "ASY"): 0.5350647912366394,
-        },
+        "HeartDisease": [
+            {"sensitive": ["M", "ASY"], "score": 0.5350647912366394},
+            {"sensitive": ["F", "ASY"], "score": 0.26816817343458915},
+            {"sensitive": ["M", "TA"], "score": 0.2019550215071515},
+            {"sensitive": ["M", "NAP"], "score": 0.10163756118969114},
+            {"sensitive": ["M", "ATA"], "score": -0.19894398116176273},
+            {"sensitive": ["F", "TA"], "score": -0.28693386738173743},
+            {"sensitive": ["F", "ATA"], "score": -0.30598148642935646},
+            {"sensitive": ["F", "NAP"], "score": -0.31496621239521455},
+        ]
     },
     {"HeartDisease": True},
 ]
@@ -550,7 +530,7 @@ did_expected_result_6 = [
             dataset3,
             "disparate_impact_difference",
             -0.2,
-            did_expected_result_3,
+            pytest.raises(ValueError),
         ),
         (
             dataset6,
@@ -564,54 +544,55 @@ def test_disparate_impact_difference(
     data: Dataset,
     label: str,
     threshold: float,
-    expected_result: Sequence[dict[str, dict]],
+    expected_result: Sequence[dict[str, dict]] | AbstractContextManager,
 ):
-    did = DisparateImpactDifference(data, label)
+    if isinstance(expected_result, Sequence):
+        did = DisparateImpactDifference(data, label)
 
-    result = did.summary()
-    assert result == expected_result[0]
-    ranking = did.rank()
-    assert ranking == expected_result[1]
-    if isinstance(expected_result[2], dict):
-        is_biased = did.is_biased(threshold)
-        assert is_biased == expected_result[2]
+        result = did.summary()
+        assert result == expected_result[0]
+        ranking = did.rank()
+        assert ranking == expected_result[1]
+        if isinstance(expected_result[2], dict):
+            is_biased = did.is_biased(threshold)
+            assert is_biased == expected_result[2]
+        else:
+            with expected_result[2]:
+                did.is_biased(threshold)
     else:
-        with expected_result[2]:
+        with expected_result:
+            did = DisparateImpactDifference(data, label)
             did.is_biased(threshold)
 
 
 dir_expected_result_2 = [
     {
-        "HeartDiseasePred": {
-            "dir": 0.4219830636141608,
-            "privileged": ("M",),
-            "unprivileged": ("F",),
-        }
+        "dir": 0.4219830636141608,
+        "privileged_group": ["M"],
+        "unprivileged_group": ["F"],
     },
-    {"HeartDisease": {("M",): 0.4219830636141608, ("F",): 2.369763353617309}},
+    {"HeartDisease": [{"sensitive": ["M"], "score": 0.4219830636141608}, {"sensitive": ["F"], "score": 2.369763353617309}]},
     {"HeartDisease": False},
 ]
 
 
 dir_expected_result_3 = [
     {
-        "HeartDiseasePred": {
-            "disparate_impact_ratio": 0.09212304698059144,
-            "privileged": ("M", "ASY"),
-            "unprivileged": ("F", "NAP"),
-        }
+        "disparate_impact_ratio": 0.09212304698059144,
+        "privileged_group": ["M", "ASY"],
+        "unprivileged_group": ["F", "NAP"],
     },
     {
-        "HeartDisease": {
-            ("M", "ASY"): 0.3468836645650188,
-            ("F", "ASY"): 0.5421518990141162,
-            ("M", "TA"): 0.6173483803022393,
-            ("M", "NAP"): 0.7690055427507021,
-            ("M", "ATA"): 2.1240334935639593,
-            ("F", "TA"): 3.869338673817374,
-            ("F", "ATA"): 4.671777837152278,
-            ("F", "NAP"): 5.173302314236593,
-        }
+        "HeartDisease": [
+            {"sensitive": ["M", "ASY"], "score": 0.3468836645650188},
+            {"sensitive": ["F", "ASY"], "score": 0.5421518990141162},
+            {"sensitive": ["M", "TA"], "score": 0.6173483803022393},
+            {"sensitive": ["M", "NAP"], "score": 0.7690055427507021},
+            {"sensitive": ["M", "ATA"], "score": 2.1240334935639593},
+            {"sensitive": ["F", "TA"], "score": 3.869338673817374},
+            {"sensitive": ["F", "ATA"], "score": 4.671777837152278},
+            {"sensitive": ["F", "NAP"], "score": 5.173302314236593},
+        ]
     },
     {"HeartDisease": True},
 ]
@@ -619,23 +600,21 @@ dir_expected_result_3 = [
 
 dir_expected_result_6 = [
     {
-        "HeartDiseasePred": {
-            "disparate_impact_ratio": 0.09212304698059144,
-            "privileged": ("M", "ASY"),
-            "unprivileged": ("F", "NAP"),
-        },
+        "disparate_impact_ratio": 0.09212304698059144,
+        "privileged_group": ["M", "ASY"],
+        "unprivileged_group": ["F", "NAP"],
     },
     {
-        "HeartDisease": {
-            ("F", "NAP"): 5.173302314236593,
-            ("F", "ATA"): 4.671777837152278,
-            ("F", "TA"): 3.869338673817374,
-            ("M", "ATA"): 2.1240334935639593,
-            ("M", "NAP"): 0.7690055427507021,
-            ("M", "TA"): 0.6173483803022393,
-            ("F", "ASY"): 0.5421518990141162,
-            ("M", "ASY"): 0.3468836645650188,
-        },
+        "HeartDisease": [
+            {"sensitive": ["M", "ASY"], "score": 0.3468836645650188},
+            {"sensitive": ["F", "ASY"], "score": 0.5421518990141162},
+            {"sensitive": ["M", "TA"], "score": 0.6173483803022393},
+            {"sensitive": ["M", "NAP"], "score": 0.7690055427507021},
+            {"sensitive": ["M", "ATA"], "score": 2.1240334935639593},
+            {"sensitive": ["F", "TA"], "score": 3.869338673817374},
+            {"sensitive": ["F", "ATA"], "score": 4.671777837152278},
+            {"sensitive": ["F", "NAP"], "score": 5.173302314236593},
+        ],
     },
     {"HeartDisease": True},
 ]
@@ -693,36 +672,32 @@ def test_disparate_impact_ratio(
 
 eod_expected_result_2 = [
     {
-        "HeartDisease": {
-            "eod": 0.03816593886462882,
-            "privileged": ("M",),
-            "unprivileged": ("F",),
-        }
+        "eod": 0.03816593886462882,
+        "privileged_group": ["M"],
+        "unprivileged_group": ["F"],
     },
-    {"HeartDisease": {("M",): 0.03816593886462882, ("F",): -0.03816593886462882}},
+    {"HeartDisease": [{"sensitive": ["M"], "score": 0.03816593886462882}, {"sensitive": ["F"], "score": -0.03816593886462882}]},
     {"HeartDisease": False},
 ]
 
 
 eod_expected_result_3 = [
     {
-        "HeartDisease": {
-            "equal_opportunity_difference": 0.33333333333333337,
-            "privileged": ("F", "ATA"),
-            "unprivileged": ("F", "NAP"),
-        }
+        "equal_opportunity_difference": 0.33333333333333337,
+        "privileged_group": ["F", "ATA"],
+        "unprivileged_group": ["F", "NAP"],
     },
     {
-        "HeartDisease": {
-            ("F", "ATA"): 0.08516927384528401,
-            ("F", "TA"): 0.08516927384528401,
-            ("M", "ASY"): 0.0689814956178457,
-            ("M", "NAP"): 0.0678532565292667,
-            ("F", "ASY"): 0.05586524454125468,
-            ("M", "ATA"): 0.028026416702426813,
-            ("M", "TA"): -0.09528185397426492,
-            ("F", "NAP"): -0.29578310710709704,
-        }
+        "HeartDisease": [
+            {"sensitive": ["F", "ATA"], "score": 0.08516927384528401},
+            {"sensitive": ["F", "TA"], "score": 0.08516927384528401},
+            {"sensitive": ["M", "ASY"], "score": 0.0689814956178457},
+            {"sensitive": ["M", "NAP"], "score": 0.0678532565292667},
+            {"sensitive": ["F", "ASY"], "score": 0.05586524454125468},
+            {"sensitive": ["M", "ATA"], "score": 0.028026416702426813},
+            {"sensitive": ["M", "TA"], "score": -0.09528185397426492},
+            {"sensitive": ["F", "NAP"], "score": -0.29578310710709704},
+        ]
     },
     {"HeartDisease": True},
 ]
@@ -730,23 +705,21 @@ eod_expected_result_3 = [
 
 eod_expected_result_6 = [
     {
-        "HeartDisease": {
-            "equal_opportunity_difference": 0.33333333333333337,
-            "privileged": ("F", "ATA"),
-            "unprivileged": ("F", "NAP"),
-        },
+        "equal_opportunity_difference": 0.33333333333333337,
+        "privileged_group": ["F", "ATA"],
+        "unprivileged_group": ["F", "NAP"],
     },
     {
-        "HeartDisease": {
-            ("F", "ATA"): 0.08516927384528401,
-            ("F", "TA"): 0.08516927384528401,
-            ("M", "ASY"): 0.0689814956178457,
-            ("M", "NAP"): 0.0678532565292667,
-            ("F", "ASY"): 0.05586524454125468,
-            ("M", "ATA"): 0.028026416702426813,
-            ("M", "TA"): -0.09528185397426492,
-            ("F", "NAP"): -0.29578310710709704,
-        },
+        "HeartDisease": [
+            {"sensitive": ["F", "ATA"], "score": 0.08516927384528401},
+            {"sensitive": ["F", "TA"], "score": 0.08516927384528401},
+            {"sensitive": ["M", "ASY"], "score": 0.0689814956178457},
+            {"sensitive": ["M", "NAP"], "score": 0.0678532565292667},
+            {"sensitive": ["F", "ASY"], "score": 0.05586524454125468},
+            {"sensitive": ["M", "ATA"], "score": 0.028026416702426813},
+            {"sensitive": ["M", "TA"], "score": -0.09528185397426492},
+            {"sensitive": ["F", "NAP"], "score": -0.29578310710709704},
+        ]
     },
     {"HeartDisease": True},
 ]
@@ -785,49 +758,45 @@ def test_equal_opportunity_difference(
     result = eod.summary()
     assert result == expected_result[0]
     rankings = eod.rank()
-    for (target, ranking), (expected_target, expected_ranking) in zip(
-        rankings.items(), expected_result[1].items()
-    ):
-        assert ranking.keys() == expected_ranking.keys()
-        for val, expected_val in zip(ranking.values(), expected_ranking.values()):
-            if not np.isnan(val) and not np.isnan(expected_val):
-                assert np.isclose(val, expected_val)
+    for target, ranking in rankings.items():
+        expected_ranking = expected_result[1][target]
+        assert len(ranking) == len(expected_ranking)
+        for rank_item, expected_rank_item in zip(ranking, expected_ranking):
+            assert rank_item["sensitive"] == expected_rank_item["sensitive"]
+            if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
+                assert np.isclose(rank_item["score"], expected_rank_item["score"])
     is_biased = eod.is_biased(threshold)
     assert is_biased == expected_result[2]
 
 
 eor_expected_result_2 = [
     {
-        "HeartDisease": {
-            "eor": 0.9609821428571428,
-            "privileged": ("M",),
-            "unprivileged": ("F",),
-        }
+        "eor": 0.9609821428571428,
+        "privileged_group": ["M"],
+        "unprivileged_group": ["F"],
     },
-    {"HeartDisease": {("M",): 0.9609821428571428, ("F",): 1.0406020626219457}},
+    {"HeartDisease": [{"sensitive": ["M"], "score": 0.9609821428571428}, {"sensitive": ["F"], "score": 1.0406020626219457}]},
     {"HeartDisease": False},
 ]
 
 
 eor_expected_result_3 = [
     {
-        "HeartDisease": {
-            "equal_opportunity_ratio": 0.6666666666666666,
-            "privileged": ("F", "ATA"),
-            "unprivileged": ("F", "NAP"),
-        }
+        "equal_opportunity_ratio": 0.6666666666666666,
+        "privileged_group": ["F", "ATA"],
+        "unprivileged_group": ["F", "NAP"],
     },
     {
-        "HeartDisease": {
-            ("F", "ATA"): 0.9148307261547161,
-            ("F", "TA"): 0.9148307261547161,
-            ("M", "ASY"): 0.9300273909393691,
-            ("M", "NAP"): 0.9311028472164368,
-            ("F", "ASY"): 0.9426646174445017,
-            ("M", "ATA"): 0.9704985087342874,
-            ("M", "TA"): 1.1131472015944397,
-            ("F", "NAP"): 1.4436746606606454,
-        }
+        "HeartDisease": [
+            {"sensitive": ["F", "ATA"], "score": 0.9148307261547161},
+            {"sensitive": ["F", "TA"], "score": 0.9148307261547161},
+            {"sensitive": ["M", "ASY"], "score": 0.9300273909393691},
+            {"sensitive": ["M", "NAP"], "score": 0.9311028472164368},
+            {"sensitive": ["F", "ASY"], "score": 0.9426646174445017},
+            {"sensitive": ["M", "ATA"], "score": 0.9704985087342874},
+            {"sensitive": ["M", "TA"], "score": 1.1131472015944397},
+            {"sensitive": ["F", "NAP"], "score": 1.4436746606606454},
+        ]
     },
     {"HeartDisease": True},
 ]
@@ -835,23 +804,21 @@ eor_expected_result_3 = [
 
 eor_expected_result_6 = [
     {
-        "HeartDisease": {
-            "equal_opportunity_ratio": 0.6666666666666666,
-            "privileged": ("F", "ATA"),
-            "unprivileged": ("F", "NAP"),
-        },
+        "equal_opportunity_ratio": 0.6666666666666666,
+        "privileged_group": ["F", "ATA"],
+        "unprivileged_group": ["F", "NAP"],
     },
     {
-        "HeartDisease": {
-            ("F", "ATA"): 0.9148307261547161,
-            ("F", "TA"): 0.9148307261547161,
-            ("M", "ASY"): 0.9300273909393691,
-            ("M", "NAP"): 0.9311028472164368,
-            ("F", "ASY"): 0.9426646174445017,
-            ("M", "ATA"): 0.9704985087342874,
-            ("M", "TA"): 1.1131472015944397,
-            ("F", "NAP"): 1.4436746606606454,
-        },
+        "HeartDisease": [
+            {"sensitive": ["F", "ATA"], "score": 0.9148307261547161},
+            {"sensitive": ["F", "TA"], "score": 0.9148307261547161},
+            {"sensitive": ["M", "ASY"], "score": 0.9300273909393691},
+            {"sensitive": ["M", "NAP"], "score": 0.9311028472164368},
+            {"sensitive": ["F", "ASY"], "score": 0.9426646174445017},
+            {"sensitive": ["M", "ATA"], "score": 0.9704985087342874},
+            {"sensitive": ["M", "TA"], "score": 1.1131472015944397},
+            {"sensitive": ["F", "NAP"], "score": 1.4436746606606454},
+        ]
     },
     {"HeartDisease": True},
 ]
@@ -897,13 +864,13 @@ def test_equal_opportuinity_ratio(
         result = eor.summary()
         assert result == expected_result[0]
         rankings = eor.rank()
-        for (target, ranking), (expected_target, expected_ranking) in zip(
-            rankings.items(), expected_result[1].items()
-        ):
-            assert ranking.keys() == expected_ranking.keys()
-            for val, expected_val in zip(ranking.values(), expected_ranking.values()):
-                if not np.isnan(val) and not np.isnan(expected_val):
-                    assert np.isclose(val, expected_val)
+        for target, ranking in rankings.items():
+            expected_ranking = expected_result[1][target]
+            assert len(ranking) == len(expected_ranking)
+            for rank_item, expected_rank_item in zip(ranking, expected_ranking):
+                assert rank_item["sensitive"] == expected_rank_item["sensitive"]
+                if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
+                    assert np.isclose(rank_item["score"], expected_rank_item["score"])
         is_biased = eor.is_biased(threshold)
         assert is_biased == expected_result[2]
     else:
@@ -1109,36 +1076,32 @@ def test_performancemetrics(
 
 eod_expected_result_2 = [
     {
-        "HeartDisease": {
-            "equalised_odds_difference": 0.03816593886462882,
-            "privileged": ("M",),
-            "unprivileged": ("F",),
-        }
+        "equalised_odds_difference": 0.03816593886462882,
+        "privileged_group": ["M"],
+        "unprivileged_group": ["F"],
     },
-    {"HeartDisease": {("M",): 0.03816593886462882, ("F",): -0.03816593886462882}},
+    {"HeartDisease": [{"sensitive": ["M"], "score": 0.03816593886462882}, {"sensitive": ["F"], "score": -0.03816593886462882}]},
     {"HeartDisease": False},
 ]
 
 
 eod_expected_result_3 = [
     {
-        "HeartDisease": {
-            "equalised_odds_difference": 0.33333333333333337,
-            "privileged": ("F", "ATA"),
-            "unprivileged": ("F", "NAP"),
-        }
+        "equalised_odds_difference": 0.33333333333333337,
+        "privileged_group": ["F", "ATA"],
+        "unprivileged_group": ["F", "NAP"],
     },
     {
-        "HeartDisease": {
-            ("F", "TA"): 0.10053586843924016,
-            ("F", "ATA"): 0.09033178680658709,
-            ("M", "NAP"): 0.08199377127623639,
-            ("M", "ASY"): 0.08153282325925479,
-            ("M", "ATA"): 0.05205550855335028,
-            ("F", "ASY"): 0.0014697534603408588,
-            ("M", "TA"): -0.16240914536313006,
-            ("F", "NAP"): -0.24551036643187954,
-        }
+        "HeartDisease": [
+            {"sensitive": ["F", "TA"], "score": 0.10053586843924016},
+            {"sensitive": ["F", "ATA"], "score": 0.09033178680658709},
+            {"sensitive": ["M", "NAP"], "score": 0.08199377127623639},
+            {"sensitive": ["M", "ASY"], "score": 0.08153282325925479},
+            {"sensitive": ["M", "ATA"], "score": 0.05205550855335028},
+            {"sensitive": ["F", "ASY"], "score": 0.0014697534603408588},
+            {"sensitive": ["M", "TA"], "score": -0.16240914536313006},
+            {"sensitive": ["F", "NAP"], "score": -0.24551036643187954},
+        ]
     },
     {"HeartDisease": True},
 ]
@@ -1146,23 +1109,21 @@ eod_expected_result_3 = [
 
 eod_expected_result_6 = [
     {
-        "HeartDisease": {
-            "equalised_odds_difference": 0.33333333333333337,
-            "privileged": ("F", "ATA"),
-            "unprivileged": ("F", "NAP"),
-        },
+        "equalised_odds_difference": 0.33333333333333337,
+        "privileged_group": ["F", "ATA"],
+        "unprivileged_group": ["F", "NAP"],
     },
     {
-        "HeartDisease": {
-            ("F", "TA"): 0.10053586843924016,
-            ("F", "ATA"): 0.09033178680658709,
-            ("M", "NAP"): 0.08199377127623639,
-            ("M", "ASY"): 0.08153282325925479,
-            ("M", "ATA"): 0.05205550855335028,
-            ("F", "ASY"): 0.0014697534603408588,
-            ("M", "TA"): -0.16240914536313006,
-            ("F", "NAP"): -0.24551036643187954,
-        },
+        "HeartDisease": [
+            {"sensitive": ["F", "TA"], "score": 0.10053586843924016},
+            {"sensitive": ["F", "ATA"], "score": 0.09033178680658709},
+            {"sensitive": ["M", "NAP"], "score": 0.08199377127623639},
+            {"sensitive": ["M", "ASY"], "score": 0.08153282325925479},
+            {"sensitive": ["M", "ATA"], "score": 0.05205550855335028},
+            {"sensitive": ["F", "ASY"], "score": 0.0014697534603408588},
+            {"sensitive": ["M", "TA"], "score": -0.16240914536313006},
+            {"sensitive": ["F", "NAP"], "score": -0.24551036643187954},
+        ]
     },
     {"HeartDisease": True},
 ]
@@ -1193,74 +1154,68 @@ def test_equalised_odds_difference(
     result = eod.summary()
     assert result == expected_result[0]
     rankings = eod.rank()
-    for (target, ranking), (expected_target, expected_ranking) in zip(
-        rankings.items(), expected_result[1].items()
-    ):
-        assert ranking.keys() == expected_ranking.keys()
-        for val, expected_val in zip(ranking.values(), expected_ranking.values()):
-            if not np.isnan(val) and not np.isnan(expected_val):
-                assert np.isclose(val, expected_val)
+    for target, ranking in rankings.items():
+        expected_ranking = expected_result[1][target]
+        assert len(ranking) == len(expected_ranking)
+        for rank_item, expected_rank_item in zip(ranking, expected_ranking):
+            assert rank_item["sensitive"] == expected_rank_item["sensitive"]
+            if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
+                assert np.isclose(rank_item["score"], expected_rank_item["score"])
     is_biased = eod.is_biased(threshold)
     assert is_biased == expected_result[2]
 
 
 eor_expected_result_2 = [
     {
-        "HeartDisease": {
-            "equalised_odds_ratio": 0.8033707865168539,
-            "privileged": ("M",),
-            "unprivileged": ("F",),
-        }
+        "equalised_odds_ratio": 0.8033707865168539,
+        "privileged_group": ["M"],
+        "unprivileged_group": ["F"],
     },
-    {"HeartDisease": {("M",): 0.8033707865168539, ("F",): 1.2447552447552448}},
+    {"HeartDisease": [{"sensitive": ["M"], "score": 0.8033707865168539}, {"sensitive": ["F"], "score": 1.2447552447552448}]},
     {"HeartDisease": False},
 ]
 
 
 eor_expected_result_3 = [
     {
-        "HeartDisease": {
-            "equalised_odds_ratio": 0.0,
-            "privileged": ("F", "NAP"),
-            "unprivileged": ("M", "ASY"),
-        }
+        "equalised_odds_ratio": 0.0,
+        "privileged_group": ["F", "NAP"],
+        "unprivileged_group": ["M", "ASY"],
     },
     {
-        "HeartDisease": {
-            ("M", "ASY"): np.inf,
-            ("M", "NAP"): np.inf,
-            ("M", "ATA"): np.inf,
-            ("F", "ASY"): np.inf,
-            ("F", "ATA"): np.inf,
-            ("F", "NAP"): np.nan,
-            ("M", "TA"): np.inf,
-            ("F", "TA"): np.nan,
-        }
+        "HeartDisease": [
+            {"sensitive": ["F", "TA"], "score": np.nan},
+            {"sensitive": ["M", "ASY"], "score": np.nan},
+            {"sensitive": ["M", "NAP"], "score": np.nan},
+            {"sensitive": ["M", "ATA"], "score": np.nan},
+            {"sensitive": ["F", "ASY"], "score": np.nan},
+            {"sensitive": ["F", "ATA"], "score": np.nan},
+            {"sensitive": ["F", "NAP"], "score": np.nan},
+            {"sensitive": ["M", "TA"], "score": np.nan},
+        ]
     },
-    {"HeartDisease": False},
+    {"HeartDisease": True},
 ]
 
 eor_expected_result_6 = [
     {
-        "HeartDisease": {
-            "equalised_odds_ratio": np.float64(0.0),
-            "privileged": ("F", "NAP"),
-            "unprivileged": ("M", "ASY"),
-        }
+        "equalised_odds_ratio": np.float64(0.0),
+        "privileged_group": ["F", "NAP"],
+        "unprivileged_group": ["M", "ASY"],
     },
     {
-        "HeartDisease": {
-            ("M", "ASY"): np.inf,
-            ("M", "NAP"): np.inf,
-            ("M", "ATA"): np.inf,
-            ("F", "ASY"): np.inf,
-            ("F", "ATA"): np.inf,
-            ("F", "NAP"): np.nan,
-            ("M", "TA"): np.inf,
-            ("F", "TA"): np.nan,
-        }
+        "HeartDisease": [
+            {"sensitive": ["F", "TA"], "score": np.nan},
+            {"sensitive": ["M", "ASY"], "score": np.nan},
+            {"sensitive": ["M", "NAP"], "score": np.nan},
+            {"sensitive": ["M", "ATA"], "score": np.nan},
+            {"sensitive": ["F", "ASY"], "score": np.nan},
+            {"sensitive": ["F", "ATA"], "score": np.nan},
+            {"sensitive": ["F", "NAP"], "score": np.nan},
+            {"sensitive": ["M", "TA"], "score": np.nan},
+        ]
     },
-    {"HeartDisease": False},
+    {"HeartDisease": True},
 ]
 
 
@@ -1295,13 +1250,13 @@ def test_equalised_odds_ratio(
         result = eor.summary()
         assert result == expected_result[0]
         rankings = eor.rank()
-        for (target, ranking), (expected_target, expected_ranking) in zip(
-            rankings.items(), expected_result[1].items()
-        ):
-            assert ranking.keys() == expected_ranking.keys()
-            for val, expected_val in zip(ranking.values(), expected_ranking.values()):
-                if not np.isnan(val) and not np.isnan(expected_val):
-                    assert np.isclose(val, expected_val)
+        for target, ranking in rankings.items():
+            expected_ranking = expected_result[1][target]
+            assert len(ranking) == len(expected_ranking)
+            for rank_item, expected_rank_item in zip(ranking, expected_ranking):
+                assert rank_item["sensitive"] == expected_rank_item["sensitive"]
+                if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
+                    assert np.isclose(rank_item["score"], expected_rank_item["score"])
         if threshold is None:
             is_biased = eor.is_biased()
         else:

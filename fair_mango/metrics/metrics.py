@@ -22,7 +22,12 @@ from fair_mango.metrics.base import (
     true_negative_rate,
     true_positive_rate,
 )
-from fair_mango.typing import MetricResult
+from fair_mango.typing import (
+    DatasetTargetResult,
+    DetailedPerformanceMetricsResult,
+    MetricResult,
+    RankResult,
+)
 
 
 class SelectionRate(Metric):
@@ -192,11 +197,11 @@ class SelectionRate(Metric):
         
         for group in target_by_group:
             group_sensitive = group["sensitive"]
-            y_group = group["data"] 
+            y_group = group["result"] 
             
             results.append({
                 "sensitive": group_sensitive,  
-                self.label: pd.Series([y_group.mean()], dtype=float) 
+                self.label: float(y_group.mean()) 
             })
         return target, results
 
@@ -459,8 +464,8 @@ class ConfusionMatrix(Metric):
             self.real_target_by_group, self.predicted_target_by_group
         ):
             group_ = real_group["sensitive"]
-            real_values = real_group["data"]
-            predicted_values = predicted_group["data"]
+            real_values = real_group["result"]
+            predicted_values = predicted_group["result"]
             result_for_group = {"sensitive": group_}
 
             conf_matrix = confusion_matrix(real_values, predicted_values, labels=[0, 1])
@@ -677,8 +682,8 @@ class PerformanceMetric(Metric):
             self.real_target_by_group, self.predicted_target_by_group
         ):
             group_ = real_group["sensitive"]
-            real_values = real_group["data"]
-            predicted_values = predicted_group["data"]
+            real_values = real_group["result"]
+            predicted_values = predicted_group["result"]
             result_for_group = {"sensitive": group_}
 
             for metric_name, metric in self.metrics.items():
@@ -1335,48 +1340,40 @@ class EqualisedOddsDifference:
         self.data = data
         self.label = "equalised_odds_difference"
         self.ranking: dict | None = None
-        self.tpr: dict | None = None
-        self.fpr: dict | None = None
+        self.tpr: list[dict] | None = None
+        self.fpr: list[dict] | None = None
 
     def _compute(
         self,
-    ) -> tuple[dict[tuple, NDArray[np.float64]], dict[tuple, NDArray[np.float64]]]:
+    ) -> tuple[list[dict], list[dict]]:
         """Calculate the disparity in the True Positive Rate and False Positive
         Rate using "difference" between every possible pair in the provided
         groups.
 
         Returns
         -------
-        tuple[dict[tuple, np.ndarray[float]], dict[tuple, np.ndarray[float]]]
-            A tuple with two dictionaries with:
-            - keys: tuple with the pair of the sensitive groups labels.
-            - values: a numpy array with the corresponding disparity.
+        tuple[list[dict], list[dict]]
+            A tuple with two lists of DisparityResult dictionaries.
         """
         tpr = EqualOpportunityDifference(self.data)
         fpr = FalsePositiveRateDifference(self.data)
         tpr.summary()
         fpr.summary()
-        tpr_diff = tpr.differences[1]
-        fpr_diff = fpr.differences[1]
+        tpr_diff = tpr.results  
+        fpr_diff = fpr.results  
 
         return tpr_diff, fpr_diff
 
-    def summary(self) -> dict[str, dict[str, float | tuple | None]]:
+    def summary(self) -> dict[str, float | list[str] | None]:
         """Return the Equalised Odds metric value, in other words the biggest
         disparity found in the True Positive Rate and False Positive Rate with
         specifying the priviliged and discriminated groups.
 
         Returns
         -------
-        dict[str, dict[str, float | tuple | None]]
-            A dictionary with:
-            - keys: name of the target variable.
-            - values: a dictionary corresponding to the results for that target
-              variable with:
-                1. keys: labels for the biggest disparity, the privileged group
-                   and the discriminated group.
-                2. values: values for the biggest disparity, the privileged
-                   group and the discriminated group.
+        dict[str, float | list[str] | None]
+            A dictionary with keys for the metric value, privileged group,
+            and unprivileged group.
         """
         self.result: dict = {}
         target = self.data.real_target
@@ -1388,28 +1385,36 @@ class EqualisedOddsDifference:
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
 
-        for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
-            for value1, value2 in zip(values1, values2):
-                if np.abs(value1) > self.result[target][self.label]:
-                    self.result[target][self.label] = np.abs(value1)
-                    if value1 > 0:
-                        self.result[target]["privileged"] = key1[0]
-                        self.result[target]["unprivileged"] = key1[1]
-                    else:
-                        self.result[target]["privileged"] = key1[1]
-                        self.result[target]["unprivileged"] = key1[0]
-                if np.abs(value2) > self.result[target][self.label]:
-                    self.result[target][self.label] = np.abs(value2)
-                    if value2 > 0:
-                        self.result[target]["privileged"] = key1[1]
-                        self.result[target]["unprivileged"] = key1[0]
-                    else:
-                        self.result[target]["privileged"] = key1[0]
-                        self.result[target]["unprivileged"] = key1[1]
+        # Process the new list-based disparity results
+        for tpr_result, fpr_result in zip(self.tpr, self.fpr):
+            tpr_disparity = tpr_result["disparity"]
+            fpr_disparity = fpr_result["disparity"]
+            
+            if np.abs(tpr_disparity) > self.result[target][self.label]:
+                self.result[target][self.label] = np.abs(tpr_disparity)
+                if tpr_disparity > 0:
+                    self.result[target]["privileged"] = tpr_result["group_1"]
+                    self.result[target]["unprivileged"] = tpr_result["group_2"]
+                else:
+                    self.result[target]["privileged"] = tpr_result["group_2"]
+                    self.result[target]["unprivileged"] = tpr_result["group_1"]
+                    
+            if np.abs(fpr_disparity) > self.result[target][self.label]:
+                self.result[target][self.label] = np.abs(fpr_disparity)
+                if fpr_disparity > 0:
+                    self.result[target]["privileged"] = fpr_result["group_2"]
+                    self.result[target]["unprivileged"] = fpr_result["group_1"]
+                else:
+                    self.result[target]["privileged"] = fpr_result["group_1"]
+                    self.result[target]["unprivileged"] = fpr_result["group_2"]
 
-        return self.result
+        return {
+            self.label: self.result[target][self.label],
+            "privileged_group": self.result[target]["privileged"],
+            "unprivileged_group": self.result[target]["unprivileged"],
+        }
 
-    def rank(self) -> dict[str, dict[tuple[str], float]]:
+    def rank(self) -> dict[str, list[RankResult]]:
         """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
@@ -1420,13 +1425,10 @@ class EqualisedOddsDifference:
 
         Returns
         -------
-        dict[str, dict[tuple[str], float]]
+        dict[str, list[RankResult]]
             A dictionary with:
             - keys: name of the target variable.
-            - values: a dictionary corresponding to the ranking for that target
-              variable with:
-                1. keys: a tuple with the sensitive group.
-                2. values: the corresponding score.
+            - values: a list of RankResult dictionaries with sensitive group and score.
         """
         result: dict = {}
         self.ranking = {}
@@ -1438,14 +1440,20 @@ class EqualisedOddsDifference:
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
 
-        for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
-            for value1, value2 in zip(values1, values2):
-                if np.abs(value1) > np.abs(value2):
-                    result[target].setdefault(key1[0], []).append(value1)
-                    result[target].setdefault(key1[1], []).append(-value1)
-                else:
-                    result[target].setdefault(key1[0], []).append(-value2)
-                    result[target].setdefault(key1[1], []).append(value2)
+        for tpr_result, fpr_result in zip(self.tpr, self.fpr):
+            tpr_disparity = tpr_result["disparity"]
+            fpr_disparity = fpr_result["disparity"]
+            
+            if np.abs(tpr_disparity) > np.abs(fpr_disparity):
+                group1_key = tuple(tpr_result["group_1"])
+                group2_key = tuple(tpr_result["group_2"])
+                result[target].setdefault(group1_key, []).append(tpr_disparity)
+                result[target].setdefault(group2_key, []).append(-tpr_disparity)
+            else:
+                group1_key = tuple(fpr_result["group_1"])
+                group2_key = tuple(fpr_result["group_2"])
+                result[target].setdefault(group1_key, []).append(-fpr_disparity)
+                result[target].setdefault(group2_key, []).append(fpr_disparity)
 
         target_result = result[target]
         for group, differences in target_result.items():
@@ -1459,7 +1467,14 @@ class EqualisedOddsDifference:
             )
         )
 
-        return self.ranking
+        rank_results = []
+        for group_tuple, score in self.ranking[target].items():
+            rank_results.append({
+                "sensitive": list(group_tuple),
+                "score": float(score)
+            })
+
+        return {target: rank_results}
 
     def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
         """Return a decision of whether there is bias or not for each target
@@ -1486,16 +1501,17 @@ class EqualisedOddsDifference:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
-        if self.ranking is None:
-            self.ranking = self.rank()
+        ranking_nested = self.rank()
 
         bias: dict = {}
         target = self.data.real_target
-        dicts = self.ranking[target]
+        rank_list = ranking_nested[target]
 
-        max_diff, min_diff = list(dicts.values())[0], list(dicts.values())[-1]
-        if max_diff > threshold or min_diff < -threshold:
-            bias[target] = True
+        if rank_list:
+            scores = [item["score"] for item in rank_list]
+            max_diff = scores[0] if scores else 0
+            min_diff = scores[-1] if scores else 0
+            bias[target] = max_diff > threshold or min_diff < -threshold
         else:
             bias[target] = False
 
@@ -1571,45 +1587,37 @@ class EqualisedOddsRatio:
         self.data = data
         self.label = "equalised_odds_ratio"
         self.ranking: dict | None = None
-        self.tpr: dict | None = None
-        self.fpr: dict | None = None
+        self.tpr: list[dict] | None = None
+        self.fpr: list[dict] | None = None
 
-    def _compute(self) -> tuple[dict, dict]:
+    def _compute(self) -> tuple[list[dict], list[dict]]:
         """Calculate the disparity in the True Positive Rate and False Positive
         Rate using "ratio" between every possible pair in the provided groups.
 
         Returns
         -------
-        dict[tuple, np.ndarray[float]]
-            A dictionary with:
-            - keys: tuple with the pair of the sensitive groups labels.
-            - values: a numpy array with the corresponding disparity.
+        tuple[list[dict], list[dict]]
+            A tuple with two lists of DisparityResult dictionaries.
         """
         tpr = EqualOpportunityRatio(self.data)
         fpr = FalsePositiveRateRatio(self.data)
         tpr.summary()
         fpr.summary()
-        tpr_ratio = tpr.ratios[1]
-        fpr_ratio = fpr.ratios[1]
+        tpr_ratio = tpr.results
+        fpr_ratio = fpr.results
 
         return tpr_ratio, fpr_ratio
 
-    def summary(self) -> dict[str, dict[str, float | tuple | None]]:
+    def summary(self) -> dict[str, float | list[str] | None]:
         """Return the Equalised Odds metric value, in other words the biggest
         disparity found in the True Positive Rate and False Positive Rate with
         specifying the priviliged and discriminated groups.
 
         Returns
         -------
-        dict[str, dict[str, float | tuple | None]]
-            A dictionary with:
-            - keys: name of the target variable.
-            - values: a dictionary corresponding to the results for that target
-              variable with:
-                1. keys: labels for the biggest disparity, the privileged group
-                   and the discriminated group.
-                2. values: values for the biggest disparity, the privileged
-                   group and the discriminated group.
+        dict[str, float | list[str] | None]
+            A dictionary with keys for the metric value, privileged group,
+            and unprivileged group.
         """
         self.result: dict = {}
         target = self.data.real_target
@@ -1621,39 +1629,46 @@ class EqualisedOddsRatio:
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
 
-        for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
-            for value1, value2 in zip(values1, values2):
-                if value1 > 1:
-                    temp = 1 / value1
+        for tpr_result, fpr_result in zip(self.tpr, self.fpr):
+            tpr_ratio = tpr_result["disparity"]
+            fpr_ratio = fpr_result["disparity"]
+            
+            if tpr_ratio > 1:
+                temp = 1 / tpr_ratio
+            else:
+                temp = tpr_ratio
+
+            if temp < self.result[target][self.label]:
+                self.result[target][self.label] = temp
+                if tpr_ratio > 1:
+                    self.result[target]["privileged"] = tpr_result["group_2"]
+                    self.result[target]["unprivileged"] = tpr_result["group_1"]
                 else:
-                    temp = value1
+                    self.result[target]["privileged"] = tpr_result["group_1"]
+                    self.result[target]["unprivileged"] = tpr_result["group_2"]
 
-                if temp < self.result[target][self.label]:
-                    self.result[target][self.label] = temp
-                    if value1 > 1:
-                        self.result[target]["privileged"] = key1[0]
-                        self.result[target]["unprivileged"] = key1[1]
-                    else:
-                        self.result[target]["privileged"] = key1[1]
-                        self.result[target]["unprivileged"] = key1[0]
+            if fpr_ratio > 1:
+                temp = 1 / fpr_ratio
+            else:
+                temp = fpr_ratio
 
-                if value2 > 1:
-                    temp = 1 / value2
+            if temp < self.result[target][self.label]:
+                self.result[target][self.label] = temp
+                if fpr_ratio > 1:
+                    self.result[target]["privileged"] = fpr_result["group_2"]
+                    self.result[target]["unprivileged"] = fpr_result["group_1"]
                 else:
-                    temp = value2
+                    self.result[target]["privileged"] = fpr_result["group_1"]
+                    self.result[target]["unprivileged"] = fpr_result["group_2"]
 
-                if temp < self.result[target][self.label]:
-                    self.result[target][self.label] = temp
-                    if value2 > 1:
-                        self.result[target]["privileged"] = key1[1]
-                        self.result[target]["unprivileged"] = key1[0]
-                    else:
-                        self.result[target]["privileged"] = key1[0]
-                        self.result[target]["unprivileged"] = key1[1]
+        # Return flat format with updated key names
+        return {
+            self.label: self.result[target][self.label],
+            "privileged_group": self.result[target]["privileged"],
+            "unprivileged_group": self.result[target]["unprivileged"],
+        }
 
-        return self.result
-
-    def rank(self) -> dict[str, dict[tuple[str], float]]:
+    def rank(self) -> dict[str, list[RankResult]]:
         """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
@@ -1664,13 +1679,10 @@ class EqualisedOddsRatio:
 
         Returns
         -------
-        dict[str, dict[tuple[str], float]]
+        dict[str, list[RankResult]]
             A dictionary with:
             - keys: name of the target variable.
-            - values: a dictionary corresponding to the ranking for that target
-              variable with:
-                1. keys: a tuple with the sensitive group.
-                2. values: the corresponding score.
+            - values: a list of RankResult dictionaries with sensitive group and score.
         """
         result: dict = {}
         self.ranking = {}
@@ -1683,24 +1695,36 @@ class EqualisedOddsRatio:
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
 
-        for (key1, values1), (_, values2) in zip(self.tpr.items(), self.fpr.items()):
-            for value1, value2 in zip(values1, values2):
-                if value1 > 1:
-                    temp1 = 1 / value1
-                else:
-                    temp1 = value1
+        for tpr_result, fpr_result in zip(self.tpr, self.fpr):
+            tpr_ratio = tpr_result["disparity"]
+            fpr_ratio = fpr_result["disparity"]
+            
+            if tpr_ratio > 1:
+                temp1 = 1 / tpr_ratio
+            else:
+                temp1 = tpr_ratio
 
-                if value2 > 1:
-                    temp2 = 1 / value2
-                else:
-                    temp2 = value2
+            if fpr_ratio > 1:
+                temp2 = 1 / fpr_ratio
+            else:
+                temp2 = fpr_ratio
 
-                if temp1 < temp2:
-                    result[target].setdefault(key1[0], []).append(value1)
-                    result[target].setdefault(key1[1], []).append(1 / value1)
+            if temp1 < temp2:
+                group1_key = tuple(tpr_result["group_1"])
+                group2_key = tuple(tpr_result["group_2"])
+                result[target].setdefault(group1_key, []).append(tpr_ratio)
+                if tpr_ratio == 0:
+                    result[target].setdefault(group2_key, []).append(np.inf)
                 else:
-                    result[target].setdefault(key1[0], []).append(value2)
-                    result[target].setdefault(key1[1], []).append(1 / value2)
+                    result[target].setdefault(group2_key, []).append(1 / tpr_ratio)
+            else:
+                group1_key = tuple(fpr_result["group_1"])
+                group2_key = tuple(fpr_result["group_2"])
+                result[target].setdefault(group1_key, []).append(fpr_ratio)
+                if fpr_ratio == 0:
+                    result[target].setdefault(group2_key, []).append(np.inf)
+                else:
+                    result[target].setdefault(group2_key, []).append(1 / fpr_ratio)
 
         target_result = result[target]
         for group, ratios in target_result.items():
@@ -1715,7 +1739,14 @@ class EqualisedOddsRatio:
             )
         )
 
-        return self.ranking
+        rank_results = []
+        for group_tuple, ratio in self.ranking[target].items():
+            rank_results.append({
+                "sensitive": list(group_tuple),
+                "score": float(ratio)
+            })
+
+        return {target: rank_results}
 
     def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
         """Return a decision of whether there is bias or not for each target
@@ -1742,16 +1773,17 @@ class EqualisedOddsRatio:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
-        if self.ranking is None:
-            self.ranking = self.rank()
+        ranking_nested = self.rank()
 
         bias: dict = {}
-
         target = self.data.real_target
-        dicts = self.ranking[target]
-        min_ratio, max_ratio = list(dicts.values())[0], list(dicts.values())[-1]
-        if max_ratio > (1 / threshold) or min_ratio < threshold:
-            bias[target] = True
+        rank_list = ranking_nested[target]
+
+        if rank_list:
+            scores = [item["score"] for item in rank_list]
+            min_ratio = scores[0] if scores else 1.0
+            max_ratio = scores[-1] if scores else 1.0
+            bias[target] = max_ratio > (1 / threshold) or min_ratio < threshold
         else:
             bias[target] = False
 
