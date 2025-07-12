@@ -334,8 +334,7 @@ class FairnessMetricDifference(ABC):
     ) -> None:
         self.metric = metric
         self.kwargs = kwargs
-        self.target: str
-        self.metric_results: list
+        self.metric_results: list = []
         self.metric_type = metric_type
         self.data = data
         if metric_type == "performance":
@@ -359,19 +358,21 @@ class FairnessMetricDifference(ABC):
 
         Returns
         -------
-        dict[tuple, np.ndarray[float]]
-            A dictionary with:
-            - keys: tuple with the pair of the sensitive groups labels.
-            - values: a numpy array with the corresponding disparity.
+        list[dict]
+            A list of DisparityResult dictionaries with:
+            - group_1: First group as list[str]
+            - group_2: Second group as list[str] 
+            - disparity: The difference value between groups
         """
        
         filtered_kwargs = {k: v for k, v in self.kwargs.items() if k != 'label'}
         metric = self.metric(self.data, **filtered_kwargs)
-        self.target, self.metric_results = metric()
-        results = calculate_disparity(self.metric_results, "difference")
+        metric_result = metric()
         
-       
-        self.differences = (self.target, results)
+        # Extract just the results list (no longer a tuple)
+        self.metric_results = metric_result
+            
+        results = calculate_disparity(self.metric_results, "difference")
         
         return results
 
@@ -416,112 +417,82 @@ class FairnessMetricDifference(ABC):
             "unprivileged_group": unprivileged_group,
         }
 
-    def rank(self) -> dict[str, list[dict[str, object]]]:
-        """Assign a score to every sensitive group present in the sensitive
-        features and rank them from most privileged to most discriminated.
-        The score can be interpreted like:
-        - [('Male',): 0.0314]: Males have on average a score higher by 3.14% than
-          the Females.
-        - [('White',): -0.0628]: Whites have on average a score lower by 6.28% than
-          other groups (Black, Asian...).
+    def rank(self) -> list[dict]:
+        """Calculate the fairness metric for each sensitive group and rank them
+        based on their scores.
 
         Returns
         -------
-        FairnessRankingResult
-            A dataclass containing:
-            - target: name of the target variable.
-            - rankings: a list of RankResult dataclasses with sensitive group and score.
+        list[dict]
+            List of ranking dictionaries with 'sensitive' and 'score' keys.
         """
-        result: dict = {}
-        ranking: dict[tuple, float] = {}
-
         if self.results is None:
             self.results = self._compute()
 
+        # Calculate scores for each sensitive group from disparity results
+        group_scores: dict[tuple, float] = {}
 
         for disparity_result in self.results:
-            group1_key = tuple(disparity_result["group_1"])
-            group2_key = tuple(disparity_result["group_2"])
-            disparity_value = disparity_result["disparity"]
+            group_1 = disparity_result["group_1"]
+            group_2 = disparity_result["group_2"]
+            difference = disparity_result["disparity"]
             
-            if self.metric_type == "performance":
-                result.setdefault(group1_key, []).append(disparity_value)
-                result.setdefault(group2_key, []).append(-disparity_value)
-            elif self.metric_type == "error":
-                result.setdefault(group1_key, []).append(-disparity_value)
-                result.setdefault(group2_key, []).append(disparity_value)
+            # Convert to tuples for consistent hashing
+            group_1_tuple = tuple(group_1) if isinstance(group_1, list) else (group_1,)
+            group_2_tuple = tuple(group_2) if isinstance(group_2, list) else (group_2,)
+            
+            # For difference metrics, assign positive difference to group_1, negative to group_2
+            if group_1_tuple not in group_scores:
+                group_scores[group_1_tuple] = difference
+            if group_2_tuple not in group_scores:
+                group_scores[group_2_tuple] = -difference
+
+        # Convert to the expected format
+        ranking_list = []
+        for group_tuple, score in group_scores.items():
+            ranking_list.append({
+                "sensitive": list(group_tuple),
+                "score": float(score)
+            })
         
-        for group, differences in result.items():
-            difference = np.mean(np.array(differences))
-            ranking[group] = difference
+        # Sort by score descending (most positive scores first)
+        ranking_list.sort(key=lambda x: x["score"], reverse=True)
         
-        ranking = dict(
-            sorted(
-                ranking.items(),
-                key=lambda item: item[1],
-                reverse=True,
-            )
-        )
+        return ranking_list
 
-       
-        ranking_str = {}
-        for group, score in ranking.items():
-            group_str = tuple(str(x) for x in group)
-            ranking_str[group_str] = score
-
-       
-        rank_results = []
-        for group_tuple, score in ranking.items():
-            rank_results.append(RankResult(
-                sensitive=list(group_tuple),
-                score=float(score)
-            ))
-
-        ranking_result = FairnessRankingResult(
-            target=self.data.real_target,
-            rankings=rank_results
-        )
-        return ranking_result.to_dict()
-
-    def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
-        """Return a decision of whether there is bias or not
-        depending on the provided threshold.
+    def is_biased(self, threshold: float = 0.1) -> bool:
+        """Determine if the model is biased against any group based on the
+        provided threshold.
 
         Parameters
         ----------
         threshold : float, optional
-            The threshold to make the decision of whether there is bias or not,
+            Maximum acceptable difference in metric values between groups,
             by default 0.1.
 
         Returns
         -------
-        dict[str, bool]
-            Dictionary with target name as key and bias decision as value.
+        bool
+            Boolean bias indicator.
 
         Raises
         ------
         ValueError
-            If threshold parameter is not in the range of [0, 1].
+            If threshold is negative.
         """
-        if not (0 <= threshold <= 1):
-            raise ValueError("Threshold must be in range [0, 1]")
+        if threshold < 0:
+            raise ValueError("Threshold must be non-negative for difference metrics.")
+            
+        if self.results is None:
+            self.results = self._compute()
 
-        ranking_dict = self.rank()
+        # Check if any disparity exceeds threshold
+        is_biased_result = any(
+            abs(disparity_result["disparity"]) > threshold 
+            for disparity_result in self.results
+        )
         
-        if not ranking_dict:
-            return {self.data.real_target: False}
-
-        ranking_list = list(ranking_dict.values())[0]
-        
-        if not ranking_list:
-            return {self.data.real_target: False}
-
-        scores = [item["score"] for item in ranking_list]  # type: ignore[misc]
-        max_diff = scores[0] if scores else 0.0
-        min_diff = scores[-1] if scores else 0.0
-        is_biased_value = max_diff > threshold or min_diff < -threshold
-        
-        return {self.data.real_target: is_biased_value}
+        return is_biased_result
 
 
 class FairnessMetricRatio(ABC):
@@ -575,13 +546,10 @@ class FairnessMetricRatio(ABC):
 
         self.kwargs = kwargs
         self.metric_type = metric_type
-        self.target: Sequence
-        self.metric_results: list
+        self.metric_results: list = []
         self.result: dict | None = None
         self.ranking: dict | None = None
         self.results: list[dict] | None = None
-        self.ratios: tuple | None = None  
-        self.differences: tuple | None = None  
 
     def _compute(self) -> list[dict]:
         """Calculate the disparity in the scores between every possible pair in
@@ -598,7 +566,11 @@ class FairnessMetricRatio(ABC):
         
         filtered_kwargs = {k: v for k, v in self.kwargs.items() if k != 'label'}
         metric = self.metric(self.data, **filtered_kwargs)
-        self.target, self.metric_results = metric()
+        metric_result = metric()
+        
+        # Extract just the results list (no longer a tuple)
+        self.metric_results = metric_result
+            
         results = calculate_disparity(self.metric_results, "ratio")
         
         return results
@@ -650,97 +622,79 @@ class FairnessMetricRatio(ABC):
             "unprivileged_group": unprivileged_group,
         }
 
-    def rank(self) -> dict[str, list[RankResult]]:
+    def rank(self) -> list[dict]:
         """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
-        The score can be interpreted like:
-        - [('Male',): 0.814]: Males have on average 81.4% the score of the
-          Females.
-        - [('White',): 1.20]: Whites have on average 120% the score of the
-          other groups (Black, Asian...).
 
         Returns
         -------
-        dict[str, list[RankResult]]
-            A dictionary with target name as key and list of RankResult as values.
+        list[dict]
+            List of ranking dictionaries with 'sensitive' and 'score' keys.
         """
-        result: dict = {}
-        ranking: dict[tuple, float] = {}
-
         if self.results is None:
             self.results = self._compute()
 
+        # Calculate scores for each sensitive group from disparity results
+        group_scores: dict[tuple, float] = {}
+
         for disparity_result in self.results:
-            group1_key = tuple(disparity_result["group_1"])
-            group2_key = tuple(disparity_result["group_2"])
-            ratio_value = disparity_result["disparity"]
+            group_1 = disparity_result["group_1"]
+            group_2 = disparity_result["group_2"]
+            ratio = disparity_result["disparity"]
             
-            if self.metric_type == "performance":
-                result.setdefault(group1_key, []).append(np.inf if ratio_value == 0 else 1 / ratio_value)
-                result.setdefault(group2_key, []).append(ratio_value)
-            elif self.metric_type == "error":
-                result.setdefault(group1_key, []).append(ratio_value)
-                result.setdefault(group2_key, []).append(np.inf if ratio_value == 0 else 1 / ratio_value)
-        
-        for group, ratios in result.items():
-            ratio = np.mean(np.array(ratios))
-            ranking[group] = ratio
+            # Convert to tuples for consistent hashing
+            group_1_tuple = tuple(group_1) if isinstance(group_1, list) else (group_1,)
+            group_2_tuple = tuple(group_2) if isinstance(group_2, list) else (group_2,)
+            
+            # For ratio metrics, assign the ratio to group_1 and inverse to group_2
+            if group_1_tuple not in group_scores:
+                group_scores[group_1_tuple] = ratio
+            if group_2_tuple not in group_scores:
+                group_scores[group_2_tuple] = 1.0 / ratio if ratio != 0 else float('inf')
 
-        ranking = dict(
-            sorted(
-                ranking.items(),
-                key=lambda item: item[1],
-                reverse=False,
-            )
-        )
-
-        rank_results = []
-        for group_tuple, score in ranking.items():
-            rank_results.append({
+        # Convert to the expected format
+        ranking_list = []
+        for group_tuple, score in group_scores.items():
+            ranking_list.append({
                 "sensitive": list(group_tuple),
                 "score": float(score)
             })
 
-        return {self.data.real_target: rank_results}
+        # Sort by score ascending (lower ratios = more discriminated)
+        ranking_list.sort(key=lambda x: x["score"])
+        
+        return ranking_list
 
-    def is_biased(self, threshold: float = 0.8) -> dict[str, bool]:
-        """Return a decision of whether there is bias or not for each target
-        depending on the provided threshold.
+    def is_biased(self, threshold: float = 0.8) -> bool:
+        """Determine if the model is biased against any group based on the
+        provided threshold.
 
         Parameters
         ----------
         threshold : float, optional
-            The threshold to make the decision of whether there is bias or not,
-            by default 0.8.
+            Minimum acceptable ratio between groups. Values below this
+            threshold indicate bias, by default 0.8.
 
         Returns
         -------
-        dict[str, bool]
-            A dictionary with:
-            - keys: a string with the target column name.
-            - values: True if there is bias else False.
+        bool
+            Boolean bias indicator.
 
         Raises
         ------
         ValueError
-            If threshold parameter is not in the range of [0, 1].
+            If threshold is not between 0 and 1.
         """
         if not (0 <= threshold <= 1):
-            raise ValueError("Threshold must be in range [0, 1]")
+            raise ValueError("Threshold must be between 0 and 1 for ratio metrics.")
+            
+        if self.results is None:
+            self.results = self._compute()
 
-        ranking_nested = self.rank()
-
-        if not ranking_nested:
-            return {self.data.real_target: False}
-
-        ranking = list(ranking_nested.values())[0]
+        # Check if any ratio falls below threshold
+        is_biased_result = any(
+            disparity_result["disparity"] < threshold 
+            for disparity_result in self.results
+        )
         
-        if not ranking:
-            return {self.data.real_target: False}
-
-        scores = [item["score"] for item in ranking]  # type: ignore[misc]
-        min_ratio = scores[0] if scores else 1.0
-        max_ratio = scores[-1] if scores else 1.0
-        is_biased = max_ratio > (1 / threshold) or min_ratio < threshold
-        
-        return {self.data.real_target: is_biased}
+        return is_biased_result
