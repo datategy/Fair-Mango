@@ -76,112 +76,70 @@ class Superset(ABC):
 
 
 class SupersetFairnessMetrics(Superset):
-    """Calculate fairness metrics score for different subsets of sensitive
-    attributes and ranks them. Ex:
+    """Calculate comprehensive fairness metrics for all combinations of sensitive
+    attributes. This class computes all applicable fairness metrics across different
+    subsets of sensitive attributes. Ex:
     [gender, race] → (gender), (race), (gender, race)
 
     Parameters
     ----------
-    metric : type[DemographicParityDifference] | type[DemographicParityRatio]\
-            | type[DisparateImpactDifference] | type[DisparateImpactRatio]\
-            | type[EqualOpportunityDifference] | type[EqualOpportunityRatio]\
-            | type[EqualisedOddsDifference] | type[EqualisedOddsRatio]\
-            | type[FalsePositiveRateDifference] | type[FalsePositiveRateRatio]
-        The fairness metric class to be used for evaluation.
-    data : Dataset | pd.DataFrame
-        The dataset containing the data to be evaluated. If a DataFrame object
-        is passed, it should contain attributes `sensitive`, `real_target`,
-        `predicted_target`, and `positive_target`.
-    sensitive : Sequence[str], optional
-        Sequence of sensitive attributes (Ex: gender, race...), by default [].
-    real_target : Sequence[str] | None, optional
-        Sequence of column names of actual labels for target variables,
-        by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names of predicted labels for target variables,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided
-        targets, by default None.
+    data : Dataset
+        The dataset containing the data to be evaluated. It should contain 
+        attributes `sensitive`, `real_target`, `predicted_target`, and `positive_target`.
+
+    Examples
+    --------
+    >>> df = pd.DataFrame({
+    ...         'gender': ['male', 'male', 'male', 'female', 'female'],
+    ...         'race': ['white', 'black', 'black', 'white', 'white'],
+    ...         'real_churn': [1,1,0,0,1],
+    ...         'pred_churn': [0,1,0,0,1]
+    ... })
+    >>> dataset = Dataset(
+    ...     df=df,
+    ...     sensitive=['gender', 'race'],
+    ...     real_target=['real_churn'],
+    ...     predicted_target=['pred_churn'],
+    ...     positive_target=[1]
+    ... )
+    >>> super_set_fairness_metrics = SupersetFairnessMetrics(data=dataset)
+    >>> result = super_set_fairness_metrics.rank()
     """
 
     def __init__(
         self,
-        metric: (
-            type[DemographicParityDifference]
-            | type[DemographicParityRatio]
-            | type[DisparateImpactDifference]
-            | type[DisparateImpactRatio]
-            | type[EqualOpportunityDifference]
-            | type[EqualOpportunityRatio]
-            | type[EqualisedOddsDifference]
-            | type[EqualisedOddsRatio]
-            | type[FalsePositiveRateDifference]
-            | type[FalsePositiveRateRatio]
-        ),
         data: Dataset,
     ) -> None:
         super().__init__(data)
-        self.metric = metric
+        
+        # Dataset-only metrics (only need real_target)
+        self._dataset_metrics = {
+            "demographic_parity_difference": DemographicParityDifference,
+        }
+        
+        # Model metrics (need predicted_target)
+        self._model_metrics = {
+            "demographic_parity_ratio": DemographicParityRatio,
+            "disparate_impact_difference": DisparateImpactDifference,
+            "disparate_impact_ratio": DisparateImpactRatio,
+            "equal_opportunity_difference": EqualOpportunityDifference,
+            "equal_opportunity_ratio": EqualOpportunityRatio,
+            "equalised_odds_difference": EqualisedOddsDifference,
+            "equalised_odds_ratio": EqualisedOddsRatio,
+            "false_positive_rate_difference": FalsePositiveRateDifference,
+            "false_positive_rate_ratio": FalsePositiveRateRatio,
+        }
 
-    def rank(self) -> list[SupersetFairnessRank]:
-        """Calculate fairness metrics scores for different subsets of sensitive
-        attributes and ranks them. Ex:
-        [gender, race] → (gender), (race), (gender, race)
+    def rank(self) -> list[dict]:
+        """Calculate fairness metrics rankings for all combinations of sensitive
+        attributes and all applicable fairness metrics.
 
         Returns
         -------
-        list[SupersetFairnessRank]
-            A list of SupersetFairnessRank dictionaries, each containing the sensitive attributes
-            considered and their corresponding fairness metric result.
-
-        Examples
-        --------
-        >>> df = pd.DataFrame({
-        ...         'gender': ['male', 'male', 'male', 'female', 'female'],
-        ...         'race': ['white', 'black', 'black', 'white', 'white'],
-        ...         'real_churn': [1,1,0,0,1],
-        ...         'pred_churn': [0,1,0,0,1]
-        ... })
-        >>> super_set_fairness_metrics = SupersetFairnessMetrics(
-        ...     metric=DemographicParityDifference,
-        ...     data=df,
-        ...     sensitive=['gender', 'race'],
-        ...     real_target=['real_churn'],
-        ...     predicted_target=['pred_churn'],
-        ... )
-        >>> result = super_set_fairness_metrics.rank()
-        >>> result
-        [
-            {
-                'sensitive': ('gender',),
-                'result': {
-                    'real_churn': {
-                        ('male',): 0.16666666666666663,
-                        ('female',): -0.16666666666666663
-                    }
-                }
-            },
-            {
-                'sensitive': ('race',),
-                'result': {
-                    'real_churn': {
-                        ('white',): 0.16666666666666663,
-                        ('black',): -0.16666666666666663
-                    }
-                }
-            },
-            {
-                'sensitive': ('gender', 'race'),
-                'result': {
-                    'real_churn': {
-                        ('male', 'white'): 0.5,
-                        ('female', 'white'): -0.25,
-                        ('male', 'black'): -0.25
-                    }
-                }
-            }
-        ]
+        list[dict]
+            A list of dictionaries, each containing:
+            - 'sensitive': List of sensitive attribute names for this combination
+            - 'rankings': Dictionary mapping metric names to their ranking results
         """
         results = []
 
@@ -194,14 +152,162 @@ class SupersetFairnessMetrics(Superset):
                 self.positive_target,
             )
 
-            result = self.metric(dataset).rank()
+            rankings = {}
+            
+            # Calculate dataset metrics
+            for metric_name, metric_class in self._dataset_metrics.items():
+                try:
+                    metric = metric_class(dataset)
+                    rankings[metric_name] = metric.rank()
+                except Exception as e:
+                    # Skip metrics that can't be calculated for this combination
+                    print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
+                    continue
+            
+            # Calculate model metrics if predictions are available
+            if self.predicted_target is not None:
+                for metric_name, metric_class in self._model_metrics.items():
+                    try:
+                        metric = metric_class(dataset)
+                        rankings[metric_name] = metric.rank()
+                    except Exception as e:
+                        # Skip metrics that can't be calculated for this combination
+                        print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
+                        continue
 
-            results.append(
-                {
-                    "sensitive": pair,
-                    "result": result,
-                }
+            results.append({
+                "sensitive": list(pair),
+                "rankings": rankings,
+            })
+
+        return results
+
+    def summary(self) -> list[dict]:
+        """Calculate fairness metrics summaries for all combinations of sensitive
+        attributes and all applicable fairness metrics.
+
+        Returns
+        -------
+        list[dict]
+            A list of dictionaries, each containing:
+            - 'sensitive': List of sensitive attribute names for this combination
+            - 'summaries': Dictionary mapping metric names to their summary results
+        """
+        results = []
+
+        for pair in self.pairs:
+            dataset = Dataset(
+                self.df,
+                list(pair),
+                self.real_target,
+                self.predicted_target,
+                self.positive_target,
             )
+
+            summaries = {}
+            
+            # Calculate dataset metrics
+            for metric_name, metric_class in self._dataset_metrics.items():
+                try:
+                    metric = metric_class(dataset)
+                    summaries[metric_name] = metric.summary()
+                except Exception as e:
+                    # Skip metrics that can't be calculated for this combination
+                    print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
+                    continue
+            
+            # Calculate model metrics if predictions are available
+            if self.predicted_target is not None:
+                for metric_name, metric_class in self._model_metrics.items():
+                    try:
+                        metric = metric_class(dataset)
+                        summaries[metric_name] = metric.summary()
+                    except Exception as e:
+                        # Skip metrics that can't be calculated for this combination
+                        print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
+                        continue
+
+            results.append({
+                "sensitive": list(pair),
+                "summaries": summaries,
+            })
+
+        return results
+
+    def is_biased(self, thresholds: dict[str, float] | None = None) -> list[dict]:
+        """Determine bias for all combinations of sensitive attributes and all
+        applicable fairness metrics.
+
+        Parameters
+        ----------
+        thresholds : dict[str, float] | None, optional
+            Dictionary mapping metric names to their bias thresholds.
+            If None, uses default thresholds for each metric.
+
+        Returns
+        -------
+        list[dict]
+            A list of dictionaries, each containing:
+            - 'sensitive': List of sensitive attribute names for this combination
+            - 'bias_results': Dictionary mapping metric names to their bias decisions
+        """
+        if thresholds is None:
+            thresholds = {}
+        
+        # Default thresholds for each metric type
+        default_thresholds = {
+            "demographic_parity_difference": 0.1,
+            "disparate_impact_difference": 0.1,
+            "equal_opportunity_difference": 0.1,
+            "false_positive_rate_difference": 0.1,
+            "equalised_odds_difference": 0.1,
+            "demographic_parity_ratio": 0.8,
+            "disparate_impact_ratio": 0.8,
+            "equal_opportunity_ratio": 0.8,
+            "false_positive_rate_ratio": 0.8,
+            "equalised_odds_ratio": 0.8,
+        }
+        
+        results = []
+
+        for pair in self.pairs:
+            dataset = Dataset(
+                self.df,
+                list(pair),
+                self.real_target,
+                self.predicted_target,
+                self.positive_target,
+            )
+
+            bias_results = {}
+            
+            # Calculate dataset metrics
+            for metric_name, metric_class in self._dataset_metrics.items():
+                try:
+                    metric = metric_class(dataset)
+                    threshold = thresholds.get(metric_name, default_thresholds.get(metric_name, 0.1))
+                    bias_results[metric_name] = metric.is_biased(threshold)
+                except Exception as e:
+                    # Skip metrics that can't be calculated for this combination
+                    print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
+                    continue
+            
+            # Calculate model metrics if predictions are available
+            if self.predicted_target is not None:
+                for metric_name, metric_class in self._model_metrics.items():
+                    try:
+                        metric = metric_class(dataset)
+                        threshold = thresholds.get(metric_name, default_thresholds.get(metric_name, 0.1))
+                        bias_results[metric_name] = metric.is_biased(threshold)
+                    except Exception as e:
+                        # Skip metrics that can't be calculated for this combination
+                        print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
+                        continue
+
+            results.append({
+                "sensitive": list(pair),
+                "bias_results": bias_results,
+            })
 
         return results
 
@@ -306,23 +412,33 @@ class SupersetPerformanceMetrics(Superset):
                 self.predicted_target,
                 self.positive_target,
             )
+            
+            # Get selection rate in data (real target)
             concatenated_results = SelectionRate(
-                data=dataset,
+                dataset,
                 use_y_true=True,
-                label="selection_rate_in_data",
             )()
+            
+            # Rename "result" key to "selection_rate_in_data" for each group
+            for group_result in concatenated_results:
+                group_result["selection_rate_in_data"] = group_result.pop("result")
 
             for metric in self.metrics:
                 if metric is SelectionRate:
+                    # Get selection rate in predictions
                     result = SelectionRate(
-                        data=dataset,
+                        dataset,
                         use_y_true=False,
-                        label="selection_rate_in_predictions",
-                    )()[1]
+                    )()
+                    
+                    # Rename "result" key to "selection_rate_in_predictions"
+                    for group_result in result:
+                        group_result["selection_rate_in_predictions"] = group_result.pop("result")
+                        
                 else:
-                    result = metric(data=dataset)()[1]
+                    result = metric(dataset)()
 
-                for concatenated_result, res in zip(concatenated_results[1], result):
+                for concatenated_result, res in zip(concatenated_results, result):
                     concatenated_result.update(res)
 
             results.append(

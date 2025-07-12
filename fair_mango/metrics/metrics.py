@@ -1,17 +1,17 @@
-from collections.abc import Collection, Sequence
+from collections.abc import Callable, Sequence
+from typing import Any
 
 import numpy as np
 import pandas as pd
-
-from numpy.typing import NDArray
-from sklearn.metrics import (  # type: ignore
+from sklearn.metrics import (
     accuracy_score,
     balanced_accuracy_score,
     confusion_matrix,
     f1_score,
     precision_score,
     recall_score,
-)            
+)
+
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.metrics.base import (
     FairnessMetricDifference,
@@ -23,300 +23,50 @@ from fair_mango.metrics.base import (
     true_positive_rate,
 )
 from fair_mango.typing import (
-    DatasetTargetResult,
-    DetailedPerformanceMetricsResult,
-    MetricResult,
+    DisparateImpactSummaryResult,
+    EqualOpportunitySummaryResult,
+    FalsePositiveRateSummaryResult,
+    EqualisedOddsSummaryResult,
+    DemographicParitySummaryResult,
     RankResult,
 )
 
 
 class SelectionRate(Metric):
-    """Calculate the selection rates for all the different sensitive groups
-    present in the sensitive feature.
-
-    The Selection Rate is the ratio of the number of instances selected
-    (predicted as positive) to the total number of instances. It is a measure
-    of the proportion of the population that chosen.
-
-    Parameters
-    ----------
-    data : Dataset | pd.DataFrame
-        Input data.
-    use_y_true : bool, optional
-        if True use the real label else use the predictions, by default False
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real target
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted target,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided target,
-        by default None.
-    """
-
-    def __init__(
-        self,
-        data: Dataset,
-        use_y_true: bool = False,
-        label: str = "result",
-    ):
-        super().__init__(data)
+    def __init__(self, dataset: Dataset, use_y_true: bool = True) -> None:
+        super().__init__(dataset)
         self.use_y_true = use_y_true
-        self.label = label
 
-    def __call__(self) -> tuple[str, list[MetricResult]]:
-        """Calculate the selection rates for all the different sensitive groups
-        present in the sensitive feature.
-
-        Returns
-        -------
-        tuple[Sequence[str], list[MetricResult]]
-            A tuple containing the target name and list of MetricResult dictionaries.
-            A tuple containing two elements:
-            - target (Sequence[str]): The target variables used for
-              calculation.
-            - results (list[MetricResult]): A list of MetricResult,
-              where each dictionary has two keys:
-                1. sensitive: The name of the sensitive group.
-                2. result: The selection rate for the sensitive group.
-
-        Raises
-        ------
-        ValueError
-            If no predictions are found and `use_y_true` is False.
-
-        Examples
-        --------
-        >>> import pandas as pd
-        >>> from fair_mango.metrics.metrics import SelectionRate
-        >>> data = {
-        ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male'],
-        ...     'sensitive_2': ['white', 'white', 'black', 'black', 'black'],
-        ...     'real_target_1': [0, 1, 0, 1, 0],
-        ...     'real_target_2': ['no', 'yes', 'yes', 'yes', 'no'],
-        ...     'predicted_target_1': [0, 1, 1, 0, 0],
-        ...     'predicted_target_2': ['no', 'no', 'yes', 'yes', 'yes'],
-        ... }
-        >>> df = pd.DataFrame(data)
-        >>> selection_rate_1 = SelectionRate(
-        ...     data=df,
-        ...     use_y_true=True,
-        ...     sensitive=['sensitive_1'],
-        ...     real_target=['real_target_1'],
-        ... )
-        >>> selection_rate_1()
-        (
-            ['real_target_1'],
-            [
-                {
-                    'sensitive': array(['male'], dtype=object),
-                    'result': array(0.33333333)
-                },
-                {
-                    'sensitive': array(['female'], dtype=object),
-                    'result': array(0.5)
-                }
-            ]
-        )
-        >>> dataset2 = Dataset(
-        ...     df=df,
-        ...     sensitive=['sensitive_1', 'sensitive_2'],
-        ...     real_target=['real_target_1'],
-        ...     predicted_target=['predicted_target_1'],
-        ...     positive_target=[1]
-        ... )
-        >>> selection_rate_2 = SelectionRate(
-        ...     data=dataset2,
-        ...     use_y_true=False,
-        ... )
-        >>> selection_rate_2()
-        (
-            ['predicted_target_1'],
-            [
-                {
-                    'sensitive': array(['male', 'black'], dtype=object),
-                    'result': array(0.)
-                },
-                {
-                    'sensitive': array(['female', 'black'], dtype=object),
-                    'result': array(1.)
-                },
-                {
-                    'sensitive': array(['female', 'white'], dtype=object),
-                    'result': array(1.)
-                },
-                {
-                    'sensitive': array(['male', 'white'], dtype=object),
-                    'result': array(0.)
-                }
-            ]
-        )
-        >>> dataset3 = Dataset(
-        ...     df=df,
-        ...     sensitive=['sensitive_2'],
-        ...     real_target=['real_target_1', 'real_target_2'],
-        ...     predicted_target=['predicted_target_1', 'predicted_target_2'],
-        ...     positive_target=[1, 'yes']
-        ... )
-        >>> selection_rate_3 = SelectionRate(
-        ...     data=dataset3,
-        ...     use_y_true=True,
-        ... )
-        >>> selection_rate_3()
-        (
-            ['real_target_1', 'real_target_2'],
-            [
-                {
-                    'sensitive': array(['black'], dtype=object),
-                    'result': array([0.33333333, 0.66666667])
-                },
-                {
-                    'sensitive': array(['white'], dtype=object),
-                    'result': array([0.5, 0.5])
-                }
-            ]
-        )
-        """
-        results: list[MetricResult] = []
+    def __call__(self) -> list[dict[str, Any]]:
         if self.use_y_true:
+            if self.data.real_target is None:
+                msg = "Real target not specified when creating Dataset. Please specify a column name for the real target or set use_y_true to False."
+                raise ValueError(msg)
             target = self.data.real_target
             target_by_group = self.real_target_by_group
         else:
             if self.data.predicted_target is None:
-                raise ValueError(
-                    "No predictions found, provide predicted_target parameter "
-                    "when creating the dataset or set use_y_true to True to "
-                    "use the real labels"
-                )
-            target= self.data.predicted_target
+                msg = "Predicted target not specified when creating Dataset. Please specify a column name for the predicted target or set use_y_true to True."
+                raise ValueError(msg)
+            target = self.data.predicted_target
             target_by_group = self.predicted_target_by_group
-        
+
+        result = []
         for group in target_by_group:
             group_sensitive = group["sensitive"]
-            y_group = group["result"] 
-            
-            results.append({
-                "sensitive": group_sensitive,  
-                self.label: float(y_group.mean()) 
-            })
-        return target, results
+            y_group = group["result"]
+            result.append({"sensitive": group_sensitive, "result": float(y_group.mean())})
 
-    def all_data(self) -> dict[str, float]:
-        """Compute overall selection rate corresponding to the whole dataset.
-
-        Returns
-        -------
-        pd.Series
-            The target name as the index and the corresponding selection rate
-            as the value.
-
-        Examples
-        --------
-        >>> import pandas as pd
-        >>> from fair_mango.metrics.metrics import SelectionRate
-        >>> data = {
-        ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male'],
-        ...     'sensitive_2': ['white', 'white', 'black', 'black', 'black'],
-        ...     'real_target_1': [0, 1, 0, 1, 0],
-        ...     'real_target_2': ['no', 'yes', 'yes', 'yes', 'no'],
-        ...     'predicted_target_1': [0, 1, 1, 0, 0],
-        ...     'predicted_target_2': ['no', 'no', 'yes', 'yes', 'yes'],
-        ... }
-        >>> df = pd.DataFrame(data)
-        >>> selection_rate_1 = SelectionRate(
-        ...     data=df,
-        ...     use_y_true=False,
-        ...     sensitive=['sensitive_1'],
-        ...     real_target=['real_target_1'],
-        ...     predicted_target=['predicted_target_1']
-        ... )
-        >>> selection_rate_1.all_data()
-        predicted_target_1    0.4
-        dtype: float64
-        >>> dataset2 = Dataset(
-        ...     df=df,
-        ...     sensitive=['sensitive_1'],
-        ...     real_target=['real_target_1', 'real_target_2'],
-        ... )
-        >>> selection_rate_2 = SelectionRate(
-        ...     data=dataset2,
-        ...     use_y_true=True,
-        ... )
-        >>> selection_rate_2.all_data()
-        real_target_1    0.4
-        real_target_2    0.6
-        dtype: float64
-        """
-        if self.use_y_true:
-            return {self.data.real_target: self.data.df[self.data.real_target].mean()}
-        else:
-            if self.data.predicted_target is None:
-                raise ValueError(
-                    "No predictions found, provide predicted_target parameter "
-                    "when creating the dataset or set use_y_true to True to "
-                    "use the real labels"
-                )
-            else:
-                return {
-                    self.data.predicted_target: self.data.df[
-                        self.data.predicted_target
-                    ].mean()
-                }
+        return result
 
 
 class ConfusionMatrix(Metric):
-    """Calculate the confusion matrix related metrics:
-    - false positive rate
-    - false negative rate
-    - true positive rate
-    - true negative rate
-    for all the different sensitive groups present in the sensitive feature.
-
-    Parameters
-    ----------
-    data : Dataset | pd.DataFrame
-        Input data.
-    metrics : Sequence[Callable] | set[Callable] | dict[str, Callable] | None, optional
-        A sequence of metrics or a dictionary with keys being custom labels
-        and values a callable that takes as input tp, tn, fp, fn which are
-        extracted from the confusion matrix. Available functions in
-        fair_mango.metrics.metrics.base are:
-        - false_positive_rate().
-        - false_negative_rate().
-        - true_positive_rate().
-        - true_negative_rate().
-    sensitive : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to sensitive features
-        (Ex: gender, race...), by default None.
-    real_target : Sequence[str] | None, optional if data is a Dataset object
-        Sequence of column names corresponding to the real target
-        (true labels), by default None.
-    predicted_target : Sequence[str] | None, optional
-        Sequence of column names corresponding to the predicted target,
-        by default None.
-    positive_target : Sequence[int  |  float  |  str  |  bool] | None, optional
-        Sequence of the positive labels corresponding to the provided target,
-        by default None.
-
-    Raises
-    ------
-    ValueError
-        If the predictions column is not provided.
-    KeyError
-        If the key of a metric is 'sensitive' which is already reserved
-        to the sensitive groups.
-    """
-
     def __init__(
         self,
-        data: Dataset,
-        metrics: Collection | Sequence | None = None,
+        dataset: Dataset,
+        metrics: dict[str, Callable] | Sequence[Callable] | None = None,
     ) -> None:
-        super().__init__(data)
+        super().__init__(dataset)
         if self.predicted_target_by_group == []:
             raise ValueError(
                 "No predictions found, provide predicted_target parameter "
@@ -324,149 +74,29 @@ class ConfusionMatrix(Metric):
             )
         if metrics is None:
             self.metrics = {
-                "false_negative_rate": false_negative_rate,  # type: ignore[dict-item]
-                "false_positive_rate": false_positive_rate,  # type: ignore[dict-item]
-                "true_negative_rate": true_negative_rate,  # type: ignore[dict-item]
-                "true_positive_rate": true_positive_rate,  # type: ignore[dict-item]
+                "false_negative_rate": false_negative_rate,
+                "false_positive_rate": false_positive_rate,
+                "true_negative_rate": true_negative_rate,
+                "true_positive_rate": true_positive_rate,
             }
+        elif isinstance(metrics, dict):
+            if "sensitive" in metrics:
+                msg = "Cannot use 'sensitive' as a key for metrics"
+                raise KeyError(msg)
+            self.metrics = metrics
         else:
-            if isinstance(metrics, dict):
-                if "sensitive" in metrics.keys():
-                    raise KeyError(
-                        "metric label cannot be 'sensitive'. Change the label to fix"
-                    )
-                self.metrics = metrics
-            else:
-                metrics = set(metrics)
-                self.metrics = {}
-                for metric in metrics:
-                    if metric.__name__ == "sensitive":
-                        raise KeyError(
-                            "metric label cannot be 'sensitive'. Rename your "
-                            "function or use a dictionary to set a label for it"
-                        )
-                    self.metrics[metric.__name__] = metric
+            self.metrics = {metric.__name__: metric for metric in metrics}
 
-    def __call__(self) -> tuple[Sequence, list]:
-        """Calculate the confusion matrix related metrics:
-        - false positive rate.
-        - false negative rate.
-        - true positive rate.
-        - true negative rate.
-        for all the different sensitive groups present in the sensitive feature.
-
-        Returns
-        -------
-        tuple[Sequence, list]
-            A tuple containing two elements:
-            - target (Sequence[str]): The target variables used for
-              calculation.
-            - results (list[dict]): A list of dictionaries, where the keys:
-                1. sensitive: The name of the sensitive group.
-                2. label: The corresponding result for the sensitive group.
-
-        Examples
-        --------
-        >>> import pandas as pd
-        >>> from fair_mango.metrics.metrics import ConfusionMatrix
-        >>> from fair_mango.metrics.base import (
-        ... false_positive_rate,
-        ... true_negative_rate,
-        ... true_positive_rate,
-        ... false_negative_rate
-        ... )
-        >>> data = {
-        ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male'],
-        ...     'sensitive_2': ['white', 'white', 'black', 'black', 'black'],
-        ...     'real_target_1': [0, 1, 0, 1, 0],
-        ...     'real_target_2': ['no', 'yes', 'yes', 'yes', 'no'],
-        ...     'predicted_target_1': [0, 1, 1, 0, 0],
-        ...     'predicted_target_2': ['no', 'no', 'yes', 'yes', 'yes'],
-        ... }
-        >>> df = pd.DataFrame(data)
-        >>> confusion_matrix_1 = ConfusionMartrix(
-        ...     data=df,
-        ...     sensitive=['sensitive_1'],
-        ...     real_target=['real_target_1'],
-        ...     predicted_target=['predicted_target_1']
-        ... )
-        >>> confusion_matrix_1()
-        (
-            ['real_target_1'],
-            [
-                {
-                    'sensitive': array(['male'], dtype=object),
-                    'false_negative_rate': [1.0],
-                    'false_positive_rate': [0.0],
-                    'true_negative_rate': [1.0],
-                    'true_positive_rate': [0.0]
-                },
-                {
-                    'sensitive': array(['female'], dtype=object),
-                    'false_negative_rate': [0.0],
-                    'false_positive_rate': [1.0],
-                    'true_negative_rate': [0.0],
-                    'true_positive_rate': [1.0]
-                }
-            ]
-        )
-        >>> dataset2 = Dataset(
-        ...     df=df,
-        ...     sensitive=['sensitive_1'],
-        ...     real_target=['real_target_1'],
-        ...     predicted_target=['predicted_target_1'],
-        ...     positive_target=[1]
-        ... )
-        >>> confusion_matrix_2 = ConfusionMatrix(
-        ...     data=dataset2,
-        ...     metrics=[true_negative_rate],
-        ... )
-        >>> confusion_matrix_2()
-        (
-            ['real_target_1'],
-            [
-                {
-                    'sensitive': array(['male'], dtype=object),
-                    'true_negative_rate': [1.0]
-                },
-                {
-                    'sensitive': array(['female'], dtype=object),
-                    'true_negative_rate': [0.0]
-                }
-            ]
-        )
-        >>> confusion_matrix_3 = ConfusionMatrix(
-        ...     data=dataset2,
-        ...     metrics={
-        ...         'tpr': true_positive_rate,
-        ...         'tnr': true_negative_rate
-        ...     }
-        ... )
-        >>> confusion_matrix_3()
-        (
-            ['real_target_1'],
-            [
-                {
-                    'sensitive': array(['male'], dtype=object),
-                    'tpr': [0.0],
-                    'tnr': [1.0]
-                },
-                {
-                    'sensitive': array(['female'], dtype=object),
-                    'tpr': [1.0],
-                    'tnr': [0.0]
-                }
-            ]
-        )
-        """
-        results: list = []
+    def __call__(self) -> list[dict[str, Any]]:
+        target = self.data.real_target
+        result = []
         for real_group, predicted_group in zip(
             self.real_target_by_group, self.predicted_target_by_group
         ):
-            group_ = real_group["sensitive"]
+            group_sensitive = real_group["sensitive"]
             real_values = real_group["result"]
             predicted_values = predicted_group["result"]
-            result_for_group = {"sensitive": group_}
+            result_for_group: dict[str, Any] = {"sensitive": np.array(group_sensitive)}
 
             conf_matrix = confusion_matrix(real_values, predicted_values, labels=[0, 1])
             tn = conf_matrix[0, 0]
@@ -475,58 +105,22 @@ class ConfusionMatrix(Metric):
             fp = conf_matrix[0, 1]
 
             for metric_name, metric in self.metrics.items():
-                if metric_name not in result_for_group:
-                    result_for_group[metric_name] = []  # type: ignore
-                result_for_group[metric_name].append(  # type: ignore
-                    metric(tn=tn, fp=fp, fn=fn, tp=tp)  # type: ignore
-                )
+                result_for_group[metric_name] = [
+                    metric(tn=tn, fp=fp, fn=fn, tp=tp)
+                ]
 
-            results.append(result_for_group)
+            result.append(result_for_group)
 
-        return self.data.real_target, results
+        return result
 
 
 class PerformanceMetric(Metric):
-    """Calculate performance related metrics:
-    - accuracy.
-    - balanced accuracy.
-    - precision.
-    - recall.
-    - f1 score.
-    for all the different sensitive groups present in the sensitive feature.
-
-    Parameters
-    ----------
-    data : Dataset
-        Input data.
-    metrics : set[Callable] | dict[str, Callable] | None, optional
-        A sequence of metrics or a dictionary with keys being custom labels
-        and values a callable that takes as input y_true and y_pred. default
-        functions from sklearn.metrics are:
-        - accuracy_score().
-        - balanced_accuracy_score().
-        - precision_score().
-        - recall_score().
-        - f1_score_score().
-        or any custom metric that takes y_true and y_pred and parameters
-        respectively.
-
-    Raises
-    ------
-    ValueError
-        If the predictions column is not provided.
-    KeyError
-        If the key of a metric is 'sensitive' which is already reserved
-        to the sensitive groups.
-    """
-
     def __init__(
         self,
-        data: Dataset,
-        metrics: Collection | None = None,
+        dataset: Dataset,
+        metrics: dict[str, Callable] | Sequence[Callable] | None = None,
     ) -> None:
-        super().__init__(data)
-
+        super().__init__(dataset)
         if self.predicted_target_by_group == []:
             raise ValueError(
                 "No predictions found, provide predicted_target parameter "
@@ -541,161 +135,33 @@ class PerformanceMetric(Metric):
                 "recall": recall_score,
                 "f1-score": f1_score,
             }
-
+        elif isinstance(metrics, dict):
+            if "sensitive" in metrics:
+                msg = "Cannot use 'sensitive' as a key for metrics"
+                raise KeyError(msg)
+            self.metrics = metrics
         else:
-            if isinstance(metrics, dict):
-                if "sensitive" in metrics.keys():
-                    raise KeyError(
-                        "metric label cannot be 'sensitive'. Change the label to fix"
-                    )
-                self.metrics = metrics
+            self.metrics = {metric.__name__: metric for metric in metrics}
 
-            else:
-                metrics = set(metrics)
-                self.metrics = {}
-                for metric in metrics:
-                    if metric.__name__ == "sensitive":
-                        raise KeyError(
-                            "metric label cannot be 'sensitive'. Rename your "
-                            "function or use a dictionary to set a label for it"
-                        )
-                    self.metrics[metric.__name__] = metric
-
-    def __call__(self) -> tuple[Sequence, list]:
-        """Calculate performance related metrics:
-        - accuracy.
-        - balanced accuracy.
-        - precision.
-        - recall.
-        - f1 score.
-        for all the different sensitive groups present in the sensitive feature.
-
-        Returns
-        -------
-        tuple[Sequence, list]
-            A tuple containing two elements:
-            - target (Sequence[str]): The target variables used for
-              calculation.
-            - results (list[dict]): A list of dictionaries, where the keys:
-                1. sensitive: The name of the sensitive group.
-                2. label: The corresponding result for the sensitive group.
-
-        Examples
-        --------
-        >>> import pandas as pd
-        >>> from fair_mango.metrics.metrics import PerformanceMetric
-        >>> from sklearn.metrics import (
-        ...     accuracy_score,
-        ...     balanced_accuracy_score,
-        ...     f1_score,
-        ...     precision_score,
-        ...     recall_score,
-        ... )
-        >>> data = {
-        ...     'sensitive_1': ['male', 'female', 'female', 'male', 'male'],
-        ...     'sensitive_2': ['white', 'white', 'black', 'black', 'black'],
-        ...     'real_target_1': [0, 1, 0, 1, 0],
-        ...     'real_target_2': ['no', 'yes', 'yes', 'yes', 'no'],
-        ...     'predicted_target_1': [0, 1, 1, 0, 0],
-        ...     'predicted_target_2': ['no', 'no', 'yes', 'yes', 'yes'],
-        ... }
-        >>> df = pd.DataFrame(data)
-        >>> performance_metric_1 = PerformanceMetric(
-        ...     data=df,
-        ...     sensitive=['sensitive_1'],
-        ...     real_target=['real_target_1'],
-        ...     predicted_target=['predicted_target_1']
-        ... )
-        >>> performance_metric_1()
-        (
-            ['real_target_1'],
-            [
-                {
-                    'sensitive': array(['male'], dtype=object),
-                    'accuracy': [0.6666666666666666],
-                    'balanced accuracy': [0.5],
-                    'precision': [0.0],
-                    'recall': [0.0],
-                    'f1-score': [0.0]
-                },
-                {
-                    'sensitive': array(['female'], dtype=object),
-                    'accuracy': [0.5],
-                    'balanced accuracy': [0.5],
-                    'precision': [0.5],
-                    'recall': [1.0],
-                    'f1-score': [0.6666666666666666]
-                }
-            ]
-        )
-        >>> dataset2 = Dataset(
-        ...     df=df,
-        ...     sensitive=['sensitive_1'],
-        ...     real_target=['real_target_1'],
-        ...     predicted_target=['predicted_target_1'],
-        ...     positive_target=[1]
-        ... )
-        >>> performance_metric_2 = PerformanceMetric(
-        ...     data=dataset2,
-        ...     metrics=[f1_score],
-        ... )
-        >>> performance_metric_2()
-        (
-            ['real_target_1'],
-            [
-                {
-                    'sensitive': array(['male'], dtype=object),
-                    'f1_score': [0.0]
-                },
-                {
-                    'sensitive': array(['female'], dtype=object),
-                    'f1_score': [0.6666666666666666]
-                }
-            ]
-        )
-        >>> performance_metric_3 = PerformanceMetric(
-        ...     data=dataset2,
-        ...     metrics={
-        ...         'acc': accuracy_score,
-        ...         'bal_acc': balanced_accuracy_score
-        ...     }
-        ... )
-        >>> performance_metric_3()
-        (
-            ['real_target_1'],
-            [
-                {
-                    'sensitive': array(['male'], dtype=object),
-                    'acc': [0.6666666666666666],
-                    'bal_acc': [0.5]
-                },
-                {
-                    'sensitive': array(['female'], dtype=object),
-                    'acc': [0.5],
-                    'bal_acc': [0.5]
-                }
-            ]
-        )
-        """
-        results: list = []
+    def __call__(self) -> list[dict[str, Any]]:
+        target = self.data.real_target
+        result = []
         for real_group, predicted_group in zip(
             self.real_target_by_group, self.predicted_target_by_group
         ):
-            group_ = real_group["sensitive"]
+            group_sensitive = real_group["sensitive"]
             real_values = real_group["result"]
             predicted_values = predicted_group["result"]
-            result_for_group = {"sensitive": group_}
+            result_for_group: dict[str, Any] = {"sensitive": np.array(group_sensitive)}
 
             for metric_name, metric in self.metrics.items():
-                if metric_name not in result_for_group:
-                    result_for_group[metric_name] = []  # type: ignore
-                result_for_group[metric_name].append(  # type: ignore
+                result_for_group[metric_name] = [
                     metric(real_values, predicted_values)
-                )
+                ]
 
-            results.append(result_for_group)
+            result.append(result_for_group)
 
-        return self.data.real_target, results
+        return result
 
 
 class DemographicParityDifference(FairnessMetricDifference):
@@ -1414,28 +880,17 @@ class EqualisedOddsDifference:
             "unprivileged_group": self.result[target]["unprivileged"],
         }
 
-    def rank(self) -> dict[str, list[RankResult]]:
+    def rank(self) -> list[dict]:
         """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
-        The score can be interpreted like:
-        - ['Male': 0.0314]: Males have on average a score higher by 3.14% than
-          the Females.
-        - ['White': -0.0628]: Whites have on average a score lower by 6.28% than
-          other groups (Black, Asian...).
 
         Returns
         -------
-        dict[str, list[RankResult]]
-            A dictionary with:
-            - keys: name of the target variable.
-            - values: a list of RankResult dictionaries with sensitive group and score.
+        list[dict]
+            List of ranking dictionaries with 'sensitive' and 'score' keys.
         """
         result: dict = {}
-        self.ranking = {}
-        target = self.data.real_target
-
-        result.setdefault(target, {})
-        self.ranking.setdefault(target, {})
+        ranking: dict = {}
 
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
@@ -1447,37 +902,38 @@ class EqualisedOddsDifference:
             if np.abs(tpr_disparity) > np.abs(fpr_disparity):
                 group1_key = tuple(tpr_result["group_1"])
                 group2_key = tuple(tpr_result["group_2"])
-                result[target].setdefault(group1_key, []).append(tpr_disparity)
-                result[target].setdefault(group2_key, []).append(-tpr_disparity)
+                result.setdefault(group1_key, []).append(tpr_disparity)
+                result.setdefault(group2_key, []).append(-tpr_disparity)
             else:
                 group1_key = tuple(fpr_result["group_1"])
                 group2_key = tuple(fpr_result["group_2"])
-                result[target].setdefault(group1_key, []).append(-fpr_disparity)
-                result[target].setdefault(group2_key, []).append(fpr_disparity)
+                result.setdefault(group1_key, []).append(-fpr_disparity)
+                result.setdefault(group2_key, []).append(fpr_disparity)
 
-        target_result = result[target]
-        for group, differences in target_result.items():
+        for group, differences in result.items():
             difference = np.mean(np.array(differences))
-            self.ranking[target].setdefault(group, difference)
-        self.ranking[target] = dict(
+            ranking[group] = difference
+        
+        ranking = dict(
             sorted(
-                self.ranking[target].items(),
+                ranking.items(),
                 key=lambda item: item[1],
                 reverse=True,
             )
         )
 
-        rank_results = []
-        for group_tuple, score in self.ranking[target].items():
-            rank_results.append({
+        # Convert to the expected format
+        ranking_list = []
+        for group_tuple, score in ranking.items():
+            ranking_list.append({
                 "sensitive": list(group_tuple),
                 "score": float(score)
             })
+        
+        return ranking_list
 
-        return {target: rank_results}
-
-    def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
-        """Return a decision of whether there is bias or not for each target
+    def is_biased(self, threshold: float = 0.1) -> bool:
+        """Return a decision of whether there is bias or not
         depending on the provided threshold.
 
         Parameters
@@ -1488,10 +944,8 @@ class EqualisedOddsDifference:
 
         Returns
         -------
-        dict[str, bool]
-            A dictionary with:
-            - keys: a string with the target column name.
-            - values: True if there is bias else False.
+        bool
+            Boolean bias indicator.
 
         Raises
         ------
@@ -1501,21 +955,17 @@ class EqualisedOddsDifference:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
-        ranking_nested = self.rank()
+        rank_results = self.rank()
 
-        bias: dict = {}
-        target = self.data.real_target
-        rank_list = ranking_nested[target]
-
-        if rank_list:
-            scores = [item["score"] for item in rank_list]
+        if rank_results:
+            scores = [item["score"] for item in rank_results]
             max_diff = scores[0] if scores else 0
             min_diff = scores[-1] if scores else 0
-            bias[target] = max_diff > threshold or min_diff < -threshold
+            is_biased_result = max_diff > threshold or min_diff < -threshold
         else:
-            bias[target] = False
-
-        return bias
+            is_biased_result = False
+            
+        return is_biased_result
 
 
 class EqualisedOddsRatio:
@@ -1668,29 +1118,17 @@ class EqualisedOddsRatio:
             "unprivileged_group": self.result[target]["unprivileged"],
         }
 
-    def rank(self) -> dict[str, list[RankResult]]:
+    def rank(self) -> list[dict]:
         """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
-        The score can be interpreted like:
-        - ['Male': 0.814]: Males have on average 81.4% the score of the
-          Females.
-        - ['White': 1.20]: Whites have on average 120% the score of the
-          other groups (Black, Asian...).
 
         Returns
         -------
-        dict[str, list[RankResult]]
-            A dictionary with:
-            - keys: name of the target variable.
-            - values: a list of RankResult dictionaries with sensitive group and score.
+        list[dict]
+            List of ranking dictionaries with 'sensitive' and 'score' keys.
         """
         result: dict = {}
-        self.ranking = {}
-
-        target = self.data.real_target
-
-        result.setdefault(target, {})
-        self.ranking.setdefault(target, {})
+        ranking: dict = {}
 
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
@@ -1712,44 +1150,44 @@ class EqualisedOddsRatio:
             if temp1 < temp2:
                 group1_key = tuple(tpr_result["group_1"])
                 group2_key = tuple(tpr_result["group_2"])
-                result[target].setdefault(group1_key, []).append(tpr_ratio)
+                result.setdefault(group1_key, []).append(tpr_ratio)
                 if tpr_ratio == 0:
-                    result[target].setdefault(group2_key, []).append(np.inf)
+                    result.setdefault(group2_key, []).append(np.inf)
                 else:
-                    result[target].setdefault(group2_key, []).append(1 / tpr_ratio)
+                    result.setdefault(group2_key, []).append(1 / tpr_ratio)
             else:
                 group1_key = tuple(fpr_result["group_1"])
                 group2_key = tuple(fpr_result["group_2"])
-                result[target].setdefault(group1_key, []).append(fpr_ratio)
+                result.setdefault(group1_key, []).append(fpr_ratio)
                 if fpr_ratio == 0:
-                    result[target].setdefault(group2_key, []).append(np.inf)
+                    result.setdefault(group2_key, []).append(np.inf)
                 else:
-                    result[target].setdefault(group2_key, []).append(1 / fpr_ratio)
+                    result.setdefault(group2_key, []).append(1 / fpr_ratio)
 
-        target_result = result[target]
-        for group, ratios in target_result.items():
+        for group, ratios in result.items():
             ratio = np.mean(np.array(ratios))
-            self.ranking[target].setdefault(group, ratio)
+            ranking[group] = ratio
 
-        self.ranking[target] = dict(
+        ranking = dict(
             sorted(
-                self.ranking[target].items(),
+                ranking.items(),
                 key=lambda item: item[1],
                 reverse=False,
             )
         )
 
-        rank_results = []
-        for group_tuple, ratio in self.ranking[target].items():
-            rank_results.append({
+        # Convert to the expected format
+        ranking_list = []
+        for group_tuple, ratio in ranking.items():
+            ranking_list.append({
                 "sensitive": list(group_tuple),
                 "score": float(ratio)
             })
 
-        return {target: rank_results}
+        return ranking_list
 
-    def is_biased(self, threshold: float = 0.1) -> dict[str, bool]:
-        """Return a decision of whether there is bias or not for each target
+    def is_biased(self, threshold: float = 0.1) -> bool:
+        """Return a decision of whether there is bias or not
         depending on the provided threshold.
 
         Parameters
@@ -1760,10 +1198,8 @@ class EqualisedOddsRatio:
 
         Returns
         -------
-        dict[str, bool]
-            A dictionary with:
-            - keys: a string with the target column name.
-            - values: True if there is bias else False.
+        bool
+            Boolean bias indicator.
 
         Raises
         ------
@@ -1773,18 +1209,14 @@ class EqualisedOddsRatio:
         if not (0 <= threshold <= 1):
             raise ValueError("Threshold must be in range [0, 1]")
 
-        ranking_nested = self.rank()
+        rank_results = self.rank()
 
-        bias: dict = {}
-        target = self.data.real_target
-        rank_list = ranking_nested[target]
-
-        if rank_list:
-            scores = [item["score"] for item in rank_list]
+        if rank_results:
+            scores = [item["score"] for item in rank_results]
             min_ratio = scores[0] if scores else 1.0
             max_ratio = scores[-1] if scores else 1.0
-            bias[target] = max_ratio > (1 / threshold) or min_ratio < threshold
+            is_biased_result = max_ratio > (1 / threshold) or min_ratio < threshold
         else:
-            bias[target] = False
-
-        return bias
+            is_biased_result = False
+            
+        return is_biased_result

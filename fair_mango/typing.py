@@ -79,14 +79,11 @@ class SupersetPerformanceEvaluation:
 @dataclass  
 class FairnessRankingResult:
     """Result container for fairness metric rankings."""
-    target: str
     rankings: list[RankResult]
 
-    def to_dict(self) -> dict[str, list[dict[str, object]]]:
+    def to_dict(self) -> list[dict[str, object]]:
         """Convert to dictionary format for backward compatibility."""
-        return {
-            self.target: [rank.to_dict() for rank in self.rankings]
-        }
+        return [rank.to_dict() for rank in self.rankings]
 
 @dataclass
 class DemographicParitySummaryResult:
