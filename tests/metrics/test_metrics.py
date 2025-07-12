@@ -133,11 +133,7 @@ def test_selectionrate(
     if isinstance(expected_result, Sequence):
         sr = SelectionRate(data, use_y_true)
         result = sr()
-        if use_y_true:
-            assert result[0] == data.real_target
-        else:
-            assert result[0] == data.predicted_target
-        for i, res in enumerate(result[1]):
+        for i, res in enumerate(result):
             assert res["sensitive"] == expected_groups[i]
             assert np.isclose(res["result"], expected_result[i])
     else:
@@ -244,8 +240,7 @@ def test_confusionmatrix(
     if isinstance(expected_result, Sequence):
         cf = ConfusionMatrix(data, metrics)
         result = cf()
-        assert result[0] == data.real_target
-        for i, res in enumerate(result[1]):
+        for i, res in enumerate(result):
             for key in res.keys():
                 if key == "sensitive":
                     assert (res[key] == expected_result[i][key]).all()
@@ -270,8 +265,8 @@ dpd_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    {"HeartDisease": [{"sensitive": ["M"], "score": 0.3726567804180811}, {"sensitive": ["F"], "score": -0.3726567804180811}]},
-    {"HeartDisease": True},
+    [{"sensitive": ["M"], "score": 0.3726567804180811}, {"sensitive": ["F"], "score": -0.3726567804180811}],
+    True,
 ]
 
 
@@ -281,19 +276,17 @@ dpd_expected_result_3 = [
         "privileged_group": ["M", "ASY"],
         "unprivileged_group": ["F", "ATA"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["M", "ASY"], "score": 0.5455262120526406},
-            {"sensitive": ["F", "ASY"], "score": 0.23524548004152632},
-            {"sensitive": ["M", "TA"], "score": 0.20168538933857846},
-            {"sensitive": ["M", "NAP"], "score": 0.10136792902111814},
-            {"sensitive": ["M", "ATA"], "score": -0.19921361333033571},
-            {"sensitive": ["F", "NAP"], "score": -0.27210915992766893},
-            {"sensitive": ["F", "TA"], "score": -0.28720349955031044},
-            {"sensitive": ["F", "ATA"], "score": -0.32529873764554856},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["M", "ASY"], "score": 0.3886384976525821},
+        {"sensitive": ["F", "ASY"], "score": -0.27149564050972497},
+        {"sensitive": ["M", "TA"], "score": -0.30086071987480434},
+        {"sensitive": ["M", "NAP"], "score": -0.3886384976525821},
+        {"sensitive": ["M", "ATA"], "score": -0.6516473472101043},
+        {"sensitive": ["F", "NAP"], "score": -0.7154309504827708},
+        {"sensitive": ["F", "TA"], "score": -0.7286384976525822},
+        {"sensitive": ["F", "ATA"], "score": -0.7619718309859155},
+    ],
+    True,
 ]
 
 
@@ -303,19 +296,17 @@ dpd_expected_result_6 = [
         "privileged_group": ["M", "ASY"],
         "unprivileged_group": ["F", "ATA"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["M", "ASY"], "score": 0.5455262120526406},
-            {"sensitive": ["F", "ASY"], "score": 0.23524548004152632},
-            {"sensitive": ["M", "TA"], "score": 0.20168538933857846},
-            {"sensitive": ["M", "NAP"], "score": 0.10136792902111814},
-            {"sensitive": ["M", "ATA"], "score": -0.19921361333033571},
-            {"sensitive": ["F", "NAP"], "score": -0.27210915992766893},
-            {"sensitive": ["F", "TA"], "score": -0.28720349955031044},
-            {"sensitive": ["F", "ATA"], "score": -0.32529873764554856},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["M", "ASY"], "score": 0.3886384976525821},
+        {"sensitive": ["F", "ASY"], "score": -0.27149564050972497},
+        {"sensitive": ["M", "TA"], "score": -0.30086071987480434},
+        {"sensitive": ["M", "NAP"], "score": -0.3886384976525821},
+        {"sensitive": ["M", "ATA"], "score": -0.6516473472101043},
+        {"sensitive": ["F", "NAP"], "score": -0.7154309504827708},
+        {"sensitive": ["F", "TA"], "score": -0.7286384976525822},
+        {"sensitive": ["F", "ATA"], "score": -0.7619718309859155},
+    ],
+    True,
 ]
 
 
@@ -364,7 +355,7 @@ dpr_expected_result_1 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    {"HeartDisease": [{"sensitive": ["M"], "score": 0.4100957078534742}, {"sensitive": ["F"], "score": 2.4384551724137933}]},
+    [{"sensitive": ["F"], "score": 0.4100957078534742}, {"sensitive": ["M"], "score": 2.4384551724137933}],
     pytest.raises(ValueError),
 ]
 
@@ -375,8 +366,8 @@ dpr_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    {"HeartDisease": [{"sensitive": ["M"], "score": 0.4100957078534742}, {"sensitive": ["F"], "score": 2.4384551724137933}]},
-    {"HeartDisease": False},
+    [{"sensitive": ["F"], "score": 0.4100957078534742}, {"sensitive": ["M"], "score": 2.4384551724137933}],
+    False,
 ]
 
 
@@ -386,19 +377,17 @@ dpr_expected_result_3 = [
         "privileged_group": ["M", "ASY"],
         "unprivileged_group": ["F", "ATA"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["M", "ASY"], "score": 0.341659585454887},
-            {"sensitive": ["F", "ASY"], "score": 0.5777645230023888},
-            {"sensitive": ["M", "TA"], "score": 0.6178592623058512},
-            {"sensitive": ["M", "NAP"], "score": 0.7696183431338224},
-            {"sensitive": ["M", "ATA"], "score": 2.125556915316397},
-            {"sensitive": ["F", "NAP"], "score": 3.403630912694409},
-            {"sensitive": ["F", "TA"], "score": 3.8720349955031037},
-            {"sensitive": ["F", "ATA"], "score": 5.879481064683228},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["F", "ATA"], "score": 0.08045325779036827},
+        {"sensitive": ["F", "TA"], "score": 0.12067988668555243},
+        {"sensitive": ["F", "NAP"], "score": 0.1366187396440216},
+        {"sensitive": ["M", "ATA"], "score": 0.21359271979743788},
+        {"sensitive": ["M", "NAP"], "score": 0.5309915014164307},
+        {"sensitive": ["M", "TA"], "score": 0.6369216241737489},
+        {"sensitive": ["F", "ASY"], "score": 0.6723593686766491},
+        {"sensitive": ["M", "ASY"], "score": 1.8832693128467775},
+    ],
+    True,
 ]
 
 
@@ -408,19 +397,17 @@ dpr_expected_result_6 = [
         "privileged_group": ["M", "ASY"],
         "unprivileged_group": ["F", "ATA"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["M", "ASY"], "score": 0.341659585454887},
-            {"sensitive": ["F", "ASY"], "score": 0.5777645230023888},
-            {"sensitive": ["M", "TA"], "score": 0.6178592623058512},
-            {"sensitive": ["M", "NAP"], "score": 0.7696183431338224},
-            {"sensitive": ["M", "ATA"], "score": 2.125556915316397},
-            {"sensitive": ["F", "NAP"], "score": 3.403630912694409},
-            {"sensitive": ["F", "TA"], "score": 3.8720349955031037},
-            {"sensitive": ["F", "ATA"], "score": 5.879481064683228},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["F", "ATA"], "score": 0.08045325779036827},
+        {"sensitive": ["F", "TA"], "score": 0.12067988668555243},
+        {"sensitive": ["F", "NAP"], "score": 0.1366187396440216},
+        {"sensitive": ["M", "ATA"], "score": 0.21359271979743788},
+        {"sensitive": ["M", "NAP"], "score": 0.5309915014164307},
+        {"sensitive": ["M", "TA"], "score": 0.6369216241737489},
+        {"sensitive": ["F", "ASY"], "score": 0.6723593686766491},
+        {"sensitive": ["M", "ASY"], "score": 1.8832693128467775},
+    ],
+    True,
 ]
 
 
@@ -459,7 +446,7 @@ def test_demographic_parity_ratio(
     assert result == expected_result[0]
     ranking = dpr.rank()
     assert ranking == expected_result[1]
-    if isinstance(expected_result[2], dict):
+    if isinstance(expected_result[2], bool):
         is_biased = dpr.is_biased(threshold)
         assert is_biased == expected_result[2]
     else:
@@ -473,8 +460,8 @@ did_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    {"HeartDisease": [{"sensitive": ["M"], "score": 0.3619581918885117}, {"sensitive": ["F"], "score": -0.3619581918885117}]},
-    {"HeartDisease": True},
+    [{"sensitive": ["M"], "score": 0.3619581918885117}, {"sensitive": ["F"], "score": -0.3619581918885117}],
+    True,
 ]
 
 
@@ -506,19 +493,17 @@ did_expected_result_6 = [
         "privileged_group": ["M", "ASY"],
         "unprivileged_group": ["F", "NAP"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["M", "ASY"], "score": 0.5350647912366394},
-            {"sensitive": ["F", "ASY"], "score": 0.26816817343458915},
-            {"sensitive": ["M", "TA"], "score": 0.2019550215071515},
-            {"sensitive": ["M", "NAP"], "score": 0.10163756118969114},
-            {"sensitive": ["M", "ATA"], "score": -0.19894398116176273},
-            {"sensitive": ["F", "TA"], "score": -0.28693386738173743},
-            {"sensitive": ["F", "ATA"], "score": -0.30598148642935646},
-            {"sensitive": ["F", "NAP"], "score": -0.31496621239521455},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["M", "ASY"], "score": 0.37924882629107975},
+        {"sensitive": ["F", "ASY"], "score": -0.23353454057679401},
+        {"sensitive": ["M", "TA"], "score": -0.29147104851330197},
+        {"sensitive": ["M", "NAP"], "score": -0.37924882629107975},
+        {"sensitive": ["M", "ATA"], "score": -0.6422576758486018},
+        {"sensitive": ["F", "TA"], "score": -0.7192488262910798},
+        {"sensitive": ["F", "ATA"], "score": -0.7359154929577464},
+        {"sensitive": ["F", "NAP"], "score": -0.7437771281778722},
+    ],
+    True,
 ]
 
 
@@ -553,7 +538,7 @@ def test_disparate_impact_difference(
         assert result == expected_result[0]
         ranking = did.rank()
         assert ranking == expected_result[1]
-        if isinstance(expected_result[2], dict):
+        if isinstance(expected_result[2], bool):
             is_biased = did.is_biased(threshold)
             assert is_biased == expected_result[2]
         else:
@@ -571,8 +556,8 @@ dir_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    {"HeartDisease": [{"sensitive": ["M"], "score": 0.4219830636141608}, {"sensitive": ["F"], "score": 2.369763353617309}]},
-    {"HeartDisease": False},
+    [{"sensitive": ["F"], "score": 0.4219830636141608}, {"sensitive": ["M"], "score": 2.369763353617309}],
+    False,
 ]
 
 
@@ -582,19 +567,17 @@ dir_expected_result_3 = [
         "privileged_group": ["M", "ASY"],
         "unprivileged_group": ["F", "NAP"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["M", "ASY"], "score": 0.3468836645650188},
-            {"sensitive": ["F", "ASY"], "score": 0.5421518990141162},
-            {"sensitive": ["M", "TA"], "score": 0.6173483803022393},
-            {"sensitive": ["M", "NAP"], "score": 0.7690055427507021},
-            {"sensitive": ["M", "ATA"], "score": 2.1240334935639593},
-            {"sensitive": ["F", "TA"], "score": 3.869338673817374},
-            {"sensitive": ["F", "ATA"], "score": 4.671777837152278},
-            {"sensitive": ["F", "NAP"], "score": 5.173302314236593},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["F", "NAP"], "score": 0.09212304698059144},
+        {"sensitive": ["F", "ATA"], "score": 0.10171919770773638},
+        {"sensitive": ["F", "TA"], "score": 0.12206303724928369},
+        {"sensitive": ["M", "ATA"], "score": 0.21604077389253748},
+        {"sensitive": ["M", "NAP"], "score": 0.5370773638968481},
+        {"sensitive": ["M", "TA"], "score": 0.6442215854823304},
+        {"sensitive": ["F", "ASY"], "score": 0.7149406467458044},
+        {"sensitive": ["M", "ASY"], "score": 1.861929150661545},
+    ],
+    True,
 ]
 
 
@@ -604,19 +587,17 @@ dir_expected_result_6 = [
         "privileged_group": ["M", "ASY"],
         "unprivileged_group": ["F", "NAP"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["M", "ASY"], "score": 0.3468836645650188},
-            {"sensitive": ["F", "ASY"], "score": 0.5421518990141162},
-            {"sensitive": ["M", "TA"], "score": 0.6173483803022393},
-            {"sensitive": ["M", "NAP"], "score": 0.7690055427507021},
-            {"sensitive": ["M", "ATA"], "score": 2.1240334935639593},
-            {"sensitive": ["F", "TA"], "score": 3.869338673817374},
-            {"sensitive": ["F", "ATA"], "score": 4.671777837152278},
-            {"sensitive": ["F", "NAP"], "score": 5.173302314236593},
-        ],
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["F", "NAP"], "score": 0.09212304698059144},
+        {"sensitive": ["F", "ATA"], "score": 0.10171919770773638},
+        {"sensitive": ["F", "TA"], "score": 0.12206303724928369},
+        {"sensitive": ["M", "ATA"], "score": 0.21604077389253748},
+        {"sensitive": ["M", "NAP"], "score": 0.5370773638968481},
+        {"sensitive": ["M", "TA"], "score": 0.6442215854823304},
+        {"sensitive": ["F", "ASY"], "score": 0.7149406467458044},
+        {"sensitive": ["M", "ASY"], "score": 1.861929150661545},
+    ],
+    True,
 ]
 
 
@@ -676,8 +657,8 @@ eod_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    {"HeartDisease": [{"sensitive": ["M"], "score": 0.03816593886462882}, {"sensitive": ["F"], "score": -0.03816593886462882}]},
-    {"HeartDisease": False},
+    [{"sensitive": ["M"], "score": 0.03816593886462882}, {"sensitive": ["F"], "score": -0.03816593886462882}],
+    False,
 ]
 
 
@@ -687,19 +668,17 @@ eod_expected_result_3 = [
         "privileged_group": ["F", "ATA"],
         "unprivileged_group": ["F", "NAP"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["F", "ATA"], "score": 0.08516927384528401},
-            {"sensitive": ["F", "TA"], "score": 0.08516927384528401},
-            {"sensitive": ["M", "ASY"], "score": 0.0689814956178457},
-            {"sensitive": ["M", "NAP"], "score": 0.0678532565292667},
-            {"sensitive": ["F", "ASY"], "score": 0.05586524454125468},
-            {"sensitive": ["M", "ATA"], "score": 0.028026416702426813},
-            {"sensitive": ["M", "TA"], "score": -0.09528185397426492},
-            {"sensitive": ["F", "NAP"], "score": -0.29578310710709704},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["F", "ATA"], "score": 0.014164305949008527},
+        {"sensitive": ["F", "TA"], "score": 0.014164305949008527},
+        {"sensitive": ["M", "ASY"], "score": 0.0009872092025066115},
+        {"sensitive": ["M", "NAP"], "score": -0.0009872092025066115},
+        {"sensitive": ["F", "ASY"], "score": -0.011476719692017134},
+        {"sensitive": ["M", "ATA"], "score": -0.03583569405099152},
+        {"sensitive": ["M", "TA"], "score": -0.14373043089309678},
+        {"sensitive": ["F", "NAP"], "score": -0.31916902738432484},
+    ],
+    True,
 ]
 
 
@@ -709,19 +688,17 @@ eod_expected_result_6 = [
         "privileged_group": ["F", "ATA"],
         "unprivileged_group": ["F", "NAP"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["F", "ATA"], "score": 0.08516927384528401},
-            {"sensitive": ["F", "TA"], "score": 0.08516927384528401},
-            {"sensitive": ["M", "ASY"], "score": 0.0689814956178457},
-            {"sensitive": ["M", "NAP"], "score": 0.0678532565292667},
-            {"sensitive": ["F", "ASY"], "score": 0.05586524454125468},
-            {"sensitive": ["M", "ATA"], "score": 0.028026416702426813},
-            {"sensitive": ["M", "TA"], "score": -0.09528185397426492},
-            {"sensitive": ["F", "NAP"], "score": -0.29578310710709704},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["F", "ATA"], "score": 0.014164305949008527},
+        {"sensitive": ["F", "TA"], "score": 0.014164305949008527},
+        {"sensitive": ["M", "ASY"], "score": 0.0009872092025066115},
+        {"sensitive": ["M", "NAP"], "score": -0.0009872092025066115},
+        {"sensitive": ["F", "ASY"], "score": -0.011476719692017134},
+        {"sensitive": ["M", "ATA"], "score": -0.03583569405099152},
+        {"sensitive": ["M", "TA"], "score": -0.14373043089309678},
+        {"sensitive": ["F", "NAP"], "score": -0.31916902738432484},
+    ],
+    True,
 ]
 
 
@@ -758,13 +735,12 @@ def test_equal_opportunity_difference(
     result = eod.summary()
     assert result == expected_result[0]
     rankings = eod.rank()
-    for target, ranking in rankings.items():
-        expected_ranking = expected_result[1][target]
-        assert len(ranking) == len(expected_ranking)
-        for rank_item, expected_rank_item in zip(ranking, expected_ranking):
-            assert rank_item["sensitive"] == expected_rank_item["sensitive"]
-            if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
-                assert np.isclose(rank_item["score"], expected_rank_item["score"])
+    expected_ranking = expected_result[1]
+    assert len(rankings) == len(expected_ranking)
+    for rank_item, expected_rank_item in zip(rankings, expected_ranking):
+        assert rank_item["sensitive"] == expected_rank_item["sensitive"]
+        if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
+            assert np.isclose(rank_item["score"], expected_rank_item["score"])
     is_biased = eod.is_biased(threshold)
     assert is_biased == expected_result[2]
 
@@ -775,8 +751,8 @@ eor_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    {"HeartDisease": [{"sensitive": ["M"], "score": 0.9609821428571428}, {"sensitive": ["F"], "score": 1.0406020626219457}]},
-    {"HeartDisease": False},
+    [{"sensitive": ["F"], "score": 0.9609821428571428}, {"sensitive": ["M"], "score": 1.0406020626219457}],
+    False,
 ]
 
 
@@ -786,19 +762,17 @@ eor_expected_result_3 = [
         "privileged_group": ["F", "ATA"],
         "unprivileged_group": ["F", "NAP"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["F", "ATA"], "score": 0.9148307261547161},
-            {"sensitive": ["F", "TA"], "score": 0.9148307261547161},
-            {"sensitive": ["M", "ASY"], "score": 0.9300273909393691},
-            {"sensitive": ["M", "NAP"], "score": 0.9311028472164368},
-            {"sensitive": ["F", "ASY"], "score": 0.9426646174445017},
-            {"sensitive": ["M", "ATA"], "score": 0.9704985087342874},
-            {"sensitive": ["M", "TA"], "score": 1.1131472015944397},
-            {"sensitive": ["F", "NAP"], "score": 1.4436746606606454},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["F", "NAP"], "score": 0.6762452107279693},
+        {"sensitive": ["M", "TA"], "score": 0.854204476709014},
+        {"sensitive": ["M", "ATA"], "score": 0.9636494252873564},
+        {"sensitive": ["F", "ASY"], "score": 0.9883583849101092},
+        {"sensitive": ["M", "NAP"], "score": 0.9989986067572275},
+        {"sensitive": ["M", "ASY"], "score": 1.0010023970363913},
+        {"sensitive": ["F", "ATA"], "score": 1.014367816091954},
+        {"sensitive": ["F", "TA"], "score": 1.014367816091954},
+    ],
+    True,
 ]
 
 
@@ -808,19 +782,17 @@ eor_expected_result_6 = [
         "privileged_group": ["F", "ATA"],
         "unprivileged_group": ["F", "NAP"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["F", "ATA"], "score": 0.9148307261547161},
-            {"sensitive": ["F", "TA"], "score": 0.9148307261547161},
-            {"sensitive": ["M", "ASY"], "score": 0.9300273909393691},
-            {"sensitive": ["M", "NAP"], "score": 0.9311028472164368},
-            {"sensitive": ["F", "ASY"], "score": 0.9426646174445017},
-            {"sensitive": ["M", "ATA"], "score": 0.9704985087342874},
-            {"sensitive": ["M", "TA"], "score": 1.1131472015944397},
-            {"sensitive": ["F", "NAP"], "score": 1.4436746606606454},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["F", "NAP"], "score": 0.6762452107279693},
+        {"sensitive": ["M", "TA"], "score": 0.854204476709014},
+        {"sensitive": ["M", "ATA"], "score": 0.9636494252873564},
+        {"sensitive": ["F", "ASY"], "score": 0.9883583849101092},
+        {"sensitive": ["M", "NAP"], "score": 0.9989986067572275},
+        {"sensitive": ["M", "ASY"], "score": 1.0010023970363913},
+        {"sensitive": ["F", "ATA"], "score": 1.014367816091954},
+        {"sensitive": ["F", "TA"], "score": 1.014367816091954},
+    ],
+    True,
 ]
 
 
@@ -864,13 +836,12 @@ def test_equal_opportuinity_ratio(
         result = eor.summary()
         assert result == expected_result[0]
         rankings = eor.rank()
-        for target, ranking in rankings.items():
-            expected_ranking = expected_result[1][target]
-            assert len(ranking) == len(expected_ranking)
-            for rank_item, expected_rank_item in zip(ranking, expected_ranking):
-                assert rank_item["sensitive"] == expected_rank_item["sensitive"]
-                if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
-                    assert np.isclose(rank_item["score"], expected_rank_item["score"])
+        expected_ranking = expected_result[1]
+        assert len(rankings) == len(expected_ranking)
+        for rank_item, expected_rank_item in zip(rankings, expected_ranking):
+            assert rank_item["sensitive"] == expected_rank_item["sensitive"]
+            if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
+                assert np.isclose(rank_item["score"], expected_rank_item["score"])
         is_biased = eor.is_biased(threshold)
         assert is_biased == expected_result[2]
     else:
@@ -1054,8 +1025,7 @@ def test_performancemetrics(
     if isinstance(expected_result, Sequence):
         pm = PerformanceMetric(data, metrics)
         result = pm()
-        assert result[0] == pm.data.real_target
-        for i, res in enumerate(result[1]):
+        for i, res in enumerate(result):
             for key in res.keys():
                 if isinstance(res[key][0], object):
                     try:
@@ -1080,8 +1050,8 @@ eod_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    {"HeartDisease": [{"sensitive": ["M"], "score": 0.03816593886462882}, {"sensitive": ["F"], "score": -0.03816593886462882}]},
-    {"HeartDisease": False},
+    [{"sensitive": ["M"], "score": 0.03816593886462882}, {"sensitive": ["F"], "score": -0.03816593886462882}],
+    False,
 ]
 
 
@@ -1091,19 +1061,17 @@ eod_expected_result_3 = [
         "privileged_group": ["F", "ATA"],
         "unprivileged_group": ["F", "NAP"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["F", "TA"], "score": 0.10053586843924016},
-            {"sensitive": ["F", "ATA"], "score": 0.09033178680658709},
-            {"sensitive": ["M", "NAP"], "score": 0.08199377127623639},
-            {"sensitive": ["M", "ASY"], "score": 0.08153282325925479},
-            {"sensitive": ["M", "ATA"], "score": 0.05205550855335028},
-            {"sensitive": ["F", "ASY"], "score": 0.0014697534603408588},
-            {"sensitive": ["M", "TA"], "score": -0.16240914536313006},
-            {"sensitive": ["F", "NAP"], "score": -0.24551036643187954},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["F", "TA"], "score": 0.10053586843924016},
+        {"sensitive": ["F", "ATA"], "score": 0.09033178680658709},
+        {"sensitive": ["M", "NAP"], "score": 0.08199377127623639},
+        {"sensitive": ["M", "ASY"], "score": 0.08153282325925479},
+        {"sensitive": ["M", "ATA"], "score": 0.05205550855335028},
+        {"sensitive": ["F", "ASY"], "score": 0.0014697534603408588},
+        {"sensitive": ["M", "TA"], "score": -0.16240914536313006},
+        {"sensitive": ["F", "NAP"], "score": -0.24551036643187954},
+    ],
+    True,
 ]
 
 
@@ -1113,19 +1081,17 @@ eod_expected_result_6 = [
         "privileged_group": ["F", "ATA"],
         "unprivileged_group": ["F", "NAP"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["F", "TA"], "score": 0.10053586843924016},
-            {"sensitive": ["F", "ATA"], "score": 0.09033178680658709},
-            {"sensitive": ["M", "NAP"], "score": 0.08199377127623639},
-            {"sensitive": ["M", "ASY"], "score": 0.08153282325925479},
-            {"sensitive": ["M", "ATA"], "score": 0.05205550855335028},
-            {"sensitive": ["F", "ASY"], "score": 0.0014697534603408588},
-            {"sensitive": ["M", "TA"], "score": -0.16240914536313006},
-            {"sensitive": ["F", "NAP"], "score": -0.24551036643187954},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["F", "TA"], "score": 0.10053586843924016},
+        {"sensitive": ["F", "ATA"], "score": 0.09033178680658709},
+        {"sensitive": ["M", "NAP"], "score": 0.08199377127623639},
+        {"sensitive": ["M", "ASY"], "score": 0.08153282325925479},
+        {"sensitive": ["M", "ATA"], "score": 0.05205550855335028},
+        {"sensitive": ["F", "ASY"], "score": 0.0014697534603408588},
+        {"sensitive": ["M", "TA"], "score": -0.16240914536313006},
+        {"sensitive": ["F", "NAP"], "score": -0.24551036643187954},
+    ],
+    True,
 ]
 
 
@@ -1154,13 +1120,12 @@ def test_equalised_odds_difference(
     result = eod.summary()
     assert result == expected_result[0]
     rankings = eod.rank()
-    for target, ranking in rankings.items():
-        expected_ranking = expected_result[1][target]
-        assert len(ranking) == len(expected_ranking)
-        for rank_item, expected_rank_item in zip(ranking, expected_ranking):
-            assert rank_item["sensitive"] == expected_rank_item["sensitive"]
-            if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
-                assert np.isclose(rank_item["score"], expected_rank_item["score"])
+    expected_ranking = expected_result[1]
+    assert len(rankings) == len(expected_ranking)
+    for rank_item, expected_rank_item in zip(rankings, expected_ranking):
+        assert rank_item["sensitive"] == expected_rank_item["sensitive"]
+        if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
+            assert np.isclose(rank_item["score"], expected_rank_item["score"])
     is_biased = eod.is_biased(threshold)
     assert is_biased == expected_result[2]
 
@@ -1171,8 +1136,8 @@ eor_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    {"HeartDisease": [{"sensitive": ["M"], "score": 0.8033707865168539}, {"sensitive": ["F"], "score": 1.2447552447552448}]},
-    {"HeartDisease": False},
+    [{"sensitive": ["M"], "score": 0.8033707865168539}, {"sensitive": ["F"], "score": 1.2447552447552448}],
+    False,
 ]
 
 
@@ -1182,19 +1147,17 @@ eor_expected_result_3 = [
         "privileged_group": ["F", "NAP"],
         "unprivileged_group": ["M", "ASY"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["F", "TA"], "score": np.nan},
-            {"sensitive": ["M", "ASY"], "score": np.nan},
-            {"sensitive": ["M", "NAP"], "score": np.nan},
-            {"sensitive": ["M", "ATA"], "score": np.nan},
-            {"sensitive": ["F", "ASY"], "score": np.nan},
-            {"sensitive": ["F", "ATA"], "score": np.nan},
-            {"sensitive": ["F", "NAP"], "score": np.nan},
-            {"sensitive": ["M", "TA"], "score": np.nan},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["F", "TA"], "score": np.nan},
+        {"sensitive": ["M", "ASY"], "score": np.nan},
+        {"sensitive": ["M", "NAP"], "score": np.nan},
+        {"sensitive": ["M", "ATA"], "score": np.nan},
+        {"sensitive": ["F", "ASY"], "score": np.nan},
+        {"sensitive": ["F", "ATA"], "score": np.nan},
+        {"sensitive": ["F", "NAP"], "score": np.nan},
+        {"sensitive": ["M", "TA"], "score": np.nan},
+    ],
+    True,
 ]
 
 eor_expected_result_6 = [
@@ -1203,19 +1166,17 @@ eor_expected_result_6 = [
         "privileged_group": ["F", "NAP"],
         "unprivileged_group": ["M", "ASY"],
     },
-    {
-        "HeartDisease": [
-            {"sensitive": ["F", "TA"], "score": np.nan},
-            {"sensitive": ["M", "ASY"], "score": np.nan},
-            {"sensitive": ["M", "NAP"], "score": np.nan},
-            {"sensitive": ["M", "ATA"], "score": np.nan},
-            {"sensitive": ["F", "ASY"], "score": np.nan},
-            {"sensitive": ["F", "ATA"], "score": np.nan},
-            {"sensitive": ["F", "NAP"], "score": np.nan},
-            {"sensitive": ["M", "TA"], "score": np.nan},
-        ]
-    },
-    {"HeartDisease": True},
+    [
+        {"sensitive": ["F", "TA"], "score": np.nan},
+        {"sensitive": ["M", "ASY"], "score": np.nan},
+        {"sensitive": ["M", "NAP"], "score": np.nan},
+        {"sensitive": ["M", "ATA"], "score": np.nan},
+        {"sensitive": ["F", "ASY"], "score": np.nan},
+        {"sensitive": ["F", "ATA"], "score": np.nan},
+        {"sensitive": ["F", "NAP"], "score": np.nan},
+        {"sensitive": ["M", "TA"], "score": np.nan},
+    ],
+    True,
 ]
 
 
@@ -1250,13 +1211,12 @@ def test_equalised_odds_ratio(
         result = eor.summary()
         assert result == expected_result[0]
         rankings = eor.rank()
-        for target, ranking in rankings.items():
-            expected_ranking = expected_result[1][target]
-            assert len(ranking) == len(expected_ranking)
-            for rank_item, expected_rank_item in zip(ranking, expected_ranking):
-                assert rank_item["sensitive"] == expected_rank_item["sensitive"]
-                if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
-                    assert np.isclose(rank_item["score"], expected_rank_item["score"])
+        expected_ranking = expected_result[1]
+        assert len(rankings) == len(expected_ranking)
+        for rank_item, expected_rank_item in zip(rankings, expected_ranking):
+            assert rank_item["sensitive"] == expected_rank_item["sensitive"]
+            if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
+                assert np.isclose(rank_item["score"], expected_rank_item["score"])
         if threshold is None:
             is_biased = eor.is_biased()
         else:
