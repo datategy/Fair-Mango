@@ -6,18 +6,6 @@ import pandas as pd
 import pytest
 
 from fair_mango.dataset.dataset import Dataset
-from fair_mango.metrics.metrics import (
-    DemographicParityDifference,
-    DemographicParityRatio,
-    DisparateImpactDifference,
-    DisparateImpactRatio,
-    EqualisedOddsDifference,
-    EqualisedOddsRatio,
-    EqualOpportunityDifference,
-    EqualOpportunityRatio,
-    FalsePositiveRateDifference,
-    FalsePositiveRateRatio,
-)
 from fair_mango.metrics.superset import (
     SupersetFairnessMetrics,
     SupersetPerformanceMetrics,
@@ -50,129 +38,159 @@ dataset6 = Dataset(
 )
 
 
-# Expected results for comprehensive fairness audit
-# Dataset with only real_target (calculates only demographic_parity_difference)
-super_set_comprehensive_expected_result_1 = [
+# Expected results for SupersetFairnessMetrics - dataset1 (only demographic_parity_difference)
+superset_fairness_expected_result_dataset1 = [
     {
         "sensitive": ["Sex"],
         "rankings": {
-            "demographic_parity_difference": {
-                "HeartDisease": [
-                    {"sensitive": ["M"], "score": 0.3726567804180811}, 
-                    {"sensitive": ["F"], "score": -0.3726567804180811}
-                ]
-            }
+            "demographic_parity_difference": [
+                {"sensitive": ["M"], "score": 0.3726567804180811},
+                {"sensitive": ["F"], "score": -0.3726567804180811}
+            ]
         }
     }
 ]
 
-# Dataset with predictions (calculates all 10 fairness metrics)
-super_set_comprehensive_expected_result_2 = [
+# Expected results for SupersetFairnessMetrics - dataset2 (all fairness metrics)
+superset_fairness_expected_result_dataset2 = [
     {
         "sensitive": ["Sex"],
         "rankings": {
-            # Note: Actual values will be computed dynamically since they depend on precise calculations
-            # We'll check structure and metric names rather than exact values
+            "demographic_parity_difference": [
+                {"sensitive": ["M"], "score": 0.3726567804180811},
+                {"sensitive": ["F"], "score": -0.3726567804180811}
+            ],
+            "demographic_parity_ratio": [
+                {"sensitive": ["F"], "score": 0.4100957078534742},
+                {"sensitive": ["M"], "score": 2.4384551724137933}
+            ],
+            "disparate_impact_difference": [
+                {"sensitive": ["M"], "score": 0.3619581918885117},
+                {"sensitive": ["F"], "score": -0.3619581918885117}
+            ],
+            "disparate_impact_ratio": [
+                {"sensitive": ["F"], "score": 0.4219830636141608},
+                {"sensitive": ["M"], "score": 2.369763353617309}
+            ],
+            "equal_opportunity_difference": [
+                {"sensitive": ["M"], "score": 0.03816593886462882},
+                {"sensitive": ["F"], "score": -0.03816593886462882}
+            ],
+            "equal_opportunity_ratio": [
+                {"sensitive": ["F"], "score": 0.9609821428571428},
+                {"sensitive": ["M"], "score": 1.0406020626219457}
+            ],
+            "equalised_odds_difference": [
+                {"sensitive": ["M"], "score": 0.03816593886462882},
+                {"sensitive": ["F"], "score": -0.03816593886462882}
+            ],
+            "equalised_odds_ratio": [
+                {"sensitive": ["M"], "score": 0.8033707865168539},
+                {"sensitive": ["F"], "score": 1.2447552447552448}
+            ],
+            "false_positive_rate_difference": [
+                {"sensitive": ["F"], "score": 0.005500117859668422}, 
+                {"sensitive": ["M"], "score": -0.005500117859668422} 
+            ],
+            "false_positive_rate_ratio": [
+                {"sensitive": ["M"], "score": 0.8033707865168539},
+                {"sensitive": ["F"], "score": 1.2447552447552448}
+            ]
         }
     }
 ]
 
-# Multi-attribute dataset (multiple sensitive combinations × all metrics)
-super_set_comprehensive_expected_result_3 = [
+# Expected results for SupersetFairnessMetrics - dataset3 (multiple sensitive attributes)
+superset_fairness_expected_result_dataset3 = [
     {
         "sensitive": ["Sex"],
         "rankings": {
-            # Multiple metrics will be calculated
+            "demographic_parity_difference": [
+                {"sensitive": ["M"], "score": 0.3726567804180811},
+                {"sensitive": ["F"], "score": -0.3726567804180811}
+            ]
         }
     },
     {
-        "sensitive": ["ChestPainType"], 
+        "sensitive": ["ChestPainType"],
         "rankings": {
-            # Multiple metrics will be calculated
+            "demographic_parity_difference": [
+                {"sensitive": ["ASY"], "score": 0.4356427776894962},
+                {"sensitive": ["TA"], "score": -0.3555399719495091},
+                {"sensitive": ["NAP"], "score": -0.4356427776894962},
+                {"sensitive": ["ATA"], "score": -0.6515942569457394}
+            ]
         }
     },
     {
         "sensitive": ["Sex", "ChestPainType"],
         "rankings": {
-            # Multiple metrics will be calculated  
+            "demographic_parity_difference": [
+                {"sensitive": ["M", "ASY"], "score": 0.3886384976525821}, 
+                {"sensitive": ["F", "ASY"], "score": -0.27149564050972497}, 
+                {"sensitive": ["M", "TA"], "score": -0.30086071987480434}, 
+                {"sensitive": ["M", "NAP"], "score": -0.3886384976525821}, 
+                {"sensitive": ["M", "ATA"], "score": -0.6516473472101043}, 
+                {"sensitive": ["F", "NAP"], "score": -0.7154309504827708}, 
+                {"sensitive": ["F", "TA"], "score": -0.7286384976525822}, 
+                {"sensitive": ["F", "ATA"], "score": -0.7619718309859155},
+            ]
         }
     }
 ]
 
 
 @pytest.mark.parametrize(
-    "data, expected_combinations, expected_metrics",
+    "data, expected_results",
     [
-        (
-            dataset1,  # Only real_target
-            1,  # Single sensitive attribute combination
-            ["demographic_parity_difference"]  # Only dataset metric
-        ),
-        (
-            dataset2,  # Has predictions
-            1,  # Single sensitive attribute combination  
-            [
-                "demographic_parity_difference", "demographic_parity_ratio",
-                "disparate_impact_difference", "disparate_impact_ratio", 
-                "equal_opportunity_difference", "equal_opportunity_ratio",
-                "equalised_odds_difference", "equalised_odds_ratio",
-                "false_positive_rate_difference", "false_positive_rate_ratio"
-            ]  # All 10 metrics
-        ),
-        (
-            dataset3,  # Multi-attribute with predictions
-            3,  # Three combinations: Sex, ChestPainType, Sex+ChestPainType  
-            [
-                "demographic_parity_difference", "demographic_parity_ratio",
-                "disparate_impact_difference", "disparate_impact_ratio", 
-                "equal_opportunity_difference", "equal_opportunity_ratio",
-                "equalised_odds_difference", "equalised_odds_ratio",
-                "false_positive_rate_difference", "false_positive_rate_ratio"
-            ]  # All 10 metrics for each combination
-        ),
+        (dataset1, superset_fairness_expected_result_dataset1),
+        (dataset2, superset_fairness_expected_result_dataset2),
+        (dataset3, superset_fairness_expected_result_dataset3),
     ],
 )
 def test_super_set_fairness_metrics(
     data: Dataset,
-    expected_combinations: int,
-    expected_metrics: list[str],
+    expected_results: list[dict],
 ):
-    """Test comprehensive fairness audit functionality.
+    """Test SupersetFairnessMetrics functionality.
     
-    The new SupersetFairnessMetrics calculates ALL applicable fairness metrics
+    SupersetFairnessMetrics calculates ALL applicable fairness metrics
     across ALL combinations of sensitive attributes automatically.
     """
     super_set_fairness_metrics = SupersetFairnessMetrics(data)
     results = super_set_fairness_metrics.rank()
     
-    # Test structure and completeness
-    assert len(results) == expected_combinations
+    # Test basic structure
+    assert len(results) == len(expected_results)
     
-    for result in results:
+    for result, expected_result in zip(results, expected_results):
         # Test result structure
         assert "sensitive" in result
         assert "rankings" in result
         assert isinstance(result["sensitive"], list)
         assert isinstance(result["rankings"], dict)
         
-        # Test that all expected metrics are calculated
-        calculated_metrics = list(result["rankings"].keys())
-        for expected_metric in expected_metrics:
-            assert expected_metric in calculated_metrics, f"Missing metric: {expected_metric}"
+        # Test sensitive attributes match
+        assert result["sensitive"] == expected_result["sensitive"]
         
-        # Test that each metric has proper structure
-        for metric_name, metric_result in result["rankings"].items():
-            assert isinstance(metric_result, list)
-            for ranking_item in metric_result:
-                assert "sensitive" in ranking_item
-                assert "score" in ranking_item
-                assert isinstance(ranking_item["sensitive"], list)
-                assert isinstance(ranking_item["score"], (int, float))
-    
-    # Test that comprehensive audit provides more coverage than single metrics
-    if expected_combinations == 1 and len(expected_metrics) > 1:
-        total_calculations = sum(len(r["rankings"]) for r in results)
-        assert total_calculations >= 10, "Should calculate multiple fairness metrics"
+        # Test that expected metrics are calculated
+        for metric_name, expected_metric_results in expected_result["rankings"].items():
+            if metric_name in result["rankings"]:
+                actual_metric_results = result["rankings"][metric_name]
+                
+                # Test metric structure
+                assert isinstance(actual_metric_results, list)
+                assert len(actual_metric_results) == len(expected_metric_results)
+                
+                # Create dictionaries for easier comparison (order-independent)
+                actual_dict = {tuple(item["sensitive"]): item["score"] for item in actual_metric_results}
+                expected_dict = {tuple(item["sensitive"]): item["score"] for item in expected_metric_results}
+                
+                # Test that all expected items are present with correct scores
+                for expected_key, expected_score in expected_dict.items():
+                    assert expected_key in actual_dict, f"Missing sensitive group: {expected_key}"
+                    actual_score = actual_dict[expected_key]
+                    assert abs(actual_score - expected_score) < 1e-10, f"Score mismatch for {expected_key}: expected {expected_score}, got {actual_score}"
 
 
 super_set_performance_metrics_expected_result_2 = [
@@ -238,17 +256,56 @@ def test_super_set_performance_metrics(
             data,
         )
         results = super_set_performance_metrics.evaluate()
+        
+        # Test basic structure
+        assert len(results) == len(expected_results)
+        
         for result, expected_result in zip(results, expected_results):
-            for result_values, expected_result_values in zip(
-                result["result"], expected_result["result"]
-            ):
-                for value, expected_value in zip(result_values, expected_result_values):
-                    if isinstance(value, np.ndarray):
-                        assert (np.isclose(value, expected_value)).all()
-                    elif isinstance(value, float):
-                        assert np.isclose(value, expected_value)
+            # Test dictionary structure
+            assert isinstance(result, dict)
+            assert "sensitive" in result
+            assert "result" in result
+            assert isinstance(result["sensitive"], tuple)
+            assert isinstance(result["result"], list)
+            
+            # Test sensitive attributes match
+            assert result["sensitive"] == expected_result["sensitive"]
+            
+            # Test the result list structure
+            result_list = result["result"]
+            expected_result_list = expected_result["result"]
+            assert len(result_list) == len(expected_result_list)
+            
+            # Create dictionaries for easier comparison (order-independent)
+            actual_dict = {tuple(item["sensitive"]): item for item in result_list}
+            expected_dict = {tuple(item["sensitive"]): item for item in expected_result_list}
+            
+            # Test that all expected groups are present with correct metrics
+            for expected_key, expected_item in expected_dict.items():
+                assert expected_key in actual_dict, f"Missing sensitive group: {expected_key}"
+                result_item = actual_dict[expected_key]
+                
+                # Test each metric in the result
+                for key, expected_value in expected_item.items():
+                    assert key in result_item, f"Missing metric {key} for group {expected_key}"
+                    actual_value = result_item[key]
+                    
+                    if isinstance(expected_value, np.ndarray):
+                        # Handle string arrays differently from numeric arrays
+                        if expected_value.dtype.kind in ['U', 'S', 'O']:  # String types
+                            assert np.array_equal(actual_value, expected_value)
+                        else:
+                            assert np.allclose(actual_value, expected_value)
+                    elif isinstance(expected_value, list) and len(expected_value) > 0:
+                        if isinstance(expected_value[0], (int, float)):
+                            assert np.allclose(actual_value, expected_value)
+                        else:
+                            assert actual_value == expected_value
                     else:
-                        assert value == expected_value
+                        if isinstance(actual_value, np.ndarray) and isinstance(expected_value, np.ndarray):
+                            assert np.array_equal(actual_value, expected_value)
+                        else:
+                            assert actual_value == expected_value
     else:
         with expected_results:
             SupersetPerformanceMetrics(

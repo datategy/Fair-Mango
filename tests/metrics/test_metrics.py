@@ -483,7 +483,7 @@ did_expected_result_3 = [
             {"sensitive": ["F", "NAP"], "score": -0.31496621239521455},
         ]
     },
-    {"HeartDisease": True},
+    pytest.raises(ValueError),
 ]
 
 
