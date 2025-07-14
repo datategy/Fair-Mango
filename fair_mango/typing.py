@@ -74,7 +74,6 @@ class SupersetPerformanceEvaluation:
     sensitive_attributes: list[str]  
     results: list[DetailedPerformanceMetricsResult]
 
-# Additional dataclasses for specific metric results
 
 @dataclass  
 class FairnessRankingResult:

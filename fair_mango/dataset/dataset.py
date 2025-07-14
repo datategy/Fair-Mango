@@ -1,7 +1,6 @@
 from collections.abc import Sequence
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 from fair_mango.typing import DatasetTargetResult
@@ -389,8 +388,9 @@ class Dataset:
 
         Returns
         -------
-        list[MetricResult]
-            List of MetricResult dictionaries with standardized structure.
+        list[DatasetTargetResult]
+            List of DatasetTargetResult classes with the sensitive group as keys and the
+            corresponding real target as value.
 
         Examples
         --------
@@ -475,7 +475,7 @@ class Dataset:
         return self.groups_real_target
 
     def get_real_target_for_one_group(
-        self, sensitive_group: Sequence[str] | str
+        self, sensitive_group: Sequence[str]
     ) -> pd.Series:
         """Retrieve the real target corresponding to a specific sensitive
         group present in the sensitive features.
@@ -571,8 +571,9 @@ class Dataset:
 
         Returns
         -------
-        list[MetricResult]
-            List of MetricResult dictionaries with standardized structure.
+        list[DatasetTargetResult]
+            List of classes with the sensitive group as keys and the
+            corresponding predicted target as value.
 
         Examples
         --------
@@ -661,7 +662,7 @@ class Dataset:
         return self.groups_predicted_target
 
     def get_predicted_target_for_one_group(
-        self, sensitive_group: Sequence[str] | str
+        self, sensitive_group: Sequence[str]
     ) -> pd.Series:
         """Retrieve the predicted target corresponding to a specific sensitive
         group present in the sensitive features.

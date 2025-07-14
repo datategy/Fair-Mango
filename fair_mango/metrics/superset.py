@@ -17,7 +17,7 @@ from fair_mango.metrics.metrics import (
     PerformanceMetric,
     SelectionRate,
 )
-from fair_mango.typing import SupersetFairnessRank, SupersetPerformanceEvaluation
+from fair_mango.typing import SupersetPerformanceEvaluation
 
 
 class Superset(ABC):
@@ -76,8 +76,8 @@ class Superset(ABC):
 
 
 class SupersetFairnessMetrics(Superset):
-    """Calculate comprehensive fairness metrics for all combinations of sensitive
-    attributes. This class computes all applicable fairness metrics across different
+    """Calculate fairness metrics score for all combinations of sensitive
+    attributes and ranks them. This class computes all applicable fairness metrics across different
     subsets of sensitive attributes. Ex:
     [gender, race] → (gender), (race), (gender, race)
 
