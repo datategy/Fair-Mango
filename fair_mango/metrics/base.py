@@ -1,16 +1,16 @@
 from abc import ABC, abstractmethod
-from collections.abc import Hashable, Sequence
+from collections.abc import Hashable
 from itertools import combinations
-from typing import Literal
+from typing import Literal, Any
 
 import numpy as np
 import pandas as pd
-from numpy.typing import NDArray
 
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.typing import (
     FairnessSummaryResult,
     FairnessRatioSummaryResult,
+    GroupData,
 )
 
 
@@ -186,7 +186,8 @@ class Metric(ABC):
 
 
 def calculate_disparity(
-    result_per_groups: list[dict], method: Literal["difference", "ratio"]
+    result_per_groups: list[GroupData],
+    method: Literal["difference", "ratio"]
 ) -> list[dict[str, list[str] | float]]:
     """Calculate the disparity in the scores between every possible pair in
     the provided groups using two available methods:
@@ -195,12 +196,13 @@ def calculate_disparity(
     - ratio (Example: for three groups a, b, c:
       `[score_a / score_b], [score_a / score_c], [score_b / score_c]`).
 
+
     Parameters
     ----------
-    result_per_groups : list[dict]
+    result_per_groups : list[GroupData],
         List of dictionaries with the sensitive group and the corresponding
         score.
-    method : Literal['difference', 'ratio']
+    method :Literal["difference", "ratio"]
         Method used to calculate the disparity. Either 'difference' or 'ratio'.
 
     Returns
@@ -216,66 +218,29 @@ def calculate_disparity(
     AttributeError
         If method is not 'difference' or 'ratio'.
     """
-    result = []
-    pairs = combinations(range(len(result_per_groups)), 2)
+    disparities: list[dict[str, list[str] | float]] = []
+    for i, j in combinations(range(len(result_per_groups)), 2):
+        rec_i, rec_j = result_per_groups[i], result_per_groups[j]
 
-    for i, j in pairs:
-        group_i = result_per_groups[i]["sensitive"]
-        group_j = result_per_groups[j]["sensitive"]
-        
-        if not isinstance(group_i, list):
-            group_i = [str(x) for x in group_i]
-        if not isinstance(group_j, list):
-            group_j = [str(x) for x in group_j]
+        grp_i = list(map(str, rec_i["sensitive"]))  
+        grp_j = list(map(str, rec_j["sensitive"]))
 
-        key_i = 'data' if 'data' in result_per_groups[i] else 'result'
-        key_j = 'data' if 'data' in result_per_groups[j] else 'result'
-        
-        data_i = result_per_groups[i][key_i]
-        data_j = result_per_groups[j][key_j]
-        
-        if isinstance(data_i, pd.Series):
-            if len(data_i) == 1:
-                result_i = float(data_i.iloc[0])
-            else:
-                result_i = float(data_i.mean())
-        elif isinstance(data_i, (list, np.ndarray)):
-            if len(data_i) == 1:
-                result_i = float(data_i[0])
-            else:
-                result_i = float(np.mean(data_i))
-        else:
-            result_i = float(data_i)
-            
-        if isinstance(data_j, pd.Series):
-            if len(data_j) == 1:
-                result_j = float(data_j.iloc[0])
-            else:
-                result_j = float(data_j.mean())
-        elif isinstance(data_j, (list, np.ndarray)):
-            if len(data_j) == 1:
-                result_j = float(data_j[0])
-            else:
-                result_j = float(np.mean(data_j))
-        else:
-            result_j = float(data_j)
+        data_i = rec_i["result"]
+        data_j = rec_j["result"]
 
-        if method == "difference":
-            disparity_value = result_i - result_j
-        elif method == "ratio":
-            disparity_value = result_i / result_j if result_j != 0 else float('inf')
-        else:
-            raise AttributeError(
-                f"method {method} not recognised. Use 'difference' or 'ratio' instead."
-            )
+        def _to_float(x: Any) -> float:
+            if isinstance(x, pd.Series):
+                return float(x.iloc[0] if len(x) == 1 else x.mean())
+            if isinstance(x, (list, np.ndarray)):
+                return float(x[0] if len(x) == 1 else np.mean(x))
+            return float(x)
 
-        result.append({
-            "group_1": group_i,
-            "group_2": group_j,
-            "disparity": float(disparity_value)
-        })
+        a, b = _to_float(data_i), _to_float(data_j)
+        disp = a - b if method == "difference" else a / b if b != 0 else float("inf")
 
-    return result
+        disparities.append({"group_1": grp_i, "group_2": grp_j, "disparity": disp})
+
+    return disparities
 
 
 class FairnessMetricDifference(ABC):
