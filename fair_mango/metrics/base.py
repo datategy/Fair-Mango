@@ -27,15 +27,7 @@ def is_binary(y: pd.Series) -> bool:
     bool
         True if data contains binary values or can be treated as binary, False otherwise.
     """
-    nunique = y.nunique()
-    
-    if nunique == 2:
-        return True
-    elif nunique == 1:
-        single_value = y.iloc[0]  
-        return single_value in [0, 1]
-    
-    return False
+    return y.nunique() <= 2
 
 
 def encode_target(data: Dataset, col: str | Hashable) -> None:
