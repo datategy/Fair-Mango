@@ -369,7 +369,7 @@ class Dataset:
             result = df_filtration(self.df, sensitive_group, self.sensitive)
         else:
             for item in self.groups_data:
-                if item["sensitive"] == sensitive_group or item["sensitive"] == sensitive_group[::-1]:
+                if item["sensitive"] == sensitive_group:
                     result = item["result"]
         if result is None:
             raise (
@@ -554,7 +554,7 @@ class Dataset:
             result = filtered_df[self.real_target]
         else:
             for item in self.groups_real_target:
-                if item["sensitive"] == sensitive_group or item["sensitive"] == sensitive_group[::-1]:
+                if item["sensitive"] == sensitive_group:
                     result = item["result"]
         if result is None:
             raise (
@@ -750,7 +750,7 @@ class Dataset:
             result = filtered_df[self.predicted_target]
         else:
             for item in self.groups_predicted_target:
-                if item["sensitive"] == sensitive_group or item["sensitive"] == sensitive_group[::-1]:
+                if item["sensitive"] == sensitive_group:
                     result = item["result"]
         if result is None:
             raise (
