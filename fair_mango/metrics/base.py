@@ -32,7 +32,7 @@ def is_binary(y: pd.Series) -> bool:
     if nunique == 2:
         return True
     elif nunique == 1:
-        single_value = y.iloc[0]  # Get the single value efficiently
+        single_value = y.iloc[0]  
         return single_value in [0, 1]
     
     return False
