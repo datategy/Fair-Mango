@@ -27,15 +27,13 @@ def is_binary(y: pd.Series) -> bool:
     bool
         True if data contains binary values or can be treated as binary, False otherwise.
     """
-    unique_values = y.unique()
+    nunique = y.nunique()
     
-    if y.nunique() == 2:
+    if nunique == 2:
         return True
-    
-    elif y.nunique() == 1 and len(unique_values) == 1:
-        single_value = unique_values[0]
-        if single_value in [0, 1]:
-            return True
+    elif nunique == 1:
+        single_value = y.iloc[0]  # Get the single value efficiently
+        return single_value in [0, 1]
     
     return False
 
@@ -58,33 +56,23 @@ def encode_target(data: Dataset, col: str | Hashable) -> None:
     KeyError
         If the positive target value does not exist in the column.
     """
-    unique_values = data.df[col].unique()
-    
     if data.positive_target is None:
         raise ValueError(
             f"Calculations failed because target '{col}' has values different "
             "than [0,1]. Provide the positive_target parameter when creating "
             "the dataset to solve this issue."
         )
+    
+    unique_values = data.df[col].unique() 
+    if data.positive_target in unique_values:
+        mapping = {data.positive_target: 1}
+        data.df[col] = data.df[col].map(mapping).fillna(0).astype(int)
     else:
-        if data.positive_target in unique_values:
-            
-            mapping = {data.positive_target: 1}
-            data.df[col] = data.df[col].map(mapping).fillna(0).astype(int)
-        else:
-            
-            if len(unique_values) == 1 and unique_values[0] not in [0, 1]:
-                single_value = unique_values[0]
-                if single_value == data.positive_target:
-                    data.df[col] = 1
-                else:
-                    data.df[col] = 0
-            else:
-                raise KeyError(
-                    "Positive target value provided does not exist in the column. "
-                    f"{data.positive_target} does not exist in column {col}: "
-                    f"{unique_values}"
-                )
+        raise KeyError(
+            "Positive target value provided does not exist in the column. "
+            f"{data.positive_target} does not exist in column {col}: "
+            f"{unique_values}"
+        )
 def false_negative_rate(fn: int, tp: int, **_) -> float:
     """Calculate false negative rate.
 
