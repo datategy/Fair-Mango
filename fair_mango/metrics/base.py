@@ -295,9 +295,9 @@ class FairnessMetricDifference(ABC):
 
         self.result: dict | None = None
         self.ranking: dict | None = None
-        self.results: list[dict] | None = None
+        self.results: list[dict[str, list[str] | float]] | None = None
 
-    def _compute(self) -> list[dict]:
+    def _compute(self) -> list[dict[str, list[str] | float]]:
         """Calculate the disparity in the scores between every possible pair in
         the provided groups.
 
@@ -314,7 +314,6 @@ class FairnessMetricDifference(ABC):
         metric = self.metric(self.data, **filtered_kwargs)
         metric_result = metric()
         
-        # Extract just the results list (no longer a tuple)
         self.metric_results = metric_result
             
         results = calculate_disparity(self.metric_results, "difference")
@@ -487,9 +486,9 @@ class FairnessMetricRatio(ABC):
         self.metric_results: list = []
         self.result: dict | None = None
         self.ranking: dict | None = None
-        self.results: list[dict] | None = None
+        self.results: list[dict[str, list[str] | float]] | None = None
 
-    def _compute(self) -> list[dict]:
+    def _compute(self) -> list[dict[str, list[str] | float]]:
         """Calculate the disparity in the scores between every possible pair in
         the provided groups.
 

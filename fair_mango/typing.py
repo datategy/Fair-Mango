@@ -2,6 +2,7 @@ from dataclasses import dataclass, asdict
 from typing import TypedDict
 
 import pandas as pd
+import numpy as np
 
 class DatasetTargetResult(TypedDict):
     """Result of target data for a sensitive group from Dataset."""
@@ -127,3 +128,22 @@ class EqualisedOddsSummaryResult:
     equalised_odds_ratio: float | None = None
     privileged_group: list[str] | None = None
     unprivileged_group: list[str] | None = None 
+
+@dataclass
+class GroupData(TypedDict, total=False):
+    """
+    Dictionary produced by helper functions such as
+    `Dataset.get_*_for_all_groups`.
+
+    Keys
+    ----
+    sensitive : list[str] | np.ndarray
+        Labels identifying the sensitive group.
+    data      : pd.Series | np.ndarray | list[float]
+        Raw per-record metric values (present for some helpers).
+    result    : float | pd.Series | np.ndarray | list[float]
+        Pre-computed score for the group (present for others).
+    """
+    sensitive: list[str] | np.ndarray
+    data: pd.Series | np.ndarray | list[float]
+    result: float | pd.Series | np.ndarray | list[float]
