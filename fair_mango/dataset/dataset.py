@@ -1,9 +1,10 @@
 from collections.abc import Sequence
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
-from fair_mango.typing import DatasetTargetResult
+from fair_mango.typing import DatasetTargetResult, DatasetGroupResult
 
 
 def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence[str]) -> None:
@@ -114,7 +115,9 @@ def df_filtration(
     mask = pd.Series(True, index=df.index)
     for column, value in zip(sensitive, sensitive_group, strict=True):
         mask &= df[column] == value
-    return df[mask]
+    filtered_df = df[mask]
+    assert isinstance(filtered_df, pd.DataFrame)  # Type assertion for clarity
+    return filtered_df
 
 
 class Dataset:
@@ -180,12 +183,12 @@ class Dataset:
                 .sort_values("Count", ascending=False)
             )
         self.n_groups: int = len(self.groups)
-        self.groups_data: list[dict[str, pd.DataFrame]] = []
+        self.groups_data: list[DatasetGroupResult] = []
         self.groups_real_target: list[DatasetTargetResult] | None = None
         self.groups_predicted_target: list[DatasetTargetResult] | None = None
         plt.style.use("fivethirtyeight")
 
-    def get_data_for_all_groups(self) -> list[dict[str, pd.DataFrame]]:
+    def get_data_for_all_groups(self) -> list[DatasetGroupResult]:
         """Retrieve data corresponding to each sensitive group present in
         the sensitive features.
 
@@ -288,6 +291,7 @@ class Dataset:
             result = self.df
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
+            assert isinstance(result, pd.DataFrame)
             self.groups_data.append({"sensitive": [str(x) for x in row[:-1]], "result": result})
         return self.groups_data
 
@@ -388,9 +392,8 @@ class Dataset:
 
         Returns
         -------
-        list[DatasetTargetResult]
-            List of DatasetTargetResult classes with the sensitive group as keys and the
-            corresponding real target as value.
+        list[MetricResult]
+            List of MetricResult dictionaries with standardized structure.
 
         Examples
         --------
@@ -467,15 +470,17 @@ class Dataset:
             
             sensitive_group = [str(x) for x in row[:-1]] 
             target_data = result[self.real_target] 
+            # Ensure target_data is a Series
+            assert isinstance(target_data, pd.Series)
             
             self.groups_real_target.append({
                 "sensitive": sensitive_group,
-                "result": target_data 
+                "result": target_data  
             })
         return self.groups_real_target
 
     def get_real_target_for_one_group(
-        self, sensitive_group: Sequence[str]
+        self, sensitive_group: Sequence[str] | str
     ) -> pd.Series:
         """Retrieve the real target corresponding to a specific sensitive
         group present in the sensitive features.
@@ -542,6 +547,7 @@ class Dataset:
         4         0            no
         """
         sensitive_group = convert_to_list(sensitive_group)
+        
         result = None
         if self.groups_real_target is None:
             filtered_df = df_filtration(self.df, sensitive_group, self.sensitive)
@@ -554,6 +560,8 @@ class Dataset:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
             )
+        # Ensure we return a Series for target data
+        assert isinstance(result, pd.Series)
         return result
 
     def get_predicted_target_for_all_groups(
@@ -571,9 +579,8 @@ class Dataset:
 
         Returns
         -------
-        list[DatasetTargetResult]
-            List of classes with the sensitive group as keys and the
-            corresponding predicted target as value.
+        list[MetricResult]
+            List of MetricResult dictionaries with standardized structure.
 
         Examples
         --------
@@ -652,17 +659,19 @@ class Dataset:
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
             
-            sensitive_group = [str(x) for x in row[:-1]] 
+            sensitive_group = [str(x) for x in row[:-1]]  
             target_data = result[self.predicted_target] 
+            # Ensure target_data is a Series
+            assert isinstance(target_data, pd.Series)
             
             self.groups_predicted_target.append({
                 "sensitive": sensitive_group,
-                "result": target_data  
+                "result": target_data
             })
         return self.groups_predicted_target
 
     def get_predicted_target_for_one_group(
-        self, sensitive_group: Sequence[str]
+        self, sensitive_group: Sequence[str] | str
     ) -> pd.Series:
         """Retrieve the predicted target corresponding to a specific sensitive
         group present in the sensitive features.
@@ -732,6 +741,7 @@ class Dataset:
             raise ValueError(
                 "predicted_target parameter is required when creating the dataset"
             )
+        
         sensitive_group = convert_to_list(sensitive_group)
         
         result = None
@@ -746,4 +756,6 @@ class Dataset:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
             )
+        # Ensure we return a Series for target data
+        assert isinstance(result, pd.Series)
         return result
