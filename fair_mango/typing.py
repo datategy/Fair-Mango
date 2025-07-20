@@ -1,13 +1,17 @@
 from dataclasses import dataclass, asdict
+from typing import TypedDict
 
 import pandas as pd
 
- 
-@dataclass
-class DatasetTargetResult:
+class DatasetTargetResult(TypedDict):
     """Result of target data for a sensitive group from Dataset."""
     sensitive: list[str]
-    result: pd.Series  
+    result: pd.Series
+
+class DatasetGroupResult(TypedDict):
+    """Result of group data from Dataset."""
+    sensitive: list[str]
+    result: pd.DataFrame
 
 @dataclass
 class MetricResult:
