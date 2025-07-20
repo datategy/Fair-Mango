@@ -222,7 +222,7 @@ def calculate_disparity(
     for i, j in combinations(range(len(result_per_groups)), 2):
         rec_i, rec_j = result_per_groups[i], result_per_groups[j]
 
-        grp_i = list(map(str, rec_i["sensitive"]))  
+        grp_i = list(map(str, rec_i["sensitive"]))   # always List[str]
         grp_j = list(map(str, rec_j["sensitive"]))
 
         data_i = rec_i["result"]
@@ -238,7 +238,11 @@ def calculate_disparity(
         a, b = _to_float(data_i), _to_float(data_j)
         disp = a - b if method == "difference" else a / b if b != 0 else float("inf")
 
-        disparities.append({"group_1": grp_i, "group_2": grp_j, "disparity": disp})
+        disparities.append({
+            "group_1": grp_i,
+            "group_2": grp_j,
+            "disparity": disp,
+        })
 
     return disparities
 
@@ -275,10 +279,12 @@ class FairnessMetricDifference(ABC):
         data: Dataset,
         metric: type[Metric],
         metric_type: str = "performance",
-        **kwargs,
+        label: str = "difference",         
+        **metric_kwargs,                  
     ) -> None:
         self.metric = metric
-        self.kwargs = kwargs
+        self.metric_kwargs = metric_kwargs         
+        self.label = label                 
         self.metric_results: list = []
         self.metric_type = metric_type
         self.data = data
@@ -310,7 +316,7 @@ class FairnessMetricDifference(ABC):
             - disparity: The difference value between groups
         """
        
-        filtered_kwargs = {k: v for k, v in self.kwargs.items() if k != 'label'}
+        filtered_kwargs = {k: v for k, v in self.metric_kwargs.items() if k != 'label'}
         metric = self.metric(self.data, **filtered_kwargs)
         metric_result = metric()
         
@@ -337,8 +343,8 @@ class FairnessMetricDifference(ABC):
             self.results = self._compute()
         
         max_disparity = 0.0
-        privileged_group = None
-        unprivileged_group = None
+        privileged_group: list[str] | None = None
+        unprivileged_group: list[str] | None = None
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -352,21 +358,24 @@ class FairnessMetricDifference(ABC):
                     privileged_group = disparity_result["group_2"]
                     unprivileged_group = disparity_result["group_1"]
 
-        label = self.kwargs.get('label', getattr(self, 'label', 'disparity'))
-        
         return {
-            label: max_disparity,
+            self.label: max_disparity,
             "privileged_group": privileged_group,
             "unprivileged_group": unprivileged_group,
         }
 
-    def rank(self) -> list[dict]:
-        """Calculate the fairness metric for each sensitive group and rank them
-        based on their scores.
+    def rank(self) -> list[dict[str, list[str] | float]]:
+        """Assign a score to every sensitive group present in the sensitive
+        features and rank them from most privileged to most discriminated.
+        The score can be interpreted like:
+        - ['Male': 0.0314]: Males have on average a score higher by 3.14% than
+          the Females.
+        - ['White': -0.0628]: Whites have on average a score lower by 6.28% than
+          other groups (Black, Asian...).
 
         Returns
         -------
-        list[dict]
+        list[dict[str, list[str] | float]]:
             List of ranking dictionaries with 'sensitive' and 'score' keys.
         """
         if self.results is None:
@@ -379,8 +388,8 @@ class FairnessMetricDifference(ABC):
             group_2 = disparity_result["group_2"]
             difference = disparity_result["disparity"]
             
-            group_1_tuple = tuple(group_1) if isinstance(group_1, list) else (group_1,)
-            group_2_tuple = tuple(group_2) if isinstance(group_2, list) else (group_2,)
+            group_1_tuple: tuple[str, ...] = tuple(group_1)
+            group_2_tuple: tuple[str, ...] = tuple(group_2)
             
             if group_1_tuple not in group_scores:
                 group_scores[group_1_tuple] = difference
@@ -391,7 +400,7 @@ class FairnessMetricDifference(ABC):
         for group_tuple, score in group_scores.items():
             ranking_list.append({
                 "sensitive": list(group_tuple),
-                "score": float(score)
+                "score": score
             })
         
         ranking_list.sort(key=lambda x: x["score"], reverse=True)
@@ -416,7 +425,7 @@ class FairnessMetricDifference(ABC):
         Raises
         ------
         ValueError
-            If threshold is negative.
+            If threshold parameter is not in the range of [0, 1].
         """
         if threshold < 0:
             raise ValueError("Threshold must be non-negative for difference metrics.")
@@ -464,24 +473,23 @@ class FairnessMetricRatio(ABC):
         data: Dataset,
         metric: type[Metric],
         metric_type: str = "performance",
-        **kwargs,
+        label: str = "difference",        
+        **metric_kwargs,                   
     ) -> None:
         self.data = data
         self.metric = metric
-        self.label = kwargs.pop('label', 'difference') 
+        self.metric_kwargs = metric_kwargs                    
+        self.label = label                 
 
         if metric_type == "performance":
-            self.label1 = "privileged"
-            self.label2 = "unprivileged"
+            self.label1, self.label2 = "privileged", "unprivileged"
         elif metric_type == "error":
-            self.label1 = "unprivileged"
-            self.label2 = "privileged"
+            self.label1, self.label2 = "unprivileged", "privileged"
         else:
             raise AttributeError(
-                "Metric type not recognized. accepted values 'performance' or 'error'"
+                "metric_type must be 'performance' or 'error', got %s" % metric_type
             )
 
-        self.kwargs = kwargs
         self.metric_type = metric_type
         self.metric_results: list = []
         self.result: dict | None = None
@@ -501,7 +509,7 @@ class FairnessMetricRatio(ABC):
             - disparity: The ratio value between groups
         """
         
-        filtered_kwargs = {k: v for k, v in self.kwargs.items() if k != 'label'}
+        filtered_kwargs = {k: v for k, v in self.metric_kwargs.items() if k != 'label'}
         metric = self.metric(self.data, **filtered_kwargs)
         metric_result = metric()
         
@@ -528,8 +536,8 @@ class FairnessMetricRatio(ABC):
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_group = None
-        unprivileged_group = None
+        privileged_group: list[str] | None = None
+        unprivileged_group: list[str] | None = None
 
 
         for disparity_result in self.results:
@@ -550,7 +558,8 @@ class FairnessMetricRatio(ABC):
                 privileged_group = temp_privileged
                 unprivileged_group = temp_unprivileged
 
-        label = self.kwargs.get('label', getattr(self, 'label', 'ratio'))
+        label = self.label 
+
         
         return {
             label: min_ratio,
@@ -558,7 +567,7 @@ class FairnessMetricRatio(ABC):
             "unprivileged_group": unprivileged_group,
         }
 
-    def rank(self) -> list[dict]:
+    def rank(self) -> list[dict[str, list[str] | float]]:
         """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
@@ -569,7 +578,7 @@ class FairnessMetricRatio(ABC):
 
         Returns
         -------
-        list[dict]
+        list[dict[str, list[str] | float]]:
             List of ranking dictionaries with 'sensitive' and 'score' keys.
         """
         if self.results is None:
@@ -582,8 +591,8 @@ class FairnessMetricRatio(ABC):
             group_2 = disparity_result["group_2"]
             ratio = disparity_result["disparity"]
             
-            group_1_tuple = tuple(group_1) if isinstance(group_1, list) else (group_1,)
-            group_2_tuple = tuple(group_2) if isinstance(group_2, list) else (group_2,)
+            group_1_tuple: tuple[str, ...] = tuple(group_1)
+            group_2_tuple: tuple[str, ...] = tuple(group_2)
             
             if group_1_tuple not in group_scores:
                 group_scores[group_1_tuple] = ratio
