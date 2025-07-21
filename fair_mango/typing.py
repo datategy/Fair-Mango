@@ -9,6 +9,10 @@ class DatasetTargetResult(TypedDict):
     sensitive: list[str]
     result: pd.Series
 
+class GroupRankingResult(TypedDict):
+    sensitive: list[str]
+    score: float
+    
 class DatasetGroupResult(TypedDict):
     """Result of group data from Dataset."""
     sensitive: list[str]
