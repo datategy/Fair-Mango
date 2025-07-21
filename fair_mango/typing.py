@@ -35,15 +35,15 @@ class DisparityResult:
 class FairnessSummaryResult:
     """Summary of a difference-based fairness metric."""
     disparity: float
-    privileged_group: list[str] | None  
-    unprivileged_group: list[str] | None  
+    privileged_sensitive_group: list[str] | None  
+    unprivileged_sensitive_group: list[str] | None  
 
 @dataclass
 class FairnessRatioSummaryResult:
     """Summary of a ratio-based fairness metric."""
     ratio: float
-    privileged_group: list[str] | None   
-    unprivileged_group: list[str] | None   
+    privileged_sensitive_group: list[str] | None   
+    unprivileged_sensitive_group: list[str] | None   
 
 @dataclass
 class RankResult:
@@ -98,40 +98,40 @@ class DemographicParitySummaryResult:
     """Summary result for Demographic Parity metrics."""
     demographic_parity_difference: float | None = None
     demographic_parity_ratio: float | None = None
-    privileged_group: list[str] | None = None
-    unprivileged_group: list[str] | None = None
+    privileged_sensitive_group: list[str] | None = None
+    unprivileged_sensitive_group: list[str] | None = None
 
 @dataclass
 class DisparateImpactSummaryResult:
     """Summary result for Disparate Impact metrics."""
     disparate_impact_difference: float | None = None
     disparate_impact_ratio: float | None = None
-    privileged_group: list[str] | None = None
-    unprivileged_group: list[str] | None = None
+    privileged_sensitive_group: list[str] | None = None
+    unprivileged_sensitive_group: list[str] | None = None
 
 @dataclass
 class EqualOpportunitySummaryResult:
     """Summary result for Equal Opportunity metrics."""
     equal_opportunity_difference: float | None = None
     equal_opportunity_ratio: float | None = None
-    privileged_group: list[str] | None = None
-    unprivileged_group: list[str] | None = None
+    privileged_sensitive_group: list[str] | None = None
+    unprivileged_sensitive_group: list[str] | None = None
 
 @dataclass
 class FalsePositiveRateSummaryResult:
     """Summary result for False Positive Rate metrics."""
     false_positive_rate_difference: float | None = None
     false_positive_rate_ratio: float | None = None
-    privileged_group: list[str] | None = None
-    unprivileged_group: list[str] | None = None
+    privileged_sensitive_group: list[str] | None = None
+    unprivileged_sensitive_group: list[str] | None = None
 
 @dataclass
 class EqualisedOddsSummaryResult:
     """Summary result for Equalised Odds metrics."""
     equalised_odds_difference: float | None = None
     equalised_odds_ratio: float | None = None
-    privileged_group: list[str] | None = None
-    unprivileged_group: list[str] | None = None 
+    privileged_sensitive_group: list[str] | None = None
+    unprivileged_sensitive_group: list[str] | None = None 
 
 @dataclass
 class GroupData(TypedDict, total=False):
