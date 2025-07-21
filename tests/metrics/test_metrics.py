@@ -134,7 +134,7 @@ def test_selectionrate(
         sr = SelectionRate(data, use_y_true)
         result = sr()
         for i, res in enumerate(result):
-            assert res["sensitive"] == expected_groups[i]
+            assert res["sensitive_group"] == expected_groups[i]
             assert np.isclose(res["data"], expected_result[i])
     else:
         with expected_result:
@@ -144,14 +144,14 @@ def test_selectionrate(
 
 confusionmatrix_expected_result_2 = [
     {
-        "sensitive": np.array(["M"]),
+        "sensitive_group": np.array(["M"]),
         "false_negative_rate": [0.021834061135371178],
         "false_positive_rate": [0.02247191011235955],
         "true_negative_rate": [0.9775280898876404],
         "true_positive_rate": [0.9781659388646288],
     },
     {
-        "sensitive": np.array(["F"]),
+        "sensitive_group": np.array(["F"]),
         "false_negative_rate": [0.06],
         "false_positive_rate": [0.027972027972027972],
         "true_negative_rate": [0.972027972027972],
@@ -161,57 +161,57 @@ confusionmatrix_expected_result_2 = [
 
 
 confusionmatrix_expected_result_3 = [
-    {"sensitive": np.array(["M", "ASY"]), "fpr": [0.0136986301369863]},
-    {"sensitive": np.array(["M", "NAP"]), "fpr": [0.011904761904761904]},
-    {"sensitive": np.array(["M", "ATA"]), "fpr": [0.010752688172043012]},
-    {"sensitive": np.array(["F", "ASY"]), "fpr": [0.0967741935483871]},
-    {"sensitive": np.array(["F", "ATA"]), "fpr": [0.017857142857142856]},
-    {"sensitive": np.array(["F", "NAP"]), "fpr": [0.0]},
-    {"sensitive": np.array(["M", "TA"]), "fpr": [0.17647058823529413]},
-    {"sensitive": np.array(["F", "TA"]), "fpr": [0.0]},
+    {"sensitive_group": np.array(["M", "ASY"]), "fpr": [0.0136986301369863]},
+    {"sensitive_group": np.array(["M", "NAP"]), "fpr": [0.011904761904761904]},
+    {"sensitive_group": np.array(["M", "ATA"]), "fpr": [0.010752688172043012]},
+    {"sensitive_group": np.array(["F", "ASY"]), "fpr": [0.0967741935483871]},
+    {"sensitive_group": np.array(["F", "ATA"]), "fpr": [0.017857142857142856]},
+    {"sensitive_group": np.array(["F", "NAP"]), "fpr": [0.0]},
+    {"sensitive_group": np.array(["M", "TA"]), "fpr": [0.17647058823529413]},
+    {"sensitive_group": np.array(["F", "TA"]), "fpr": [0.0]},
 ]
 
 
 confusionmatrix_expected_result_6 = [
     {
-        "sensitive": np.array(["M", "ASY"]),
+        "sensitive_group": np.array(["M", "ASY"]),
         "true_negative_rate": [0.9863013698630136],
         "false_negative_rate": [0.014164305949008499],
     },
     {
-        "sensitive": np.array(["M", "NAP"]),
+        "sensitive_group": np.array(["M", "NAP"]),
         "true_negative_rate": [0.9880952380952381],
         "false_negative_rate": [0.015151515151515152],
     },
     {
-        "sensitive": np.array(["M", "ATA"]),
+        "sensitive_group": np.array(["M", "ATA"]),
         "true_negative_rate": [0.989247311827957],
         "false_negative_rate": [0.05],
     },
     {
-        "sensitive": np.array(["F", "ASY"]),
+        "sensitive_group": np.array(["F", "ASY"]),
         "true_negative_rate": [0.9032258064516129],
         "false_negative_rate": [0.02564102564102564],
     },
     {
-        "sensitive": np.array(["F", "ATA"]),
+        "sensitive_group": np.array(["F", "ATA"]),
         "true_negative_rate": [0.9821428571428571],
         "false_negative_rate": [
             0.0,
         ],
     },
     {
-        "sensitive": np.array(["F", "NAP"]),
+        "sensitive_group": np.array(["F", "NAP"]),
         "true_negative_rate": [1.0],
         "false_negative_rate": [0.3333333333333333],
     },
     {
-        "sensitive": np.array(["M", "TA"]),
+        "sensitive_group": np.array(["M", "TA"]),
         "true_negative_rate": [0.8235294117647058],
         "false_negative_rate": [0.15789473684210525],
     },
     {
-        "sensitive": np.array(["F", "TA"]),
+        "sensitive_group": np.array(["F", "TA"]),
         "true_negative_rate": [1.0],
         "false_negative_rate": [0.0],
     },
@@ -222,7 +222,7 @@ confusionmatrix_expected_result_6 = [
     "data, metrics, expected_result",
     [
         (dataset1, None, pytest.raises(ValueError)),
-        (dataset2, {"sensitive": false_positive_rate}, pytest.raises(KeyError)),
+        (dataset2, {"sensitive_group": false_positive_rate}, pytest.raises(KeyError)),
         (dataset2, None, confusionmatrix_expected_result_2),
         (dataset3, {"fpr": false_positive_rate}, confusionmatrix_expected_result_3),
         (
@@ -242,7 +242,7 @@ def test_confusionmatrix(
         result = cf()
         for i, res in enumerate(result):
             for key in res.keys():
-                if key == "sensitive":
+                if key == "sensitive_group":
                     assert (res[key] == expected_result[i][key]).all()
                 else:
                     for val, expected_val in zip(
@@ -265,7 +265,7 @@ dpd_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    [{"sensitive": ["M"], "score": 0.3726567804180811}, {"sensitive": ["F"], "score": -0.3726567804180811}],
+    [{"sensitive_group": ["M"], "score": 0.3726567804180811}, {"sensitive_group": ["F"], "score": -0.3726567804180811}],
     True,
 ]
 
@@ -277,14 +277,14 @@ dpd_expected_result_3 = [
         "unprivileged_group": ["F", "ATA"],
     },
     [
-        {"sensitive": ["M", "ASY"], "score": 0.3886384976525821},
-        {"sensitive": ["F", "ASY"], "score": -0.27149564050972497},
-        {"sensitive": ["M", "TA"], "score": -0.30086071987480434},
-        {"sensitive": ["M", "NAP"], "score": -0.3886384976525821},
-        {"sensitive": ["M", "ATA"], "score": -0.6516473472101043},
-        {"sensitive": ["F", "NAP"], "score": -0.7154309504827708},
-        {"sensitive": ["F", "TA"], "score": -0.7286384976525822},
-        {"sensitive": ["F", "ATA"], "score": -0.7619718309859155},
+        {"sensitive_group": ["M", "ASY"], "score": 0.3886384976525821},
+        {"sensitive_group": ["F", "ASY"], "score": -0.27149564050972497},
+        {"sensitive_group": ["M", "TA"], "score": -0.30086071987480434},
+        {"sensitive_group": ["M", "NAP"], "score": -0.3886384976525821},
+        {"sensitive_group": ["M", "ATA"], "score": -0.6516473472101043},
+        {"sensitive_group": ["F", "NAP"], "score": -0.7154309504827708},
+        {"sensitive_group": ["F", "TA"], "score": -0.7286384976525822},
+        {"sensitive_group": ["F", "ATA"], "score": -0.7619718309859155},
     ],
     True,
 ]
@@ -297,14 +297,14 @@ dpd_expected_result_6 = [
         "unprivileged_group": ["F", "ATA"],
     },
     [
-        {"sensitive": ["M", "ASY"], "score": 0.3886384976525821},
-        {"sensitive": ["F", "ASY"], "score": -0.27149564050972497},
-        {"sensitive": ["M", "TA"], "score": -0.30086071987480434},
-        {"sensitive": ["M", "NAP"], "score": -0.3886384976525821},
-        {"sensitive": ["M", "ATA"], "score": -0.6516473472101043},
-        {"sensitive": ["F", "NAP"], "score": -0.7154309504827708},
-        {"sensitive": ["F", "TA"], "score": -0.7286384976525822},
-        {"sensitive": ["F", "ATA"], "score": -0.7619718309859155},
+        {"sensitive_group": ["M", "ASY"], "score": 0.3886384976525821},
+        {"sensitive_group": ["F", "ASY"], "score": -0.27149564050972497},
+        {"sensitive_group": ["M", "TA"], "score": -0.30086071987480434},
+        {"sensitive_group": ["M", "NAP"], "score": -0.3886384976525821},
+        {"sensitive_group": ["M", "ATA"], "score": -0.6516473472101043},
+        {"sensitive_group": ["F", "NAP"], "score": -0.7154309504827708},
+        {"sensitive_group": ["F", "TA"], "score": -0.7286384976525822},
+        {"sensitive_group": ["F", "ATA"], "score": -0.7619718309859155},
     ],
     True,
 ]
@@ -355,7 +355,7 @@ dpr_expected_result_1 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    [{"sensitive": ["F"], "score": 0.4100957078534742}, {"sensitive": ["M"], "score": 2.4384551724137933}],
+    [{"sensitive_group": ["F"], "score": 0.4100957078534742}, {"sensitive_group": ["M"], "score": 2.4384551724137933}],
     pytest.raises(ValueError),
 ]
 
@@ -366,7 +366,7 @@ dpr_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    [{"sensitive": ["F"], "score": 0.4100957078534742}, {"sensitive": ["M"], "score": 2.4384551724137933}],
+    [{"sensitive_group": ["F"], "score": 0.4100957078534742}, {"sensitive_group": ["M"], "score": 2.4384551724137933}],
     False,
 ]
 
@@ -378,14 +378,14 @@ dpr_expected_result_3 = [
         "unprivileged_group": ["F", "ATA"],
     },
     [
-        {"sensitive": ["F", "ATA"], "score": 0.08045325779036827},
-        {"sensitive": ["F", "TA"], "score": 0.12067988668555243},
-        {"sensitive": ["F", "NAP"], "score": 0.1366187396440216},
-        {"sensitive": ["M", "ATA"], "score": 0.21359271979743788},
-        {"sensitive": ["M", "NAP"], "score": 0.5309915014164307},
-        {"sensitive": ["M", "TA"], "score": 0.6369216241737489},
-        {"sensitive": ["F", "ASY"], "score": 0.6723593686766491},
-        {"sensitive": ["M", "ASY"], "score": 1.8832693128467775},
+        {"sensitive_group": ["F", "ATA"], "score": 0.08045325779036827},
+        {"sensitive_group": ["F", "TA"], "score": 0.12067988668555243},
+        {"sensitive_group": ["F", "NAP"], "score": 0.1366187396440216},
+        {"sensitive_group": ["M", "ATA"], "score": 0.21359271979743788},
+        {"sensitive_group": ["M", "NAP"], "score": 0.5309915014164307},
+        {"sensitive_group": ["M", "TA"], "score": 0.6369216241737489},
+        {"sensitive_group": ["F", "ASY"], "score": 0.6723593686766491},
+        {"sensitive_group": ["M", "ASY"], "score": 1.8832693128467775},
     ],
     True,
 ]
@@ -398,14 +398,14 @@ dpr_expected_result_6 = [
         "unprivileged_group": ["F", "ATA"],
     },
     [
-        {"sensitive": ["F", "ATA"], "score": 0.08045325779036827},
-        {"sensitive": ["F", "TA"], "score": 0.12067988668555243},
-        {"sensitive": ["F", "NAP"], "score": 0.1366187396440216},
-        {"sensitive": ["M", "ATA"], "score": 0.21359271979743788},
-        {"sensitive": ["M", "NAP"], "score": 0.5309915014164307},
-        {"sensitive": ["M", "TA"], "score": 0.6369216241737489},
-        {"sensitive": ["F", "ASY"], "score": 0.6723593686766491},
-        {"sensitive": ["M", "ASY"], "score": 1.8832693128467775},
+        {"sensitive_group": ["F", "ATA"], "score": 0.08045325779036827},
+        {"sensitive_group": ["F", "TA"], "score": 0.12067988668555243},
+        {"sensitive_group": ["F", "NAP"], "score": 0.1366187396440216},
+        {"sensitive_group": ["M", "ATA"], "score": 0.21359271979743788},
+        {"sensitive_group": ["M", "NAP"], "score": 0.5309915014164307},
+        {"sensitive_group": ["M", "TA"], "score": 0.6369216241737489},
+        {"sensitive_group": ["F", "ASY"], "score": 0.6723593686766491},
+        {"sensitive_group": ["M", "ASY"], "score": 1.8832693128467775},
     ],
     True,
 ]
@@ -460,7 +460,7 @@ did_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    [{"sensitive": ["M"], "score": 0.3619581918885117}, {"sensitive": ["F"], "score": -0.3619581918885117}],
+    [{"sensitive_group": ["M"], "score": 0.3619581918885117}, {"sensitive_group": ["F"], "score": -0.3619581918885117}],
     True,
 ]
 
@@ -473,14 +473,14 @@ did_expected_result_3 = [
     },
     {
         "HeartDisease": [
-            {"sensitive": ["M", "ASY"], "score": 0.5350647912366394},
-            {"sensitive": ["F", "ASY"], "score": 0.26816817343458915},
-            {"sensitive": ["M", "TA"], "score": 0.2019550215071515},
-            {"sensitive": ["M", "NAP"], "score": 0.10163756118969114},
-            {"sensitive": ["M", "ATA"], "score": -0.19894398116176273},
-            {"sensitive": ["F", "TA"], "score": -0.28693386738173743},
-            {"sensitive": ["F", "ATA"], "score": -0.30598148642935646},
-            {"sensitive": ["F", "NAP"], "score": -0.31496621239521455},
+            {"sensitive_group": ["M", "ASY"], "score": 0.5350647912366394},
+            {"sensitive_group": ["F", "ASY"], "score": 0.26816817343458915},
+            {"sensitive_group": ["M", "TA"], "score": 0.2019550215071515},
+            {"sensitive_group": ["M", "NAP"], "score": 0.10163756118969114},
+            {"sensitive_group": ["M", "ATA"], "score": -0.19894398116176273},
+            {"sensitive_group": ["F", "TA"], "score": -0.28693386738173743},
+            {"sensitive_group": ["F", "ATA"], "score": -0.30598148642935646},
+            {"sensitive_group": ["F", "NAP"], "score": -0.31496621239521455},
         ]
     },
     pytest.raises(ValueError),
@@ -494,14 +494,14 @@ did_expected_result_6 = [
         "unprivileged_group": ["F", "NAP"],
     },
     [
-        {"sensitive": ["M", "ASY"], "score": 0.37924882629107975},
-        {"sensitive": ["F", "ASY"], "score": -0.23353454057679401},
-        {"sensitive": ["M", "TA"], "score": -0.29147104851330197},
-        {"sensitive": ["M", "NAP"], "score": -0.37924882629107975},
-        {"sensitive": ["M", "ATA"], "score": -0.6422576758486018},
-        {"sensitive": ["F", "TA"], "score": -0.7192488262910798},
-        {"sensitive": ["F", "ATA"], "score": -0.7359154929577464},
-        {"sensitive": ["F", "NAP"], "score": -0.7437771281778722},
+        {"sensitive_group": ["M", "ASY"], "score": 0.37924882629107975},
+        {"sensitive_group": ["F", "ASY"], "score": -0.23353454057679401},
+        {"sensitive_group": ["M", "TA"], "score": -0.29147104851330197},
+        {"sensitive_group": ["M", "NAP"], "score": -0.37924882629107975},
+        {"sensitive_group": ["M", "ATA"], "score": -0.6422576758486018},
+        {"sensitive_group": ["F", "TA"], "score": -0.7192488262910798},
+        {"sensitive_group": ["F", "ATA"], "score": -0.7359154929577464},
+        {"sensitive_group": ["F", "NAP"], "score": -0.7437771281778722},
     ],
     True,
 ]
@@ -556,7 +556,7 @@ dir_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    [{"sensitive": ["F"], "score": 0.4219830636141608}, {"sensitive": ["M"], "score": 2.369763353617309}],
+    [{"sensitive_group": ["F"], "score": 0.4219830636141608}, {"sensitive_group": ["M"], "score": 2.369763353617309}],
     False,
 ]
 
@@ -568,14 +568,14 @@ dir_expected_result_3 = [
         "unprivileged_group": ["F", "NAP"],
     },
     [
-        {"sensitive": ["F", "NAP"], "score": 0.09212304698059144},
-        {"sensitive": ["F", "ATA"], "score": 0.10171919770773638},
-        {"sensitive": ["F", "TA"], "score": 0.12206303724928369},
-        {"sensitive": ["M", "ATA"], "score": 0.21604077389253748},
-        {"sensitive": ["M", "NAP"], "score": 0.5370773638968481},
-        {"sensitive": ["M", "TA"], "score": 0.6442215854823304},
-        {"sensitive": ["F", "ASY"], "score": 0.7149406467458044},
-        {"sensitive": ["M", "ASY"], "score": 1.861929150661545},
+        {"sensitive_group": ["F", "NAP"], "score": 0.09212304698059144},
+        {"sensitive_group": ["F", "ATA"], "score": 0.10171919770773638},
+        {"sensitive_group": ["F", "TA"], "score": 0.12206303724928369},
+        {"sensitive_group": ["M", "ATA"], "score": 0.21604077389253748},
+        {"sensitive_group": ["M", "NAP"], "score": 0.5370773638968481},
+        {"sensitive_group": ["M", "TA"], "score": 0.6442215854823304},
+        {"sensitive_group": ["F", "ASY"], "score": 0.7149406467458044},
+        {"sensitive_group": ["M", "ASY"], "score": 1.861929150661545},
     ],
     True,
 ]
@@ -588,14 +588,14 @@ dir_expected_result_6 = [
         "unprivileged_group": ["F", "NAP"],
     },
     [
-        {"sensitive": ["F", "NAP"], "score": 0.09212304698059144},
-        {"sensitive": ["F", "ATA"], "score": 0.10171919770773638},
-        {"sensitive": ["F", "TA"], "score": 0.12206303724928369},
-        {"sensitive": ["M", "ATA"], "score": 0.21604077389253748},
-        {"sensitive": ["M", "NAP"], "score": 0.5370773638968481},
-        {"sensitive": ["M", "TA"], "score": 0.6442215854823304},
-        {"sensitive": ["F", "ASY"], "score": 0.7149406467458044},
-        {"sensitive": ["M", "ASY"], "score": 1.861929150661545},
+        {"sensitive_group": ["F", "NAP"], "score": 0.09212304698059144},
+        {"sensitive_group": ["F", "ATA"], "score": 0.10171919770773638},
+        {"sensitive_group": ["F", "TA"], "score": 0.12206303724928369},
+        {"sensitive_group": ["M", "ATA"], "score": 0.21604077389253748},
+        {"sensitive_group": ["M", "NAP"], "score": 0.5370773638968481},
+        {"sensitive_group": ["M", "TA"], "score": 0.6442215854823304},
+        {"sensitive_group": ["F", "ASY"], "score": 0.7149406467458044},
+        {"sensitive_group": ["M", "ASY"], "score": 1.861929150661545},
     ],
     True,
 ]
@@ -657,7 +657,7 @@ eod_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    [{"sensitive": ["M"], "score": 0.03816593886462882}, {"sensitive": ["F"], "score": -0.03816593886462882}],
+    [{"sensitive_group": ["M"], "score": 0.03816593886462882}, {"sensitive_group": ["F"], "score": -0.03816593886462882}],
     False,
 ]
 
@@ -669,14 +669,14 @@ eod_expected_result_3 = [
         "unprivileged_group": ["F", "NAP"],
     },
     [
-        {"sensitive": ["F", "ATA"], "score": 0.014164305949008527},
-        {"sensitive": ["F", "TA"], "score": 0.014164305949008527},
-        {"sensitive": ["M", "ASY"], "score": 0.0009872092025066115},
-        {"sensitive": ["M", "NAP"], "score": -0.0009872092025066115},
-        {"sensitive": ["F", "ASY"], "score": -0.011476719692017134},
-        {"sensitive": ["M", "ATA"], "score": -0.03583569405099152},
-        {"sensitive": ["M", "TA"], "score": -0.14373043089309678},
-        {"sensitive": ["F", "NAP"], "score": -0.31916902738432484},
+        {"sensitive_group": ["F", "ATA"], "score": 0.014164305949008527},
+        {"sensitive_group": ["F", "TA"], "score": 0.014164305949008527},
+        {"sensitive_group": ["M", "ASY"], "score": 0.0009872092025066115},
+        {"sensitive_group": ["M", "NAP"], "score": -0.0009872092025066115},
+        {"sensitive_group": ["F", "ASY"], "score": -0.011476719692017134},
+        {"sensitive_group": ["M", "ATA"], "score": -0.03583569405099152},
+        {"sensitive_group": ["M", "TA"], "score": -0.14373043089309678},
+        {"sensitive_group": ["F", "NAP"], "score": -0.31916902738432484},
     ],
     True,
 ]
@@ -689,14 +689,14 @@ eod_expected_result_6 = [
         "unprivileged_group": ["F", "NAP"],
     },
     [
-        {"sensitive": ["F", "ATA"], "score": 0.014164305949008527},
-        {"sensitive": ["F", "TA"], "score": 0.014164305949008527},
-        {"sensitive": ["M", "ASY"], "score": 0.0009872092025066115},
-        {"sensitive": ["M", "NAP"], "score": -0.0009872092025066115},
-        {"sensitive": ["F", "ASY"], "score": -0.011476719692017134},
-        {"sensitive": ["M", "ATA"], "score": -0.03583569405099152},
-        {"sensitive": ["M", "TA"], "score": -0.14373043089309678},
-        {"sensitive": ["F", "NAP"], "score": -0.31916902738432484},
+        {"sensitive_group": ["F", "ATA"], "score": 0.014164305949008527},
+        {"sensitive_group": ["F", "TA"], "score": 0.014164305949008527},
+        {"sensitive_group": ["M", "ASY"], "score": 0.0009872092025066115},
+        {"sensitive_group": ["M", "NAP"], "score": -0.0009872092025066115},
+        {"sensitive_group": ["F", "ASY"], "score": -0.011476719692017134},
+        {"sensitive_group": ["M", "ATA"], "score": -0.03583569405099152},
+        {"sensitive_group": ["M", "TA"], "score": -0.14373043089309678},
+        {"sensitive_group": ["F", "NAP"], "score": -0.31916902738432484},
     ],
     True,
 ]
@@ -738,7 +738,7 @@ def test_equal_opportunity_difference(
     expected_ranking = expected_result[1]
     assert len(rankings) == len(expected_ranking)
     for rank_item, expected_rank_item in zip(rankings, expected_ranking):
-        assert rank_item["sensitive"] == expected_rank_item["sensitive"]
+        assert rank_item["sensitive_group"] == expected_rank_item["sensitive_group"]
         if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
             assert np.isclose(rank_item["score"], expected_rank_item["score"])
     is_biased = eod.is_biased(threshold)
@@ -751,7 +751,7 @@ eor_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    [{"sensitive": ["F"], "score": 0.9609821428571428}, {"sensitive": ["M"], "score": 1.0406020626219457}],
+    [{"sensitive_group": ["F"], "score": 0.9609821428571428}, {"sensitive_group": ["M"], "score": 1.0406020626219457}],
     False,
 ]
 
@@ -763,14 +763,14 @@ eor_expected_result_3 = [
         "unprivileged_group": ["F", "NAP"],
     },
     [
-        {"sensitive": ["F", "NAP"], "score": 0.6762452107279693},
-        {"sensitive": ["M", "TA"], "score": 0.854204476709014},
-        {"sensitive": ["M", "ATA"], "score": 0.9636494252873564},
-        {"sensitive": ["F", "ASY"], "score": 0.9883583849101092},
-        {"sensitive": ["M", "NAP"], "score": 0.9989986067572275},
-        {"sensitive": ["M", "ASY"], "score": 1.0010023970363913},
-        {"sensitive": ["F", "ATA"], "score": 1.014367816091954},
-        {"sensitive": ["F", "TA"], "score": 1.014367816091954},
+        {"sensitive_group": ["F", "NAP"], "score": 0.6762452107279693},
+        {"sensitive_group": ["M", "TA"], "score": 0.854204476709014},
+        {"sensitive_group": ["M", "ATA"], "score": 0.9636494252873564},
+        {"sensitive_group": ["F", "ASY"], "score": 0.9883583849101092},
+        {"sensitive_group": ["M", "NAP"], "score": 0.9989986067572275},
+        {"sensitive_group": ["M", "ASY"], "score": 1.0010023970363913},
+        {"sensitive_group": ["F", "ATA"], "score": 1.014367816091954},
+        {"sensitive_group": ["F", "TA"], "score": 1.014367816091954},
     ],
     True,
 ]
@@ -783,14 +783,14 @@ eor_expected_result_6 = [
         "unprivileged_group": ["F", "NAP"],
     },
     [
-        {"sensitive": ["F", "NAP"], "score": 0.6762452107279693},
-        {"sensitive": ["M", "TA"], "score": 0.854204476709014},
-        {"sensitive": ["M", "ATA"], "score": 0.9636494252873564},
-        {"sensitive": ["F", "ASY"], "score": 0.9883583849101092},
-        {"sensitive": ["M", "NAP"], "score": 0.9989986067572275},
-        {"sensitive": ["M", "ASY"], "score": 1.0010023970363913},
-        {"sensitive": ["F", "ATA"], "score": 1.014367816091954},
-        {"sensitive": ["F", "TA"], "score": 1.014367816091954},
+        {"sensitive_group": ["F", "NAP"], "score": 0.6762452107279693},
+        {"sensitive_group": ["M", "TA"], "score": 0.854204476709014},
+        {"sensitive_group": ["M", "ATA"], "score": 0.9636494252873564},
+        {"sensitive_group": ["F", "ASY"], "score": 0.9883583849101092},
+        {"sensitive_group": ["M", "NAP"], "score": 0.9989986067572275},
+        {"sensitive_group": ["M", "ASY"], "score": 1.0010023970363913},
+        {"sensitive_group": ["F", "ATA"], "score": 1.014367816091954},
+        {"sensitive_group": ["F", "TA"], "score": 1.014367816091954},
     ],
     True,
 ]
@@ -839,7 +839,7 @@ def test_equal_opportuinity_ratio(
         expected_ranking = expected_result[1]
         assert len(rankings) == len(expected_ranking)
         for rank_item, expected_rank_item in zip(rankings, expected_ranking):
-            assert rank_item["sensitive"] == expected_rank_item["sensitive"]
+            assert rank_item["sensitive_group"] == expected_rank_item["sensitive_group"]
             if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
                 assert np.isclose(rank_item["score"], expected_rank_item["score"])
         is_biased = eor.is_biased(threshold)
@@ -852,7 +852,7 @@ def test_equal_opportuinity_ratio(
 
 performancemetrics_expected_result_2 = [
     {
-        "sensitive": np.array(["M"], dtype=object),
+        "sensitive_group": np.array(["M"], dtype=object),
         "accuracy": [0.9779310344827586],
         "balanced accuracy": [0.9778470143761346],
         "precision": [0.986784140969163],
@@ -860,7 +860,7 @@ performancemetrics_expected_result_2 = [
         "f1-score": [0.9824561403508771],
     },
     {
-        "sensitive": np.array(["F"], dtype=object),
+        "sensitive_group": np.array(["F"], dtype=object),
         "accuracy": [0.9637305699481865],
         "balanced accuracy": [0.956013986013986],
         "precision": [0.9215686274509803],
@@ -872,42 +872,42 @@ performancemetrics_expected_result_2 = [
 
 performancemetrics_expected_result_3 = [
     {
-        "sensitive": np.array(["M", "ASY"], dtype=object),
+        "sensitive_group": np.array(["M", "ASY"], dtype=object),
         "acc": [0.9859154929577465],
         "balanced_acc": [0.9860685319570026],
     },
     {
-        "sensitive": np.array(["M", "NAP"], dtype=object),
+        "sensitive_group": np.array(["M", "NAP"], dtype=object),
         "acc": [0.9866666666666667],
         "balanced_acc": [0.9864718614718615],
     },
     {
-        "sensitive": np.array(["M", "ATA"], dtype=object),
+        "sensitive_group": np.array(["M", "ATA"], dtype=object),
         "acc": [0.9823008849557522],
         "balanced_acc": [0.9696236559139785],
     },
     {
-        "sensitive": np.array(["F", "ASY"], dtype=object),
+        "sensitive_group": np.array(["F", "ASY"], dtype=object),
         "acc": [0.9428571428571428],
         "balanced_acc": [0.9387923904052936],
     },
     {
-        "sensitive": np.array(["F", "ATA"], dtype=object),
+        "sensitive_group": np.array(["F", "ATA"], dtype=object),
         "acc": [0.9833333333333333],
         "balanced_acc": [0.9910714285714286],
     },
     {
-        "sensitive": np.array(["F", "NAP"], dtype=object),
+        "sensitive_group": np.array(["F", "NAP"], dtype=object),
         "acc": [0.9622641509433962],
         "balanced_acc": [0.8333333333333333],
     },
     {
-        "sensitive": np.array(["M", "TA"], dtype=object),
+        "sensitive_group": np.array(["M", "TA"], dtype=object),
         "acc": [0.8333333333333334],
         "balanced_acc": [0.8328173374613003],
     },
     {
-        "sensitive": np.array(["F", "TA"], dtype=object),
+        "sensitive_group": np.array(["F", "TA"], dtype=object),
         "acc": [1.0],
         "balanced_acc": [1.0],
     },
@@ -916,7 +916,7 @@ performancemetrics_expected_result_3 = [
 
 performancemetrics_expected_result_6 = [
     {
-        "sensitive": np.array(["M", "ASY"], dtype=object),
+        "sensitive_group": np.array(["M", "ASY"], dtype=object),
         "precision_score": [0.997134670487106],
         "recall_score": [
             0.9858356940509915,
@@ -926,7 +926,7 @@ performancemetrics_expected_result_6 = [
         ],
     },
     {
-        "sensitive": np.array(["M", "NAP"], dtype=object),
+        "sensitive_group": np.array(["M", "NAP"], dtype=object),
         "precision_score": [
             0.9848484848484849,
         ],
@@ -938,7 +938,7 @@ performancemetrics_expected_result_6 = [
         ],
     },
     {
-        "sensitive": np.array(["M", "ATA"], dtype=object),
+        "sensitive_group": np.array(["M", "ATA"], dtype=object),
         "precision_score": [
             0.95,
         ],
@@ -950,7 +950,7 @@ performancemetrics_expected_result_6 = [
         ],
     },
     {
-        "sensitive": np.array(["F", "ASY"], dtype=object),
+        "sensitive_group": np.array(["F", "ASY"], dtype=object),
         "precision_score": [
             0.926829268292683,
         ],
@@ -962,25 +962,25 @@ performancemetrics_expected_result_6 = [
         ],
     },
     {
-        "sensitive": np.array(["F", "ATA"], dtype=object),
+        "sensitive_group": np.array(["F", "ATA"], dtype=object),
         "precision_score": [0.8],
         "recall_score": [1.0],
         "f1_score": [0.8888888888888888],
     },
     {
-        "sensitive": np.array(["F", "NAP"], dtype=object),
+        "sensitive_group": np.array(["F", "NAP"], dtype=object),
         "precision_score": [1.0],
         "recall_score": [0.6666666666666666],
         "f1_score": [0.8],
     },
     {
-        "sensitive": np.array(["M", "TA"], dtype=object),
+        "sensitive_group": np.array(["M", "TA"], dtype=object),
         "precision_score": [0.8421052631578947],
         "recall_score": [0.8421052631578947],
         "f1_score": [0.8421052631578947],
     },
     {
-        "sensitive": np.array(["F", "TA"], dtype=object),
+        "sensitive_group": np.array(["F", "TA"], dtype=object),
         "precision_score": [1.0],
         "recall_score": [1.0],
         "f1_score": [1.0],
@@ -994,7 +994,7 @@ performancemetrics_expected_result_6 = [
         (dataset1, None, pytest.raises(ValueError)),
         (
             dataset2,
-            {"sensitive": f1_score},
+            {"sensitive_group": f1_score},
             pytest.raises(KeyError),
         ),
         (
@@ -1050,7 +1050,7 @@ eod_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    [{"sensitive": ["M"], "score": 0.03816593886462882}, {"sensitive": ["F"], "score": -0.03816593886462882}],
+    [{"sensitive_group": ["M"], "score": 0.03816593886462882}, {"sensitive_group": ["F"], "score": -0.03816593886462882}],
     False,
 ]
 
@@ -1062,14 +1062,14 @@ eod_expected_result_3 = [
         "unprivileged_group": ["F", "NAP"],
     },
     [
-        {"sensitive": ["F", "TA"], "score": 0.10053586843924016},
-        {"sensitive": ["F", "ATA"], "score": 0.09033178680658709},
-        {"sensitive": ["M", "NAP"], "score": 0.08199377127623639},
-        {"sensitive": ["M", "ASY"], "score": 0.08153282325925479},
-        {"sensitive": ["M", "ATA"], "score": 0.05205550855335028},
-        {"sensitive": ["F", "ASY"], "score": 0.0014697534603408588},
-        {"sensitive": ["M", "TA"], "score": -0.16240914536313006},
-        {"sensitive": ["F", "NAP"], "score": -0.24551036643187954},
+        {"sensitive_group": ["F", "TA"], "score": 0.10053586843924016},
+        {"sensitive_group": ["F", "ATA"], "score": 0.09033178680658709},
+        {"sensitive_group": ["M", "NAP"], "score": 0.08199377127623639},
+        {"sensitive_group": ["M", "ASY"], "score": 0.08153282325925479},
+        {"sensitive_group": ["M", "ATA"], "score": 0.05205550855335028},
+        {"sensitive_group": ["F", "ASY"], "score": 0.0014697534603408588},
+        {"sensitive_group": ["M", "TA"], "score": -0.16240914536313006},
+        {"sensitive_group": ["F", "NAP"], "score": -0.24551036643187954},
     ],
     True,
 ]
@@ -1082,14 +1082,14 @@ eod_expected_result_6 = [
         "unprivileged_group": ["F", "NAP"],
     },
     [
-        {"sensitive": ["F", "TA"], "score": 0.10053586843924016},
-        {"sensitive": ["F", "ATA"], "score": 0.09033178680658709},
-        {"sensitive": ["M", "NAP"], "score": 0.08199377127623639},
-        {"sensitive": ["M", "ASY"], "score": 0.08153282325925479},
-        {"sensitive": ["M", "ATA"], "score": 0.05205550855335028},
-        {"sensitive": ["F", "ASY"], "score": 0.0014697534603408588},
-        {"sensitive": ["M", "TA"], "score": -0.16240914536313006},
-        {"sensitive": ["F", "NAP"], "score": -0.24551036643187954},
+        {"sensitive_group": ["F", "TA"], "score": 0.10053586843924016},
+        {"sensitive_group": ["F", "ATA"], "score": 0.09033178680658709},
+        {"sensitive_group": ["M", "NAP"], "score": 0.08199377127623639},
+        {"sensitive_group": ["M", "ASY"], "score": 0.08153282325925479},
+        {"sensitive_group": ["M", "ATA"], "score": 0.05205550855335028},
+        {"sensitive_group": ["F", "ASY"], "score": 0.0014697534603408588},
+        {"sensitive_group": ["M", "TA"], "score": -0.16240914536313006},
+        {"sensitive_group": ["F", "NAP"], "score": -0.24551036643187954},
     ],
     True,
 ]
@@ -1123,7 +1123,7 @@ def test_equalised_odds_difference(
     expected_ranking = expected_result[1]
     assert len(rankings) == len(expected_ranking)
     for rank_item, expected_rank_item in zip(rankings, expected_ranking):
-        assert rank_item["sensitive"] == expected_rank_item["sensitive"]
+        assert rank_item["sensitive_group"] == expected_rank_item["sensitive_group"]
         if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
             assert np.isclose(rank_item["score"], expected_rank_item["score"])
     is_biased = eod.is_biased(threshold)
@@ -1136,7 +1136,7 @@ eor_expected_result_2 = [
         "privileged_group": ["M"],
         "unprivileged_group": ["F"],
     },
-    [{"sensitive": ["M"], "score": 0.8033707865168539}, {"sensitive": ["F"], "score": 1.2447552447552448}],
+    [{"sensitive_group": ["M"], "score": 0.8033707865168539}, {"sensitive_group": ["F"], "score": 1.2447552447552448}],
     False,
 ]
 
@@ -1148,14 +1148,14 @@ eor_expected_result_3 = [
         "unprivileged_group": ["M", "ASY"],
     },
     [
-        {"sensitive": ["F", "TA"], "score": np.nan},
-        {"sensitive": ["M", "ASY"], "score": np.nan},
-        {"sensitive": ["M", "NAP"], "score": np.nan},
-        {"sensitive": ["M", "ATA"], "score": np.nan},
-        {"sensitive": ["F", "ASY"], "score": np.nan},
-        {"sensitive": ["F", "ATA"], "score": np.nan},
-        {"sensitive": ["F", "NAP"], "score": np.nan},
-        {"sensitive": ["M", "TA"], "score": np.nan},
+        {"sensitive_group": ["F", "TA"], "score": np.nan},
+        {"sensitive_group": ["M", "ASY"], "score": np.nan},
+        {"sensitive_group": ["M", "NAP"], "score": np.nan},
+        {"sensitive_group": ["M", "ATA"], "score": np.nan},
+        {"sensitive_group": ["F", "ASY"], "score": np.nan},
+        {"sensitive_group": ["F", "ATA"], "score": np.nan},
+        {"sensitive_group": ["F", "NAP"], "score": np.nan},
+        {"sensitive_group": ["M", "TA"], "score": np.nan},
     ],
     True,
 ]
@@ -1167,14 +1167,14 @@ eor_expected_result_6 = [
         "unprivileged_group": ["M", "ASY"],
     },
     [
-        {"sensitive": ["F", "TA"], "score": np.nan},
-        {"sensitive": ["M", "ASY"], "score": np.nan},
-        {"sensitive": ["M", "NAP"], "score": np.nan},
-        {"sensitive": ["M", "ATA"], "score": np.nan},
-        {"sensitive": ["F", "ASY"], "score": np.nan},
-        {"sensitive": ["F", "ATA"], "score": np.nan},
-        {"sensitive": ["F", "NAP"], "score": np.nan},
-        {"sensitive": ["M", "TA"], "score": np.nan},
+        {"sensitive_group": ["F", "TA"], "score": np.nan},
+        {"sensitive_group": ["M", "ASY"], "score": np.nan},
+        {"sensitive_group": ["M", "NAP"], "score": np.nan},
+        {"sensitive_group": ["M", "ATA"], "score": np.nan},
+        {"sensitive_group": ["F", "ASY"], "score": np.nan},
+        {"sensitive_group": ["F", "ATA"], "score": np.nan},
+        {"sensitive_group": ["F", "NAP"], "score": np.nan},
+        {"sensitive_group": ["M", "TA"], "score": np.nan},
     ],
     True,
 ]
@@ -1214,7 +1214,7 @@ def test_equalised_odds_ratio(
         expected_ranking = expected_result[1]
         assert len(rankings) == len(expected_ranking)
         for rank_item, expected_rank_item in zip(rankings, expected_ranking):
-            assert rank_item["sensitive"] == expected_rank_item["sensitive"]
+            assert rank_item["sensitive_group"] == expected_rank_item["sensitive_group"]
             if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
                 assert np.isclose(rank_item["score"], expected_rank_item["score"])
         if threshold is None:

@@ -101,11 +101,11 @@ class SelectionRate(Metric):
             ['real_target_1'],
             [
                 {
-                    'sensitive': array(['male'], dtype=object),
+                    'sensitive_group': array(['male'], dtype=object),
                     'result': array(0.33333333)
                 },
                 {
-                    'sensitive': array(['female'], dtype=object),
+                    'sensitive_group': array(['female'], dtype=object),
                     'result': array(0.5)
                 }
             ]
@@ -126,19 +126,19 @@ class SelectionRate(Metric):
             ['predicted_target_1'],
             [
                 {
-                    'sensitive': array(['male', 'black'], dtype=object),
+                    'sensitive_group': array(['male', 'black'], dtype=object),
                     'result': array(0.)
                 },
                 {
-                    'sensitive': array(['female', 'black'], dtype=object),
+                    'sensitive_group': array(['female', 'black'], dtype=object),
                     'result': array(1.)
                 },
                 {
-                    'sensitive': array(['female', 'white'], dtype=object),
+                    'sensitive_group': array(['female', 'white'], dtype=object),
                     'result': array(1.)
                 },
                 {
-                    'sensitive': array(['male', 'white'], dtype=object),
+                    'sensitive_group': array(['male', 'white'], dtype=object),
                     'result': array(0.)
                 }
             ]
@@ -159,11 +159,11 @@ class SelectionRate(Metric):
             ['real_target_1', 'real_target_2'],
             [
                 {
-                    'sensitive': array(['black'], dtype=object),
+                    'sensitive_group': array(['black'], dtype=object),
                     'result': array([0.33333333, 0.66666667])
                 },
                 {
-                    'sensitive': array(['white'], dtype=object),
+                    'sensitive_group': array(['white'], dtype=object),
                     'result': array([0.5, 0.5])
                 }
             ]
@@ -186,9 +186,9 @@ class SelectionRate(Metric):
 
         result = []
         for group in target_by_group:
-            group_sensitive = group["sensitive"]
+            group_sensitive = group["sensitive_group"]
             y_group = group["data"]
-            result.append({"sensitive": group_sensitive, "data": float(y_group.mean())})
+            result.append({"sensitive_group": group_sensitive, "data": float(y_group.mean())})
 
         return result
 
@@ -232,7 +232,7 @@ class ConfusionMatrix(Metric):
     ValueError
         If the predictions column is not provided.
     KeyError
-        If the key of a metric is 'sensitive' which is already reserved
+        If the key of a metric is 'sensitive_group' which is already reserved
         to the sensitive groups.
     """
 
@@ -255,8 +255,8 @@ class ConfusionMatrix(Metric):
                 "true_positive_rate": true_positive_rate,
             }
         elif isinstance(metrics, dict):
-            if "sensitive" in metrics:
-                msg = "Cannot use 'sensitive' as a key for metrics"
+            if "sensitive_group" in metrics:
+                msg = "Cannot use 'sensitive_group' as a key for metrics"
                 raise KeyError(msg)
             self.metrics = metrics
         else:
@@ -310,14 +310,14 @@ class ConfusionMatrix(Metric):
             ['real_target_1'],
             [
                 {
-                    'sensitive': array(['male'], dtype=object),
+                    'sensitive_group': array(['male'], dtype=object),
                     'false_negative_rate': [1.0],
                     'false_positive_rate': [0.0],
                     'true_negative_rate': [1.0],
                     'true_positive_rate': [0.0]
                 },
                 {
-                    'sensitive': array(['female'], dtype=object),
+                    'sensitive_group': array(['female'], dtype=object),
                     'false_negative_rate': [0.0],
                     'false_positive_rate': [1.0],
                     'true_negative_rate': [0.0],
@@ -341,11 +341,11 @@ class ConfusionMatrix(Metric):
             ['real_target_1'],
             [
                 {
-                    'sensitive': array(['male'], dtype=object),
+                    'sensitive_group': array(['male'], dtype=object),
                     'true_negative_rate': [1.0]
                 },
                 {
-                    'sensitive': array(['female'], dtype=object),
+                    'sensitive_group': array(['female'], dtype=object),
                     'true_negative_rate': [0.0]
                 }
             ]
@@ -362,12 +362,12 @@ class ConfusionMatrix(Metric):
             ['real_target_1'],
             [
                 {
-                    'sensitive': array(['male'], dtype=object),
+                    'sensitive_group': array(['male'], dtype=object),
                     'tpr': [0.0],
                     'tnr': [1.0]
                 },
                 {
-                    'sensitive': array(['female'], dtype=object),
+                    'sensitive_group': array(['female'], dtype=object),
                     'tpr': [1.0],
                     'tnr': [0.0]
                 }
@@ -378,10 +378,10 @@ class ConfusionMatrix(Metric):
         for real_group, predicted_group in zip(
             self.real_target_by_group, self.predicted_target_by_group
         ):
-            group_sensitive = real_group["sensitive"]
+            group_sensitive = real_group["sensitive_group"]
             real_values = real_group["data"]
             predicted_values = predicted_group["data"]
-            result_for_group: dict[str, Any] = {"sensitive": np.array(group_sensitive)}
+            result_for_group: dict[str, Any] = {"sensitive_group": np.array(group_sensitive)}
 
             conf_matrix = confusion_matrix(real_values, predicted_values, labels=[0, 1])
             tn = conf_matrix[0, 0]
@@ -429,7 +429,7 @@ class PerformanceMetric(Metric):
     ValueError
         If the predictions column is not provided.
     KeyError
-        If the key of a metric is 'sensitive' which is already reserved
+        If the key of a metric is 'sensitive_group' which is already reserved
         to the sensitive groups.
     """
 
@@ -454,8 +454,8 @@ class PerformanceMetric(Metric):
                 "f1-score": f1_score,
             }
         elif isinstance(metrics, dict):
-            if "sensitive" in metrics:
-                msg = "Cannot use 'sensitive' as a key for metrics"
+            if "sensitive_group" in metrics:
+                msg = "Cannot use 'sensitive_group' as a key for metrics"
                 raise KeyError(msg)
             self.metrics = metrics
         else:
@@ -511,7 +511,7 @@ class PerformanceMetric(Metric):
             ['real_target_1'],
             [
                 {
-                    'sensitive': array(['male'], dtype=object),
+                    'sensitive_group': array(['male'], dtype=object),
                     'accuracy': [0.6666666666666666],
                     'balanced accuracy': [0.5],
                     'precision': [0.0],
@@ -519,7 +519,7 @@ class PerformanceMetric(Metric):
                     'f1-score': [0.0]
                 },
                 {
-                    'sensitive': array(['female'], dtype=object),
+                    'sensitive_group': array(['female'], dtype=object),
                     'accuracy': [0.5],
                     'balanced accuracy': [0.5],
                     'precision': [0.5],
@@ -544,11 +544,11 @@ class PerformanceMetric(Metric):
             ['real_target_1'],
             [
                 {
-                    'sensitive': array(['male'], dtype=object),
+                    'sensitive_group': array(['male'], dtype=object),
                     'f1_score': [0.0]
                 },
                 {
-                    'sensitive': array(['female'], dtype=object),
+                    'sensitive_group': array(['female'], dtype=object),
                     'f1_score': [0.6666666666666666]
                 }
             ]
@@ -565,12 +565,12 @@ class PerformanceMetric(Metric):
             ['real_target_1'],
             [
                 {
-                    'sensitive': array(['male'], dtype=object),
+                    'sensitive_group': array(['male'], dtype=object),
                     'acc': [0.6666666666666666],
                     'bal_acc': [0.5]
                 },
                 {
-                    'sensitive': array(['female'], dtype=object),
+                    'sensitive_group': array(['female'], dtype=object),
                     'acc': [0.5],
                     'bal_acc': [0.5]
                 }
@@ -581,10 +581,10 @@ class PerformanceMetric(Metric):
         for real_group, predicted_group in zip(
             self.real_target_by_group, self.predicted_target_by_group
         ):
-            group_sensitive = real_group["sensitive"]
+            group_sensitive = real_group["sensitive_group"]
             real_values = real_group["data"]
             predicted_values = predicted_group["data"]
-            result_for_group: dict[str, Any] = {"sensitive": np.array(group_sensitive)}
+            result_for_group: dict[str, Any] = {"sensitive_group": np.array(group_sensitive)}
 
             for metric_name, metric in self.metrics.items():
                 result_for_group[metric_name] = [
@@ -1318,7 +1318,7 @@ class EqualisedOddsDifference:
         Returns
         -------
         list[dict]
-            List of ranking dictionaries with 'sensitive' and 'score' keys.
+            List of ranking dictionaries with 'sensitive_group' and 'score' keys.
         """
         result: dict = {}
         ranking: dict = {}
@@ -1356,7 +1356,7 @@ class EqualisedOddsDifference:
         ranking_list = []
         for group_tuple, score in ranking.items():
             ranking_list.append({
-                "sensitive": list(group_tuple),
+                "sensitive_group": list(group_tuple),
                 "score": float(score)
             })
         
@@ -1554,7 +1554,7 @@ class EqualisedOddsRatio:
         Returns
         -------
         list[dict]
-            List of ranking dictionaries with 'sensitive' and 'score' keys.
+            List of ranking dictionaries with 'sensitive_group' and 'score' keys.
         """
         result: dict = {}
         ranking: dict = {}
@@ -1608,7 +1608,7 @@ class EqualisedOddsRatio:
         ranking_list = []
         for group_tuple, ratio in ranking.items():
             ranking_list.append({
-                "sensitive": list(group_tuple),
+                "sensitive_group": list(group_tuple),
                 "score": float(ratio)
             })
 
