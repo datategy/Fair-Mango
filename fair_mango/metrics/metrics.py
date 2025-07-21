@@ -1307,8 +1307,8 @@ class EqualisedOddsDifference:
 
         return {
             self.label: self.result[target][self.label],
-            "privileged_group": self.result[target]["privileged"],
-            "unprivileged_group": self.result[target]["unprivileged"],
+            "privileged_sensitive_group": self.result[target]["privileged"],
+            "unprivileged_sensitive_group": self.result[target]["unprivileged"],
         }
 
     def rank(self) -> list[dict]:
@@ -1543,8 +1543,8 @@ class EqualisedOddsRatio:
 
         return {
             self.label: self.result[target][self.label],
-            "privileged_group": self.result[target]["privileged"],
-            "unprivileged_group": self.result[target]["unprivileged"],
+            "privileged_sensitive_group": self.result[target]["privileged"],
+            "unprivileged_sensitive_group": self.result[target]["unprivileged"],
         }
 
     def rank(self) -> list[dict]:
