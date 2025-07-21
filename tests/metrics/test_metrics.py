@@ -135,7 +135,7 @@ def test_selectionrate(
         result = sr()
         for i, res in enumerate(result):
             assert res["sensitive"] == expected_groups[i]
-            assert np.isclose(res["result"], expected_result[i])
+            assert np.isclose(res["data"], expected_result[i])
     else:
         with expected_result:
             sr = SelectionRate(data, use_y_true)

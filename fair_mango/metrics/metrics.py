@@ -187,8 +187,8 @@ class SelectionRate(Metric):
         result = []
         for group in target_by_group:
             group_sensitive = group["sensitive"]
-            y_group = group["result"]
-            result.append({"sensitive": group_sensitive, "result": float(y_group.mean())})
+            y_group = group["data"]
+            result.append({"sensitive": group_sensitive, "data": float(y_group.mean())})
 
         return result
 
@@ -379,8 +379,8 @@ class ConfusionMatrix(Metric):
             self.real_target_by_group, self.predicted_target_by_group
         ):
             group_sensitive = real_group["sensitive"]
-            real_values = real_group["result"]
-            predicted_values = predicted_group["result"]
+            real_values = real_group["data"]
+            predicted_values = predicted_group["data"]
             result_for_group: dict[str, Any] = {"sensitive": np.array(group_sensitive)}
 
             conf_matrix = confusion_matrix(real_values, predicted_values, labels=[0, 1])
@@ -582,8 +582,8 @@ class PerformanceMetric(Metric):
             self.real_target_by_group, self.predicted_target_by_group
         ):
             group_sensitive = real_group["sensitive"]
-            real_values = real_group["result"]
-            predicted_values = predicted_group["result"]
+            real_values = real_group["data"]
+            predicted_values = predicted_group["data"]
             result_for_group: dict[str, Any] = {"sensitive": np.array(group_sensitive)}
 
             for metric_name, metric in self.metrics.items():
@@ -808,7 +808,7 @@ class EqualOpportunityDifference(FairnessMetricDifference):
             data,
             ConfusionMatrix,
             "performance",
-            **{"metrics": {"result": true_positive_rate}, "label": label},
+            **{"metrics": {"data": true_positive_rate}, "label": label},
         )
 
 
@@ -882,7 +882,7 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
             data,
             ConfusionMatrix,
             "error",
-            **{"metrics": {"result": false_positive_rate}, "label": label},
+            **{"metrics": {"data": false_positive_rate}, "label": label},
         )
 
 
@@ -1092,7 +1092,7 @@ class EqualOpportunityRatio(FairnessMetricRatio):
             data,
             ConfusionMatrix,
             "performance",
-            **{"metrics": {"result": true_positive_rate}, "label": label},
+            **{"metrics": {"data": true_positive_rate}, "label": label},
         )
 
 
@@ -1165,7 +1165,7 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
             data,
             ConfusionMatrix,
             "error",
-            **{"metrics": {"result": false_positive_rate}, "label": label},
+            **{"metrics": {"data": false_positive_rate}, "label": label},
         )
 
 

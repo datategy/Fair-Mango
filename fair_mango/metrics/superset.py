@@ -419,9 +419,9 @@ class SupersetPerformanceMetrics(Superset):
                 use_y_true=True,
             )()
             
-            # Rename "result" key to "selection_rate_in_data" for each group
+            # Rename "data" key to "selection_rate_in_data" for each group
             for group_result in concatenated_results:
-                group_result["selection_rate_in_data"] = group_result.pop("result")
+                group_result["selection_rate_in_data"] = group_result.pop("data")
 
             for metric in self.metrics:
                 if metric is SelectionRate:
@@ -431,9 +431,9 @@ class SupersetPerformanceMetrics(Superset):
                         use_y_true=False,
                     )()
                     
-                    # Rename "result" key to "selection_rate_in_predictions"
+                    # Rename "data" key to "selection_rate_in_predictions"
                     for group_result in result:
-                        group_result["selection_rate_in_predictions"] = group_result.pop("result")
+                        group_result["selection_rate_in_predictions"] = group_result.pop("data")
                         
                 else:
                     result = metric(dataset)()
@@ -444,7 +444,7 @@ class SupersetPerformanceMetrics(Superset):
             results.append(
                 {
                     "sensitive": pair,
-                    "result": concatenated_results,
+                    "data": concatenated_results,
                 }
             )
 

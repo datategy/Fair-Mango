@@ -225,8 +225,8 @@ def calculate_disparity(
         grp_i = list(map(str, rec_i["sensitive"]))  
         grp_j = list(map(str, rec_j["sensitive"]))
 
-        data_i = rec_i["result"]
-        data_j = rec_j["result"]
+        data_i = rec_i["data"]
+        data_j = rec_j["data"]
 
         def _to_float(x: Any) -> float:
             if isinstance(x, pd.Series):
