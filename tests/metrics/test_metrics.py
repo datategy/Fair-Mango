@@ -227,7 +227,7 @@ confusionmatrix_expected_result_6 = [
         (dataset3, {"fpr": false_positive_rate}, confusionmatrix_expected_result_3),
         (
             dataset6,
-            [true_negative_rate, false_negative_rate], 
+            [true_negative_rate, false_negative_rate],
             confusionmatrix_expected_result_6,
         ),
     ],
@@ -265,7 +265,10 @@ dpd_expected_result_2 = [
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
-    [{"sensitive_group": ["M"], "score": 0.3726567804180811}, {"sensitive_group": ["F"], "score": -0.3726567804180811}],
+    [
+        {"sensitive_group": ["M"], "score": 0.3726567804180811},
+        {"sensitive_group": ["F"], "score": -0.3726567804180811},
+    ],
     True,
 ]
 
@@ -355,7 +358,10 @@ dpr_expected_result_1 = [
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
-    [{"sensitive_group": ["F"], "score": 0.4100957078534742}, {"sensitive_group": ["M"], "score": 2.4384551724137933}],
+    [
+        {"sensitive_group": ["F"], "score": 0.4100957078534742},
+        {"sensitive_group": ["M"], "score": 2.4384551724137933},
+    ],
     pytest.raises(ValueError),
 ]
 
@@ -366,7 +372,10 @@ dpr_expected_result_2 = [
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
-    [{"sensitive_group": ["F"], "score": 0.4100957078534742}, {"sensitive_group": ["M"], "score": 2.4384551724137933}],
+    [
+        {"sensitive_group": ["F"], "score": 0.4100957078534742},
+        {"sensitive_group": ["M"], "score": 2.4384551724137933},
+    ],
     False,
 ]
 
@@ -460,7 +469,10 @@ did_expected_result_2 = [
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
-    [{"sensitive_group": ["M"], "score": 0.3619581918885117}, {"sensitive_group": ["F"], "score": -0.3619581918885117}],
+    [
+        {"sensitive_group": ["M"], "score": 0.3619581918885117},
+        {"sensitive_group": ["F"], "score": -0.3619581918885117},
+    ],
     True,
 ]
 
@@ -556,7 +568,10 @@ dir_expected_result_2 = [
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
-    [{"sensitive_group": ["F"], "score": 0.4219830636141608}, {"sensitive_group": ["M"], "score": 2.369763353617309}],
+    [
+        {"sensitive_group": ["F"], "score": 0.4219830636141608},
+        {"sensitive_group": ["M"], "score": 2.369763353617309},
+    ],
     False,
 ]
 
@@ -657,7 +672,10 @@ eod_expected_result_2 = [
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
-    [{"sensitive_group": ["M"], "score": 0.03816593886462882}, {"sensitive_group": ["F"], "score": -0.03816593886462882}],
+    [
+        {"sensitive_group": ["M"], "score": 0.03816593886462882},
+        {"sensitive_group": ["F"], "score": -0.03816593886462882},
+    ],
     False,
 ]
 
@@ -751,7 +769,10 @@ eor_expected_result_2 = [
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
-    [{"sensitive_group": ["F"], "score": 0.9609821428571428}, {"sensitive_group": ["M"], "score": 1.0406020626219457}],
+    [
+        {"sensitive_group": ["F"], "score": 0.9609821428571428},
+        {"sensitive_group": ["M"], "score": 1.0406020626219457},
+    ],
     False,
 ]
 
@@ -840,7 +861,9 @@ def test_equal_opportuinity_ratio(
         assert len(rankings) == len(expected_ranking)
         for rank_item, expected_rank_item in zip(rankings, expected_ranking):
             assert rank_item["sensitive_group"] == expected_rank_item["sensitive_group"]
-            if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
+            if not (
+                np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])
+            ):
                 assert np.isclose(rank_item["score"], expected_rank_item["score"])
         is_biased = eor.is_biased(threshold)
         assert is_biased == expected_result[2]
@@ -1050,7 +1073,10 @@ eod_expected_result_2 = [
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
-    [{"sensitive_group": ["M"], "score": 0.03816593886462882}, {"sensitive_group": ["F"], "score": -0.03816593886462882}],
+    [
+        {"sensitive_group": ["M"], "score": 0.03816593886462882},
+        {"sensitive_group": ["F"], "score": -0.03816593886462882},
+    ],
     False,
 ]
 
@@ -1136,7 +1162,10 @@ eor_expected_result_2 = [
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
-    [{"sensitive_group": ["M"], "score": 0.8033707865168539}, {"sensitive_group": ["F"], "score": 1.2447552447552448}],
+    [
+        {"sensitive_group": ["M"], "score": 0.8033707865168539},
+        {"sensitive_group": ["F"], "score": 1.2447552447552448},
+    ],
     False,
 ]
 
@@ -1215,7 +1244,9 @@ def test_equalised_odds_ratio(
         assert len(rankings) == len(expected_ranking)
         for rank_item, expected_rank_item in zip(rankings, expected_ranking):
             assert rank_item["sensitive_group"] == expected_rank_item["sensitive_group"]
-            if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
+            if not (
+                np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])
+            ):
                 assert np.isclose(rank_item["score"], expected_rank_item["score"])
         if threshold is None:
             is_biased = eor.is_biased()
