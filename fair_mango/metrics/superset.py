@@ -44,7 +44,7 @@ class Superset(ABC):
     Raises
     ------
     AttributeError
-        If data is a pandas dataframe and 'sensitive' parameter is not provided.
+        If data is a pandas dataframe and 'sensitive_group' parameter is not provided.
     """
 
     def __init__(
@@ -60,7 +60,7 @@ class Superset(ABC):
             predicted_target = None  # type: ignore
         if sensitive is None:
             raise AttributeError(
-                "'sensitive' attribute is required when data is pandas dataframe"
+                "'sensitive_group' attribute is required when data is pandas dataframe"
             )
 
         pairs = chain.from_iterable(
@@ -138,7 +138,7 @@ class SupersetFairnessMetrics(Superset):
         -------
         list[dict]
             A list of dictionaries, each containing:
-            - 'sensitive': List of sensitive attribute names for this combination
+            - 'sensitive_group': List of sensitive attribute names for this combination
             - 'rankings': Dictionary mapping metric names to their ranking results
         """
         results = []
@@ -176,7 +176,7 @@ class SupersetFairnessMetrics(Superset):
                         continue
 
             results.append({
-                "sensitive": list(pair),
+                "sensitive_group": list(pair),
                 "rankings": rankings,
             })
 
@@ -190,7 +190,7 @@ class SupersetFairnessMetrics(Superset):
         -------
         list[dict]
             A list of dictionaries, each containing:
-            - 'sensitive': List of sensitive attribute names for this combination
+            - 'sensitive_group': List of sensitive attribute names for this combination
             - 'summaries': Dictionary mapping metric names to their summary results
         """
         results = []
@@ -228,7 +228,7 @@ class SupersetFairnessMetrics(Superset):
                         continue
 
             results.append({
-                "sensitive": list(pair),
+                "sensitive_group": list(pair),
                 "summaries": summaries,
             })
 
@@ -248,7 +248,7 @@ class SupersetFairnessMetrics(Superset):
         -------
         list[dict]
             A list of dictionaries, each containing:
-            - 'sensitive': List of sensitive attribute names for this combination
+            - 'sensitive_group': List of sensitive attribute names for this combination
             - 'bias_results': Dictionary mapping metric names to their bias decisions
         """
         if thresholds is None:
@@ -305,7 +305,7 @@ class SupersetFairnessMetrics(Superset):
                         continue
 
             results.append({
-                "sensitive": list(pair),
+                "sensitive_group": list(pair),
                 "bias_results": bias_results,
             })
 
@@ -371,11 +371,11 @@ class SupersetPerformanceMetrics(Superset):
         ... )
         >>> result
         [
-            {'sensitive': ('gender',),
+            {'sensitive_group': ('gender',),
             'result': (['real_churn'],
             [
                 {
-                    'sensitive': array(['male'], dtype=object),
+                    'sensitive_group': array(['male'], dtype=object),
                     'selection_rate_in_data': array(0.5),
                     'selection_rate_in_predictions': array(0.25),
                     'accuracy': [0.75],
@@ -389,7 +389,7 @@ class SupersetPerformanceMetrics(Superset):
                     'true_positive_rate': [0.5]
                 },
                 {
-                    'sensitive': array(['female'], dtype=object),
+                    'sensitive_group': array(['female'], dtype=object),
                     ...
                     'f1-score': [0.0],
                     'false_negative_rate': [1.0],
@@ -443,7 +443,7 @@ class SupersetPerformanceMetrics(Superset):
 
             results.append(
                 {
-                    "sensitive": pair,
+                    "sensitive_group": pair,
                     "data": concatenated_results,
                 }
             )

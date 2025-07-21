@@ -167,7 +167,7 @@ def test_get_data_for_all_groups(
     assert isinstance(results, list)
     for i, result in enumerate(results):
         assert isinstance(result, dict)
-        for group, expected_group in zip(result["sensitive"], sensitive_groups[i]):
+        for group, expected_group in zip(result["sensitive_group"], sensitive_groups[i]):
             assert group == expected_group
         assert isinstance(result["data"], pd.DataFrame)
 
@@ -226,7 +226,7 @@ def test_get_real_target_for_all_groups(
     assert isinstance(results, list)
     for i, result in enumerate(results):
         assert isinstance(result, dict)
-        for group, expected_group in zip(result["sensitive"], sensitive_groups[i]):
+        for group, expected_group in zip(result["sensitive_group"], sensitive_groups[i]):
             assert group == expected_group
         assert isinstance(result["data"], expected_data_type)
         assert result["data"].shape in expected_data_shape
@@ -281,7 +281,7 @@ def test_get_predicted_target_for_all_groups(
         assert isinstance(results, list)
         for i, result in enumerate(results):
             assert isinstance(result, dict)
-            for group, expected_group in zip(result["sensitive"], sensitive_groups[i]):
+            for group, expected_group in zip(result["sensitive_group"], sensitive_groups[i]):
                 assert group == expected_group
             assert isinstance(result["data"], expected_data_type)
             assert result["data"].shape in expected_data_shape
