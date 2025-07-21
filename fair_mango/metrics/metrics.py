@@ -50,10 +50,8 @@ class SelectionRate(Metric):
         Sequence of the positive labels corresponding to the provided target,
         by default None.
     """
-    def __init__(
-        self,
-        dataset: Dataset,
-        use_y_true: bool = True) -> None:
+
+    def __init__(self, dataset: Dataset, use_y_true: bool = True) -> None:
         super().__init__(dataset)
         self.use_y_true = use_y_true
 
@@ -188,7 +186,9 @@ class SelectionRate(Metric):
         for group in target_by_group:
             group_sensitive = group["sensitive_group"]
             y_group = group["data"]
-            result.append({"sensitive_group": group_sensitive, "data": float(y_group.mean())})
+            result.append(
+                {"sensitive_group": group_sensitive, "data": float(y_group.mean())}
+            )
 
         return result
 
@@ -381,7 +381,9 @@ class ConfusionMatrix(Metric):
             group_sensitive = real_group["sensitive_group"]
             real_values = real_group["data"]
             predicted_values = predicted_group["data"]
-            result_for_group: dict[str, Any] = {"sensitive_group": np.array(group_sensitive)}
+            result_for_group: dict[str, Any] = {
+                "sensitive_group": np.array(group_sensitive)
+            }
 
             conf_matrix = confusion_matrix(real_values, predicted_values, labels=[0, 1])
             tn = conf_matrix[0, 0]
@@ -390,9 +392,7 @@ class ConfusionMatrix(Metric):
             fp = conf_matrix[0, 1]
 
             for metric_name, metric in self.metrics.items():
-                result_for_group[metric_name] = [
-                    metric(tn=tn, fp=fp, fn=fn, tp=tp)
-                ]
+                result_for_group[metric_name] = [metric(tn=tn, fp=fp, fn=fn, tp=tp)]
 
             result.append(result_for_group)
 
@@ -584,12 +584,12 @@ class PerformanceMetric(Metric):
             group_sensitive = real_group["sensitive_group"]
             real_values = real_group["data"]
             predicted_values = predicted_group["data"]
-            result_for_group: dict[str, Any] = {"sensitive_group": np.array(group_sensitive)}
+            result_for_group: dict[str, Any] = {
+                "sensitive_group": np.array(group_sensitive)
+            }
 
             for metric_name, metric in self.metrics.items():
-                result_for_group[metric_name] = [
-                    metric(real_values, predicted_values)
-                ]
+                result_for_group[metric_name] = [metric(real_values, predicted_values)]
 
             result.append(result_for_group)
 
@@ -1257,8 +1257,8 @@ class EqualisedOddsDifference:
         fpr = FalsePositiveRateDifference(self.data)
         tpr.summary()
         fpr.summary()
-        tpr_diff = tpr.results  
-        fpr_diff = fpr.results  
+        tpr_diff = tpr.results
+        fpr_diff = fpr.results
 
         return tpr_diff, fpr_diff
 
@@ -1286,7 +1286,7 @@ class EqualisedOddsDifference:
         for tpr_result, fpr_result in zip(self.tpr, self.fpr):
             tpr_disparity = tpr_result["disparity"]
             fpr_disparity = fpr_result["disparity"]
-            
+
             if np.abs(tpr_disparity) > self.result[target][self.label]:
                 self.result[target][self.label] = np.abs(tpr_disparity)
                 if tpr_disparity > 0:
@@ -1295,7 +1295,7 @@ class EqualisedOddsDifference:
                 else:
                     self.result[target]["privileged"] = tpr_result["group_2"]
                     self.result[target]["unprivileged"] = tpr_result["group_1"]
-                    
+
             if np.abs(fpr_disparity) > self.result[target][self.label]:
                 self.result[target][self.label] = np.abs(fpr_disparity)
                 if fpr_disparity > 0:
@@ -1329,7 +1329,7 @@ class EqualisedOddsDifference:
         for tpr_result, fpr_result in zip(self.tpr, self.fpr):
             tpr_disparity = tpr_result["disparity"]
             fpr_disparity = fpr_result["disparity"]
-            
+
             if np.abs(tpr_disparity) > np.abs(fpr_disparity):
                 group1_key = tuple(tpr_result["group_1"])
                 group2_key = tuple(tpr_result["group_2"])
@@ -1344,7 +1344,7 @@ class EqualisedOddsDifference:
         for group, differences in result.items():
             difference = np.mean(np.array(differences))
             ranking[group] = difference
-        
+
         ranking = dict(
             sorted(
                 ranking.items(),
@@ -1355,11 +1355,10 @@ class EqualisedOddsDifference:
 
         ranking_list = []
         for group_tuple, score in ranking.items():
-            ranking_list.append({
-                "sensitive_group": list(group_tuple),
-                "score": float(score)
-            })
-        
+            ranking_list.append(
+                {"sensitive_group": list(group_tuple), "score": float(score)}
+            )
+
         return ranking_list
 
     def is_biased(self, threshold: float = 0.1) -> bool:
@@ -1394,7 +1393,7 @@ class EqualisedOddsDifference:
             is_biased_result = max_diff > threshold or min_diff < -threshold
         else:
             is_biased_result = False
-            
+
         return is_biased_result
 
 
@@ -1512,7 +1511,7 @@ class EqualisedOddsRatio:
         for tpr_result, fpr_result in zip(self.tpr, self.fpr):
             tpr_ratio = tpr_result["disparity"]
             fpr_ratio = fpr_result["disparity"]
-            
+
             if tpr_ratio > 1:
                 temp = 1 / tpr_ratio
             else:
@@ -1565,7 +1564,7 @@ class EqualisedOddsRatio:
         for tpr_result, fpr_result in zip(self.tpr, self.fpr):
             tpr_ratio = tpr_result["disparity"]
             fpr_ratio = fpr_result["disparity"]
-            
+
             if tpr_ratio > 1:
                 temp1 = 1 / tpr_ratio
             else:
@@ -1607,10 +1606,9 @@ class EqualisedOddsRatio:
 
         ranking_list = []
         for group_tuple, ratio in ranking.items():
-            ranking_list.append({
-                "sensitive_group": list(group_tuple),
-                "score": float(ratio)
-            })
+            ranking_list.append(
+                {"sensitive_group": list(group_tuple), "score": float(ratio)}
+            )
 
         return ranking_list
 
@@ -1646,5 +1644,5 @@ class EqualisedOddsRatio:
             is_biased_result = max_ratio > (1 / threshold) or min_ratio < threshold
         else:
             is_biased_result = False
-            
+
         return is_biased_result
