@@ -470,7 +470,6 @@ class Dataset:
             
             sensitive_group = [str(x) for x in row[:-1]] 
             target_data = result[self.real_target] 
-            assert isinstance(target_data, pd.Series)
             
             self.groups_real_target.append({
                 "sensitive": sensitive_group,
@@ -559,7 +558,6 @@ class Dataset:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
             )
-        assert isinstance(result, pd.Series)
         return result
 
     def get_predicted_target_for_all_groups(
@@ -659,7 +657,6 @@ class Dataset:
             
             sensitive_group = [str(x) for x in row[:-1]]  
             target_data = result[self.predicted_target] 
-            assert isinstance(target_data, pd.Series)
             
             self.groups_predicted_target.append({
                 "sensitive": sensitive_group,
