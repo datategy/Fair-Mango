@@ -11,6 +11,7 @@ from fair_mango.typing import (
     FairnessSummaryResult,
     FairnessRatioSummaryResult,
     GroupData,
+    GroupRankingResult,
 )
 
 
@@ -279,7 +280,7 @@ class FairnessMetricDifference(ABC):
         data: Dataset,
         metric: type[Metric],
         metric_type: str = "performance",
-        label: str = "difference",         
+        label: str = "",         
         **metric_kwargs,                  
     ) -> None:
         self.metric = metric
@@ -335,9 +336,13 @@ class FairnessMetricDifference(ABC):
         -------
         FairnessSummaryResult
             A single summary result dictionary with:
-            - disparity: The maximum absolute disparity value found
-            - privileged_group: List of strings identifying the privileged group
-            - unprivileged_group: List of strings identifying the unprivileged group
+            - disparity: The maximum absolute disparity value found.
+            - privileged_group: List of strings identifying the privileged group.
+                None if no group could be determined (e.g., if there is only one group
+                or all groups have identical scores).
+            - unprivileged_group: List of strings identifying the unprivileged group.
+                None if no group could be determined (e.g., if there is only one group
+                or all groups have identical scores).
         """
         if self.results is None:
             self.results = self._compute()
@@ -364,7 +369,7 @@ class FairnessMetricDifference(ABC):
             "unprivileged_group": unprivileged_group,
         }
 
-    def rank(self) -> list[dict[str, list[str] | float]]:
+    def rank(self) -> list[GroupRankingResult]:
         """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
@@ -375,8 +380,8 @@ class FairnessMetricDifference(ABC):
 
         Returns
         -------
-        list[dict[str, list[str] | float]]:
-            List of ranking dictionaries with 'sensitive' and 'score' keys.
+        list[GroupRankingResult]:
+            List of GroupRankingResult with 'sensitive' and 'score' keys.
         """
         if self.results is None:
             self.results = self._compute()
@@ -528,9 +533,14 @@ class FairnessMetricRatio(ABC):
         -------
         FairnessRatioSummaryResult
             A single summary result dictionary with:
-            - ratio: The minimum ratio value found (closest to 0)
-            - privileged_group: List of strings identifying the privileged group
-            - unprivileged_group: List of strings identifying the unprivileged group
+    ratio : float
+        The minimum ratio value found (closest to 0).
+    privileged_group : list[str] | None
+        List of strings identifying the privileged group. None if no group could be determined
+        (e.g., if there is only one group or all groups have identical scores).
+    unprivileged_group : list[str] | None
+        List of strings identifying the unprivileged group. None if no group could be determined
+        (e.g., if there is only one group or all groups have identical scores).
         """
         if self.results is None:
             self.results = self._compute()
@@ -567,7 +577,7 @@ class FairnessMetricRatio(ABC):
             "unprivileged_group": unprivileged_group,
         }
 
-    def rank(self) -> list[dict[str, list[str] | float]]:
+    def rank(self) -> list[GroupRankingResult]:
         """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
@@ -578,7 +588,7 @@ class FairnessMetricRatio(ABC):
 
         Returns
         -------
-        list[dict[str, list[str] | float]]:
+        list[GroupRankingResult]:
             List of ranking dictionaries with 'sensitive' and 'score' keys.
         """
         if self.results is None:
