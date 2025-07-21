@@ -222,7 +222,7 @@ def calculate_disparity(
     for i, j in combinations(range(len(result_per_groups)), 2):
         rec_i, rec_j = result_per_groups[i], result_per_groups[j]
 
-        grp_i = list(map(str, rec_i["sensitive"]))   # always List[str]
+        grp_i = list(map(str, rec_i["sensitive"]))  
         grp_j = list(map(str, rec_j["sensitive"]))
 
         data_i = rec_i["result"]

@@ -227,7 +227,7 @@ confusionmatrix_expected_result_6 = [
         (dataset3, {"fpr": false_positive_rate}, confusionmatrix_expected_result_3),
         (
             dataset6,
-            [true_negative_rate, false_negative_rate],  # type: ignore[list-item]
+            [true_negative_rate, false_negative_rate], 
             confusionmatrix_expected_result_6,
         ),
     ],

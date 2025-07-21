@@ -44,7 +44,7 @@ class FairnessRatioSummaryResult:
 @dataclass
 class RankResult:
     """Individual rank result for a group."""
-    sensitive: list[str]  # Changed from tuple to list[str]
+    sensitive: list[str]  
     score: float
 
     def to_dict(self) -> dict[str, object]:
