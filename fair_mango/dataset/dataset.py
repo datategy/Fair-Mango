@@ -1,10 +1,9 @@
 from collections.abc import Sequence
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
-from fair_mango.typing import DatasetTargetResult, DatasetGroupResult
+from fair_mango.typing import DatasetGroupResult, DatasetTargetResult
 
 
 def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence[str]) -> None:
@@ -116,7 +115,7 @@ def df_filtration(
     for column, value in zip(sensitive, sensitive_group, strict=True):
         mask &= df[column] == value
     filtered_df = df[mask]
-    assert isinstance(filtered_df, pd.DataFrame) 
+    assert isinstance(filtered_df, pd.DataFrame)
     return filtered_df
 
 
@@ -292,7 +291,9 @@ class Dataset:
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
             assert isinstance(result, pd.DataFrame)
-            self.groups_data.append({"sensitive_group": [str(x) for x in row[:-1]], "data": result})
+            self.groups_data.append(
+                {"sensitive_group": [str(x) for x in row[:-1]], "data": result}
+            )
         return self.groups_data
 
     def get_data_for_one_group(self, sensitive_group: Sequence[str]) -> pd.DataFrame:
@@ -467,14 +468,13 @@ class Dataset:
             result = self.df
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
-            
-            sensitive_group = [str(x) for x in row[:-1]] 
-            target_data = result[self.real_target] 
-            
-            self.groups_real_target.append({
-                "sensitive_group": sensitive_group,
-                "data": target_data  
-            })
+
+            sensitive_group = [str(x) for x in row[:-1]]
+            target_data = result[self.real_target]
+
+            self.groups_real_target.append(
+                {"sensitive_group": sensitive_group, "data": target_data}
+            )
         return self.groups_real_target
 
     def get_real_target_for_one_group(
@@ -545,7 +545,7 @@ class Dataset:
         4         0            no
         """
         sensitive_group = convert_to_list(sensitive_group)
-        
+
         result = None
         if self.groups_real_target is None:
             filtered_df = df_filtration(self.df, sensitive_group, self.sensitive)
@@ -654,14 +654,13 @@ class Dataset:
             result = self.df
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
-            
-            sensitive_group = [str(x) for x in row[:-1]]  
-            target_data = result[self.predicted_target] 
-            
-            self.groups_predicted_target.append({
-                "sensitive_group": sensitive_group,
-                "data": target_data
-            })
+
+            sensitive_group = [str(x) for x in row[:-1]]
+            target_data = result[self.predicted_target]
+
+            self.groups_predicted_target.append(
+                {"sensitive_group": sensitive_group, "data": target_data}
+            )
         return self.groups_predicted_target
 
     def get_predicted_target_for_one_group(
@@ -735,9 +734,9 @@ class Dataset:
             raise ValueError(
                 "predicted_target parameter is required when creating the dataset"
             )
-        
+
         sensitive_group = convert_to_list(sensitive_group)
-        
+
         result = None
         if self.groups_predicted_target is None:
             filtered_df = df_filtration(self.df, sensitive_group, self.sensitive)
