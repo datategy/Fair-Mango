@@ -186,7 +186,7 @@ def test_super_set_fairness_metrics(
 super_set_performance_metrics_expected_result_2 = [
     {
         "sensitive": ("Sex",),
-        "result": [
+        "data": [
             {
                 "sensitive": np.array(["M"], dtype=object),
                 "selection_rate_in_data": np.array(0.63172414),
@@ -252,14 +252,14 @@ def test_super_set_performance_metrics(
         for result, expected_result in zip(results, expected_results):
             assert isinstance(result, dict)
             assert "sensitive" in result
-            assert "result" in result
+            assert "data" in result
             assert isinstance(result["sensitive"], tuple)
-            assert isinstance(result["result"], list)
+            assert isinstance(result["data"], list)
             
             assert result["sensitive"] == expected_result["sensitive"]
             
-            result_list = result["result"]
-            expected_result_list = expected_result["result"]
+            result_list = result["data"]
+            expected_result_list = expected_result["data"]
             assert len(result_list) == len(expected_result_list)
             
             actual_dict = {tuple(item["sensitive"]): item for item in result_list}

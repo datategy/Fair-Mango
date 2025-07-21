@@ -292,7 +292,7 @@ class Dataset:
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
             assert isinstance(result, pd.DataFrame)
-            self.groups_data.append({"sensitive": [str(x) for x in row[:-1]], "result": result})
+            self.groups_data.append({"sensitive": [str(x) for x in row[:-1]], "data": result})
         return self.groups_data
 
     def get_data_for_one_group(self, sensitive_group: Sequence[str]) -> pd.DataFrame:
@@ -370,7 +370,7 @@ class Dataset:
         else:
             for item in self.groups_data:
                 if item["sensitive"] == sensitive_group:
-                    result = item["result"]
+                    result = item["data"]
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
@@ -474,7 +474,7 @@ class Dataset:
             
             self.groups_real_target.append({
                 "sensitive": sensitive_group,
-                "result": target_data  
+                "data": target_data  
             })
         return self.groups_real_target
 
@@ -554,7 +554,7 @@ class Dataset:
         else:
             for item in self.groups_real_target:
                 if item["sensitive"] == sensitive_group:
-                    result = item["result"]
+                    result = item["data"]
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
@@ -663,7 +663,7 @@ class Dataset:
             
             self.groups_predicted_target.append({
                 "sensitive": sensitive_group,
-                "result": target_data
+                "data": target_data
             })
         return self.groups_predicted_target
 
@@ -748,7 +748,7 @@ class Dataset:
         else:
             for item in self.groups_predicted_target:
                 if item["sensitive"] == sensitive_group:
-                    result = item["result"]
+                    result = item["data"]
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
