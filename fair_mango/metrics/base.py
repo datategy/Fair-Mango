@@ -151,7 +151,7 @@ class Metric(ABC):
     Raises
     ------
     ValueError
-        - If data is a DataFrame and the parameters 'sensitive' and 'real_target'
+        - If data is a DataFrame and the parameters 'sensitive_group' and 'real_target'
           are not provided.
         - If the target variable is not binary (has two unique values).
     """
@@ -223,8 +223,8 @@ def calculate_disparity(
     for i, j in combinations(range(len(result_per_groups)), 2):
         rec_i, rec_j = result_per_groups[i], result_per_groups[j]
 
-        grp_i = list(map(str, rec_i["sensitive"]))  
-        grp_j = list(map(str, rec_j["sensitive"]))
+        grp_i = list(map(str, rec_i["sensitive_group"]))  
+        grp_j = list(map(str, rec_j["sensitive_group"]))
 
         data_i = rec_i["data"]
         data_j = rec_j["data"]
@@ -269,7 +269,7 @@ class FairnessMetricDifference(ABC):
     Raises
     ------
     ValueError
-        If data is a DataFrame and the parameters 'sensitive' and 'real_target'
+        If data is a DataFrame and the parameters 'sensitive_group' and 'real_target'
         are not provided.
     AttributeError
         If metric_type is not 'performance' or 'error'.
@@ -381,7 +381,7 @@ class FairnessMetricDifference(ABC):
         Returns
         -------
         list[GroupRankingResult]:
-            List of GroupRankingResult with 'sensitive' and 'score' keys.
+            List of GroupRankingResult with 'sensitive_group' and 'score' keys.
         """
         if self.results is None:
             self.results = self._compute()
@@ -404,7 +404,7 @@ class FairnessMetricDifference(ABC):
         ranking_list = []
         for group_tuple, score in group_scores.items():
             ranking_list.append({
-                "sensitive": list(group_tuple),
+                "sensitive_group": list(group_tuple),
                 "score": score
             })
         
@@ -467,7 +467,7 @@ class FairnessMetricRatio(ABC):
     Raises
     ------
     ValueError
-        If data is a DataFrame and the parameters 'sensitive' and 'real_target'
+        If data is a DataFrame and the parameters 'sensitive_group' and 'real_target'
         are not provided.
     AttributeError
         If metric_type is not 'performance' or 'error'.
@@ -581,15 +581,15 @@ class FairnessMetricRatio(ABC):
         """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
-        - {"sensitive": ["Male"], "score": 0.814}: Males have on average 81.4% the score of the
+        - {"sensitive_group": ["Male"], "score": 0.814}: Males have on average 81.4% the score of the
           Females.
-        - {"sensitive": ["White"], "score": 1.20}: Whites have on average 120% the score of the
+        - {"sensitive_group": ["White"], "score": 1.20}: Whites have on average 120% the score of the
           other groups (Black, Asian...).
 
         Returns
         -------
         list[GroupRankingResult]:
-            List of ranking dictionaries with 'sensitive' and 'score' keys.
+            List of ranking dictionaries with 'sensitive_group' and 'score' keys.
         """
         if self.results is None:
             self.results = self._compute()
@@ -612,7 +612,7 @@ class FairnessMetricRatio(ABC):
         ranking_list = []
         for group_tuple, score in group_scores.items():
             ranking_list.append({
-                "sensitive": list(group_tuple),
+                "sensitive_group": list(group_tuple),
                 "score": float(score)
             })
 

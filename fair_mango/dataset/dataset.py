@@ -230,7 +230,7 @@ class Dataset:
         >>> dataset1.get_data_for_all_groups()
         [
             {
-                'sensitive': array(['male'], dtype=object),
+                'sensitive_group': array(['male'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     0        male       white      ...         0                 no
                     3        male       black      ...         0                yes
@@ -239,7 +239,7 @@ class Dataset:
                 [3 rows x 8 columns]
             },
             {
-                'sensitive': array(['female'], dtype=object),
+                'sensitive_group': array(['female'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                      1      female       white     ...        1                 no
                      2      female       black     ...        1                yes
@@ -257,7 +257,7 @@ class Dataset:
         >>> dataset2.get_data_for_all_groups()
         [
             {
-                'sensitive': array(['male', 'black'], dtype=object),
+                'sensitive_group': array(['male', 'black'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     3        male       black      ...         0                yes
                     4        male       black      ...         0                yes
@@ -265,21 +265,21 @@ class Dataset:
                 [2 rows x 8 columns]
             },
             {
-                'sensitive': array(['female', 'black'], dtype=object),
+                'sensitive_group': array(['female', 'black'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     2      female       black      ...         1                yes
 
                 [1 rows x 8 columns]
             },
             {
-                'sensitive': array(['female', 'white'], dtype=object),
+                'sensitive_group': array(['female', 'white'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     1      female       white      ...         1                 no
 
                 [1 rows x 8 columns]
             },
             {
-                'sensitive': array(['male', 'white'], dtype=object),
+                'sensitive_group': array(['male', 'white'], dtype=object),
                 'data':   sensitive_1 sensitive_2  ... predicted_target_1 predicted_target_2
                     0        male       white      ...         0                 no
 
@@ -292,7 +292,7 @@ class Dataset:
             for i in range(len(self.sensitive)):
                 result = result[result[self.sensitive[i]] == row[i]]
             assert isinstance(result, pd.DataFrame)
-            self.groups_data.append({"sensitive": [str(x) for x in row[:-1]], "data": result})
+            self.groups_data.append({"sensitive_group": [str(x) for x in row[:-1]], "data": result})
         return self.groups_data
 
     def get_data_for_one_group(self, sensitive_group: Sequence[str]) -> pd.DataFrame:
@@ -369,7 +369,7 @@ class Dataset:
             result = df_filtration(self.df, sensitive_group, self.sensitive)
         else:
             for item in self.groups_data:
-                if list(item["sensitive"]) == list(sensitive_group):
+                if list(item["sensitive_group"]) == list(sensitive_group):
                     result = item["data"]
         if result is None:
             raise (
@@ -420,14 +420,14 @@ class Dataset:
         >>> dataset1.get_real_target_for_all_groups()
         [
             {
-                'sensitive': array(['male'], dtype=object),
+                'sensitive_group': array(['male'], dtype=object),
                 'data': 0    0
                         3    1
                         4    0
                         Name: real_target_1, dtype: int64
             },
             {
-                'sensitive': array(['female'], dtype=object),
+                'sensitive_group': array(['female'], dtype=object),
                 'data': 1    1
                         2    0
                         Name: real_target_1, dtype: int64
@@ -443,21 +443,21 @@ class Dataset:
         >>> dataset2.get_real_target_for_all_groups()
         [
             {
-                'sensitive': array(['male', 'black'], dtype=object),
+                'sensitive_group': array(['male', 'black'], dtype=object),
                 'data': 3    1
                         4    0
                         Name: real_target_1, dtype: int64
             },
             {
-                'sensitive': array(['female', 'black'], dtype=object),
+                'sensitive_group': array(['female', 'black'], dtype=object),
                 'data': 0
             },
             {
-                'sensitive': array(['female', 'white'], dtype=object),
+                'sensitive_group': array(['female', 'white'], dtype=object),
                 'data': 1
             },
             {
-                'sensitive': array(['male', 'white'], dtype=object),
+                'sensitive_group': array(['male', 'white'], dtype=object),
                 'data': 0
             }
         ]
@@ -472,7 +472,7 @@ class Dataset:
             target_data = result[self.real_target] 
             
             self.groups_real_target.append({
-                "sensitive": sensitive_group,
+                "sensitive_group": sensitive_group,
                 "data": target_data  
             })
         return self.groups_real_target
@@ -552,7 +552,7 @@ class Dataset:
             result = filtered_df[self.real_target]
         else:
             for item in self.groups_real_target:
-                if list(item["sensitive"]) == list(sensitive_group):
+                if list(item["sensitive_group"]) == list(sensitive_group):
                     result = item["data"]
         if result is None:
             raise (
@@ -603,14 +603,14 @@ class Dataset:
         >>> dataset1.get_predicted_target_for_all_groups()
         [
             {
-                'sensitive': array(['male'], dtype=object),
+                'sensitive_group': array(['male'], dtype=object),
                 'data': 0    0
                         3    0
                         4    0
                         Name: predicted_target_1, dtype: int64
             },
             {
-                'sensitive': array(['female'], dtype=object),
+                'sensitive_group': array(['female'], dtype=object),
                 'data': 1    1
                         2    1
                         Name: predicted_target_1, dtype: int64
@@ -626,21 +626,21 @@ class Dataset:
         >>> dataset2.get_predicted_target_for_all_groups()
         [
             {
-                'sensitive': array(['male', 'black'], dtype=object),
+                'sensitive_group': array(['male', 'black'], dtype=object),
                 'data': 3    0
                         4    0
                         Name: predicted_target_1, dtype: int64
             },
             {
-                'sensitive': array(['female', 'black'], dtype=object),
+                'sensitive_group': array(['female', 'black'], dtype=object),
                 'data': 1
             },
             {
-                'sensitive': array(['female', 'white'], dtype=object),
+                'sensitive_group': array(['female', 'white'], dtype=object),
                 'data': 1
             },
             {
-                'sensitive': array(['male', 'white'], dtype=object),
+                'sensitive_group': array(['male', 'white'], dtype=object),
                 'data': 0
             }
         ]
@@ -659,7 +659,7 @@ class Dataset:
             target_data = result[self.predicted_target] 
             
             self.groups_predicted_target.append({
-                "sensitive": sensitive_group,
+                "sensitive_group": sensitive_group,
                 "data": target_data
             })
         return self.groups_predicted_target
@@ -744,7 +744,7 @@ class Dataset:
             result = filtered_df[self.predicted_target]
         else:
             for item in self.groups_predicted_target:
-                if list(item["sensitive"]) == list(sensitive_group):
+                if list(item["sensitive_group"]) == list(sensitive_group):
                     result = item["data"]
         if result is None:
             raise (

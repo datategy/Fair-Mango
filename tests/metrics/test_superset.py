@@ -40,11 +40,11 @@ dataset6 = Dataset(
 
 superset_fairness_expected_result_dataset1 = [
     {
-        "sensitive": ["Sex"],
+        "sensitive_group": ["Sex"],
         "rankings": {
             "demographic_parity_difference": [
-                {"sensitive": ["M"], "score": 0.3726567804180811},
-                {"sensitive": ["F"], "score": -0.3726567804180811}
+                {"sensitive_group": ["M"], "score": 0.3726567804180811},
+                {"sensitive_group": ["F"], "score": -0.3726567804180811}
             ]
         }
     }
@@ -52,47 +52,47 @@ superset_fairness_expected_result_dataset1 = [
 
 superset_fairness_expected_result_dataset2 = [
     {
-        "sensitive": ["Sex"],
+        "sensitive_group": ["Sex"],
         "rankings": {
             "demographic_parity_difference": [
-                {"sensitive": ["M"], "score": 0.3726567804180811},
-                {"sensitive": ["F"], "score": -0.3726567804180811}
+                {"sensitive_group": ["M"], "score": 0.3726567804180811},
+                {"sensitive_group": ["F"], "score": -0.3726567804180811}
             ],
             "demographic_parity_ratio": [
-                {"sensitive": ["F"], "score": 0.4100957078534742},
-                {"sensitive": ["M"], "score": 2.4384551724137933}
+                {"sensitive_group": ["F"], "score": 0.4100957078534742},
+                {"sensitive_group": ["M"], "score": 2.4384551724137933}
             ],
             "disparate_impact_difference": [
-                {"sensitive": ["M"], "score": 0.3619581918885117},
-                {"sensitive": ["F"], "score": -0.3619581918885117}
+                {"sensitive_group": ["M"], "score": 0.3619581918885117},
+                {"sensitive_group": ["F"], "score": -0.3619581918885117}
             ],
             "disparate_impact_ratio": [
-                {"sensitive": ["F"], "score": 0.4219830636141608},
-                {"sensitive": ["M"], "score": 2.369763353617309}
+                {"sensitive_group": ["F"], "score": 0.4219830636141608},
+                {"sensitive_group": ["M"], "score": 2.369763353617309}
             ],
             "equal_opportunity_difference": [
-                {"sensitive": ["M"], "score": 0.03816593886462882},
-                {"sensitive": ["F"], "score": -0.03816593886462882}
+                {"sensitive_group": ["M"], "score": 0.03816593886462882},
+                {"sensitive_group": ["F"], "score": -0.03816593886462882}
             ],
             "equal_opportunity_ratio": [
-                {"sensitive": ["F"], "score": 0.9609821428571428},
-                {"sensitive": ["M"], "score": 1.0406020626219457}
+                {"sensitive_group": ["F"], "score": 0.9609821428571428},
+                {"sensitive_group": ["M"], "score": 1.0406020626219457}
             ],
             "equalised_odds_difference": [
-                {"sensitive": ["M"], "score": 0.03816593886462882},
-                {"sensitive": ["F"], "score": -0.03816593886462882}
+                {"sensitive_group": ["M"], "score": 0.03816593886462882},
+                {"sensitive_group": ["F"], "score": -0.03816593886462882}
             ],
             "equalised_odds_ratio": [
-                {"sensitive": ["M"], "score": 0.8033707865168539},
-                {"sensitive": ["F"], "score": 1.2447552447552448}
+                {"sensitive_group": ["M"], "score": 0.8033707865168539},
+                {"sensitive_group": ["F"], "score": 1.2447552447552448}
             ],
             "false_positive_rate_difference": [
-                {"sensitive": ["F"], "score": 0.005500117859668422}, 
-                {"sensitive": ["M"], "score": -0.005500117859668422} 
+                {"sensitive_group": ["F"], "score": 0.005500117859668422}, 
+                {"sensitive_group": ["M"], "score": -0.005500117859668422} 
             ],
             "false_positive_rate_ratio": [
-                {"sensitive": ["M"], "score": 0.8033707865168539},
-                {"sensitive": ["F"], "score": 1.2447552447552448}
+                {"sensitive_group": ["M"], "score": 0.8033707865168539},
+                {"sensitive_group": ["F"], "score": 1.2447552447552448}
             ]
         }
     }
@@ -100,37 +100,37 @@ superset_fairness_expected_result_dataset2 = [
 
 superset_fairness_expected_result_dataset3 = [
     {
-        "sensitive": ["Sex"],
+        "sensitive_group": ["Sex"],
         "rankings": {
             "demographic_parity_difference": [
-                {"sensitive": ["M"], "score": 0.3726567804180811},
-                {"sensitive": ["F"], "score": -0.3726567804180811}
+                {"sensitive_group": ["M"], "score": 0.3726567804180811},
+                {"sensitive_group": ["F"], "score": -0.3726567804180811}
             ]
         }
     },
     {
-        "sensitive": ["ChestPainType"],
+        "sensitive_group": ["ChestPainType"],
         "rankings": {
             "demographic_parity_difference": [
-                {"sensitive": ["ASY"], "score": 0.4356427776894962},
-                {"sensitive": ["TA"], "score": -0.3555399719495091},
-                {"sensitive": ["NAP"], "score": -0.4356427776894962},
-                {"sensitive": ["ATA"], "score": -0.6515942569457394}
+                {"sensitive_group": ["ASY"], "score": 0.4356427776894962},
+                {"sensitive_group": ["TA"], "score": -0.3555399719495091},
+                {"sensitive_group": ["NAP"], "score": -0.4356427776894962},
+                {"sensitive_group": ["ATA"], "score": -0.6515942569457394}
             ]
         }
     },
     {
-        "sensitive": ["Sex", "ChestPainType"],
+        "sensitive_group": ["Sex", "ChestPainType"],
         "rankings": {
             "demographic_parity_difference": [
-                {"sensitive": ["M", "ASY"], "score": 0.3886384976525821}, 
-                {"sensitive": ["F", "ASY"], "score": -0.27149564050972497}, 
-                {"sensitive": ["M", "TA"], "score": -0.30086071987480434}, 
-                {"sensitive": ["M", "NAP"], "score": -0.3886384976525821}, 
-                {"sensitive": ["M", "ATA"], "score": -0.6516473472101043}, 
-                {"sensitive": ["F", "NAP"], "score": -0.7154309504827708}, 
-                {"sensitive": ["F", "TA"], "score": -0.7286384976525822}, 
-                {"sensitive": ["F", "ATA"], "score": -0.7619718309859155},
+                {"sensitive_group": ["M", "ASY"], "score": 0.3886384976525821}, 
+                {"sensitive_group": ["F", "ASY"], "score": -0.27149564050972497}, 
+                {"sensitive_group": ["M", "TA"], "score": -0.30086071987480434}, 
+                {"sensitive_group": ["M", "NAP"], "score": -0.3886384976525821}, 
+                {"sensitive_group": ["M", "ATA"], "score": -0.6516473472101043}, 
+                {"sensitive_group": ["F", "NAP"], "score": -0.7154309504827708}, 
+                {"sensitive_group": ["F", "TA"], "score": -0.7286384976525822}, 
+                {"sensitive_group": ["F", "ATA"], "score": -0.7619718309859155},
             ]
         }
     }
@@ -160,12 +160,12 @@ def test_super_set_fairness_metrics(
     assert len(results) == len(expected_results)
     
     for result, expected_result in zip(results, expected_results):
-        assert "sensitive" in result
+        assert "sensitive_group" in result
         assert "rankings" in result
-        assert isinstance(result["sensitive"], list)
+        assert isinstance(result["sensitive_group"], list)
         assert isinstance(result["rankings"], dict)
         
-        assert result["sensitive"] == expected_result["sensitive"]
+        assert result["sensitive_group"] == expected_result["sensitive_group"]
         
         for metric_name, expected_metric_results in expected_result["rankings"].items():
             if metric_name in result["rankings"]:
@@ -174,8 +174,8 @@ def test_super_set_fairness_metrics(
                 assert isinstance(actual_metric_results, list)
                 assert len(actual_metric_results) == len(expected_metric_results)
                 
-                actual_dict = {tuple(item["sensitive"]): item["score"] for item in actual_metric_results}
-                expected_dict = {tuple(item["sensitive"]): item["score"] for item in expected_metric_results}
+                actual_dict = {tuple(item["sensitive_group"]): item["score"] for item in actual_metric_results}
+                expected_dict = {tuple(item["sensitive_group"]): item["score"] for item in expected_metric_results}
                 
                 for expected_key, expected_score in expected_dict.items():
                     assert expected_key in actual_dict, f"Missing sensitive group: {expected_key}"
@@ -185,10 +185,10 @@ def test_super_set_fairness_metrics(
 
 super_set_performance_metrics_expected_result_2 = [
     {
-        "sensitive": ("Sex",),
+        "sensitive_group": ("Sex",),
         "data": [
             {
-                "sensitive": np.array(["M"], dtype=object),
+                "sensitive_group": np.array(["M"], dtype=object),
                 "selection_rate_in_data": np.array(0.63172414),
                 "selection_rate_in_predictions": np.array(0.6262069),
                 "accuracy": [0.9779310344827586],
@@ -202,7 +202,7 @@ super_set_performance_metrics_expected_result_2 = [
                 "true_positive_rate": [np.float64(0.9781659388646288)],
             },
             {
-                "sensitive": np.array(["F"], dtype=object),
+                "sensitive_group": np.array(["F"], dtype=object),
                 "selection_rate_in_data": np.array(0.25906736),
                 "selection_rate_in_predictions": np.array(0.2642487),
                 "accuracy": [0.9637305699481865],
@@ -251,19 +251,19 @@ def test_super_set_performance_metrics(
         
         for result, expected_result in zip(results, expected_results):
             assert isinstance(result, dict)
-            assert "sensitive" in result
+            assert "sensitive_group" in result
             assert "data" in result
-            assert isinstance(result["sensitive"], tuple)
+            assert isinstance(result["sensitive_group"], tuple)
             assert isinstance(result["data"], list)
             
-            assert result["sensitive"] == expected_result["sensitive"]
+            assert result["sensitive_group"] == expected_result["sensitive_group"]
             
             result_list = result["data"]
             expected_result_list = expected_result["data"]
             assert len(result_list) == len(expected_result_list)
             
-            actual_dict = {tuple(item["sensitive"]): item for item in result_list}
-            expected_dict = {tuple(item["sensitive"]): item for item in expected_result_list}
+            actual_dict = {tuple(item["sensitive_group"]): item for item in result_list}
+            expected_dict = {tuple(item["sensitive_group"]): item for item in expected_result_list}
             
             for expected_key, expected_item in expected_dict.items():
                 assert expected_key in actual_dict, f"Missing sensitive group: {expected_key}"
