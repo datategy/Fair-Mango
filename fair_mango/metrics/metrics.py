@@ -1353,7 +1353,6 @@ class EqualisedOddsDifference:
             )
         )
 
-        # Convert to the expected format
         ranking_list = []
         for group_tuple, score in ranking.items():
             ranking_list.append({

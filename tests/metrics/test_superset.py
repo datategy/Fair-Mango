@@ -38,7 +38,6 @@ dataset6 = Dataset(
 )
 
 
-# Expected results for SupersetFairnessMetrics - dataset1 (only demographic_parity_difference)
 superset_fairness_expected_result_dataset1 = [
     {
         "sensitive": ["Sex"],
@@ -51,7 +50,6 @@ superset_fairness_expected_result_dataset1 = [
     }
 ]
 
-# Expected results for SupersetFairnessMetrics - dataset2 (all fairness metrics)
 superset_fairness_expected_result_dataset2 = [
     {
         "sensitive": ["Sex"],
@@ -100,7 +98,6 @@ superset_fairness_expected_result_dataset2 = [
     }
 ]
 
-# Expected results for SupersetFairnessMetrics - dataset3 (multiple sensitive attributes)
 superset_fairness_expected_result_dataset3 = [
     {
         "sensitive": ["Sex"],
@@ -160,33 +157,26 @@ def test_super_set_fairness_metrics(
     super_set_fairness_metrics = SupersetFairnessMetrics(data)
     results = super_set_fairness_metrics.rank()
     
-    # Test basic structure
     assert len(results) == len(expected_results)
     
     for result, expected_result in zip(results, expected_results):
-        # Test result structure
         assert "sensitive" in result
         assert "rankings" in result
         assert isinstance(result["sensitive"], list)
         assert isinstance(result["rankings"], dict)
         
-        # Test sensitive attributes match
         assert result["sensitive"] == expected_result["sensitive"]
         
-        # Test that expected metrics are calculated
         for metric_name, expected_metric_results in expected_result["rankings"].items():
             if metric_name in result["rankings"]:
                 actual_metric_results = result["rankings"][metric_name]
                 
-                # Test metric structure
                 assert isinstance(actual_metric_results, list)
                 assert len(actual_metric_results) == len(expected_metric_results)
                 
-                # Create dictionaries for easier comparison (order-independent)
                 actual_dict = {tuple(item["sensitive"]): item["score"] for item in actual_metric_results}
                 expected_dict = {tuple(item["sensitive"]): item["score"] for item in expected_metric_results}
                 
-                # Test that all expected items are present with correct scores
                 for expected_key, expected_score in expected_dict.items():
                     assert expected_key in actual_dict, f"Missing sensitive group: {expected_key}"
                     actual_score = actual_dict[expected_key]
@@ -257,42 +247,34 @@ def test_super_set_performance_metrics(
         )
         results = super_set_performance_metrics.evaluate()
         
-        # Test basic structure
         assert len(results) == len(expected_results)
         
         for result, expected_result in zip(results, expected_results):
-            # Test dictionary structure
             assert isinstance(result, dict)
             assert "sensitive" in result
             assert "result" in result
             assert isinstance(result["sensitive"], tuple)
             assert isinstance(result["result"], list)
             
-            # Test sensitive attributes match
             assert result["sensitive"] == expected_result["sensitive"]
             
-            # Test the result list structure
             result_list = result["result"]
             expected_result_list = expected_result["result"]
             assert len(result_list) == len(expected_result_list)
             
-            # Create dictionaries for easier comparison (order-independent)
             actual_dict = {tuple(item["sensitive"]): item for item in result_list}
             expected_dict = {tuple(item["sensitive"]): item for item in expected_result_list}
             
-            # Test that all expected groups are present with correct metrics
             for expected_key, expected_item in expected_dict.items():
                 assert expected_key in actual_dict, f"Missing sensitive group: {expected_key}"
                 result_item = actual_dict[expected_key]
                 
-                # Test each metric in the result
                 for key, expected_value in expected_item.items():
                     assert key in result_item, f"Missing metric {key} for group {expected_key}"
                     actual_value = result_item[key]
                     
                     if isinstance(expected_value, np.ndarray):
-                        # Handle string arrays differently from numeric arrays
-                        if expected_value.dtype.kind in ['U', 'S', 'O']:  # String types
+                        if expected_value.dtype.kind in ['U', 'S', 'O']: 
                             assert np.array_equal(actual_value, expected_value)
                         else:
                             assert np.allclose(actual_value, expected_value)
