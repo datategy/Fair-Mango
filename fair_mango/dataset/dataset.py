@@ -116,7 +116,7 @@ def df_filtration(
     for column, value in zip(sensitive, sensitive_group, strict=True):
         mask &= df[column] == value
     filtered_df = df[mask]
-    assert isinstance(filtered_df, pd.DataFrame)  # Type assertion for clarity
+    assert isinstance(filtered_df, pd.DataFrame) 
     return filtered_df
 
 
@@ -470,7 +470,6 @@ class Dataset:
             
             sensitive_group = [str(x) for x in row[:-1]] 
             target_data = result[self.real_target] 
-            # Ensure target_data is a Series
             assert isinstance(target_data, pd.Series)
             
             self.groups_real_target.append({
@@ -560,7 +559,6 @@ class Dataset:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
             )
-        # Ensure we return a Series for target data
         assert isinstance(result, pd.Series)
         return result
 
@@ -661,7 +659,6 @@ class Dataset:
             
             sensitive_group = [str(x) for x in row[:-1]]  
             target_data = result[self.predicted_target] 
-            # Ensure target_data is a Series
             assert isinstance(target_data, pd.Series)
             
             self.groups_predicted_target.append({
@@ -756,6 +753,5 @@ class Dataset:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
             )
-        # Ensure we return a Series for target data
         assert isinstance(result, pd.Series)
         return result
