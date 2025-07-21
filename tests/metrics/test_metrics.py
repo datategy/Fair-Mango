@@ -262,8 +262,8 @@ def test_confusionmatrix(
 dpd_expected_result_2 = [
     {
         "dpd": 0.3726567804180811,
-        "privileged_group": ["M"],
-        "unprivileged_group": ["F"],
+        "privileged_sensitive_group": ["M"],
+        "unprivileged_sensitive_group": ["F"],
     },
     [{"sensitive_group": ["M"], "score": 0.3726567804180811}, {"sensitive_group": ["F"], "score": -0.3726567804180811}],
     True,
@@ -273,8 +273,8 @@ dpd_expected_result_2 = [
 dpd_expected_result_3 = [
     {
         "demographic_parity_difference": 0.7619718309859155,
-        "privileged_group": ["M", "ASY"],
-        "unprivileged_group": ["F", "ATA"],
+        "privileged_sensitive_group": ["M", "ASY"],
+        "unprivileged_sensitive_group": ["F", "ATA"],
     },
     [
         {"sensitive_group": ["M", "ASY"], "score": 0.3886384976525821},
@@ -293,8 +293,8 @@ dpd_expected_result_3 = [
 dpd_expected_result_6 = [
     {
         "demographic_parity_difference": 0.7619718309859155,
-        "privileged_group": ["M", "ASY"],
-        "unprivileged_group": ["F", "ATA"],
+        "privileged_sensitive_group": ["M", "ASY"],
+        "unprivileged_sensitive_group": ["F", "ATA"],
     },
     [
         {"sensitive_group": ["M", "ASY"], "score": 0.3886384976525821},
@@ -352,8 +352,8 @@ def test_demographic_parity_difference(
 dpr_expected_result_1 = [
     {
         "dpr": 0.4100957078534742,
-        "privileged_group": ["M"],
-        "unprivileged_group": ["F"],
+        "privileged_sensitive_group": ["M"],
+        "unprivileged_sensitive_group": ["F"],
     },
     [{"sensitive_group": ["F"], "score": 0.4100957078534742}, {"sensitive_group": ["M"], "score": 2.4384551724137933}],
     pytest.raises(ValueError),
@@ -363,8 +363,8 @@ dpr_expected_result_1 = [
 dpr_expected_result_2 = [
     {
         "dpr": 0.4100957078534742,
-        "privileged_group": ["M"],
-        "unprivileged_group": ["F"],
+        "privileged_sensitive_group": ["M"],
+        "unprivileged_sensitive_group": ["F"],
     },
     [{"sensitive_group": ["F"], "score": 0.4100957078534742}, {"sensitive_group": ["M"], "score": 2.4384551724137933}],
     False,
@@ -374,8 +374,8 @@ dpr_expected_result_2 = [
 dpr_expected_result_3 = [
     {
         "demographic_parity_ratio": 0.08045325779036827,
-        "privileged_group": ["M", "ASY"],
-        "unprivileged_group": ["F", "ATA"],
+        "privileged_sensitive_group": ["M", "ASY"],
+        "unprivileged_sensitive_group": ["F", "ATA"],
     },
     [
         {"sensitive_group": ["F", "ATA"], "score": 0.08045325779036827},
@@ -394,8 +394,8 @@ dpr_expected_result_3 = [
 dpr_expected_result_6 = [
     {
         "demographic_parity_ratio": 0.08045325779036827,
-        "privileged_group": ["M", "ASY"],
-        "unprivileged_group": ["F", "ATA"],
+        "privileged_sensitive_group": ["M", "ASY"],
+        "unprivileged_sensitive_group": ["F", "ATA"],
     },
     [
         {"sensitive_group": ["F", "ATA"], "score": 0.08045325779036827},
@@ -457,8 +457,8 @@ def test_demographic_parity_ratio(
 did_expected_result_2 = [
     {
         "did": 0.3619581918885117,
-        "privileged_group": ["M"],
-        "unprivileged_group": ["F"],
+        "privileged_sensitive_group": ["M"],
+        "unprivileged_sensitive_group": ["F"],
     },
     [{"sensitive_group": ["M"], "score": 0.3619581918885117}, {"sensitive_group": ["F"], "score": -0.3619581918885117}],
     True,
@@ -468,8 +468,8 @@ did_expected_result_2 = [
 did_expected_result_3 = [
     {
         "disparate_impact_difference": 0.7437771281778722,
-        "privileged_group": ["M", "ASY"],
-        "unprivileged_group": ["F", "NAP"],
+        "privileged_sensitive_group": ["M", "ASY"],
+        "unprivileged_sensitive_group": ["F", "NAP"],
     },
     {
         "HeartDisease": [
@@ -490,8 +490,8 @@ did_expected_result_3 = [
 did_expected_result_6 = [
     {
         "disparate_impact_difference": 0.7437771281778722,
-        "privileged_group": ["M", "ASY"],
-        "unprivileged_group": ["F", "NAP"],
+        "privileged_sensitive_group": ["M", "ASY"],
+        "unprivileged_sensitive_group": ["F", "NAP"],
     },
     [
         {"sensitive_group": ["M", "ASY"], "score": 0.37924882629107975},
@@ -553,8 +553,8 @@ def test_disparate_impact_difference(
 dir_expected_result_2 = [
     {
         "dir": 0.4219830636141608,
-        "privileged_group": ["M"],
-        "unprivileged_group": ["F"],
+        "privileged_sensitive_group": ["M"],
+        "unprivileged_sensitive_group": ["F"],
     },
     [{"sensitive_group": ["F"], "score": 0.4219830636141608}, {"sensitive_group": ["M"], "score": 2.369763353617309}],
     False,
@@ -564,8 +564,8 @@ dir_expected_result_2 = [
 dir_expected_result_3 = [
     {
         "disparate_impact_ratio": 0.09212304698059144,
-        "privileged_group": ["M", "ASY"],
-        "unprivileged_group": ["F", "NAP"],
+        "privileged_sensitive_group": ["M", "ASY"],
+        "unprivileged_sensitive_group": ["F", "NAP"],
     },
     [
         {"sensitive_group": ["F", "NAP"], "score": 0.09212304698059144},
@@ -584,8 +584,8 @@ dir_expected_result_3 = [
 dir_expected_result_6 = [
     {
         "disparate_impact_ratio": 0.09212304698059144,
-        "privileged_group": ["M", "ASY"],
-        "unprivileged_group": ["F", "NAP"],
+        "privileged_sensitive_group": ["M", "ASY"],
+        "unprivileged_sensitive_group": ["F", "NAP"],
     },
     [
         {"sensitive_group": ["F", "NAP"], "score": 0.09212304698059144},
@@ -654,8 +654,8 @@ def test_disparate_impact_ratio(
 eod_expected_result_2 = [
     {
         "eod": 0.03816593886462882,
-        "privileged_group": ["M"],
-        "unprivileged_group": ["F"],
+        "privileged_sensitive_group": ["M"],
+        "unprivileged_sensitive_group": ["F"],
     },
     [{"sensitive_group": ["M"], "score": 0.03816593886462882}, {"sensitive_group": ["F"], "score": -0.03816593886462882}],
     False,
@@ -665,8 +665,8 @@ eod_expected_result_2 = [
 eod_expected_result_3 = [
     {
         "equal_opportunity_difference": 0.33333333333333337,
-        "privileged_group": ["F", "ATA"],
-        "unprivileged_group": ["F", "NAP"],
+        "privileged_sensitive_group": ["F", "ATA"],
+        "unprivileged_sensitive_group": ["F", "NAP"],
     },
     [
         {"sensitive_group": ["F", "ATA"], "score": 0.014164305949008527},
@@ -685,8 +685,8 @@ eod_expected_result_3 = [
 eod_expected_result_6 = [
     {
         "equal_opportunity_difference": 0.33333333333333337,
-        "privileged_group": ["F", "ATA"],
-        "unprivileged_group": ["F", "NAP"],
+        "privileged_sensitive_group": ["F", "ATA"],
+        "unprivileged_sensitive_group": ["F", "NAP"],
     },
     [
         {"sensitive_group": ["F", "ATA"], "score": 0.014164305949008527},
@@ -748,8 +748,8 @@ def test_equal_opportunity_difference(
 eor_expected_result_2 = [
     {
         "eor": 0.9609821428571428,
-        "privileged_group": ["M"],
-        "unprivileged_group": ["F"],
+        "privileged_sensitive_group": ["M"],
+        "unprivileged_sensitive_group": ["F"],
     },
     [{"sensitive_group": ["F"], "score": 0.9609821428571428}, {"sensitive_group": ["M"], "score": 1.0406020626219457}],
     False,
@@ -759,8 +759,8 @@ eor_expected_result_2 = [
 eor_expected_result_3 = [
     {
         "equal_opportunity_ratio": 0.6666666666666666,
-        "privileged_group": ["F", "ATA"],
-        "unprivileged_group": ["F", "NAP"],
+        "privileged_sensitive_group": ["F", "ATA"],
+        "unprivileged_sensitive_group": ["F", "NAP"],
     },
     [
         {"sensitive_group": ["F", "NAP"], "score": 0.6762452107279693},
@@ -779,8 +779,8 @@ eor_expected_result_3 = [
 eor_expected_result_6 = [
     {
         "equal_opportunity_ratio": 0.6666666666666666,
-        "privileged_group": ["F", "ATA"],
-        "unprivileged_group": ["F", "NAP"],
+        "privileged_sensitive_group": ["F", "ATA"],
+        "unprivileged_sensitive_group": ["F", "NAP"],
     },
     [
         {"sensitive_group": ["F", "NAP"], "score": 0.6762452107279693},
@@ -1047,8 +1047,8 @@ def test_performancemetrics(
 eod_expected_result_2 = [
     {
         "equalised_odds_difference": 0.03816593886462882,
-        "privileged_group": ["M"],
-        "unprivileged_group": ["F"],
+        "privileged_sensitive_group": ["M"],
+        "unprivileged_sensitive_group": ["F"],
     },
     [{"sensitive_group": ["M"], "score": 0.03816593886462882}, {"sensitive_group": ["F"], "score": -0.03816593886462882}],
     False,
@@ -1058,8 +1058,8 @@ eod_expected_result_2 = [
 eod_expected_result_3 = [
     {
         "equalised_odds_difference": 0.33333333333333337,
-        "privileged_group": ["F", "ATA"],
-        "unprivileged_group": ["F", "NAP"],
+        "privileged_sensitive_group": ["F", "ATA"],
+        "unprivileged_sensitive_group": ["F", "NAP"],
     },
     [
         {"sensitive_group": ["F", "TA"], "score": 0.10053586843924016},
@@ -1078,8 +1078,8 @@ eod_expected_result_3 = [
 eod_expected_result_6 = [
     {
         "equalised_odds_difference": 0.33333333333333337,
-        "privileged_group": ["F", "ATA"],
-        "unprivileged_group": ["F", "NAP"],
+        "privileged_sensitive_group": ["F", "ATA"],
+        "unprivileged_sensitive_group": ["F", "NAP"],
     },
     [
         {"sensitive_group": ["F", "TA"], "score": 0.10053586843924016},
@@ -1133,8 +1133,8 @@ def test_equalised_odds_difference(
 eor_expected_result_2 = [
     {
         "equalised_odds_ratio": 0.8033707865168539,
-        "privileged_group": ["M"],
-        "unprivileged_group": ["F"],
+        "privileged_sensitive_group": ["M"],
+        "unprivileged_sensitive_group": ["F"],
     },
     [{"sensitive_group": ["M"], "score": 0.8033707865168539}, {"sensitive_group": ["F"], "score": 1.2447552447552448}],
     False,
@@ -1144,8 +1144,8 @@ eor_expected_result_2 = [
 eor_expected_result_3 = [
     {
         "equalised_odds_ratio": 0.0,
-        "privileged_group": ["F", "NAP"],
-        "unprivileged_group": ["M", "ASY"],
+        "privileged_sensitive_group": ["F", "NAP"],
+        "unprivileged_sensitive_group": ["M", "ASY"],
     },
     [
         {"sensitive_group": ["F", "TA"], "score": np.nan},
@@ -1163,8 +1163,8 @@ eor_expected_result_3 = [
 eor_expected_result_6 = [
     {
         "equalised_odds_ratio": np.float64(0.0),
-        "privileged_group": ["F", "NAP"],
-        "unprivileged_group": ["M", "ASY"],
+        "privileged_sensitive_group": ["F", "NAP"],
+        "unprivileged_sensitive_group": ["M", "ASY"],
     },
     [
         {"sensitive_group": ["F", "TA"], "score": np.nan},

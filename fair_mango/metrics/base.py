@@ -337,10 +337,10 @@ class FairnessMetricDifference(ABC):
         FairnessSummaryResult
             A single summary result dictionary with:
             - disparity: The maximum absolute disparity value found.
-            - privileged_group: List of strings identifying the privileged group.
+            - privileged_sensitive_group: List of strings identifying the privileged group.
                 None if no group could be determined (e.g., if there is only one group
                 or all groups have identical scores).
-            - unprivileged_group: List of strings identifying the unprivileged group.
+            - unprivileged_sensitive_group: List of strings identifying the unprivileged group.
                 None if no group could be determined (e.g., if there is only one group
                 or all groups have identical scores).
         """
@@ -348,8 +348,8 @@ class FairnessMetricDifference(ABC):
             self.results = self._compute()
         
         max_disparity = 0.0
-        privileged_group: list[str] | None = None
-        unprivileged_group: list[str] | None = None
+        privileged_sensitive_group: list[str] | None = None
+        unprivileged_sensitive_group: list[str] | None = None
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -357,16 +357,16 @@ class FairnessMetricDifference(ABC):
             if abs_disparity > max_disparity:
                 max_disparity = abs_disparity
                 if disparity_result["disparity"] > 0:
-                    privileged_group = disparity_result["group_1"]
-                    unprivileged_group = disparity_result["group_2"]
+                    privileged_sensitive_group = disparity_result["group_1"]
+                    unprivileged_sensitive_group = disparity_result["group_2"]
                 else:
-                    privileged_group = disparity_result["group_2"]
-                    unprivileged_group = disparity_result["group_1"]
+                    privileged_sensitive_group = disparity_result["group_2"]
+                    unprivileged_sensitive_group = disparity_result["group_1"]
 
         return {
             self.label: max_disparity,
-            "privileged_group": privileged_group,
-            "unprivileged_group": unprivileged_group,
+            "privileged_sensitive_group": privileged_sensitive_group,
+            "unprivileged_sensitive_group": unprivileged_sensitive_group,
         }
 
     def rank(self) -> list[GroupRankingResult]:
@@ -535,10 +535,10 @@ class FairnessMetricRatio(ABC):
             A single summary result dictionary with:
     ratio : float
         The minimum ratio value found (closest to 0).
-    privileged_group : list[str] | None
+    privileged_sensitive_group : list[str] | None
         List of strings identifying the privileged group. None if no group could be determined
         (e.g., if there is only one group or all groups have identical scores).
-    unprivileged_group : list[str] | None
+    unprivileged_sensitive_group : list[str] | None
         List of strings identifying the unprivileged group. None if no group could be determined
         (e.g., if there is only one group or all groups have identical scores).
         """
@@ -546,8 +546,8 @@ class FairnessMetricRatio(ABC):
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_group: list[str] | None = None
-        unprivileged_group: list[str] | None = None
+        privileged_sensitive_group: list[str] | None = None
+        unprivileged_sensitive_group: list[str] | None = None
 
 
         for disparity_result in self.results:
@@ -565,16 +565,16 @@ class FairnessMetricRatio(ABC):
 
             if adjusted_ratio < min_ratio:
                 min_ratio = adjusted_ratio
-                privileged_group = temp_privileged
-                unprivileged_group = temp_unprivileged
+                privileged_sensitive_group = temp_privileged
+                unprivileged_sensitive_group = temp_unprivileged
 
         label = self.label 
 
         
         return {
             label: min_ratio,
-            "privileged_group": privileged_group,
-            "unprivileged_group": unprivileged_group,
+            "privileged_sensitive_group": privileged_sensitive_group,
+            "unprivileged_sensitive_group": unprivileged_sensitive_group,
         }
 
     def rank(self) -> list[GroupRankingResult]:
