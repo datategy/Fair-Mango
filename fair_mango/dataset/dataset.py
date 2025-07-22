@@ -292,7 +292,7 @@ class Dataset:
                 result = result[result[self.sensitive[i]] == row[i]]
             assert isinstance(result, pd.DataFrame)
             self.groups_data.append(
-                {"sensitive_group": [str(x) for x in row[:-1]], "data": result}
+                DatasetGroupResult(sensitive_group=[str(x) for x in row[:-1]], data=result)
             )
         return self.groups_data
 
@@ -370,9 +370,9 @@ class Dataset:
             result = df_filtration(self.df, sensitive_group, self.sensitive)
         else:
             for item in self.groups_data:
-                if set(item["sensitive_group"]) == set(sensitive_group):
+                if set(item.sensitive_group) == set(sensitive_group):
 
-                    result = item["data"]
+                    result = item.data
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
@@ -474,7 +474,7 @@ class Dataset:
             target_data = result[self.real_target]
 
             self.groups_real_target.append(
-                {"sensitive_group": sensitive_group, "data": target_data}
+                DatasetTargetResult(sensitive_group=sensitive_group, data=target_data)
             )
         return self.groups_real_target
 
@@ -553,8 +553,8 @@ class Dataset:
             result = filtered_df[self.real_target]
         else:
             for item in self.groups_real_target:
-                if set(item["sensitive_group"]) == set(sensitive_group):
-                    result = item["data"]
+                if set(item.sensitive_group) == set(sensitive_group):
+                    result = item.data
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")
@@ -660,7 +660,7 @@ class Dataset:
             target_data = result[self.predicted_target]
 
             self.groups_predicted_target.append(
-                {"sensitive_group": sensitive_group, "data": target_data}
+                DatasetTargetResult(sensitive_group=sensitive_group, data=target_data)
             )
         return self.groups_predicted_target
 
@@ -744,8 +744,8 @@ class Dataset:
             result = filtered_df[self.predicted_target]
         else:
             for item in self.groups_predicted_target:
-                if set(item["sensitive_group"]) == set(sensitive_group):
-                    result = item["data"]
+                if set(item.sensitive_group) == set(sensitive_group):
+                    result = item.data
         if result is None:
             raise (
                 ValueError(f"{sensitive_group} group does not exist in the dataframe")

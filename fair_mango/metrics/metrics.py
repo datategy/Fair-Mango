@@ -184,8 +184,8 @@ class SelectionRate(Metric):
 
         result = []
         for group in target_by_group:
-            group_sensitive = group["sensitive_group"]
-            y_group = group["data"]
+            group_sensitive = group.sensitive_group
+            y_group = group.data
             result.append(
                 {"sensitive_group": group_sensitive, "data": float(y_group.mean())}
             )
@@ -249,10 +249,10 @@ class ConfusionMatrix(Metric):
             )
         if metrics is None:
             self.metrics = {
-                "false_negative_rate": false_negative_rate,
-                "false_positive_rate": false_positive_rate,
-                "true_negative_rate": true_negative_rate,
-                "true_positive_rate": true_positive_rate,
+                "false_negative_rate": false_negative_rate,  # type: ignore[dict-item]
+                "false_positive_rate": false_positive_rate,  # type: ignore[dict-item]
+                "true_negative_rate": true_negative_rate,  # type: ignore[dict-item]
+                "true_positive_rate": true_positive_rate,  # type: ignore[dict-item]
             }
         elif isinstance(metrics, dict):
             if "sensitive_group" in metrics:
@@ -378,9 +378,9 @@ class ConfusionMatrix(Metric):
         for real_group, predicted_group in zip(
             self.real_target_by_group, self.predicted_target_by_group
         ):
-            group_sensitive = real_group["sensitive_group"]
-            real_values = real_group["data"]
-            predicted_values = predicted_group["data"]
+            group_sensitive = real_group.sensitive_group
+            real_values = real_group.data
+            predicted_values = predicted_group.data
             result_for_group: dict[str, Any] = {
                 "sensitive_group": np.array(group_sensitive)
             }
@@ -392,7 +392,13 @@ class ConfusionMatrix(Metric):
             fp = conf_matrix[0, 1]
 
             for metric_name, metric in self.metrics.items():
-                result_for_group[metric_name] = [metric(tn=tn, fp=fp, fn=fn, tp=tp)]
+                if metric_name in ["false_negative_rate", "true_positive_rate"]:
+                    result_for_group[metric_name] = [metric(fn, tp)]
+                elif metric_name in ["false_positive_rate", "true_negative_rate"]:
+                    result_for_group[metric_name] = [metric(tn, fp)]
+                else:
+                    # For custom metrics, try with keyword arguments
+                    result_for_group[metric_name] = [metric(tn=tn, fp=fp, fn=fn, tp=tp)]  # type: ignore[call-arg]
 
             result.append(result_for_group)
 
@@ -581,9 +587,9 @@ class PerformanceMetric(Metric):
         for real_group, predicted_group in zip(
             self.real_target_by_group, self.predicted_target_by_group
         ):
-            group_sensitive = real_group["sensitive_group"]
-            real_values = real_group["data"]
-            predicted_values = predicted_group["data"]
+            group_sensitive = real_group.sensitive_group
+            real_values = real_group.data
+            predicted_values = predicted_group.data
             result_for_group: dict[str, Any] = {
                 "sensitive_group": np.array(group_sensitive)
             }
@@ -664,7 +670,8 @@ class DemographicParityDifference(FairnessMetricDifference):
             data,
             SelectionRate,
             "performance",
-            **{"use_y_true": True, "label": label},
+            label,
+            use_y_true=True,
         )
 
 
@@ -736,7 +743,8 @@ class DisparateImpactDifference(FairnessMetricDifference):
             data,
             SelectionRate,
             "performance",
-            **{"use_y_true": False, "label": label},
+            label,
+            use_y_true=False,
         )
 
 
@@ -808,7 +816,8 @@ class EqualOpportunityDifference(FairnessMetricDifference):
             data,
             ConfusionMatrix,
             "performance",
-            **{"metrics": {"data": true_positive_rate}, "label": label},
+            label,
+            metrics={"data": true_positive_rate},
         )
 
 
@@ -882,7 +891,8 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
             data,
             ConfusionMatrix,
             "error",
-            **{"metrics": {"data": false_positive_rate}, "label": label},
+            label,
+            metrics={"data": false_positive_rate},
         )
 
 
@@ -951,7 +961,8 @@ class DemographicParityRatio(FairnessMetricRatio):
             data,
             SelectionRate,
             "performance",
-            **{"use_y_true": True, "label": label},
+            label,
+            use_y_true=True,
         )
 
 
@@ -1020,7 +1031,8 @@ class DisparateImpactRatio(FairnessMetricRatio):
             data,
             SelectionRate,
             "performance",
-            **{"use_y_true": False, "label": label},
+            label,
+            use_y_true=False,
         )
 
 
@@ -1092,7 +1104,8 @@ class EqualOpportunityRatio(FairnessMetricRatio):
             data,
             ConfusionMatrix,
             "performance",
-            **{"metrics": {"data": true_positive_rate}, "label": label},
+            label,
+            metrics={"data": true_positive_rate},
         )
 
 
@@ -1165,7 +1178,8 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
             data,
             ConfusionMatrix,
             "error",
-            **{"metrics": {"data": false_positive_rate}, "label": label},
+            label,
+            metrics={"data": false_positive_rate},
         )
 
 
@@ -1260,7 +1274,7 @@ class EqualisedOddsDifference:
         tpr_diff = tpr.results
         fpr_diff = fpr.results
 
-        return tpr_diff, fpr_diff
+        return tpr_diff, fpr_diff  # type: ignore[return-value]
 
     def summary(self) -> dict[str, float | list[str] | None]:
         """Return the Equalised Odds metric value, in other words the biggest
@@ -1485,7 +1499,7 @@ class EqualisedOddsRatio:
         tpr_ratio = tpr.results
         fpr_ratio = fpr.results
 
-        return tpr_ratio, fpr_ratio
+        return tpr_ratio, fpr_ratio  # type: ignore[return-value]
 
     def summary(self) -> dict[str, float | list[str] | None]:
         """Return the Equalised Odds metric value, in other words the biggest
