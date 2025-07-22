@@ -553,7 +553,7 @@ class Dataset:
             result = filtered_df[self.real_target]
         else:
             for item in self.groups_real_target:
-                if list(item["sensitive_group"]) == list(sensitive_group):
+                if set(item["sensitive_group"]) == set(sensitive_group):
                     result = item["data"]
         if result is None:
             raise (
@@ -744,7 +744,7 @@ class Dataset:
             result = filtered_df[self.predicted_target]
         else:
             for item in self.groups_predicted_target:
-                if list(item["sensitive_group"]) == list(sensitive_group):
+                if set(item["sensitive_group"]) == set(sensitive_group):
                     result = item["data"]
         if result is None:
             raise (
