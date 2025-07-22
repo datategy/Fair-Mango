@@ -190,7 +190,7 @@ class Metric(ABC):
 
 def calculate_disparity(
     result_per_groups: list[GroupData], method: Literal["difference", "ratio"]
-) -> list[dict[str, list[str] | float]]:
+) -> list[dict[str, Any]]:
     """Calculate the disparity in the scores between every possible pair in
     the provided groups using two available methods:
     - difference (Example: for three groups a, b, c:
@@ -224,11 +224,11 @@ def calculate_disparity(
     for i, j in combinations(range(len(result_per_groups)), 2):
         rec_i, rec_j = result_per_groups[i], result_per_groups[j]
 
-        grp_i = list(map(str, rec_i["sensitive_group"]))
-        grp_j = list(map(str, rec_j["sensitive_group"]))
+        grp_i = list(map(str, rec_i.sensitive_group))
+        grp_j = list(map(str, rec_j.sensitive_group))
 
-        data_i = rec_i["data"]
-        data_j = rec_j["data"]
+        data_i = rec_i.data
+        data_j = rec_j.data
 
         def _to_float(x: Any) -> float:
             if isinstance(x, pd.Series):
@@ -305,9 +305,9 @@ class FairnessMetricDifference(ABC):
 
         self.result: dict | None = None
         self.ranking: dict | None = None
-        self.results: list[dict[str, list[str] | float]] | None = None
+        self.results: list[dict[str, Any]] | None = None
 
-    def _compute(self) -> list[dict[str, list[str] | float]]:
+    def _compute(self) -> list[dict[str, Any]]:
         """Calculate the disparity in the scores between every possible pair in
         the provided groups.
 
@@ -366,11 +366,12 @@ class FairnessMetricDifference(ABC):
                     privileged_sensitive_group = disparity_result["group_2"]
                     unprivileged_sensitive_group = disparity_result["group_1"]
 
-        return {
-            self.label: max_disparity,
-            "privileged_sensitive_group": privileged_sensitive_group,
-            "unprivileged_sensitive_group": unprivileged_sensitive_group,
-        }
+        from fair_mango.typing import FairnessSummaryResult
+        return FairnessSummaryResult(
+            disparity=max_disparity,
+            privileged_sensitive_group=privileged_sensitive_group,
+            unprivileged_sensitive_group=unprivileged_sensitive_group,
+        )
 
     def rank(self) -> list[GroupRankingResult]:
         """Assign a score to every sensitive group present in the sensitive
@@ -408,9 +409,9 @@ class FairnessMetricDifference(ABC):
         for group_tuple, score in group_scores.items():
             ranking_list.append({"sensitive_group": list(group_tuple), "score": score})
 
-        ranking_list.sort(key=lambda x: x["score"], reverse=True)
+        ranking_list.sort(key=lambda x: float(x["score"]) if isinstance(x["score"], (int, float, str)) else 0.0, reverse=True)
 
-        return ranking_list
+        return ranking_list  # type: ignore[return-value]
 
     def is_biased(self, threshold: float = 0.1) -> bool:
         """Return a decision of whether there is bias or not for each target
@@ -499,9 +500,9 @@ class FairnessMetricRatio(ABC):
         self.metric_results: list = []
         self.result: dict | None = None
         self.ranking: dict | None = None
-        self.results: list[dict[str, list[str] | float]] | None = None
+        self.results: list[dict[str, Any]] | None = None
 
-    def _compute(self) -> list[dict[str, list[str] | float]]:
+    def _compute(self) -> list[dict[str, Any]]:
         """Calculate the disparity in the scores between every possible pair in
         the provided groups.
 
@@ -568,11 +569,12 @@ class FairnessMetricRatio(ABC):
 
         label = self.label
 
-        return {
-            label: min_ratio,
-            "privileged_sensitive_group": privileged_sensitive_group,
-            "unprivileged_sensitive_group": unprivileged_sensitive_group,
-        }
+        from fair_mango.typing import FairnessRatioSummaryResult
+        return FairnessRatioSummaryResult(
+            ratio=min_ratio,
+            privileged_sensitive_group=privileged_sensitive_group,
+            unprivileged_sensitive_group=unprivileged_sensitive_group,
+        )
 
     def rank(self) -> list[GroupRankingResult]:
         """Assign a score to every sensitive group present in the sensitive
@@ -614,9 +616,9 @@ class FairnessMetricRatio(ABC):
                 {"sensitive_group": list(group_tuple), "score": float(score)}
             )
 
-        ranking_list.sort(key=lambda x: x["score"])
+        ranking_list.sort(key=lambda x: float(x["score"]) if isinstance(x["score"], (int, float, str)) else 0.0)
 
-        return ranking_list
+        return ranking_list  # type: ignore[return-value]
 
     def is_biased(self, threshold: float = 0.8) -> bool:
         """Return a decision of whether there is bias or not for each target
