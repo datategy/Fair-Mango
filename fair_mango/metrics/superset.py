@@ -1,5 +1,6 @@
 from abc import ABC
 from itertools import chain, combinations
+from typing import cast
 
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.metrics.metrics import (
@@ -17,7 +18,12 @@ from fair_mango.metrics.metrics import (
     PerformanceMetric,
     SelectionRate,
 )
-from fair_mango.typing import SupersetPerformanceEvaluation
+from fair_mango.typing import (
+    SupersetBiasResult,
+    SupersetFairnessRankingResult,
+    SupersetFairnessSummaryResult,
+    SupersetPerformanceEvaluation,
+)
 
 
 class Superset(ABC):
@@ -113,12 +119,12 @@ class SupersetFairnessMetrics(Superset):
         super().__init__(data)
 
         # Dataset-only metrics (only need real_target)
-        self._dataset_metrics = {
+        self._dataset_metrics = {  # type: ignore[assignment]
             "demographic_parity_difference": DemographicParityDifference,
         }
 
         # Model metrics (need predicted_target)
-        self._model_metrics = {
+        self._model_metrics = {  # type: ignore[assignment]
             "demographic_parity_ratio": DemographicParityRatio,
             "disparate_impact_difference": DisparateImpactDifference,
             "disparate_impact_ratio": DisparateImpactRatio,
@@ -130,16 +136,16 @@ class SupersetFairnessMetrics(Superset):
             "false_positive_rate_ratio": FalsePositiveRateRatio,
         }
 
-    def rank(self) -> list[dict]:
+    def rank(self) -> list[SupersetFairnessRankingResult]:
         """Calculate fairness metrics rankings for all combinations of sensitive
         attributes and all applicable fairness metrics.
 
         Returns
         -------
-        list[dict]
-            A list of dictionaries, each containing:
-            - 'sensitive_group': List of sensitive attribute names for this combination
-            - 'rankings': Dictionary mapping metric names to their ranking results
+        list[SupersetFairnessRankingResult]
+            A list of SupersetFairnessRankingResult objects, each containing:
+            - sensitive_group: List of sensitive attribute names for this combination
+            - rankings: Dictionary mapping metric names to their ranking results
         """
         results = []
 
@@ -168,7 +174,7 @@ class SupersetFairnessMetrics(Superset):
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
-                        metric = metric_class(dataset)
+                        metric = metric_class(dataset)  # type: ignore[assignment][assignment][assignment]
                         rankings[metric_name] = metric.rank()
                     except Exception as e:
                         # Skip metrics that can't be calculated for this combination
@@ -178,24 +184,24 @@ class SupersetFairnessMetrics(Superset):
                         continue
 
             results.append(
-                {
-                    "sensitive_group": list(pair),
-                    "rankings": rankings,
-                }
+                SupersetFairnessRankingResult(
+                    sensitive_group=list(pair),
+                    rankings=rankings,
+                )
             )
 
         return results
 
-    def summary(self) -> list[dict]:
+    def summary(self) -> list[SupersetFairnessSummaryResult]:
         """Calculate fairness metrics summaries for all combinations of sensitive
         attributes and all applicable fairness metrics.
 
         Returns
         -------
-        list[dict]
-            A list of dictionaries, each containing:
-            - 'sensitive_group': List of sensitive attribute names for this combination
-            - 'summaries': Dictionary mapping metric names to their summary results
+        list[SupersetFairnessSummaryResult]
+            A list of SupersetFairnessSummaryResult objects, each containing:
+            - sensitive_group: List of sensitive attribute names for this combination
+            - summaries: Dictionary mapping metric names to their summary results
         """
         results = []
 
@@ -224,7 +230,7 @@ class SupersetFairnessMetrics(Superset):
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
-                        metric = metric_class(dataset)
+                        metric = metric_class(dataset)  # type: ignore
                         summaries[metric_name] = metric.summary()
                     except Exception as e:
                         # Skip metrics that can't be calculated for this combination
@@ -234,15 +240,14 @@ class SupersetFairnessMetrics(Superset):
                         continue
 
             results.append(
-                {
-                    "sensitive_group": list(pair),
-                    "summaries": summaries,
-                }
+                SupersetFairnessSummaryResult(
+                    summaries=cast(dict[str, object], summaries),
+                )
             )
 
         return results
 
-    def is_biased(self, thresholds: dict[str, float] | None = None) -> list[dict]:
+    def is_biased(self, thresholds: dict[str, float] | None = None) -> list[SupersetBiasResult]:
         """Determine bias for all combinations of sensitive attributes and all
         applicable fairness metrics.
 
@@ -254,10 +259,10 @@ class SupersetFairnessMetrics(Superset):
 
         Returns
         -------
-        list[dict]
-            A list of dictionaries, each containing:
-            - 'sensitive_group': List of sensitive attribute names for this combination
-            - 'bias_results': Dictionary mapping metric names to their bias decisions
+        list[SupersetBiasResult]
+            A list of SupersetBiasResult objects, each containing:
+            - sensitive_group: List of sensitive attribute names for this combination
+            - bias_results: Dictionary mapping metric names to their bias decisions
         """
         if thresholds is None:
             thresholds = {}
@@ -306,7 +311,7 @@ class SupersetFairnessMetrics(Superset):
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
-                        metric = metric_class(dataset)
+                        metric = metric_class(dataset)  # type: ignore
                         threshold = thresholds.get(
                             metric_name, default_thresholds.get(metric_name, 0.1)
                         )
@@ -319,10 +324,10 @@ class SupersetFairnessMetrics(Superset):
                         continue
 
             results.append(
-                {
-                    "sensitive_group": list(pair),
-                    "bias_results": bias_results,
-                }
+                SupersetBiasResult(
+                    sensitive_group=list(pair),
+                    bias_results=bias_results,
+                )
             )
 
         return results
@@ -466,4 +471,4 @@ class SupersetPerformanceMetrics(Superset):
                 }
             )
 
-        return results
+        return results  # type: ignore[return-value]

@@ -5,30 +5,47 @@ import numpy as np
 import pandas as pd
 
 
-class DatasetTargetResult(TypedDict):
+@dataclass
+class DatasetTargetResult:
     """Result of target data for a sensitive group from Dataset."""
 
-    sensitive: list[str]
-    result: pd.Series
+    sensitive_group: list[str]
+    data: pd.Series
+
+    def to_dict(self) -> dict[str, object]:
+        """Convert to dictionary for backward compatibility."""
+        return asdict(self)
 
 
-class GroupRankingResult(TypedDict):
-    sensitive: list[str]
+@dataclass
+class GroupRankingResult:
+    """Result of group ranking."""
+    
+    sensitive_group: list[str]
     score: float
 
+    def to_dict(self) -> dict[str, object]:
+        """Convert to dictionary for backward compatibility."""
+        return asdict(self)
 
-class DatasetGroupResult(TypedDict):
+
+@dataclass
+class DatasetGroupResult:
     """Result of group data from Dataset."""
 
-    sensitive: list[str]
-    result: pd.DataFrame
+    sensitive_group: list[str]
+    data: pd.DataFrame
+
+    def to_dict(self) -> dict[str, object]:
+        """Convert to dictionary for backward compatibility."""
+        return asdict(self)
 
 
 @dataclass
 class MetricResult:
     """Result of a metric for a single sensitive group."""
 
-    sensitive: list[str]
+    sensitive_group: list[str]
     result: float
 
 
@@ -63,7 +80,7 @@ class FairnessRatioSummaryResult:
 class RankResult:
     """Individual rank result for a group."""
 
-    sensitive: list[str]
+    sensitive_group: list[str]
     score: float
 
     def to_dict(self) -> dict[str, object]:
@@ -75,7 +92,7 @@ class RankResult:
 class DetailedPerformanceMetricsResult:
     """A collection of all performance metrics for a single sensitive group."""
 
-    sensitive: list[str]
+    sensitive_group: list[str]
     selection_rate_in_data: float
     selection_rate_in_predictions: float
     accuracy: float
@@ -167,21 +184,74 @@ class EqualisedOddsSummaryResult:
 
 
 @dataclass
-class GroupData(TypedDict, total=False):
+class SupersetFairnessRankingResult:
+    """Result of fairness metric rankings for a sensitive group combination."""
+    
+    sensitive_group: list[str]
+    rankings: dict[str, list[GroupRankingResult]]
+    
+    def to_dict(self) -> dict[str, object]:
+        """Convert to dictionary for backward compatibility."""
+        return {
+            "sensitive_group": self.sensitive_group,
+            "rankings": {k: [r.to_dict() for r in v] for k, v in self.rankings.items()}
+        }
+
+
+@dataclass
+class SupersetFairnessSummaryResult:
+    """Result of fairness summary evaluation for a superset."""
+
+    summaries: dict[str, object]
+
+    def to_dict(self) -> dict[str, object]:
+        """Convert to dictionary format for backward compatibility."""
+        result: dict[str, object] = {"summaries": {}}
+        summaries_dict: dict[str, object] = {}
+        for key, value in self.summaries.items():
+            if hasattr(value, "to_dict"):
+                summaries_dict[key] = value.to_dict()
+            else:
+                summaries_dict[key] = value
+        result["summaries"] = summaries_dict
+        return result
+
+
+@dataclass
+class SupersetBiasResult:
+    """Result of bias determination for a sensitive group combination."""
+    
+    sensitive_group: list[str]
+    bias_results: dict[str, bool]
+    
+    def to_dict(self) -> dict[str, object]:
+        """Convert to dictionary for backward compatibility."""
+        return {
+            "sensitive_group": self.sensitive_group,
+            "bias_results": self.bias_results
+        }
+
+
+@dataclass
+class GroupData:
     """
-    Dictionary produced by helper functions such as
+    Data structure produced by helper functions such as
     `Dataset.get_*_for_all_groups`.
 
-    Keys
-    ----
-    sensitive : list[str] | np.ndarray
+    Attributes
+    ----------
+    sensitive_group : list[str] | np.ndarray
         Labels identifying the sensitive group.
-    data      : pd.Series | np.ndarray | list[float]
+    data : pd.Series | np.ndarray | list[float] | None
         Raw per-record metric values (present for some helpers).
-    result    : float | pd.Series | np.ndarray | list[float]
+    result : float | pd.Series | np.ndarray | list[float] | None
         Pre-computed score for the group (present for others).
     """
 
-    sensitive: list[str] | np.ndarray
-    data: pd.Series | np.ndarray | list[float]
-    result: float | pd.Series | np.ndarray | list[float]
+    sensitive_group: list[str] | np.ndarray
+    data: pd.Series | np.ndarray | list[float] | None = None
+    result: float | pd.Series | np.ndarray | list[float] | None = None
+
+    def to_dict(self) -> dict[str, object]:
+        """Convert to dictionary for backward compatibility."""
+        return asdict(self)
