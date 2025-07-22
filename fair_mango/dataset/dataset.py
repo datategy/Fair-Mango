@@ -370,7 +370,8 @@ class Dataset:
             result = df_filtration(self.df, sensitive_group, self.sensitive)
         else:
             for item in self.groups_data:
-                if list(item["sensitive_group"]) == list(sensitive_group):
+                if set(item["sensitive_group"]) == set(sensitive_group):
+
                     result = item["data"]
         if result is None:
             raise (
