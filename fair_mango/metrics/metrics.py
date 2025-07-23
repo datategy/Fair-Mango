@@ -680,8 +680,8 @@ class DemographicParityDifference(FairnessMetricDifference):
         super().__init__(
             data,
             SelectionRate,
-            "performance",
             label,
+            "performance",
             use_y_true=True,
         )
 
@@ -787,8 +787,8 @@ class DisparateImpactDifference(FairnessMetricDifference):
         super().__init__(
             data,
             SelectionRate,
-            "performance",
             label,
+            "performance",
             use_y_true=False,
         )
 
@@ -894,8 +894,8 @@ class EqualOpportunityDifference(FairnessMetricDifference):
         super().__init__(
             data,
             ConfusionMatrix,
-            "performance",
             label,
+            "performance",
             metrics={"data": true_positive_rate},
         )
 
@@ -1003,8 +1003,8 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
         super().__init__(
             data,
             ConfusionMatrix,
-            "error",
             label,
+            "error",
             metrics={"data": false_positive_rate},
         )
 
@@ -1107,8 +1107,8 @@ class DemographicParityRatio(FairnessMetricRatio):
         super().__init__(
             data,
             SelectionRate,
-            "performance",
             label,
+            "performance",
             use_y_true=True,
         )
 
@@ -1210,8 +1210,8 @@ class DisparateImpactRatio(FairnessMetricRatio):
         super().__init__(
             data,
             SelectionRate,
-            "performance",
             label,
+            "performance",
             use_y_true=False,
         )
 
@@ -1316,8 +1316,8 @@ class EqualOpportunityRatio(FairnessMetricRatio):
         super().__init__(
             data,
             ConfusionMatrix,
-            "performance",
             label,
+            "performance",
             metrics={"data": true_positive_rate},
         )
 
@@ -1423,8 +1423,8 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
         super().__init__(
             data,
             ConfusionMatrix,
-            "error",
             label,
+            "error",
             metrics={"data": false_positive_rate},
         )
 
