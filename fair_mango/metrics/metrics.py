@@ -405,7 +405,6 @@ class ConfusionMatrix(Metric):
                 elif metric_name in ["false_positive_rate", "true_negative_rate"]:
                     metrics_dict[metric_name] = [metric(tn, fp)]
                 else:
-                    # For custom metrics, try with keyword arguments
                     metrics_dict[metric_name] = [metric(tn=tn, fp=fp, fn=fn, tp=tp)]  # type: ignore[call-arg]
 
             result.append(
