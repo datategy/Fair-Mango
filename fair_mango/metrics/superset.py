@@ -18,6 +18,7 @@ from fair_mango.metrics.metrics import (
     PerformanceMetric,
     SelectionRate,
 )
+from fair_mango.metrics.constants import DEFAULT_BIAS_THRESHOLDS
 from fair_mango.typing import (
     SupersetBiasResult,
     SupersetFairnessRankingResult,
@@ -259,18 +260,7 @@ class SupersetFairnessMetrics(Superset):
         if thresholds is None:
             thresholds = {}
 
-        default_thresholds = {
-            "demographic_parity_difference": 0.1,
-            "disparate_impact_difference": 0.1,
-            "equal_opportunity_difference": 0.1,
-            "false_positive_rate_difference": 0.1,
-            "equalised_odds_difference": 0.1,
-            "demographic_parity_ratio": 0.8,
-            "disparate_impact_ratio": 0.8,
-            "equal_opportunity_ratio": 0.8,
-            "false_positive_rate_ratio": 0.8,
-            "equalised_odds_ratio": 0.8,
-        }
+        effective_thresholds = DEFAULT_BIAS_THRESHOLDS | thresholds
 
         results = []
 
@@ -288,9 +278,7 @@ class SupersetFairnessMetrics(Superset):
             for metric_name, metric_class in self._dataset_metrics.items():
                 try:
                     metric = metric_class(dataset)
-                    threshold = thresholds.get(
-                        metric_name, default_thresholds.get(metric_name, 0.1)
-                    )
+                    threshold = effective_thresholds.get(metric_name, 0.1)
                     bias_results[metric_name] = metric.is_biased(threshold)
                 except Exception as e:
                     print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
@@ -300,9 +288,7 @@ class SupersetFairnessMetrics(Superset):
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
                         metric = metric_class(dataset)  # type: ignore
-                        threshold = thresholds.get(
-                            metric_name, default_thresholds.get(metric_name, 0.1)
-                        )
+                        threshold = effective_thresholds.get(metric_name, 0.1)
                         bias_results[metric_name] = metric.is_biased(threshold)
                     except Exception as e:
                         print(
