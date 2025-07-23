@@ -64,7 +64,7 @@ class Superset(ABC):
         positive_target = data.positive_target
         df = data.df
         if predicted_target == []:
-            predicted_target = None  # type: ignore
+            predicted_target = None
         if sensitive is None:
             raise AttributeError(
                 "'sensitive_group' attribute is required when data is pandas dataframe"
@@ -170,7 +170,7 @@ class SupersetFairnessMetrics(Superset):
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
-                        metric = metric_class(dataset)  # type: ignore[assignment]
+                        metric = metric_class(dataset)
                         rankings[metric_name] = metric.rank()
                     except Exception as e:
                         print(
@@ -222,7 +222,7 @@ class SupersetFairnessMetrics(Superset):
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
-                        metric = metric_class(dataset)  # type: ignore
+                        metric = metric_class(dataset)
                         summaries[metric_name] = metric.summary()
                     except Exception as e:
                         print(
@@ -287,7 +287,7 @@ class SupersetFairnessMetrics(Superset):
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
-                        metric = metric_class(dataset)  # type: ignore
+                        metric = metric_class(dataset)
                         threshold = effective_thresholds.get(metric_name, 0.1)
                         bias_results[metric_name] = metric.is_biased(threshold)
                     except Exception as e:

@@ -1,5 +1,5 @@
 from dataclasses import asdict, dataclass
-from typing import TypedDict, cast
+from typing import Protocol, TypedDict, cast
 
 import numpy as np
 import pandas as pd
@@ -118,6 +118,13 @@ class RankResult:
     def to_dict(self) -> dict[str, object]:
         """Convert to dictionary for backward compatibility."""
         return asdict(self)
+
+
+class MetricResultProtocol(Protocol):
+    """Protocol for metric result types that can be used in disparity calculations."""
+
+    sensitive_group: list[str]
+    data: float | pd.Series | np.ndarray | list[float]
 
 
 @dataclass
