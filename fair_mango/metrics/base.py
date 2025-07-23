@@ -497,7 +497,7 @@ class FairnessMetricRatio(ABC):
         data: Dataset,
         metric: type[Metric],
         metric_type: str = "performance",
-        label: str = "difference",
+        label: str = "",
         **metric_kwargs,
     ) -> None:
         self.data = data
