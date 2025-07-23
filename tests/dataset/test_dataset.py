@@ -166,12 +166,10 @@ def test_get_data_for_all_groups(
     results = dataset.get_data_for_all_groups()
     assert isinstance(results, list)
     for i, result in enumerate(results):
-        assert isinstance(result, dict)
-        for group, expected_group in zip(
-            result["sensitive_group"], sensitive_groups[i]
-        ):
+        assert hasattr(result, "sensitive_group") and hasattr(result, "data")
+        for group, expected_group in zip(result.sensitive_group, sensitive_groups[i]):
             assert group == expected_group
-        assert isinstance(result["data"], pd.DataFrame)
+        assert isinstance(result.data, pd.DataFrame)
 
 
 @pytest.mark.parametrize(
@@ -227,13 +225,11 @@ def test_get_real_target_for_all_groups(
     results = dataset.get_real_target_for_all_groups()
     assert isinstance(results, list)
     for i, result in enumerate(results):
-        assert isinstance(result, dict)
-        for group, expected_group in zip(
-            result["sensitive_group"], sensitive_groups[i]
-        ):
+        assert hasattr(result, "sensitive_group") and hasattr(result, "data")
+        for group, expected_group in zip(result.sensitive_group, sensitive_groups[i]):
             assert group == expected_group
-        assert isinstance(result["data"], expected_data_type)
-        assert result["data"].shape in expected_data_shape
+        assert isinstance(result.data, expected_data_type)
+        assert result.data.shape in expected_data_shape
 
 
 @pytest.mark.parametrize(
@@ -284,13 +280,13 @@ def test_get_predicted_target_for_all_groups(
         results = dataset.get_predicted_target_for_all_groups()
         assert isinstance(results, list)
         for i, result in enumerate(results):
-            assert isinstance(result, dict)
+            assert hasattr(result, "sensitive_group") and hasattr(result, "data")
             for group, expected_group in zip(
-                result["sensitive_group"], sensitive_groups[i]
+                result.sensitive_group, sensitive_groups[i]
             ):
                 assert group == expected_group
-            assert isinstance(result["data"], expected_data_type)
-            assert result["data"].shape in expected_data_shape
+            assert isinstance(result.data, expected_data_type)
+            assert result.data.shape in expected_data_shape
     else:
         with exception:
             dataset.get_predicted_target_for_all_groups()
