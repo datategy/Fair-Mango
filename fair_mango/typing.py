@@ -1,5 +1,5 @@
 from dataclasses import asdict, dataclass
-from typing import cast
+from typing import TypedDict, cast
 
 import numpy as np
 import pandas as pd
@@ -58,6 +58,14 @@ class MetricResult:
 @dataclass
 class DisparityResult:
     """Result of disparity calculation between two groups."""
+
+    group_1: list[str]
+    group_2: list[str]
+    disparity: float
+
+
+class DisparityResultDict(TypedDict):
+    """TypedDict for disparity calculation result between two groups."""
 
     group_1: list[str]
     group_2: list[str]
