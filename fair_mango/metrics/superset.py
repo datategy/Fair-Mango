@@ -118,12 +118,10 @@ class SupersetFairnessMetrics(Superset):
     ) -> None:
         super().__init__(data)
 
-        # Dataset-only metrics (only need real_target)
         self._dataset_metrics: dict[str, type] = {
             "demographic_parity_difference": DemographicParityDifference,
         }
 
-        # Model metrics (need predicted_target)
         self._model_metrics: dict[str, type] = {
             "demographic_parity_ratio": DemographicParityRatio,
             "disparate_impact_difference": DisparateImpactDifference,
@@ -160,24 +158,20 @@ class SupersetFairnessMetrics(Superset):
 
             rankings = {}
 
-            # Calculate dataset metrics
             for metric_name, metric_class in self._dataset_metrics.items():
                 try:
                     metric = metric_class(dataset)
                     rankings[metric_name] = metric.rank()
                 except Exception as e:
-                    # Skip metrics that can't be calculated for this combination
                     print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
                     continue
 
-            # Calculate model metrics if predictions are available
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
                         metric = metric_class(dataset)  # type: ignore[assignment]
                         rankings[metric_name] = metric.rank()
                     except Exception as e:
-                        # Skip metrics that can't be calculated for this combination
                         print(
                             f"Warning: Could not calculate {metric_name} for {pair}: {e}"
                         )
@@ -216,24 +210,20 @@ class SupersetFairnessMetrics(Superset):
 
             summaries = {}
 
-            # Calculate dataset metrics
             for metric_name, metric_class in self._dataset_metrics.items():
                 try:
                     metric = metric_class(dataset)
                     summaries[metric_name] = metric.summary()
                 except Exception as e:
-                    # Skip metrics that can't be calculated for this combination
                     print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
                     continue
 
-            # Calculate model metrics if predictions are available
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
                         metric = metric_class(dataset)  # type: ignore
                         summaries[metric_name] = metric.summary()
                     except Exception as e:
-                        # Skip metrics that can't be calculated for this combination
                         print(
                             f"Warning: Could not calculate {metric_name} for {pair}: {e}"
                         )
@@ -269,7 +259,6 @@ class SupersetFairnessMetrics(Superset):
         if thresholds is None:
             thresholds = {}
 
-        # Default thresholds for each metric type
         default_thresholds = {
             "demographic_parity_difference": 0.1,
             "disparate_impact_difference": 0.1,
@@ -296,7 +285,6 @@ class SupersetFairnessMetrics(Superset):
 
             bias_results = {}
 
-            # Calculate dataset metrics
             for metric_name, metric_class in self._dataset_metrics.items():
                 try:
                     metric = metric_class(dataset)
@@ -305,11 +293,9 @@ class SupersetFairnessMetrics(Superset):
                     )
                     bias_results[metric_name] = metric.is_biased(threshold)
                 except Exception as e:
-                    # Skip metrics that can't be calculated for this combination
                     print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
                     continue
 
-            # Calculate model metrics if predictions are available
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
@@ -319,7 +305,6 @@ class SupersetFairnessMetrics(Superset):
                         )
                         bias_results[metric_name] = metric.is_biased(threshold)
                     except Exception as e:
-                        # Skip metrics that can't be calculated for this combination
                         print(
                             f"Warning: Could not calculate {metric_name} for {pair}: {e}"
                         )
@@ -436,25 +421,21 @@ class SupersetPerformanceMetrics(Superset):
                 self.positive_target,
             )
 
-            # Get selection rate in data (real target)
             concatenated_results = SelectionRate(
                 dataset,
                 use_y_true=True,
             )()
 
-            # Rename "data" key to "selection_rate_in_data" for each group
             for group_result in concatenated_results:
                 group_result["selection_rate_in_data"] = group_result.pop("data")
 
             for metric in self.metrics:
                 if metric is SelectionRate:
-                    # Get selection rate in predictions
                     result = SelectionRate(
                         dataset,
                         use_y_true=False,
                     )()
 
-                    # Rename "data" key to "selection_rate_in_predictions"
                     for group_result in result:
                         group_result["selection_rate_in_predictions"] = (
                             group_result.pop("data")

@@ -390,7 +390,6 @@ class FalsePositiveRateSummaryResult:
         if self.false_positive_rate_difference is not None:
             result[self.label] = self.false_positive_rate_difference
         elif self.false_positive_rate_ratio is not None:
-            # For ratio metrics, always use the label as the key
             result[self.label] = self.false_positive_rate_ratio
         if self.privileged_sensitive_group is not None:
             result["privileged_sensitive_group"] = self.privileged_sensitive_group
