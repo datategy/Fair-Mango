@@ -292,8 +292,8 @@ class FairnessMetricDifference(ABC):
         self,
         data: Dataset,
         metric: type[Metric],
+        label: str,
         metric_type: str = "performance",
-        label: str = "",
         **metric_kwargs,
     ) -> None:
         self.metric = metric
@@ -502,8 +502,8 @@ class FairnessMetricRatio(ABC):
         self,
         data: Dataset,
         metric: type[Metric],
+        label: str,
         metric_type: str = "performance",
-        label: str = "",
         **metric_kwargs,
     ) -> None:
         self.data = data
