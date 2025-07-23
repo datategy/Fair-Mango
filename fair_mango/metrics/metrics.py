@@ -1553,7 +1553,7 @@ class EqualisedOddsDifference:
         tpr_diff = tpr.results
         fpr_diff = fpr.results
 
-        return tpr_diff, fpr_diff  # type: ignore[return-value]
+        return tpr_diff, fpr_diff
 
     def summary(self) -> EqualisedOddsSummaryResult:
         """Return the Equalised Odds metric value, in other words the biggest
@@ -1778,7 +1778,7 @@ class EqualisedOddsRatio:
         tpr_ratio = tpr.results
         fpr_ratio = fpr.results
 
-        return tpr_ratio, fpr_ratio  # type: ignore[return-value]
+        return tpr_ratio, fpr_ratio
 
     def summary(self) -> EqualisedOddsSummaryResult:
         """Return the Equalised Odds metric value, in other words the biggest
