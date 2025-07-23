@@ -292,7 +292,9 @@ class Dataset:
                 result = result[result[self.sensitive[i]] == row[i]]
             assert isinstance(result, pd.DataFrame)
             self.groups_data.append(
-                DatasetGroupResult(sensitive_group=[str(x) for x in row[:-1]], data=result)
+                DatasetGroupResult(
+                    sensitive_group=[str(x) for x in row[:-1]], data=result
+                )
             )
         return self.groups_data
 
@@ -371,7 +373,6 @@ class Dataset:
         else:
             for item in self.groups_data:
                 if set(item.sensitive_group) == set(sensitive_group):
-
                     result = item.data
         if result is None:
             raise (
