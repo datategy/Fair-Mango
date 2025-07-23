@@ -179,7 +179,9 @@ class SelectionRate(Metric):
         """
         if self.use_y_true:
             if self.data.real_target is None:
-                raise ValueError("Real target not specified when creating Dataset. Please specify a column name for the real target or set use_y_true to False.")
+                raise ValueError(
+                    "Real target not specified when creating Dataset. Please specify a column name for the real target or set use_y_true to False."
+                )
             target_by_group = self.real_target_by_group
         else:
             if self.data.predicted_target is None:
