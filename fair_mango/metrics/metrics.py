@@ -179,8 +179,7 @@ class SelectionRate(Metric):
         """
         if self.use_y_true:
             if self.data.real_target is None:
-                msg = "Real target not specified when creating Dataset. Please specify a column name for the real target or set use_y_true to False."
-                raise ValueError(msg)
+                raise ValueError("Real target not specified when creating Dataset. Please specify a column name for the real target or set use_y_true to False.")
             target_by_group = self.real_target_by_group
         else:
             if self.data.predicted_target is None:
@@ -267,13 +266,12 @@ class ConfusionMatrix(Metric):
             }
         elif isinstance(metrics, dict):
             if "sensitive_group" in metrics:
-                msg = "Cannot use 'sensitive_group' as a key for metrics"
-                raise KeyError(msg)
+                raise KeyError("Cannot use 'sensitive_group' as a key for metrics")
             self.metrics = metrics
         else:
             self.metrics = {metric.__name__: metric for metric in metrics}
 
-    def __call__(self) -> list["ConfusionMatrixResult"]:
+    def __call__(self) -> list[ConfusionMatrixResult]:
         """Calculate the confusion matrix related metrics:
         - false positive rate.
         - false negative rate.
@@ -473,8 +471,7 @@ class PerformanceMetric(Metric):
             }
         elif isinstance(metrics, dict):
             if "sensitive_group" in metrics:
-                msg = "Cannot use 'sensitive_group' as a key for metrics"
-                raise KeyError(msg)
+                raise KeyError("Cannot use 'sensitive_group' as a key for metrics")
             self.metrics = metrics
         else:
             self.metrics = {metric.__name__: metric for metric in metrics}
