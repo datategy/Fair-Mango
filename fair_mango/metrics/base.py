@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Hashable
 from itertools import combinations
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import numpy as np
 import pandas as pd
@@ -10,6 +10,7 @@ from fair_mango.dataset.dataset import Dataset
 from fair_mango.typing import (
     DemographicParitySummaryResult,
     DisparateImpactSummaryResult,
+    DisparityResultDict,
     EqualOpportunitySummaryResult,
     FalsePositiveRateSummaryResult,
     FairnessRatioSummaryResult,
@@ -194,7 +195,7 @@ class Metric(ABC):
 
 def calculate_disparity(
     result_per_groups: list[GroupData], method: Literal["difference", "ratio"]
-) -> list[dict[str, Any]]:
+) -> list[DisparityResultDict]:
     """Calculate the disparity in the scores between every possible pair in
     the provided groups using two available methods:
     - difference (Example: for three groups a, b, c:
@@ -252,7 +253,7 @@ def calculate_disparity(
             }
         )
 
-    return disparities
+    return cast(list[DisparityResultDict], disparities)
 
 
 class FairnessMetricDifference(ABC):
@@ -309,16 +310,16 @@ class FairnessMetricDifference(ABC):
 
         self.result: dict | None = None
         self.ranking: dict | None = None
-        self.results: list[dict[str, Any]] | None = None
+        self.results: list[DisparityResultDict] | None = None
 
-    def _compute(self) -> list[dict[str, Any]]:
+    def _compute(self) -> list[DisparityResultDict]:
         """Calculate the disparity in the scores between every possible pair in
         the provided groups.
 
         Returns
         -------
-        list[dict]
-            A list of DisparityResult dictionaries with:
+        list[DisparityResultDict]
+            A list of DisparityResultDict with:
             - group_1: First group as list[str]
             - group_2: Second group as list[str]
             - disparity: The difference value between groups
@@ -518,16 +519,16 @@ class FairnessMetricRatio(ABC):
         self.metric_results: list = []
         self.result: dict | None = None
         self.ranking: dict | None = None
-        self.results: list[dict[str, Any]] | None = None
+        self.results: list[DisparityResultDict] | None = None
 
-    def _compute(self) -> list[dict[str, Any]]:
+    def _compute(self) -> list[DisparityResultDict]:
         """Calculate the disparity in the scores between every possible pair in
         the provided groups.
 
         Returns
         -------
-        list[dict]
-            A list of DisparityResult dictionaries with:
+        list[DisparityResultDict]
+            A list of DisparityResultDict with:
             - group_1: First group as list[str]
             - group_2: Second group as list[str]
             - disparity: The ratio value between groups
