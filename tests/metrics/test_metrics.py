@@ -1,4 +1,5 @@
 from collections.abc import Callable, Sequence
+from typing import Any
 from contextlib import AbstractContextManager
 
 import numpy as np
@@ -130,12 +131,12 @@ def test_selectionrate(
     expected_groups: Sequence[str],
     expected_result: Sequence[float] | AbstractContextManager,
 ):
-    if isinstance(expected_result, Sequence):
+    if not isinstance(expected_result, AbstractContextManager):
         sr = SelectionRate(data, use_y_true)
         result = sr()
         for i, res in enumerate(result):
-            assert res["sensitive_group"] == expected_groups[i]
-            assert np.isclose(res["data"], expected_result[i])
+            assert res.sensitive_group == expected_groups[i]
+            assert np.isclose(res.data, expected_result[i])
     else:
         with expected_result:
             sr = SelectionRate(data, use_y_true)
@@ -227,31 +228,33 @@ confusionmatrix_expected_result_6 = [
         (dataset3, {"fpr": false_positive_rate}, confusionmatrix_expected_result_3),
         (
             dataset6,
-            [true_negative_rate, false_negative_rate],
+            [true_negative_rate, false_negative_rate],  # type: ignore[list-item]
             confusionmatrix_expected_result_6,
         ),
     ],
 )
 def test_confusionmatrix(
     data: Dataset,
-    metrics: dict[str, Callable] | Sequence[Callable] | None,
+    metrics: dict[str, Callable[..., Any]] | Sequence[Callable[..., Any]] | None,
     expected_result: Sequence[dict[str, Sequence]] | AbstractContextManager,
 ):
-    if isinstance(expected_result, Sequence):
+    if not isinstance(expected_result, AbstractContextManager):
         cf = ConfusionMatrix(data, metrics)
         result = cf()
         for i, res in enumerate(result):
-            for key in res.keys():
-                if key == "sensitive_group":
-                    assert (res[key] == expected_result[i][key]).all()
-                else:
+            assert np.array_equal(
+                res.sensitive_group, expected_result[i]["sensitive_group"]
+            )
+            for key in expected_result[i].keys():
+                if key != "sensitive_group":
+                    res_values = getattr(res, key)
                     for val, expected_val in zip(
-                        res[key], expected_result[i][key], strict=True
+                        res_values, expected_result[i][key], strict=True
                     ):
                         if np.isnan(val) and np.isnan(expected_val):
                             continue
                         else:
-                            assert (np.isclose(val, expected_val)).all()
+                            assert np.all(np.isclose(val, expected_val))
 
     else:
         with expected_result:
@@ -340,14 +343,14 @@ def test_demographic_parity_difference(
     data: Dataset,
     label: str,
     threshold: float,
-    expected_result: Sequence[dict[str, dict]],
+    expected_result: tuple[dict, list[dict], bool],
 ):
     dpd = DemographicParityDifference(data, label)
 
     result = dpd.summary()
-    assert result == expected_result[0]
+    assert result.to_dict() == expected_result[0]
     ranking = dpd.rank()
-    assert ranking == expected_result[1]
+    assert [item.to_dict() for item in ranking] == expected_result[1]
     is_biased = dpd.is_biased(threshold)
     assert is_biased == expected_result[2]
 
@@ -452,14 +455,14 @@ def test_demographic_parity_ratio(
 ):
     dpr = DemographicParityRatio(data, label)
     result = dpr.summary()
-    assert result == expected_result[0]
+    assert result.to_dict() == expected_result[0]
     ranking = dpr.rank()
-    assert ranking == expected_result[1]
+    assert [item.to_dict() for item in ranking] == expected_result[1]
     if isinstance(expected_result[2], bool):
         is_biased = dpr.is_biased(threshold)
         assert is_biased == expected_result[2]
     else:
-        with expected_result[2]:
+        with pytest.raises(ValueError):
             dpr.is_biased(threshold)
 
 
@@ -543,18 +546,18 @@ def test_disparate_impact_difference(
     threshold: float,
     expected_result: Sequence[dict[str, dict]] | AbstractContextManager,
 ):
-    if isinstance(expected_result, Sequence):
+    if not isinstance(expected_result, AbstractContextManager):
         did = DisparateImpactDifference(data, label)
 
         result = did.summary()
-        assert result == expected_result[0]
+        assert result.to_dict() == expected_result[0]
         ranking = did.rank()
-        assert ranking == expected_result[1]
+        assert [item.to_dict() for item in ranking] == expected_result[1]
         if isinstance(expected_result[2], bool):
             is_biased = did.is_biased(threshold)
             assert is_biased == expected_result[2]
         else:
-            with expected_result[2]:
+            with pytest.raises(ValueError):
                 did.is_biased(threshold)
     else:
         with expected_result:
@@ -651,13 +654,13 @@ def test_disparate_impact_ratio(
     threshold: float,
     expected_result: Sequence[dict[str, dict]] | AbstractContextManager,
 ):
-    if isinstance(expected_result, Sequence):
+    if not isinstance(expected_result, AbstractContextManager):
         dira = DisparateImpactRatio(data, label)
 
         result = dira.summary()
-        assert result == expected_result[0]
+        assert result.to_dict() == expected_result[0]
         ranking = dira.rank()
-        assert ranking == expected_result[1]
+        assert [item.to_dict() for item in ranking] == expected_result[1]
         is_biased = dira.is_biased(threshold)
         assert is_biased == expected_result[2]
     else:
@@ -747,18 +750,20 @@ def test_equal_opportunity_difference(
     data: Dataset,
     label: str,
     threshold: float,
-    expected_result: Sequence[dict[str, dict]],
+    expected_result: tuple[dict, list[dict], bool],
 ):
     eod = EqualOpportunityDifference(data, label)
     result = eod.summary()
-    assert result == expected_result[0]
+    assert result.to_dict() == expected_result[0]
     rankings = eod.rank()
     expected_ranking = expected_result[1]
     assert len(rankings) == len(expected_ranking)
     for rank_item, expected_rank_item in zip(rankings, expected_ranking):
-        assert rank_item["sensitive_group"] == expected_rank_item["sensitive_group"]
-        if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
-            assert np.isclose(rank_item["score"], expected_rank_item["score"])
+        assert np.array_equal(
+            rank_item.sensitive_group, expected_rank_item["sensitive_group"]
+        )
+        if not (np.isnan(rank_item.score) or np.isnan(expected_rank_item["score"])):
+            assert np.isclose(rank_item.score, expected_rank_item["score"])
     is_biased = eod.is_biased(threshold)
     assert is_biased == expected_result[2]
 
@@ -850,21 +855,21 @@ def test_equal_opportuinity_ratio(
     data: Dataset,
     label: str,
     threshold: float,
-    expected_result: Sequence[dict[str, dict]] | AbstractContextManager,
+    expected_result: tuple[dict, list[dict], bool] | AbstractContextManager,
 ):
-    if isinstance(expected_result, Sequence):
+    if not isinstance(expected_result, AbstractContextManager):
         eor = EqualOpportunityRatio(data, label)
         result = eor.summary()
-        assert result == expected_result[0]
+        assert result.to_dict() == expected_result[0]
         rankings = eor.rank()
         expected_ranking = expected_result[1]
         assert len(rankings) == len(expected_ranking)
         for rank_item, expected_rank_item in zip(rankings, expected_ranking):
-            assert rank_item["sensitive_group"] == expected_rank_item["sensitive_group"]
-            if not (
-                np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])
-            ):
-                assert np.isclose(rank_item["score"], expected_rank_item["score"])
+            assert np.array_equal(
+                rank_item.sensitive_group, expected_rank_item["sensitive_group"]
+            )
+            if not (np.isnan(rank_item.score) or np.isnan(expected_rank_item["score"])):
+                assert np.isclose(rank_item.score, expected_rank_item["score"])
         is_biased = eor.is_biased(threshold)
         assert is_biased == expected_result[2]
     else:
@@ -1042,21 +1047,26 @@ performancemetrics_expected_result_6 = [
 )
 def test_performancemetrics(
     data: Dataset,
-    metrics: dict[str, Callable] | None,
+    metrics: dict[str, Callable[..., Any]] | Sequence[Callable[..., Any]] | None,
     expected_result: Sequence[dict[str, Sequence]] | AbstractContextManager,
 ):
-    if isinstance(expected_result, Sequence):
+    if not isinstance(expected_result, AbstractContextManager):
         pm = PerformanceMetric(data, metrics)
         result = pm()
         for i, res in enumerate(result):
-            for key in res.keys():
-                if isinstance(res[key][0], object):
-                    try:
-                        assert (res[key] == expected_result[i][key]).all()
-                    except AttributeError:
-                        assert res[key] == expected_result[i][key]
-                else:
-                    assert (np.isclose(res[key], expected_result[i][key])).all()
+            assert np.array_equal(
+                res.sensitive_group, expected_result[i]["sensitive_group"]
+            )
+            for key in expected_result[i].keys():
+                if key != "sensitive_group":
+                    res_value = getattr(res, key)
+                    if isinstance(res_value[0], object):
+                        try:
+                            assert np.all(res_value == expected_result[i][key])
+                        except AttributeError:
+                            assert res_value == expected_result[i][key]
+                    else:
+                        assert np.all(np.isclose(res_value, expected_result[i][key]))
 
     else:
         with expected_result:
@@ -1140,18 +1150,20 @@ eod_expected_result_6 = [
 def test_equalised_odds_difference(
     data: Dataset,
     threshold: float,
-    expected_result: Sequence[dict[str, dict]],
+    expected_result: tuple[dict, list[dict], bool],
 ):
     eod = EqualisedOddsDifference(data)
     result = eod.summary()
-    assert result == expected_result[0]
+    assert result.to_dict() == expected_result[0]
     rankings = eod.rank()
     expected_ranking = expected_result[1]
     assert len(rankings) == len(expected_ranking)
     for rank_item, expected_rank_item in zip(rankings, expected_ranking):
-        assert rank_item["sensitive_group"] == expected_rank_item["sensitive_group"]
-        if not (np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])):
-            assert np.isclose(rank_item["score"], expected_rank_item["score"])
+        assert np.array_equal(
+            rank_item.sensitive_group, expected_rank_item["sensitive_group"]
+        )
+        if not (np.isnan(rank_item.score) or np.isnan(expected_rank_item["score"])):
+            assert np.isclose(rank_item.score, expected_rank_item["score"])
     is_biased = eod.is_biased(threshold)
     assert is_biased == expected_result[2]
 
@@ -1233,21 +1245,21 @@ eor_expected_result_6 = [
 def test_equalised_odds_ratio(
     data: Dataset,
     threshold: float,
-    expected_result: Sequence[dict[str, dict]] | AbstractContextManager,
+    expected_result: tuple[dict, list[dict], bool] | AbstractContextManager,
 ):
-    if isinstance(expected_result, Sequence):
+    if not isinstance(expected_result, AbstractContextManager):
         eor = EqualisedOddsRatio(data)
         result = eor.summary()
-        assert result == expected_result[0]
+        assert result.to_dict() == expected_result[0]
         rankings = eor.rank()
         expected_ranking = expected_result[1]
         assert len(rankings) == len(expected_ranking)
         for rank_item, expected_rank_item in zip(rankings, expected_ranking):
-            assert rank_item["sensitive_group"] == expected_rank_item["sensitive_group"]
-            if not (
-                np.isnan(rank_item["score"]) or np.isnan(expected_rank_item["score"])
-            ):
-                assert np.isclose(rank_item["score"], expected_rank_item["score"])
+            assert np.array_equal(
+                rank_item.sensitive_group, expected_rank_item["sensitive_group"]
+            )
+            if not (np.isnan(rank_item.score) or np.isnan(expected_rank_item["score"])):
+                assert np.isclose(rank_item.score, expected_rank_item["score"])
         if threshold is None:
             is_biased = eor.is_biased()
         else:

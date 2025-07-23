@@ -159,22 +159,22 @@ def test_super_set_fairness_metrics(
     assert len(results) == len(expected_results)
 
     for result, expected_result in zip(results, expected_results):
-        assert "sensitive_group" in result
-        assert "rankings" in result
-        assert isinstance(result["sensitive_group"], list)
-        assert isinstance(result["rankings"], dict)
+        assert hasattr(result, "sensitive_group")
+        assert hasattr(result, "rankings")
+        assert isinstance(result.sensitive_group, list)
+        assert isinstance(result.rankings, dict)
 
-        assert result["sensitive_group"] == expected_result["sensitive_group"]
+        assert result.sensitive_group == expected_result["sensitive_group"]
 
         for metric_name, expected_metric_results in expected_result["rankings"].items():
-            if metric_name in result["rankings"]:
-                actual_metric_results = result["rankings"][metric_name]
+            if metric_name in result.rankings:
+                actual_metric_results = result.rankings[metric_name]
 
                 assert isinstance(actual_metric_results, list)
                 assert len(actual_metric_results) == len(expected_metric_results)
 
                 actual_dict = {
-                    tuple(item["sensitive_group"]): item["score"]
+                    tuple(item.sensitive_group): item.score
                     for item in actual_metric_results
                 }
                 expected_dict = {
@@ -183,13 +183,13 @@ def test_super_set_fairness_metrics(
                 }
 
                 for expected_key, expected_score in expected_dict.items():
-                    assert (
-                        expected_key in actual_dict
-                    ), f"Missing sensitive group: {expected_key}"
+                    assert expected_key in actual_dict, (
+                        f"Missing sensitive group: {expected_key}"
+                    )
                     actual_score = actual_dict[expected_key]
-                    assert (
-                        abs(actual_score - expected_score) < 1e-10
-                    ), f"Score mismatch for {expected_key}: expected {expected_score}, got {actual_score}"
+                    assert abs(actual_score - expected_score) < 1e-10, (
+                        f"Score mismatch for {expected_key}: expected {expected_score}, got {actual_score}"
+                    )
 
 
 super_set_performance_metrics_expected_result_2 = [
@@ -259,33 +259,32 @@ def test_super_set_performance_metrics(
         assert len(results) == len(expected_results)
 
         for result, expected_result in zip(results, expected_results):
-            assert isinstance(result, dict)
-            assert "sensitive_group" in result
-            assert "data" in result
-            assert isinstance(result["sensitive_group"], tuple)
-            assert isinstance(result["data"], list)
+            assert hasattr(result, "sensitive_group")
+            assert hasattr(result, "data")
+            assert isinstance(result.sensitive_group, tuple)
+            assert isinstance(result.data, list)
 
-            assert result["sensitive_group"] == expected_result["sensitive_group"]
+            assert result.sensitive_group == expected_result["sensitive_group"]
 
-            result_list = result["data"]
+            result_list = result.data
             expected_result_list = expected_result["data"]
             assert len(result_list) == len(expected_result_list)
 
-            actual_dict = {tuple(item["sensitive_group"]): item for item in result_list}
+            actual_dict = {tuple(item.sensitive_group): item for item in result_list}
             expected_dict = {
                 tuple(item["sensitive_group"]): item for item in expected_result_list
             }
 
             for expected_key, expected_item in expected_dict.items():
-                assert (
-                    expected_key in actual_dict
-                ), f"Missing sensitive group: {expected_key}"
+                assert expected_key in actual_dict, (
+                    f"Missing sensitive group: {expected_key}"
+                )
                 result_item = actual_dict[expected_key]
 
                 for key, expected_value in expected_item.items():
-                    assert (
-                        key in result_item
-                    ), f"Missing metric {key} for group {expected_key}"
+                    assert key in result_item, (
+                        f"Missing metric {key} for group {expected_key}"
+                    )
                     actual_value = result_item[key]
 
                     if isinstance(expected_value, np.ndarray):

@@ -22,7 +22,7 @@ from fair_mango.typing import (
     SupersetBiasResult,
     SupersetFairnessRankingResult,
     SupersetFairnessSummaryResult,
-    SupersetPerformanceEvaluation,
+    SupersetPerformanceMetricsResult,
 )
 
 
@@ -119,12 +119,12 @@ class SupersetFairnessMetrics(Superset):
         super().__init__(data)
 
         # Dataset-only metrics (only need real_target)
-        self._dataset_metrics = {  # type: ignore[assignment]
+        self._dataset_metrics: dict[str, type] = {
             "demographic_parity_difference": DemographicParityDifference,
         }
 
         # Model metrics (need predicted_target)
-        self._model_metrics = {  # type: ignore[assignment]
+        self._model_metrics: dict[str, type] = {
             "demographic_parity_ratio": DemographicParityRatio,
             "disparate_impact_difference": DisparateImpactDifference,
             "disparate_impact_ratio": DisparateImpactRatio,
@@ -174,7 +174,7 @@ class SupersetFairnessMetrics(Superset):
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
-                        metric = metric_class(dataset)  # type: ignore[assignment][assignment][assignment]
+                        metric = metric_class(dataset)  # type: ignore[assignment]
                         rankings[metric_name] = metric.rank()
                     except Exception as e:
                         # Skip metrics that can't be calculated for this combination
@@ -247,7 +247,9 @@ class SupersetFairnessMetrics(Superset):
 
         return results
 
-    def is_biased(self, thresholds: dict[str, float] | None = None) -> list[SupersetBiasResult]:
+    def is_biased(
+        self, thresholds: dict[str, float] | None = None
+    ) -> list[SupersetBiasResult]:
         """Determine bias for all combinations of sensitive attributes and all
         applicable fairness metrics.
 
@@ -364,15 +366,15 @@ class SupersetPerformanceMetrics(Superset):
         super().__init__(data)
         self.metrics = [SelectionRate, PerformanceMetric, ConfusionMatrix]
 
-    def evaluate(self) -> list[SupersetPerformanceEvaluation]:
+    def evaluate(self) -> list[SupersetPerformanceMetricsResult]:
         """Calculate performance evaluation metrics for different subsets of
         sensitive attributes. Ex:
         [gender, race] → (gender), (race), (gender, race)
 
         Returns
         -------
-        list[SupersetPerformanceEvaluation]
-            A list of SupersetPerformanceEvaluation dictionaries, , each containing the sensitive attributes
+        list[SupersetPerformanceMetricsResult]
+            A list of SupersetPerformanceMetricsResult dictionaries, , each containing the sensitive attributes
             considered and their corresponding performance evaluation metric
             results.
 
@@ -465,10 +467,10 @@ class SupersetPerformanceMetrics(Superset):
                     concatenated_result.update(res)
 
             results.append(
-                {
-                    "sensitive_group": pair,
-                    "data": concatenated_results,
-                }
+                SupersetPerformanceMetricsResult(
+                    sensitive_group=pair,
+                    data=concatenated_results,
+                )
             )
 
-        return results  # type: ignore[return-value]
+        return results

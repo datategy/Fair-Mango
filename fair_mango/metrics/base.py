@@ -8,10 +8,14 @@ import pandas as pd
 
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.typing import (
+    DemographicParitySummaryResult,
+    DisparateImpactSummaryResult,
+    EqualOpportunitySummaryResult,
+    FalsePositiveRateSummaryResult,
     FairnessRatioSummaryResult,
     FairnessSummaryResult,
     GroupData,
-    GroupRankingResult,
+    RankResult,
 )
 
 
@@ -330,7 +334,15 @@ class FairnessMetricDifference(ABC):
 
         return results
 
-    def summary(self) -> FairnessSummaryResult:
+    def summary(
+        self,
+    ) -> (
+        FairnessSummaryResult
+        | DemographicParitySummaryResult
+        | DisparateImpactSummaryResult
+        | EqualOpportunitySummaryResult
+        | FalsePositiveRateSummaryResult
+    ):
         """Return the fairness metric value, in other words the biggest
         disparity found with specifying the privileged and discriminated
         groups.
@@ -338,7 +350,7 @@ class FairnessMetricDifference(ABC):
         Returns
         -------
         FairnessSummaryResult
-            A single summary result dictionary with:
+            A single summary result with:
             - disparity: The maximum absolute disparity value found.
             - privileged_sensitive_group: List of strings identifying the privileged group.
                 None if no group could be determined (e.g., if there is only one group
@@ -366,14 +378,13 @@ class FairnessMetricDifference(ABC):
                     privileged_sensitive_group = disparity_result["group_2"]
                     unprivileged_sensitive_group = disparity_result["group_1"]
 
-        from fair_mango.typing import FairnessSummaryResult
         return FairnessSummaryResult(
             disparity=max_disparity,
             privileged_sensitive_group=privileged_sensitive_group,
             unprivileged_sensitive_group=unprivileged_sensitive_group,
         )
 
-    def rank(self) -> list[GroupRankingResult]:
+    def rank(self) -> list[RankResult]:
         """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
@@ -384,8 +395,8 @@ class FairnessMetricDifference(ABC):
 
         Returns
         -------
-        list[GroupRankingResult]:
-            List of GroupRankingResult with 'sensitive_group' and 'score' keys.
+        list[RankResult]:
+            List of RankResult objects with sensitive_group and score attributes.
         """
         if self.results is None:
             self.results = self._compute()
@@ -407,11 +418,18 @@ class FairnessMetricDifference(ABC):
 
         ranking_list = []
         for group_tuple, score in group_scores.items():
-            ranking_list.append({"sensitive_group": list(group_tuple), "score": score})
+            ranking_list.append(
+                RankResult(sensitive_group=list(group_tuple), score=score)
+            )
 
-        ranking_list.sort(key=lambda x: float(x["score"]) if isinstance(x["score"], (int, float, str)) else 0.0, reverse=True)
+        ranking_list.sort(
+            key=lambda x: float(x.score)
+            if isinstance(x.score, (int, float, str))
+            else 0.0,
+            reverse=True,
+        )
 
-        return ranking_list  # type: ignore[return-value]
+        return ranking_list
 
     def is_biased(self, threshold: float = 0.1) -> bool:
         """Return a decision of whether there is bias or not for each target
@@ -525,7 +543,15 @@ class FairnessMetricRatio(ABC):
 
         return results
 
-    def summary(self) -> FairnessRatioSummaryResult:
+    def summary(
+        self,
+    ) -> (
+        FairnessRatioSummaryResult
+        | DemographicParitySummaryResult
+        | DisparateImpactSummaryResult
+        | EqualOpportunitySummaryResult
+        | FalsePositiveRateSummaryResult
+    ):
         """Return the fairness metric value, in other words the biggest
             disparity found with specifying the privileged and discriminated
             groups.
@@ -533,7 +559,7 @@ class FairnessMetricRatio(ABC):
             Returns
             -------
             FairnessRatioSummaryResult
-                A single summary result dictionary with:
+                A single summary result with:
         ratio : float
             The minimum ratio value found (closest to 0).
         privileged_sensitive_group : list[str] | None
@@ -567,16 +593,13 @@ class FairnessMetricRatio(ABC):
                 privileged_sensitive_group = temp_privileged
                 unprivileged_sensitive_group = temp_unprivileged
 
-        label = self.label
-
-        from fair_mango.typing import FairnessRatioSummaryResult
         return FairnessRatioSummaryResult(
             ratio=min_ratio,
             privileged_sensitive_group=privileged_sensitive_group,
             unprivileged_sensitive_group=unprivileged_sensitive_group,
         )
 
-    def rank(self) -> list[GroupRankingResult]:
+    def rank(self) -> list[RankResult]:
         """Assign a score to every sensitive group present in the sensitive
         features and rank them from most privileged to most discriminated.
         The score can be interpreted like:
@@ -587,8 +610,8 @@ class FairnessMetricRatio(ABC):
 
         Returns
         -------
-        list[GroupRankingResult]:
-            List of ranking dictionaries with 'sensitive_group' and 'score' keys.
+        list[RankResult]:
+            List of RankResult objects with sensitive_group and score attributes.
         """
         if self.results is None:
             self.results = self._compute()
@@ -613,12 +636,16 @@ class FairnessMetricRatio(ABC):
         ranking_list = []
         for group_tuple, score in group_scores.items():
             ranking_list.append(
-                {"sensitive_group": list(group_tuple), "score": float(score)}
+                RankResult(sensitive_group=list(group_tuple), score=float(score))
             )
 
-        ranking_list.sort(key=lambda x: float(x["score"]) if isinstance(x["score"], (int, float, str)) else 0.0)
+        ranking_list.sort(
+            key=lambda x: float(x.score)
+            if isinstance(x.score, (int, float, str))
+            else 0.0
+        )
 
-        return ranking_list  # type: ignore[return-value]
+        return ranking_list
 
     def is_biased(self, threshold: float = 0.8) -> bool:
         """Return a decision of whether there is bias or not for each target
