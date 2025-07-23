@@ -203,7 +203,6 @@ def calculate_disparity(
     - ratio (Example: for three groups a, b, c:
       `[score_a / score_b], [score_a / score_c], [score_b / score_c]`).
 
-
     Parameters
     ----------
     result_per_groups : list[GroupData],
