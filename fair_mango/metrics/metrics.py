@@ -1612,7 +1612,7 @@ class EqualisedOddsDifference:
 
     def _compute(
         self,
-    ) -> tuple[list[DisparityResultDict] | None, list[DisparityResultDict] | None]:
+    ) -> tuple[list[DisparityResultDict], list[DisparityResultDict]]:
         """Calculate the disparity in the True Positive Rate and False Positive
         Rate using "difference" between every possible pair in the provided
         groups.
@@ -1629,6 +1629,8 @@ class EqualisedOddsDifference:
         tpr_diff = tpr.results
         fpr_diff = fpr.results
 
+        # After calling summary(), results are guaranteed to be populated
+        assert tpr_diff is not None and fpr_diff is not None
         return tpr_diff, fpr_diff
 
     def summary(self) -> EqualisedOddsSummaryResult:
@@ -1651,8 +1653,6 @@ class EqualisedOddsDifference:
 
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
-
-        assert self.tpr is not None and self.fpr is not None
         for tpr_result, fpr_result in zip(self.tpr, self.fpr):
             tpr_disparity = tpr_result["disparity"]
             fpr_disparity = fpr_result["disparity"]
@@ -1695,8 +1695,6 @@ class EqualisedOddsDifference:
 
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
-
-        assert self.tpr is not None and self.fpr is not None
         for tpr_result, fpr_result in zip(self.tpr, self.fpr):
             tpr_disparity = tpr_result["disparity"]
             fpr_disparity = fpr_result["disparity"]
@@ -1842,7 +1840,7 @@ class EqualisedOddsRatio:
 
     def _compute(
         self,
-    ) -> tuple[list[DisparityResultDict] | None, list[DisparityResultDict] | None]:
+    ) -> tuple[list[DisparityResultDict], list[DisparityResultDict]]:
         """Calculate the disparity in the True Positive Rate and False Positive
         Rate using "ratio" between every possible pair in the provided groups.
 
@@ -1858,6 +1856,8 @@ class EqualisedOddsRatio:
         tpr_ratio = tpr.results
         fpr_ratio = fpr.results
 
+        # After calling summary(), results are guaranteed to be populated
+        assert tpr_ratio is not None and fpr_ratio is not None
         return tpr_ratio, fpr_ratio
 
     def summary(self) -> EqualisedOddsSummaryResult:
@@ -1880,8 +1880,6 @@ class EqualisedOddsRatio:
 
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
-
-        assert self.tpr is not None and self.fpr is not None
         for tpr_result, fpr_result in zip(self.tpr, self.fpr):
             tpr_ratio = tpr_result["disparity"]
             fpr_ratio = fpr_result["disparity"]
