@@ -1,4 +1,6 @@
 from collections.abc import Callable, Sequence
+from functools import lru_cache
+from typing import Any
 
 import numpy as np
 from sklearn.metrics import (
@@ -278,6 +280,39 @@ class ConfusionMatrix(Metric):
             self.metrics = metrics
         else:
             self.metrics = {metric.__name__: metric for metric in metrics}
+        
+        self._metric_cache: dict[tuple, Any] = {}
+    
+    def _compute_cached_metric(self, metric_name: str, metric_func: Callable, 
+                              real_values: Any, predicted_values: Any) -> Any:
+        """Compute a metric with caching to avoid redundant calculations.
+        
+        Parameters
+        ----------
+        metric_name : str
+            Name of the metric
+        metric_func : Callable
+            The metric function to compute
+        real_values : Any
+            Real target values
+        predicted_values : Any
+            Predicted target values
+            
+        Returns
+        -------
+        Any
+            The computed metric value
+        """
+        cache_key = (
+            metric_name,
+            tuple(real_values) if hasattr(real_values, '__iter__') else real_values,
+            tuple(predicted_values) if hasattr(predicted_values, '__iter__') else predicted_values
+        )
+        
+        if cache_key not in self._metric_cache:
+            self._metric_cache[cache_key] = metric_func(real_values, predicted_values)
+        
+        return self._metric_cache[cache_key]
 
     def __call__(self) -> list[ConfusionMatrixResult]:
         """Calculate the confusion matrix related metrics:
@@ -482,6 +517,39 @@ class PerformanceMetric(Metric):
             self.metrics = metrics
         else:
             self.metrics = {metric.__name__: metric for metric in metrics}
+        
+        self._metric_cache: dict[tuple, Any] = {}
+    
+    def _compute_cached_metric(self, metric_name: str, metric_func: Callable, 
+                              real_values: Any, predicted_values: Any) -> Any:
+        """Compute a metric with caching to avoid redundant calculations.
+        
+        Parameters
+        ----------
+        metric_name : str
+            Name of the metric
+        metric_func : Callable
+            The metric function to compute
+        real_values : Any
+            Real target values
+        predicted_values : Any
+            Predicted target values
+            
+        Returns
+        -------
+        Any
+            The computed metric value
+        """
+        cache_key = (
+            metric_name,
+            tuple(real_values) if hasattr(real_values, '__iter__') else real_values,
+            tuple(predicted_values) if hasattr(predicted_values, '__iter__') else predicted_values
+        )
+        
+        if cache_key not in self._metric_cache:
+            self._metric_cache[cache_key] = metric_func(real_values, predicted_values)
+        
+        return self._metric_cache[cache_key]
 
     def __call__(self) -> list[PerformanceMetricResult]:
         """Calculate performance related metrics:
@@ -609,7 +677,9 @@ class PerformanceMetric(Metric):
 
             metrics_dict = {}
             for metric_name, metric in self.metrics.items():
-                metrics_dict[metric_name] = [metric(real_values, predicted_values)]
+                metrics_dict[metric_name] = [self._compute_cached_metric(
+                    metric_name, metric, real_values, predicted_values
+                )]
 
             result_for_group = PerformanceMetricResult(
                 sensitive_group=group_sensitive, metrics=metrics_dict
