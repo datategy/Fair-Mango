@@ -242,12 +242,12 @@ def calculate_disparity(
         If method is not 'difference' or 'ratio'.
     """
 
-    disparities: list[dict[str, list[str] | float]] = []
+    disparities: list[DisparityResultDict] = []
     for i, j in combinations(range(len(result_per_groups)), 2):
         rec_i, rec_j = result_per_groups[i], result_per_groups[j]
 
-        grp_i = list(map(str, rec_i.sensitive_group))
-        grp_j = list(map(str, rec_j.sensitive_group))
+        grp_i = rec_i.sensitive_group
+        grp_j = rec_j.sensitive_group
 
         data_i = rec_i.data
         data_j = rec_j.data
