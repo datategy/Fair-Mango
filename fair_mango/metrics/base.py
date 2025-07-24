@@ -323,7 +323,7 @@ class FairnessMetricDifference(ABC):
                 "Metric type not recognized. accepted values 'performance' or 'error'"
             )
 
-        self.result: dict | None = None
+        self.result: dict 
         self.ranking: dict | None = None
         self.results: list[DisparityResultDict] | None = None
 
