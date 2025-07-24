@@ -91,7 +91,7 @@ def false_negative_rate(fn: int, tp: int, **_) -> float:
     """
     denominator = fn + tp
     if denominator == 0:
-        return float('nan')
+        return float("nan")
     return fn / denominator
 
 
@@ -112,7 +112,7 @@ def false_positive_rate(tn: int, fp: int, **_) -> float:
     """
     denominator = fp + tn
     if denominator == 0:
-        return float('nan')
+        return float("nan")
     return fp / denominator
 
 
@@ -133,7 +133,7 @@ def true_negative_rate(tn: int, fp: int, **_) -> float:
     """
     denominator = tn + fp
     if denominator == 0:
-        return float('nan')
+        return float("nan")
     return tn / denominator
 
 
@@ -154,7 +154,7 @@ def true_positive_rate(fn: int, tp: int, **_) -> float:
     """
     denominator = fn + tp
     if denominator == 0:
-        return float('nan')
+        return float("nan")
     return tp / denominator
 
 

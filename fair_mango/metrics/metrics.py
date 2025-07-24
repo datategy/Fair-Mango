@@ -1,5 +1,4 @@
 from collections.abc import Callable, Sequence
-from typing import Any
 
 import numpy as np
 from sklearn.metrics import (
@@ -250,13 +249,15 @@ class ConfusionMatrix(Metric):
         If the key of a metric is 'sensitive_group' which is already reserved
         to the sensitive groups.
     """
-    
+
     metrics: dict[str, Callable[..., float]]
 
     def __init__(
         self,
         dataset: Dataset,
-        metrics: dict[str, Callable[..., float]] | Sequence[Callable[..., float]] | None = None,
+        metrics: dict[str, Callable[..., float]]
+        | Sequence[Callable[..., float]]
+        | None = None,
     ) -> None:
         super().__init__(dataset)
         if self.predicted_target_by_group == []:
@@ -266,10 +267,10 @@ class ConfusionMatrix(Metric):
             )
         if metrics is None:
             self.metrics = {
-                "false_negative_rate": false_negative_rate,  
-                "false_positive_rate": false_positive_rate, 
-                "true_negative_rate": true_negative_rate,  
-                "true_positive_rate": true_positive_rate,  
+                "false_negative_rate": false_negative_rate,
+                "false_positive_rate": false_positive_rate,
+                "true_negative_rate": true_negative_rate,
+                "true_positive_rate": true_positive_rate,
             }
         elif isinstance(metrics, dict):
             if "sensitive_group" in metrics:
