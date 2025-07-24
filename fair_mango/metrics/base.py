@@ -15,7 +15,7 @@ from fair_mango.typing import (
     FalsePositiveRateSummaryResult,
     FairnessRatioSummaryResult,
     FairnessSummaryResult,
-    MetricResultProtocol,
+    BaseMetricResult,
     RankResult,
     SensitiveGroupT,
 )
@@ -207,7 +207,7 @@ class Metric(ABC):
 
 
 def calculate_disparity(
-    result_per_groups: list[MetricResultProtocol],
+    result_per_groups: list[BaseMetricResult],
     method: Literal["difference", "ratio"],
 ) -> list[DisparityResultDict]:
     """Calculate the disparity in the scores between every possible pair in
@@ -219,7 +219,7 @@ def calculate_disparity(
 
     Parameters
     ----------
-    result_per_groups : list[MetricResultProtocol],
+    result_per_groups : list[BaseMetricResult],
         List of metric result objects with the sensitive group and the corresponding
         score data.
     method :Literal["difference", "ratio"]
@@ -238,13 +238,6 @@ def calculate_disparity(
     AttributeError
         If method is not 'difference' or 'ratio'.
     """
-    if result_per_groups:
-        assert hasattr(result_per_groups[0], "sensitive_group"), (
-            "First item must have 'sensitive_group' attribute"
-        )
-        assert hasattr(result_per_groups[0], "data"), (
-            "First item must have 'data' attribute"
-        )
 
     disparities: list[dict[str, list[str] | float]] = []
     for i, j in combinations(range(len(result_per_groups)), 2):
@@ -346,8 +339,7 @@ class FairnessMetricDifference(ABC):
             - disparity: The difference value between groups
         """
 
-        filtered_kwargs = {k: v for k, v in self.metric_kwargs.items()}
-        metric = self.metric(self.data, **filtered_kwargs)
+        metric = self.metric(self.data, **self.metric_kwargs)
         metric_result = metric()
 
         self.metric_results = metric_result
