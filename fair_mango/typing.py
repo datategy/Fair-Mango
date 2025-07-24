@@ -125,65 +125,8 @@ class SelectionRateResult:
 
     sensitive_group: SensitiveGroupT
     data: float
-
-    def __getitem__(self, key):
-        """Allow dictionary-style access for backward compatibility."""
-        if key == "sensitive_group":
-            return np.array(self.sensitive_group)
-        elif key == "data":
-            return self.data
-        elif isinstance(key, str) and hasattr(self, key):
-            return getattr(self, key)
-        raise KeyError(f"'{key}' not found")
-
-    def __setitem__(self, key: str, value):
-        """Allow dictionary-style assignment for backward compatibility."""
-        if key == "data":
-            self.data = value
-        elif hasattr(self, key):
-            setattr(self, key, value)
-        else:
-            setattr(self, key, value)
-
-    def pop(self, key: str, default=None):
-        """Remove and return a value like dict.pop()."""
-        if key == "data":
-            value = self.data
-            self.data = default
-            return value
-        elif hasattr(self, key):
-            value = getattr(self, key)
-            delattr(self, key)
-            return value
-        return default
-
-    def __contains__(self, key) -> bool:
-        """Check if key exists for backward compatibility."""
-        if key in ["sensitive_group", "data"]:
-            return True
-        if isinstance(key, str):
-            return hasattr(self, key)
-        return False
-
-    def update(self, other):
-        """Update this object with values from another object or dict."""
-        if hasattr(other, "metrics"):
-            # Handle PerformanceMetricResult
-            for key, value in other.metrics.items():
-                setattr(self, key, value)
-        elif isinstance(other, dict):
-            for key, value in other.items():
-                if key != "sensitive_group":
-                    setattr(self, key, value)
-        else:
-            # Handle other dataclass objects
-            for key, value in other.__dict__.items():
-                if key != "sensitive_group":
-                    setattr(self, key, value)
-
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        return {"sensitive_group": np.array(self.sensitive_group), "data": self.data}
+    selection_rate_in_data: float | None = None
+    selection_rate_in_predictions: float | None = None
 
 
 @dataclass
@@ -201,25 +144,6 @@ class PerformanceMetricResult:
             f"'{self.__class__.__name__}' object has no attribute '{name}'"
         )
 
-    def __getitem__(self, key: str):
-        """Dictionary-style access for backward compatibility."""
-        if key == "sensitive_group":
-            return np.array(self.sensitive_group)
-        elif key in self.metrics:
-            return self.metrics[key]
-        else:
-            raise KeyError(f"Key '{key}' not found")
-
-    def __contains__(self, key: str) -> bool:
-        """Check if key exists for backward compatibility."""
-        return key == "sensitive_group" or key in self.metrics
-
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        result: dict[str, object] = {"sensitive_group": np.array(self.sensitive_group)}
-        result.update(cast(dict[str, object], self.metrics))
-        return result
-
 
 @dataclass
 class ConfusionMatrixResult:
@@ -235,25 +159,6 @@ class ConfusionMatrixResult:
         raise AttributeError(
             f"'{self.__class__.__name__}' object has no attribute '{name}'"
         )
-
-    def __getitem__(self, key: str):
-        """Dictionary-style access for backward compatibility."""
-        if key == "sensitive_group":
-            return np.array(self.sensitive_group)
-        elif key in self.metrics:
-            return self.metrics[key]
-        else:
-            raise KeyError(f"Key '{key}' not found")
-
-    def __contains__(self, key: str) -> bool:
-        """Check if key exists for backward compatibility."""
-        return key == "sensitive_group" or key in self.metrics
-
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        result: dict[str, object] = {"sensitive_group": np.array(self.sensitive_group)}
-        result.update(cast(dict[str, object], self.metrics))
-        return result
 
 
 @dataclass
@@ -468,27 +373,6 @@ class SupersetPerformanceMetricsResult:
 
     sensitive_group: tuple[str, ...]
     data: list[SelectionRateResult]
-
-    def __getitem__(self, key: str):
-        """Dictionary-style access for backward compatibility."""
-        if key == "sensitive_group":
-            return self.sensitive_group
-        elif key == "data":
-            return self.data
-        else:
-            raise KeyError(f"Key '{key}' not found")
-
-    def __contains__(self, key) -> bool:
-        """Check if key exists for backward compatibility."""
-        if key in ["sensitive_group", "data"]:
-            return True
-        if isinstance(key, str):
-            return hasattr(self, key)
-        return False
-
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary format for backward compatibility."""
-        return {"sensitive_group": self.sensitive_group, "data": self.data}
 
 
 @dataclass
