@@ -1,13 +1,13 @@
 from dataclasses import asdict, dataclass
-from typing import TypeAlias, TypedDict, Union
+from typing import TypeAlias, TypedDict
 
 import numpy as np
 import pandas as pd
 
 
-SensitiveGroupT: TypeAlias = Union[
-    list[str], list[int], list[bool], list[str | int | bool]
-]
+SensitiveGroupT: TypeAlias = (
+    list[str] | list[int] | list[bool] | list[str | int | bool]
+)
 
 SensitiveGroupTupleT: TypeAlias = tuple[str | int | bool, ...]
 
