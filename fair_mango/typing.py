@@ -30,10 +30,6 @@ class GroupRankingResult:
     sensitive_group: SensitiveGroupT
     score: float
 
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        return {"sensitive_group": self.sensitive_group, "score": self.score}
-
 
 @dataclass
 class DatasetGroupResult:
@@ -41,13 +37,6 @@ class DatasetGroupResult:
 
     sensitive_group: SensitiveGroupT
     data: pd.DataFrame
-
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        return {
-            "sensitive_group": self.sensitive_group,
-            "data": self.data.to_dict() if hasattr(self.data, "to_dict") else self.data,
-        }
 
 
 @dataclass
@@ -471,13 +460,6 @@ class SupersetBiasResult:
 
     sensitive_group: SensitiveGroupT
     bias_results: dict[str, bool]
-
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        return {
-            "sensitive_group": self.sensitive_group,
-            "bias_results": self.bias_results,
-        }
 
 
 @dataclass
