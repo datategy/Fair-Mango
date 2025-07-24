@@ -282,10 +282,10 @@ def test_super_set_performance_metrics(
                 result_item = actual_dict[expected_key]
 
                 for key, expected_value in expected_item.items():
-                    assert key in result_item, (
+                    assert hasattr(result_item, key), (
                         f"Missing metric {key} for group {expected_key}"
                     )
-                    actual_value = result_item[key]
+                    actual_value = getattr(result_item, key)
 
                     if isinstance(expected_value, np.ndarray):
                         if expected_value.dtype.kind in ["U", "S", "O"]:

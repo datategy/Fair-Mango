@@ -413,7 +413,7 @@ class SupersetPerformanceMetrics(Superset):
             )()
 
             for group_result in concatenated_results:
-                group_result["selection_rate_in_data"] = group_result.pop("data")
+                group_result.selection_rate_in_data = group_result.data
 
             for metric in self.metrics:
                 if metric is SelectionRate:
@@ -423,15 +423,29 @@ class SupersetPerformanceMetrics(Superset):
                     )()
 
                     for group_result in result:
-                        group_result["selection_rate_in_predictions"] = (
-                            group_result.pop("data")
+                        group_result.selection_rate_in_predictions = (
+                            group_result.data
                         )
 
                 else:
                     result = metric(dataset)()
 
                 for concatenated_result, res in zip(concatenated_results, result):
-                    concatenated_result.update(res)
+                    # Manually copy attributes from res to concatenated_result
+                    if hasattr(res, 'metrics'):
+                        # For ConfusionMatrixResult or PerformanceMetricResult
+                        for key, value in res.metrics.items():
+                            setattr(concatenated_result, key, value)
+                    elif hasattr(res, 'selection_rate_in_predictions'):
+                        # For SelectionRate results with predictions
+                        concatenated_result.selection_rate_in_predictions = res.selection_rate_in_predictions
+                    else:
+                        # For other result types, copy all attributes except sensitive_group
+                        for attr_name in dir(res):
+                            if not attr_name.startswith('_') and attr_name != 'sensitive_group':
+                                attr_value = getattr(res, attr_name)
+                                if not callable(attr_value):
+                                    setattr(concatenated_result, attr_name, attr_value)
 
             results.append(
                 SupersetPerformanceMetricsResult(
