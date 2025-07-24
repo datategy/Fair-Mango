@@ -278,7 +278,7 @@ class SupersetFairnessMetrics(Superset):
             for metric_name, metric_class in self._dataset_metrics.items():
                 try:
                     metric = metric_class(dataset)
-                    threshold = effective_thresholds.get(metric_name, 0.1)
+                    threshold = effective_thresholds[metric_name]
                     bias_results[metric_name] = metric.is_biased(threshold)
                 except Exception as e:
                     print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
@@ -288,7 +288,7 @@ class SupersetFairnessMetrics(Superset):
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
                         metric = metric_class(dataset)
-                        threshold = effective_thresholds.get(metric_name, 0.1)
+                        threshold = effective_thresholds[metric_name]
                         bias_results[metric_name] = metric.is_biased(threshold)
                     except Exception as e:
                         print(
