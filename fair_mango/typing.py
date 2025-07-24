@@ -1,15 +1,18 @@
 from dataclasses import asdict, dataclass
-from typing import Protocol, TypedDict, cast
+from typing import Protocol, TypeAlias, TypedDict, Union, cast
 
 import numpy as np
 import pandas as pd
+
+
+SensitiveGroupT: TypeAlias = Union[list[str], list[int], list[bool], list[str | int | bool]]
 
 
 @dataclass
 class DatasetTargetResult:
     """Result of target data for a sensitive group from Dataset."""
 
-    sensitive_group: list[str]
+    sensitive_group: SensitiveGroupT
     data: pd.Series
 
     def to_dict(self) -> dict[str, object]:
@@ -24,7 +27,7 @@ class DatasetTargetResult:
 class GroupRankingResult:
     """Result of group ranking."""
 
-    sensitive_group: list[str]
+    sensitive_group: SensitiveGroupT
     score: float
 
     def to_dict(self) -> dict[str, object]:
@@ -36,7 +39,7 @@ class GroupRankingResult:
 class DatasetGroupResult:
     """Result of group data from Dataset."""
 
-    sensitive_group: list[str]
+    sensitive_group: SensitiveGroupT
     data: pd.DataFrame
 
     def to_dict(self) -> dict[str, object]:
@@ -51,7 +54,7 @@ class DatasetGroupResult:
 class MetricResult:
     """Result of a metric for a single sensitive group."""
 
-    sensitive_group: list[str]
+    sensitive_group: SensitiveGroupT
     result: float
 
 
@@ -59,16 +62,16 @@ class MetricResult:
 class DisparityResult:
     """Result of disparity calculation between two groups."""
 
-    group_1: list[str]
-    group_2: list[str]
+    group_1: SensitiveGroupT
+    group_2: SensitiveGroupT
     disparity: float
 
 
 class DisparityResultDict(TypedDict):
     """TypedDict for disparity calculation result between two groups."""
 
-    group_1: list[str]
-    group_2: list[str]
+    group_1: SensitiveGroupT
+    group_2: SensitiveGroupT
     disparity: float
 
 
@@ -77,8 +80,8 @@ class FairnessSummaryResult:
     """Summary of a difference-based fairness metric."""
 
     disparity: float
-    privileged_sensitive_group: list[str] | None
-    unprivileged_sensitive_group: list[str] | None
+    privileged_sensitive_group: SensitiveGroupT | None
+    unprivileged_sensitive_group: SensitiveGroupT | None
 
     def to_dict(self) -> dict[str, object]:
         """Convert to dictionary for backward compatibility."""
@@ -95,8 +98,8 @@ class FairnessRatioSummaryResult:
     """Summary of a ratio-based fairness metric."""
 
     ratio: float
-    privileged_sensitive_group: list[str] | None
-    unprivileged_sensitive_group: list[str] | None
+    privileged_sensitive_group: SensitiveGroupT | None
+    unprivileged_sensitive_group: SensitiveGroupT | None
 
     def to_dict(self) -> dict[str, object]:
         """Convert to dictionary for backward compatibility."""
@@ -112,7 +115,7 @@ class FairnessRatioSummaryResult:
 class RankResult:
     """Individual rank result for a group."""
 
-    sensitive_group: list[str]
+    sensitive_group: SensitiveGroupT
     score: float
 
     def to_dict(self) -> dict[str, object]:
@@ -123,7 +126,7 @@ class RankResult:
 class MetricResultProtocol(Protocol):
     """Protocol for metric result types that can be used in disparity calculations."""
 
-    sensitive_group: list[str]
+    sensitive_group: SensitiveGroupT
     data: float | pd.Series | np.ndarray | list[float]
 
 
@@ -131,7 +134,7 @@ class MetricResultProtocol(Protocol):
 class SelectionRateResult:
     """Result of selection rate for a single sensitive group."""
 
-    sensitive_group: list[str]
+    sensitive_group: SensitiveGroupT
     data: float
 
     def __getitem__(self, key):
@@ -198,7 +201,7 @@ class SelectionRateResult:
 class PerformanceMetricResult:
     """Result of performance metrics for a single sensitive group with dynamic metrics."""
 
-    sensitive_group: list[str]
+    sensitive_group: SensitiveGroupT
     metrics: dict[str, list[float]]
 
     def __getattr__(self, name: str):
@@ -233,7 +236,7 @@ class PerformanceMetricResult:
 class ConfusionMatrixResult:
     """Result of confusion matrix metrics for a single sensitive group with dynamic metrics."""
 
-    sensitive_group: list[str]
+    sensitive_group: SensitiveGroupT
     metrics: dict[str, list[float]]
 
     def __getattr__(self, name: str):
@@ -268,7 +271,7 @@ class ConfusionMatrixResult:
 class DetailedPerformanceMetricsResult:
     """A collection of all performance metrics for a single sensitive group."""
 
-    sensitive_group: list[str]
+    sensitive_group: SensitiveGroupT
     selection_rate_in_data: float
     selection_rate_in_predictions: float
     accuracy: float
@@ -315,8 +318,8 @@ class DemographicParitySummaryResult:
 
     demographic_parity_difference: float | None = None
     demographic_parity_ratio: float | None = None
-    privileged_sensitive_group: list[str] | None = None
-    unprivileged_sensitive_group: list[str] | None = None
+    privileged_sensitive_group: SensitiveGroupT | None = None
+    unprivileged_sensitive_group: SensitiveGroupT | None = None
     label: str = "demographic_parity_difference"
 
     def to_dict(self) -> dict[str, object]:
@@ -339,8 +342,8 @@ class DisparateImpactSummaryResult:
 
     disparate_impact_difference: float | None = None
     disparate_impact_ratio: float | None = None
-    privileged_sensitive_group: list[str] | None = None
-    unprivileged_sensitive_group: list[str] | None = None
+    privileged_sensitive_group: SensitiveGroupT | None = None
+    unprivileged_sensitive_group: SensitiveGroupT | None = None
     label: str = "disparate_impact_difference"
 
     def to_dict(self) -> dict[str, object]:
@@ -363,8 +366,8 @@ class EqualOpportunitySummaryResult:
 
     equal_opportunity_difference: float | None = None
     equal_opportunity_ratio: float | None = None
-    privileged_sensitive_group: list[str] | None = None
-    unprivileged_sensitive_group: list[str] | None = None
+    privileged_sensitive_group: SensitiveGroupT | None = None
+    unprivileged_sensitive_group: SensitiveGroupT | None = None
     label: str = "equal_opportunity_difference"
 
     def to_dict(self) -> dict[str, object]:
@@ -387,8 +390,8 @@ class FalsePositiveRateSummaryResult:
 
     false_positive_rate_difference: float | None = None
     false_positive_rate_ratio: float | None = None
-    privileged_sensitive_group: list[str] | None = None
-    unprivileged_sensitive_group: list[str] | None = None
+    privileged_sensitive_group: SensitiveGroupT | None = None
+    unprivileged_sensitive_group: SensitiveGroupT | None = None
     label: str = "false_positive_rate_difference"
 
     def to_dict(self) -> dict[str, object]:
@@ -411,8 +414,8 @@ class EqualisedOddsSummaryResult:
 
     equalised_odds_difference: float | None = None
     equalised_odds_ratio: float | None = None
-    privileged_sensitive_group: list[str] | None = None
-    unprivileged_sensitive_group: list[str] | None = None
+    privileged_sensitive_group: SensitiveGroupT | None = None
+    unprivileged_sensitive_group: SensitiveGroupT | None = None
 
     def to_dict(self) -> dict[str, object]:
         """Convert to dictionary for backward compatibility."""
@@ -432,7 +435,7 @@ class EqualisedOddsSummaryResult:
 class SupersetFairnessRankingResult:
     """Result of fairness metric rankings for a sensitive group combination."""
 
-    sensitive_group: list[str]
+    sensitive_group: SensitiveGroupT
     rankings: dict[str, list[RankResult]]
 
     def to_dict(self) -> dict[str, object]:
@@ -466,7 +469,7 @@ class SupersetFairnessSummaryResult:
 class SupersetBiasResult:
     """Result of bias determination for a sensitive group combination."""
 
-    sensitive_group: list[str]
+    sensitive_group: SensitiveGroupT
     bias_results: dict[str, bool]
 
     def to_dict(self) -> dict[str, object]:
