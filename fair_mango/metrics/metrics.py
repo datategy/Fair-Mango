@@ -773,8 +773,8 @@ class DemographicParityDifference(FairnessMetricDifference):
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: SensitiveGroupT | None = None
-        unprivileged_sensitive_group: SensitiveGroupT | None = None
+        privileged_sensitive_group: SensitiveGroupT
+        unprivileged_sensitive_group: SensitiveGroupT
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -880,8 +880,8 @@ class DisparateImpactDifference(FairnessMetricDifference):
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: SensitiveGroupT | None = None
-        unprivileged_sensitive_group: SensitiveGroupT | None = None
+        privileged_sensitive_group: SensitiveGroupT
+        unprivileged_sensitive_group: SensitiveGroupT
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -987,8 +987,8 @@ class EqualOpportunityDifference(FairnessMetricDifference):
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: SensitiveGroupT | None = None
-        unprivileged_sensitive_group: SensitiveGroupT | None = None
+        privileged_sensitive_group: SensitiveGroupT
+        unprivileged_sensitive_group: SensitiveGroupT
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -1096,8 +1096,8 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: SensitiveGroupT | None = None
-        unprivileged_sensitive_group: SensitiveGroupT | None = None
+        privileged_sensitive_group: SensitiveGroupT
+        unprivileged_sensitive_group: SensitiveGroupT
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -1194,8 +1194,8 @@ class DemographicParityRatio(FairnessMetricRatio):
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_sensitive_group: SensitiveGroupT | None = None
-        unprivileged_sensitive_group: SensitiveGroupT | None = None
+        privileged_sensitive_group: SensitiveGroupT
+        unprivileged_sensitive_group: SensitiveGroupT
 
         for disparity_result in self.results:
             ratio_value = disparity_result["disparity"]
@@ -1297,8 +1297,8 @@ class DisparateImpactRatio(FairnessMetricRatio):
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_sensitive_group: SensitiveGroupT | None = None
-        unprivileged_sensitive_group: SensitiveGroupT | None = None
+        privileged_sensitive_group: SensitiveGroupT
+        unprivileged_sensitive_group: SensitiveGroupT
 
         for disparity_result in self.results:
             ratio_value = disparity_result["disparity"]
@@ -1403,8 +1403,8 @@ class EqualOpportunityRatio(FairnessMetricRatio):
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_sensitive_group: SensitiveGroupT | None = None
-        unprivileged_sensitive_group: SensitiveGroupT | None = None
+        privileged_sensitive_group: SensitiveGroupT
+        unprivileged_sensitive_group: SensitiveGroupT
 
         for disparity_result in self.results:
             ratio_value = disparity_result["disparity"]
@@ -1510,8 +1510,8 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_sensitive_group: SensitiveGroupT | None = None
-        unprivileged_sensitive_group: SensitiveGroupT | None = None
+        privileged_sensitive_group: SensitiveGroupT
+        unprivileged_sensitive_group: SensitiveGroupT
 
         for disparity_result in self.results:
             ratio_value = disparity_result["disparity"]

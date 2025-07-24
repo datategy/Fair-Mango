@@ -378,8 +378,8 @@ class FairnessMetricDifference(ABC):
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: SensitiveGroupT | None = None
-        unprivileged_sensitive_group: SensitiveGroupT | None = None
+        privileged_sensitive_group: SensitiveGroupT
+        unprivileged_sensitive_group: SensitiveGroupT
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -588,8 +588,8 @@ class FairnessMetricRatio(ABC):
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_sensitive_group: SensitiveGroupT | None = None
-        unprivileged_sensitive_group: SensitiveGroupT | None = None
+        privileged_sensitive_group: SensitiveGroupT
+        unprivileged_sensitive_group: SensitiveGroupT
 
         for disparity_result in self.results:
             ratio_value = disparity_result["disparity"]
