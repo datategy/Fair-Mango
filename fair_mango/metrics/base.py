@@ -18,6 +18,7 @@ from fair_mango.typing import (
     BaseMetricResult,
     RankResult,
     SensitiveGroupT,
+    SensitiveGroupTupleT,
 )
 
 
@@ -422,8 +423,8 @@ class FairnessMetricDifference(ABC):
             group_2 = disparity_result["group_2"]
             difference = disparity_result["disparity"]
 
-            group_1_tuple: tuple[str | int | bool, ...] = tuple(group_1)
-            group_2_tuple: tuple[str | int | bool, ...] = tuple(group_2)
+            group_1_tuple: SensitiveGroupTupleT = tuple(group_1)
+            group_2_tuple: SensitiveGroupTupleT = tuple(group_2)
 
             if group_1_tuple not in group_scores:
                 group_scores[group_1_tuple] = difference
@@ -637,8 +638,8 @@ class FairnessMetricRatio(ABC):
             group_2 = disparity_result["group_2"]
             ratio = disparity_result["disparity"]
 
-            group_1_tuple: tuple[str | int | bool, ...] = tuple(group_1)
-            group_2_tuple: tuple[str | int | bool, ...] = tuple(group_2)
+            group_1_tuple: SensitiveGroupTupleT = tuple(group_1)
+            group_2_tuple: SensitiveGroupTupleT = tuple(group_2)
 
             if group_1_tuple not in group_scores:
                 group_scores[group_1_tuple] = ratio
