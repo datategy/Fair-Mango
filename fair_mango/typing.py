@@ -79,10 +79,8 @@ class FairnessSummaryResult:
     def to_dict(self) -> dict[str, object]:
         """Convert to dictionary for backward compatibility."""
         result: dict[str, object] = {"disparity": self.disparity}
-        if self.privileged_sensitive_group is not None:
-            result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        if self.unprivileged_sensitive_group is not None:
-            result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
+        result["privileged_sensitive_group"] = self.privileged_sensitive_group
+        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
         return result
 
 
@@ -97,10 +95,8 @@ class FairnessRatioSummaryResult:
     def to_dict(self) -> dict[str, object]:
         """Convert to dictionary for backward compatibility."""
         result: dict[str, object] = {"ratio": self.ratio}
-        if self.privileged_sensitive_group is not None:
-            result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        if self.unprivileged_sensitive_group is not None:
-            result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
+        result["privileged_sensitive_group"] = self.privileged_sensitive_group
+        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
         return result
 
 
@@ -214,10 +210,10 @@ class FairnessRankingResult:
 class DemographicParitySummaryResult:
     """Summary result for Demographic Parity metrics."""
 
+    privileged_sensitive_group: SensitiveGroupT
+    unprivileged_sensitive_group: SensitiveGroupT
     demographic_parity_difference: float | None = None
     demographic_parity_ratio: float | None = None
-    privileged_sensitive_group: SensitiveGroupT | None = None
-    unprivileged_sensitive_group: SensitiveGroupT | None = None
     label: str = "demographic_parity_difference"
 
     def to_dict(self) -> dict[str, object]:
@@ -227,10 +223,8 @@ class DemographicParitySummaryResult:
             result[self.label] = self.demographic_parity_difference
         elif self.demographic_parity_ratio is not None:
             result[self.label] = self.demographic_parity_ratio
-        if self.privileged_sensitive_group is not None:
-            result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        if self.unprivileged_sensitive_group is not None:
-            result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
+        result["privileged_sensitive_group"] = self.privileged_sensitive_group
+        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
         return result
 
 
@@ -238,10 +232,10 @@ class DemographicParitySummaryResult:
 class DisparateImpactSummaryResult:
     """Summary result for Disparate Impact metrics."""
 
+    privileged_sensitive_group: SensitiveGroupT
+    unprivileged_sensitive_group: SensitiveGroupT
     disparate_impact_difference: float | None = None
     disparate_impact_ratio: float | None = None
-    privileged_sensitive_group: SensitiveGroupT | None = None
-    unprivileged_sensitive_group: SensitiveGroupT | None = None
     label: str = "disparate_impact_difference"
 
     def to_dict(self) -> dict[str, object]:
@@ -251,10 +245,8 @@ class DisparateImpactSummaryResult:
             result[self.label] = self.disparate_impact_difference
         elif self.disparate_impact_ratio is not None:
             result[self.label] = self.disparate_impact_ratio
-        if self.privileged_sensitive_group is not None:
-            result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        if self.unprivileged_sensitive_group is not None:
-            result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
+        result["privileged_sensitive_group"] = self.privileged_sensitive_group
+        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
         return result
 
 
@@ -262,10 +254,10 @@ class DisparateImpactSummaryResult:
 class EqualOpportunitySummaryResult:
     """Summary result for Equal Opportunity metrics."""
 
+    privileged_sensitive_group: SensitiveGroupT
+    unprivileged_sensitive_group: SensitiveGroupT
     equal_opportunity_difference: float | None = None
     equal_opportunity_ratio: float | None = None
-    privileged_sensitive_group: SensitiveGroupT | None = None
-    unprivileged_sensitive_group: SensitiveGroupT | None = None
     label: str = "equal_opportunity_difference"
 
     def to_dict(self) -> dict[str, object]:
@@ -275,10 +267,8 @@ class EqualOpportunitySummaryResult:
             result[self.label] = self.equal_opportunity_difference
         elif self.equal_opportunity_ratio is not None:
             result[self.label] = self.equal_opportunity_ratio
-        if self.privileged_sensitive_group is not None:
-            result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        if self.unprivileged_sensitive_group is not None:
-            result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
+        result["privileged_sensitive_group"] = self.privileged_sensitive_group
+        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
         return result
 
 
@@ -286,10 +276,10 @@ class EqualOpportunitySummaryResult:
 class FalsePositiveRateSummaryResult:
     """Summary result for False Positive Rate metrics."""
 
+    privileged_sensitive_group: SensitiveGroupT
+    unprivileged_sensitive_group: SensitiveGroupT
     false_positive_rate_difference: float | None = None
     false_positive_rate_ratio: float | None = None
-    privileged_sensitive_group: SensitiveGroupT | None = None
-    unprivileged_sensitive_group: SensitiveGroupT | None = None
     label: str = "false_positive_rate_difference"
 
     def to_dict(self) -> dict[str, object]:
@@ -299,10 +289,8 @@ class FalsePositiveRateSummaryResult:
             result[self.label] = self.false_positive_rate_difference
         elif self.false_positive_rate_ratio is not None:
             result[self.label] = self.false_positive_rate_ratio
-        if self.privileged_sensitive_group is not None:
-            result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        if self.unprivileged_sensitive_group is not None:
-            result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
+        result["privileged_sensitive_group"] = self.privileged_sensitive_group
+        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
         return result
 
 
@@ -310,10 +298,10 @@ class FalsePositiveRateSummaryResult:
 class EqualisedOddsSummaryResult:
     """Summary result for Equalised Odds metrics."""
 
+    privileged_sensitive_group: SensitiveGroupT
+    unprivileged_sensitive_group: SensitiveGroupT
     equalised_odds_difference: float | None = None
     equalised_odds_ratio: float | None = None
-    privileged_sensitive_group: SensitiveGroupT | None = None
-    unprivileged_sensitive_group: SensitiveGroupT | None = None
 
     def to_dict(self) -> dict[str, object]:
         """Convert to dictionary for backward compatibility."""
@@ -322,10 +310,8 @@ class EqualisedOddsSummaryResult:
             result["equalised_odds_difference"] = self.equalised_odds_difference
         if self.equalised_odds_ratio is not None:
             result["equalised_odds_ratio"] = self.equalised_odds_ratio
-        if self.privileged_sensitive_group is not None:
-            result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        if self.unprivileged_sensitive_group is not None:
-            result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
+        result["privileged_sensitive_group"] = self.privileged_sensitive_group
+        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
         return result
 
 
