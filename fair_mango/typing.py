@@ -1,5 +1,5 @@
 from dataclasses import asdict, dataclass
-from typing import Protocol, TypeAlias, TypedDict, Union
+from typing import TypeAlias, TypedDict, Union
 
 import numpy as np
 import pandas as pd
@@ -114,18 +114,18 @@ class RankResult:
         return asdict(self)
 
 
-class MetricResultProtocol(Protocol):
-    """Protocol for metric result types that can be used in disparity calculations."""
+@dataclass
+class BaseMetricResult:
+    """Base class for metric result types that can be used in disparity calculations."""
 
     sensitive_group: SensitiveGroupT
     data: float | pd.Series | np.ndarray | list[float]
 
 
 @dataclass
-class SelectionRateResult:
+class SelectionRateResult(BaseMetricResult):
     """Result of selection rate for a single sensitive group."""
 
-    sensitive_group: SensitiveGroupT
     data: float
     selection_rate_in_data: float | None = None
     selection_rate_in_predictions: float | None = None
