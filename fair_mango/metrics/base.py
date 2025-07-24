@@ -87,9 +87,12 @@ def false_negative_rate(fn: int, tp: int, **_) -> float:
     Returns
     -------
     float
-        False negative rate value.
+        False negative rate value. Returns NaN if denominator is zero.
     """
-    return fn / (fn + tp)
+    denominator = fn + tp
+    if denominator == 0:
+        return float('nan')
+    return fn / denominator
 
 
 def false_positive_rate(tn: int, fp: int, **_) -> float:
@@ -105,9 +108,12 @@ def false_positive_rate(tn: int, fp: int, **_) -> float:
     Returns
     -------
     float
-        False positive rate value.
+        False positive rate value. Returns NaN if denominator is zero.
     """
-    return fp / (fp + tn)
+    denominator = fp + tn
+    if denominator == 0:
+        return float('nan')
+    return fp / denominator
 
 
 def true_negative_rate(tn: int, fp: int, **_) -> float:
@@ -123,9 +129,12 @@ def true_negative_rate(tn: int, fp: int, **_) -> float:
     Returns
     -------
     float
-        True negative rate value.
+        True negative rate value. Returns NaN if denominator is zero.
     """
-    return tn / (tn + fp)
+    denominator = tn + fp
+    if denominator == 0:
+        return float('nan')
+    return tn / denominator
 
 
 def true_positive_rate(fn: int, tp: int, **_) -> float:
@@ -141,9 +150,12 @@ def true_positive_rate(fn: int, tp: int, **_) -> float:
     Returns
     -------
     float
-        True positive rate value.
+        True positive rate value. Returns NaN if denominator is zero.
     """
-    return tp / (fn + tp)
+    denominator = fn + tp
+    if denominator == 0:
+        return float('nan')
+    return tp / denominator
 
 
 class Metric(ABC):
