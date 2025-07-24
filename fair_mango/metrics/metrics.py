@@ -1,6 +1,6 @@
 from collections.abc import Callable, Sequence
 from functools import lru_cache
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 from sklearn.metrics import (
@@ -689,7 +689,7 @@ class PerformanceMetric(Metric):
         return result
 
 
-class DemographicParityDifference(FairnessMetricDifference):
+class DemographicParityDifference(FairnessMetricDifference[Literal["demographic_parity_difference", "demographic_parity_ratio"]]):
     """Calculate Demographic Parity Fairness Metric using "difference" to
     calculate the disparity between the different sensitive groups present
     in the sensitive feature.
@@ -751,7 +751,7 @@ class DemographicParityDifference(FairnessMetricDifference):
     def __init__(
         self,
         data: Dataset,
-        label: str = "demographic_parity_difference",
+        label: Literal["demographic_parity_difference", "demographic_parity_ratio"] = "demographic_parity_difference",
     ) -> None:
         super().__init__(
             data,
@@ -796,7 +796,7 @@ class DemographicParityDifference(FairnessMetricDifference):
         )
 
 
-class DisparateImpactDifference(FairnessMetricDifference):
+class DisparateImpactDifference(FairnessMetricDifference[Literal["disparate_impact_difference", "disparate_impact_ratio"]]):
     """Calculate Disparate Impact Fairness Metric using "difference" to
     calculate the disparity between the different sensitive groups present
     in the sensitive feature.
@@ -858,7 +858,7 @@ class DisparateImpactDifference(FairnessMetricDifference):
     def __init__(
         self,
         data: Dataset,
-        label: str = "disparate_impact_difference",
+        label: Literal["disparate_impact_difference", "disparate_impact_ratio"] = "disparate_impact_difference",
     ) -> None:
         super().__init__(
             data,
@@ -903,7 +903,7 @@ class DisparateImpactDifference(FairnessMetricDifference):
         )
 
 
-class EqualOpportunityDifference(FairnessMetricDifference):
+class EqualOpportunityDifference(FairnessMetricDifference[Literal["equal_opportunity_difference", "equal_opportunity_ratio"]]):
     """Calculate Equal Opportunity Fairness Metric using "difference" to
     calculate the disparity between the different sensitive groups present
     in the sensitive feature.
@@ -965,7 +965,7 @@ class EqualOpportunityDifference(FairnessMetricDifference):
     def __init__(
         self,
         data: Dataset,
-        label: str = "equal_opportunity_difference",
+        label: Literal["equal_opportunity_difference", "equal_opportunity_ratio"] = "equal_opportunity_difference",
     ) -> None:
         super().__init__(
             data,
@@ -1010,7 +1010,7 @@ class EqualOpportunityDifference(FairnessMetricDifference):
         )
 
 
-class FalsePositiveRateDifference(FairnessMetricDifference):
+class FalsePositiveRateDifference(FairnessMetricDifference[Literal["false_positive_rate_difference", "false_positive_rate_ratio"]]):
     """Calculate False Positive Rate Parity Fairness Metric using "difference"
     to calculate the disparity between the different sensitive groups present
     in the sensitive feature.
@@ -1074,7 +1074,7 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
     def __init__(
         self,
         data: Dataset,
-        label: str = "false_positive_rate_difference",
+        label: Literal["false_positive_rate_difference", "false_positive_rate_ratio"] = "false_positive_rate_difference",
     ) -> None:
         super().__init__(
             data,
@@ -1119,7 +1119,7 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
         )
 
 
-class DemographicParityRatio(FairnessMetricRatio):
+class DemographicParityRatio(FairnessMetricRatio[Literal["demographic_parity_difference", "demographic_parity_ratio"]]):
     """Calculate Demographic Parity Fairness Metric using "ratio" to calculate
     the disparity between the different sensitive groups present in the
     sensitive feature.
@@ -1178,7 +1178,7 @@ class DemographicParityRatio(FairnessMetricRatio):
     def __init__(
         self,
         data: Dataset,
-        label: str = "demographic_parity_ratio",
+        label: Literal["demographic_parity_difference", "demographic_parity_ratio"] = "demographic_parity_ratio",
     ) -> None:
         super().__init__(
             data,
@@ -1222,7 +1222,7 @@ class DemographicParityRatio(FairnessMetricRatio):
         )
 
 
-class DisparateImpactRatio(FairnessMetricRatio):
+class DisparateImpactRatio(FairnessMetricRatio[Literal["disparate_impact_difference", "disparate_impact_ratio"]]):
     """Calculate Disparate Impact Fairness Metric using "ratio" to calculate
     the disparity between the different sensitive groups present in the
     sensitive feature.
@@ -1281,7 +1281,7 @@ class DisparateImpactRatio(FairnessMetricRatio):
     def __init__(
         self,
         data: Dataset,
-        label: str = "disparate_impact_ratio",
+        label: Literal["disparate_impact_difference", "disparate_impact_ratio"] = "disparate_impact_ratio",
     ) -> None:
         super().__init__(
             data,
@@ -1325,7 +1325,7 @@ class DisparateImpactRatio(FairnessMetricRatio):
         )
 
 
-class EqualOpportunityRatio(FairnessMetricRatio):
+class EqualOpportunityRatio(FairnessMetricRatio[Literal["equal_opportunity_difference", "equal_opportunity_ratio"]]):
     """Calculate Equal Opportunity Fairness Metric using "ratio" to calculate
     the disparity between the different sensitive groups present in the
     sensitive feature.
@@ -1387,7 +1387,7 @@ class EqualOpportunityRatio(FairnessMetricRatio):
     def __init__(
         self,
         data: Dataset,
-        label: str = "equal_opportunity_ratio",
+        label: Literal["equal_opportunity_difference", "equal_opportunity_ratio"] = "equal_opportunity_ratio",
     ) -> None:
         super().__init__(
             data,
@@ -1431,7 +1431,7 @@ class EqualOpportunityRatio(FairnessMetricRatio):
         )
 
 
-class FalsePositiveRateRatio(FairnessMetricRatio):
+class FalsePositiveRateRatio(FairnessMetricRatio[Literal["false_positive_rate_difference", "false_positive_rate_ratio"]]):
     """Calculate False Positive Rate Parity Fairness Metric using "ratio" to
     calculate the disparity between the different sensitive groups present
     in the sensitive feature.
@@ -1494,7 +1494,7 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
     def __init__(
         self,
         data: Dataset,
-        label: str = "false_positive_rate_ratio",
+        label: Literal["false_positive_rate_difference", "false_positive_rate_ratio"] = "false_positive_rate_ratio",
     ) -> None:
         super().__init__(
             data,

@@ -1,5 +1,5 @@
 from collections.abc import Callable, Sequence
-from typing import Any
+from typing import Any, Literal
 from contextlib import AbstractContextManager
 
 import numpy as np
@@ -264,7 +264,7 @@ def test_confusionmatrix(
 
 dpd_expected_result_2 = [
     {
-        "dpd": 0.3726567804180811,
+        "demographic_parity_difference": 0.3726567804180811,
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
@@ -319,7 +319,7 @@ dpd_expected_result_6 = [
 @pytest.mark.parametrize(
     "data, label, threshold, expected_result",
     [
-        (dataset2, "dpd", 0.3, dpd_expected_result_2),
+        (dataset2, "demographic_parity_difference", 0.3, dpd_expected_result_2),
         (
             Dataset(
                 df,
@@ -341,7 +341,7 @@ dpd_expected_result_6 = [
 )
 def test_demographic_parity_difference(
     data: Dataset,
-    label: str,
+    label: Literal["demographic_parity_difference", "demographic_parity_ratio"],
     threshold: float,
     expected_result: tuple[dict, list[dict], bool],
 ):
@@ -357,7 +357,7 @@ def test_demographic_parity_difference(
 
 dpr_expected_result_1 = [
     {
-        "dpr": 0.4100957078534742,
+        "demographic_parity_ratio": 0.4100957078534742,
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
@@ -371,7 +371,7 @@ dpr_expected_result_1 = [
 
 dpr_expected_result_2 = [
     {
-        "dpr": 0.4100957078534742,
+        "demographic_parity_ratio": 0.4100957078534742,
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
@@ -426,10 +426,10 @@ dpr_expected_result_6 = [
 @pytest.mark.parametrize(
     "data, label, threshold, expected_result",
     [
-        (dataset1, "dpr", 1.2, dpr_expected_result_1),
+        (dataset1, "demographic_parity_ratio", 1.2, dpr_expected_result_1),
         (
             Dataset(df, "Sex", "HeartDisease", "HeartDiseasePred"),
-            "dpr",
+            "demographic_parity_ratio",
             0.4,
             dpr_expected_result_2,
         ),
@@ -449,7 +449,7 @@ dpr_expected_result_6 = [
 )
 def test_demographic_parity_ratio(
     data: Dataset,
-    label: str,
+    label: Literal["demographic_parity_difference", "demographic_parity_ratio"],
     threshold: float,
     expected_result: Sequence[dict[str, dict]],
 ):
@@ -468,7 +468,7 @@ def test_demographic_parity_ratio(
 
 did_expected_result_2 = [
     {
-        "did": 0.3619581918885117,
+        "disparate_impact_difference": 0.3619581918885117,
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
@@ -525,7 +525,7 @@ did_expected_result_6 = [
 @pytest.mark.parametrize(
     "data, label, threshold, expected_result",
     [
-        (dataset2, "did", 0.3, did_expected_result_2),
+        (dataset2, "disparate_impact_difference", 0.3, did_expected_result_2),
         (
             dataset3,
             "disparate_impact_difference",
@@ -542,7 +542,7 @@ did_expected_result_6 = [
 )
 def test_disparate_impact_difference(
     data: Dataset,
-    label: str,
+    label: Literal["disparate_impact_difference", "disparate_impact_ratio"],
     threshold: float,
     expected_result: Sequence[dict[str, dict]] | AbstractContextManager,
 ):
@@ -567,7 +567,7 @@ def test_disparate_impact_difference(
 
 dir_expected_result_2 = [
     {
-        "dir": 0.4219830636141608,
+        "disparate_impact_ratio": 0.4219830636141608,
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
@@ -624,13 +624,13 @@ dir_expected_result_6 = [
     [
         (
             dataset1,
-            "dir",
+            "disparate_impact_ratio",
             1.2,
             pytest.raises(ValueError),
         ),
         (
             Dataset(df, ["Sex"], "HeartDisease", "HeartDiseasePred"),
-            "dir",
+            "disparate_impact_ratio",
             0.4,
             dir_expected_result_2,
         ),
@@ -650,7 +650,7 @@ dir_expected_result_6 = [
 )
 def test_disparate_impact_ratio(
     data: Dataset,
-    label: str,
+    label: Literal["disparate_impact_difference", "disparate_impact_ratio"],
     threshold: float,
     expected_result: Sequence[dict[str, dict]] | AbstractContextManager,
 ):
@@ -671,7 +671,7 @@ def test_disparate_impact_ratio(
 
 eod_expected_result_2 = [
     {
-        "eod": 0.03816593886462882,
+        "equal_opportunity_difference": 0.03816593886462882,
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
@@ -726,7 +726,7 @@ eod_expected_result_6 = [
 @pytest.mark.parametrize(
     "data, label, threshold, expected_result",
     [
-        (dataset2, "eod", 0.1, eod_expected_result_2),
+        (dataset2, "equal_opportunity_difference", 0.1, eod_expected_result_2),
         (
             Dataset(
                 df,
@@ -748,7 +748,7 @@ eod_expected_result_6 = [
 )
 def test_equal_opportunity_difference(
     data: Dataset,
-    label: str,
+    label: Literal["equal_opportunity_difference", "equal_opportunity_ratio"],
     threshold: float,
     expected_result: tuple[dict, list[dict], bool],
 ):
@@ -770,7 +770,7 @@ def test_equal_opportunity_difference(
 
 eor_expected_result_2 = [
     {
-        "eor": 0.9609821428571428,
+        "equal_opportunity_ratio": 0.9609821428571428,
         "privileged_sensitive_group": ["M"],
         "unprivileged_sensitive_group": ["F"],
     },
@@ -827,13 +827,13 @@ eor_expected_result_6 = [
     [
         (
             dataset1,
-            "eor",
+            "equal_opportunity_ratio",
             1.2,
             pytest.raises(ValueError),
         ),
         (
             Dataset(df, ["Sex"], "HeartDisease", "HeartDiseasePred"),
-            "eor",
+            "equal_opportunity_ratio",
             0.4,
             eor_expected_result_2,
         ),
@@ -853,7 +853,7 @@ eor_expected_result_6 = [
 )
 def test_equal_opportuinity_ratio(
     data: Dataset,
-    label: str,
+    label: Literal["equal_opportunity_difference", "equal_opportunity_ratio"],
     threshold: float,
     expected_result: tuple[dict, list[dict], bool] | AbstractContextManager,
 ):
