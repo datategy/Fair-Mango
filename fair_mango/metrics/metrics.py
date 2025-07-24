@@ -1766,7 +1766,9 @@ class EqualisedOddsRatio:
         self.tpr: list[DisparityResultDict] | None = None
         self.fpr: list[DisparityResultDict] | None = None
 
-    def _compute(self) -> tuple[list[DisparityResultDict] | None, list[DisparityResultDict] | None]:
+    def _compute(
+        self,
+    ) -> tuple[list[DisparityResultDict] | None, list[DisparityResultDict] | None]:
         """Calculate the disparity in the True Positive Rate and False Positive
         Rate using "ratio" between every possible pair in the provided groups.
 

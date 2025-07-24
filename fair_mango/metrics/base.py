@@ -228,9 +228,13 @@ def calculate_disparity(
     """
     # Assert that all items conform to MetricResultProtocol
     if result_per_groups:
-        assert hasattr(result_per_groups[0], 'sensitive_group'), "First item must have 'sensitive_group' attribute"
-        assert hasattr(result_per_groups[0], 'data'), "First item must have 'data' attribute"
-    
+        assert hasattr(result_per_groups[0], "sensitive_group"), (
+            "First item must have 'sensitive_group' attribute"
+        )
+        assert hasattr(result_per_groups[0], "data"), (
+            "First item must have 'data' attribute"
+        )
+
     disparities: list[dict[str, list[str] | float]] = []
     for i, j in combinations(range(len(result_per_groups)), 2):
         rec_i, rec_j = result_per_groups[i], result_per_groups[j]
