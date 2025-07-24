@@ -429,18 +429,14 @@ class SupersetPerformanceMetrics(Superset):
                     result = metric(dataset)()
 
                 for concatenated_result, res in zip(concatenated_results, result):
-                    # Manually copy attributes from res to concatenated_result
                     if hasattr(res, "metrics"):
-                        # For ConfusionMatrixResult or PerformanceMetricResult
                         for key, value in res.metrics.items():
                             setattr(concatenated_result, key, value)
                     elif hasattr(res, "selection_rate_in_predictions"):
-                        # For SelectionRate results with predictions
                         concatenated_result.selection_rate_in_predictions = (
                             res.selection_rate_in_predictions
                         )
                     else:
-                        # For other result types, copy all attributes except sensitive_group
                         for attr_name in dir(res):
                             if (
                                 not attr_name.startswith("_")

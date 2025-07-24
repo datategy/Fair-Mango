@@ -238,7 +238,6 @@ def calculate_disparity(
     AttributeError
         If method is not 'difference' or 'ratio'.
     """
-    # Assert that all items conform to MetricResultProtocol
     if result_per_groups:
         assert hasattr(result_per_groups[0], "sensitive_group"), (
             "First item must have 'sensitive_group' attribute"
