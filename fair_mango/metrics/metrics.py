@@ -24,12 +24,14 @@ from fair_mango.typing import (
     ConfusionMatrixResult,
     DemographicParitySummaryResult,
     DisparateImpactSummaryResult,
+    DisparityResultDict,
     EqualOpportunitySummaryResult,
     EqualisedOddsSummaryResult,
     FalsePositiveRateSummaryResult,
     PerformanceMetricResult,
     RankResult,
     SelectionRateResult,
+    SensitiveGroupT,
 )
 
 
@@ -697,8 +699,8 @@ class DemographicParityDifference(FairnessMetricDifference):
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: list[str] | None = None
-        unprivileged_sensitive_group: list[str] | None = None
+        privileged_sensitive_group: SensitiveGroupT | None = None
+        unprivileged_sensitive_group: SensitiveGroupT | None = None
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -804,8 +806,8 @@ class DisparateImpactDifference(FairnessMetricDifference):
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: list[str] | None = None
-        unprivileged_sensitive_group: list[str] | None = None
+        privileged_sensitive_group: SensitiveGroupT | None = None
+        unprivileged_sensitive_group: SensitiveGroupT | None = None
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -911,8 +913,8 @@ class EqualOpportunityDifference(FairnessMetricDifference):
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: list[str] | None = None
-        unprivileged_sensitive_group: list[str] | None = None
+        privileged_sensitive_group: SensitiveGroupT | None = None
+        unprivileged_sensitive_group: SensitiveGroupT | None = None
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -1020,8 +1022,8 @@ class FalsePositiveRateDifference(FairnessMetricDifference):
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: list[str] | None = None
-        unprivileged_sensitive_group: list[str] | None = None
+        privileged_sensitive_group: SensitiveGroupT | None = None
+        unprivileged_sensitive_group: SensitiveGroupT | None = None
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -1118,8 +1120,8 @@ class DemographicParityRatio(FairnessMetricRatio):
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_sensitive_group: list[str] | None = None
-        unprivileged_sensitive_group: list[str] | None = None
+        privileged_sensitive_group: SensitiveGroupT | None = None
+        unprivileged_sensitive_group: SensitiveGroupT | None = None
 
         for disparity_result in self.results:
             ratio_value = disparity_result["disparity"]
@@ -1221,8 +1223,8 @@ class DisparateImpactRatio(FairnessMetricRatio):
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_sensitive_group: list[str] | None = None
-        unprivileged_sensitive_group: list[str] | None = None
+        privileged_sensitive_group: SensitiveGroupT | None = None
+        unprivileged_sensitive_group: SensitiveGroupT | None = None
 
         for disparity_result in self.results:
             ratio_value = disparity_result["disparity"]
@@ -1327,8 +1329,8 @@ class EqualOpportunityRatio(FairnessMetricRatio):
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_sensitive_group: list[str] | None = None
-        unprivileged_sensitive_group: list[str] | None = None
+        privileged_sensitive_group: SensitiveGroupT | None = None
+        unprivileged_sensitive_group: SensitiveGroupT | None = None
 
         for disparity_result in self.results:
             ratio_value = disparity_result["disparity"]
@@ -1434,8 +1436,8 @@ class FalsePositiveRateRatio(FairnessMetricRatio):
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_sensitive_group: list[str] | None = None
-        unprivileged_sensitive_group: list[str] | None = None
+        privileged_sensitive_group: SensitiveGroupT | None = None
+        unprivileged_sensitive_group: SensitiveGroupT | None = None
 
         for disparity_result in self.results:
             ratio_value = disparity_result["disparity"]
@@ -1531,12 +1533,12 @@ class EqualisedOddsDifference:
         self.data = data
         self.label = "equalised_odds_difference"
         self.ranking: dict | None = None
-        self.tpr: list[dict] | None = None
-        self.fpr: list[dict] | None = None
+        self.tpr: list[DisparityResultDict] | None = None
+        self.fpr: list[DisparityResultDict] | None = None
 
     def _compute(
         self,
-    ) -> tuple[list[dict], list[dict]]:
+    ) -> tuple[list[DisparityResultDict] | None, list[DisparityResultDict] | None]:
         """Calculate the disparity in the True Positive Rate and False Positive
         Rate using "difference" between every possible pair in the provided
         groups.
@@ -1576,6 +1578,7 @@ class EqualisedOddsDifference:
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
 
+        assert self.tpr is not None and self.fpr is not None
         for tpr_result, fpr_result in zip(self.tpr, self.fpr):
             tpr_disparity = tpr_result["disparity"]
             fpr_disparity = fpr_result["disparity"]
@@ -1619,6 +1622,7 @@ class EqualisedOddsDifference:
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
 
+        assert self.tpr is not None and self.fpr is not None
         for tpr_result, fpr_result in zip(self.tpr, self.fpr):
             tpr_disparity = tpr_result["disparity"]
             fpr_disparity = fpr_result["disparity"]
@@ -1759,10 +1763,10 @@ class EqualisedOddsRatio:
         self.data = data
         self.label = "equalised_odds_ratio"
         self.ranking: dict | None = None
-        self.tpr: list[dict] | None = None
-        self.fpr: list[dict] | None = None
+        self.tpr: list[DisparityResultDict] | None = None
+        self.fpr: list[DisparityResultDict] | None = None
 
-    def _compute(self) -> tuple[list[dict], list[dict]]:
+    def _compute(self) -> tuple[list[DisparityResultDict] | None, list[DisparityResultDict] | None]:
         """Calculate the disparity in the True Positive Rate and False Positive
         Rate using "ratio" between every possible pair in the provided groups.
 
@@ -1801,6 +1805,7 @@ class EqualisedOddsRatio:
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
 
+        assert self.tpr is not None and self.fpr is not None
         for tpr_result, fpr_result in zip(self.tpr, self.fpr):
             tpr_ratio = tpr_result["disparity"]
             fpr_ratio = fpr_result["disparity"]
@@ -1854,6 +1859,7 @@ class EqualisedOddsRatio:
         if (self.tpr is None) or (self.fpr is None):
             self.tpr, self.fpr = self._compute()
 
+        assert self.tpr is not None and self.fpr is not None
         for tpr_result, fpr_result in zip(self.tpr, self.fpr):
             tpr_ratio = tpr_result["disparity"]
             fpr_ratio = fpr_result["disparity"]

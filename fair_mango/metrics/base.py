@@ -17,6 +17,7 @@ from fair_mango.typing import (
     FairnessSummaryResult,
     MetricResultProtocol,
     RankResult,
+    SensitiveGroupT,
 )
 
 
@@ -369,8 +370,8 @@ class FairnessMetricDifference(ABC):
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: list[str] | None = None
-        unprivileged_sensitive_group: list[str] | None = None
+        privileged_sensitive_group: SensitiveGroupT | None = None
+        unprivileged_sensitive_group: SensitiveGroupT | None = None
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -414,8 +415,8 @@ class FairnessMetricDifference(ABC):
             group_2 = disparity_result["group_2"]
             difference = disparity_result["disparity"]
 
-            group_1_tuple: tuple[str, ...] = tuple(group_1)
-            group_2_tuple: tuple[str, ...] = tuple(group_2)
+            group_1_tuple: tuple[str | int | bool, ...] = tuple(group_1)
+            group_2_tuple: tuple[str | int | bool, ...] = tuple(group_2)
 
             if group_1_tuple not in group_scores:
                 group_scores[group_1_tuple] = difference
@@ -568,19 +569,19 @@ class FairnessMetricRatio(ABC):
                 A single summary result with:
         ratio : float
             The minimum ratio value found (closest to 0).
-        privileged_sensitive_group : list[str] | None
-            List of strings identifying the privileged group. None if no group could be determined
+        privileged_sensitive_group : SensitiveGroupT | None
+            List of values identifying the privileged group. None if no group could be determined
             (e.g., if there is only one group or all groups have identical scores).
-        unprivileged_sensitive_group : list[str] | None
-            List of strings identifying the unprivileged group. None if no group could be determined
+        unprivileged_sensitive_group : SensitiveGroupT | None
+            List of values identifying the unprivileged group. None if no group could be determined
             (e.g., if there is only one group or all groups have identical scores).
         """
         if self.results is None:
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_sensitive_group: list[str] | None = None
-        unprivileged_sensitive_group: list[str] | None = None
+        privileged_sensitive_group: SensitiveGroupT | None = None
+        unprivileged_sensitive_group: SensitiveGroupT | None = None
 
         for disparity_result in self.results:
             ratio_value = disparity_result["disparity"]
@@ -629,8 +630,8 @@ class FairnessMetricRatio(ABC):
             group_2 = disparity_result["group_2"]
             ratio = disparity_result["disparity"]
 
-            group_1_tuple: tuple[str, ...] = tuple(group_1)
-            group_2_tuple: tuple[str, ...] = tuple(group_2)
+            group_1_tuple: tuple[str | int | bool, ...] = tuple(group_1)
+            group_2_tuple: tuple[str | int | bool, ...] = tuple(group_2)
 
             if group_1_tuple not in group_scores:
                 group_scores[group_1_tuple] = ratio
