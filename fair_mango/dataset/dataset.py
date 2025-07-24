@@ -115,7 +115,6 @@ def df_filtration(
     for column, value in zip(sensitive, sensitive_group, strict=True):
         mask &= df[column] == value
     filtered_df = df[mask]
-    assert isinstance(filtered_df, pd.DataFrame)
     return filtered_df
 
 
