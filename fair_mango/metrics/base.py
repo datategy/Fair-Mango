@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Hashable
 from itertools import combinations
-from typing import Any, Literal, cast
+from typing import Any, Generic, Literal, TypeVar, cast
 
 import numpy as np
 import pandas as pd
@@ -20,6 +20,8 @@ from fair_mango.typing import (
     SensitiveGroupT,
     SensitiveGroupTupleT,
 )
+
+LabelT = TypeVar('LabelT', bound=str)
 
 
 def is_binary(y: pd.Series) -> bool:
@@ -271,7 +273,7 @@ def calculate_disparity(
     return cast(list[DisparityResultDict], disparities)
 
 
-class FairnessMetricDifference(ABC):
+class FairnessMetricDifference(ABC, Generic[LabelT]):
     """An abstract class that is inherited by every fairness metric that is
     based on the 'difference' to calculate disparity between the sensitive
     groups present in the sensitive feature.
@@ -302,7 +304,7 @@ class FairnessMetricDifference(ABC):
         self,
         data: Dataset,
         metric: type[Metric],
-        label: str,
+        label: LabelT,
         metric_type: str = "performance",
         **metric_kwargs,
     ) -> None:
@@ -480,7 +482,7 @@ class FairnessMetricDifference(ABC):
         return is_biased_result
 
 
-class FairnessMetricRatio(ABC):
+class FairnessMetricRatio(ABC, Generic[LabelT]):
     """An abstract class that is inherited by every fairness metric that is
     based on the 'ratio' to calculate disparity between the sensitive groups
     present in the sensitive feature.
@@ -511,7 +513,7 @@ class FairnessMetricRatio(ABC):
         self,
         data: Dataset,
         metric: type[Metric],
-        label: str,
+        label: LabelT,
         metric_type: str = "performance",
         **metric_kwargs,
     ) -> None:

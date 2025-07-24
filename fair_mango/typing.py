@@ -1,5 +1,5 @@
 from dataclasses import asdict, dataclass
-from typing import TypeAlias, TypedDict
+from typing import Literal, TypeAlias, TypedDict
 
 import numpy as np
 import pandas as pd
@@ -214,7 +214,7 @@ class DemographicParitySummaryResult:
     unprivileged_sensitive_group: SensitiveGroupT
     demographic_parity_difference: float | None = None
     demographic_parity_ratio: float | None = None
-    label: str = "demographic_parity_difference"
+    label: Literal["demographic_parity_difference", "demographic_parity_ratio"] = "demographic_parity_difference"
 
     def to_dict(self) -> dict[str, object]:
         """Convert to dictionary for backward compatibility."""
@@ -236,7 +236,7 @@ class DisparateImpactSummaryResult:
     unprivileged_sensitive_group: SensitiveGroupT
     disparate_impact_difference: float | None = None
     disparate_impact_ratio: float | None = None
-    label: str = "disparate_impact_difference"
+    label: Literal["disparate_impact_difference", "disparate_impact_ratio"] = "disparate_impact_difference"
 
     def to_dict(self) -> dict[str, object]:
         """Convert to dictionary for backward compatibility."""
@@ -258,7 +258,7 @@ class EqualOpportunitySummaryResult:
     unprivileged_sensitive_group: SensitiveGroupT
     equal_opportunity_difference: float | None = None
     equal_opportunity_ratio: float | None = None
-    label: str = "equal_opportunity_difference"
+    label: Literal["equal_opportunity_difference", "equal_opportunity_ratio"] = "equal_opportunity_difference"
 
     def to_dict(self) -> dict[str, object]:
         """Convert to dictionary for backward compatibility."""
@@ -280,7 +280,7 @@ class FalsePositiveRateSummaryResult:
     unprivileged_sensitive_group: SensitiveGroupT
     false_positive_rate_difference: float | None = None
     false_positive_rate_ratio: float | None = None
-    label: str = "false_positive_rate_difference"
+    label: Literal["false_positive_rate_difference", "false_positive_rate_ratio"] = "false_positive_rate_difference"
 
     def to_dict(self) -> dict[str, object]:
         """Convert to dictionary for backward compatibility."""
