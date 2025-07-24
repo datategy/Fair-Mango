@@ -9,6 +9,8 @@ SensitiveGroupT: TypeAlias = Union[
     list[str], list[int], list[bool], list[str | int | bool]
 ]
 
+SensitiveGroupTupleT: TypeAlias = tuple[str | int | bool, ...]
+
 
 @dataclass
 class DatasetTargetResult:
