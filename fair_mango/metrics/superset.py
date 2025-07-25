@@ -2,6 +2,7 @@ from abc import ABC
 from itertools import chain, combinations
 
 from fair_mango.dataset.dataset import Dataset
+from fair_mango.metrics.mixins import DatasetCacheableMixin
 from fair_mango.metrics.metrics import (
     ConfusionMatrix,
     DemographicParityDifference,
@@ -86,7 +87,7 @@ class Superset(ABC):
         self.pairs = pairs
 
 
-class SupersetFairnessMetrics(Superset):
+class SupersetFairnessMetrics(Superset, DatasetCacheableMixin):
     """Calculate fairness metrics score for all combinations of sensitive
     attributes and ranks them. This class computes all applicable fairness metrics across different
     subsets of sensitive attributes. Ex:
@@ -161,12 +162,20 @@ class SupersetFairnessMetrics(Superset):
                 self.positive_target,
             )
 
+            dataset_id = self.get_dataset_cache_id(dataset)
+
             rankings = {}
 
             for metric_name, metric_class in self._dataset_metrics.items():
                 try:
-                    metric = metric_class(dataset)
-                    rankings[metric_name] = metric.rank()
+
+                    def compute_metric():
+                        metric = metric_class(dataset)
+                        return metric.rank()
+
+                    rankings[metric_name] = self.compute_cached_dataset_metric(
+                        dataset_id, f"{metric_name}_rank", compute_metric
+                    )
                 except Exception as e:
                     print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
                     continue
@@ -174,8 +183,14 @@ class SupersetFairnessMetrics(Superset):
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
-                        metric = metric_class(dataset)
-                        rankings[metric_name] = metric.rank()
+
+                        def compute_metric():
+                            metric = metric_class(dataset)
+                            return metric.rank()
+
+                        rankings[metric_name] = self.compute_cached_dataset_metric(
+                            dataset_id, f"{metric_name}_rank", compute_metric
+                        )
                     except Exception as e:
                         print(
                             f"Warning: Could not calculate {metric_name} for {pair}: {e}"
@@ -213,6 +228,8 @@ class SupersetFairnessMetrics(Superset):
                 self.positive_target,
             )
 
+            dataset_id = self.get_dataset_cache_id(dataset)
+
             summaries: dict[
                 str,
                 DemographicParitySummaryResult
@@ -224,8 +241,14 @@ class SupersetFairnessMetrics(Superset):
 
             for metric_name, metric_class in self._dataset_metrics.items():
                 try:
-                    metric = metric_class(dataset)
-                    summaries[metric_name] = metric.summary()
+
+                    def compute_metric():
+                        metric = metric_class(dataset)
+                        return metric.summary()
+
+                    summaries[metric_name] = self.compute_cached_dataset_metric(
+                        dataset_id, f"{metric_name}_summary", compute_metric
+                    )
                 except Exception as e:
                     print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
                     continue
@@ -233,8 +256,14 @@ class SupersetFairnessMetrics(Superset):
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
                     try:
-                        metric = metric_class(dataset)
-                        summaries[metric_name] = metric.summary()
+
+                        def compute_metric():
+                            metric = metric_class(dataset)
+                            return metric.summary()
+
+                        summaries[metric_name] = self.compute_cached_dataset_metric(
+                            dataset_id, f"{metric_name}_summary", compute_metric
+                        )
                     except Exception as e:
                         print(
                             f"Warning: Could not calculate {metric_name} for {pair}: {e}"
@@ -317,7 +346,7 @@ class SupersetFairnessMetrics(Superset):
         return results
 
 
-class SupersetPerformanceMetrics(Superset):
+class SupersetPerformanceMetrics(Superset, DatasetCacheableMixin):
     """Calculate performance evaluation metrics for different subsets of
     sensitive attributes. Ex:
     [gender, race] → (gender), (race), (gender, race)
@@ -418,26 +447,39 @@ class SupersetPerformanceMetrics(Superset):
                 self.positive_target,
             )
 
-            concatenated_results = SelectionRate(
-                dataset,
-                use_y_true=True,
-            )()
+            dataset_id = self.get_dataset_cache_id(dataset)
+
+            def compute_selection_rate_true():
+                return SelectionRate(dataset, use_y_true=True)()
+
+            concatenated_results = self.compute_cached_dataset_metric(
+                dataset_id, "selection_rate_true", compute_selection_rate_true
+            )
 
             for group_result in concatenated_results:
                 group_result.selection_rate_in_data = group_result.data
 
             for metric in self.metrics:
                 if metric is SelectionRate:
-                    result = SelectionRate(
-                        dataset,
-                        use_y_true=False,
-                    )()
+
+                    def compute_selection_rate_pred():
+                        return SelectionRate(dataset, use_y_true=False)()
+
+                    result = self.compute_cached_dataset_metric(
+                        dataset_id, "selection_rate_pred", compute_selection_rate_pred
+                    )
 
                     for group_result in result:
                         group_result.selection_rate_in_predictions = group_result.data
 
                 else:
-                    result = metric(dataset)()
+
+                    def compute_metric():
+                        return metric(dataset)()
+
+                    result = self.compute_cached_dataset_metric(
+                        dataset_id, f"{metric.__name__}_evaluate", compute_metric
+                    )
 
                 for concatenated_result, res in zip(concatenated_results, result):
                     if hasattr(res, "metrics"):
