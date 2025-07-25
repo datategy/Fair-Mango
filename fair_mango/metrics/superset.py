@@ -19,6 +19,11 @@ from fair_mango.metrics.metrics import (
 )
 from fair_mango.metrics.constants import DEFAULT_BIAS_THRESHOLDS
 from fair_mango.typing import (
+    DemographicParitySummaryResult,
+    DisparateImpactSummaryResult,
+    EqualOpportunitySummaryResult,
+    EqualisedOddsSummaryResult,
+    FalsePositiveRateSummaryResult,
     SupersetBiasResult,
     SupersetFairnessRankingResult,
     SupersetFairnessSummaryResult,
@@ -208,7 +213,14 @@ class SupersetFairnessMetrics(Superset):
                 self.positive_target,
             )
 
-            summaries = {}
+            summaries: dict[
+                str,
+                DemographicParitySummaryResult
+                | DisparateImpactSummaryResult
+                | EqualOpportunitySummaryResult
+                | EqualisedOddsSummaryResult
+                | FalsePositiveRateSummaryResult,
+            ] = {}
 
             for metric_name, metric_class in self._dataset_metrics.items():
                 try:
