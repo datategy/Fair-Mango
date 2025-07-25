@@ -334,7 +334,14 @@ class SupersetFairnessRankingResult:
 class SupersetFairnessSummaryResult:
     """Result of fairness summary evaluation for a superset."""
 
-    summaries: dict[str, object]
+    summaries: dict[
+        str,
+        DemographicParitySummaryResult
+        | DisparateImpactSummaryResult
+        | EqualOpportunitySummaryResult
+        | EqualisedOddsSummaryResult
+        | FalsePositiveRateSummaryResult,
+    ]
 
     def to_dict(self) -> dict[str, object]:
         """Convert to dictionary format for backward compatibility."""
