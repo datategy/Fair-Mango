@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Hashable
 from itertools import combinations
-from typing import Any, Generic, Literal, TypeVar, cast
+from typing import Any, Generic, Literal, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -270,7 +270,7 @@ def calculate_disparity(
             }
         )
 
-    return cast(list[DisparityResultDict], disparities)
+    return disparities
 
 
 class FairnessMetricDifference(ABC, Generic[LabelT]):
