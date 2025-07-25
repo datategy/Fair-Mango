@@ -217,6 +217,11 @@ confusionmatrix_expected_result_6 = [
         "false_negative_rate": [0.0],
     },
 ]
+ConfusionMatrixMetric = Callable[[int, int], float]
+confusion_matrix_metrics: list[ConfusionMatrixMetric] = [
+    true_negative_rate,
+    false_negative_rate,
+]
 
 
 @pytest.mark.parametrize(
@@ -228,14 +233,14 @@ confusionmatrix_expected_result_6 = [
         (dataset3, {"fpr": false_positive_rate}, confusionmatrix_expected_result_3),
         (
             dataset6,
-            [true_negative_rate, false_negative_rate],  # type: ignore[list-item]
+            confusion_matrix_metrics,
             confusionmatrix_expected_result_6,
         ),
     ],
 )
 def test_confusionmatrix(
     data: Dataset,
-    metrics: dict[str, Callable[..., Any]] | Sequence[Callable[..., Any]] | None,
+    metrics: dict[str, Callable[..., Any]] | Sequence[ConfusionMatrixMetric] | None,
     expected_result: Sequence[dict[str, Sequence]] | AbstractContextManager,
 ):
     if not isinstance(expected_result, AbstractContextManager):
