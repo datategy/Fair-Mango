@@ -1,5 +1,4 @@
 from collections.abc import Callable, Sequence
-from functools import lru_cache
 from typing import Any, Literal
 
 import numpy as np
@@ -280,13 +279,18 @@ class ConfusionMatrix(Metric):
             self.metrics = metrics
         else:
             self.metrics = {metric.__name__: metric for metric in metrics}
-        
+
         self._metric_cache: dict[tuple, Any] = {}
-    
-    def _compute_cached_metric(self, metric_name: str, metric_func: Callable, 
-                              real_values: Any, predicted_values: Any) -> Any:
+
+    def _compute_cached_metric(
+        self,
+        metric_name: str,
+        metric_func: Callable,
+        real_values: Any,
+        predicted_values: Any,
+    ) -> Any:
         """Compute a metric with caching to avoid redundant calculations.
-        
+
         Parameters
         ----------
         metric_name : str
@@ -297,7 +301,7 @@ class ConfusionMatrix(Metric):
             Real target values
         predicted_values : Any
             Predicted target values
-            
+
         Returns
         -------
         Any
@@ -305,13 +309,15 @@ class ConfusionMatrix(Metric):
         """
         cache_key = (
             metric_name,
-            tuple(real_values) if hasattr(real_values, '__iter__') else real_values,
-            tuple(predicted_values) if hasattr(predicted_values, '__iter__') else predicted_values
+            tuple(real_values) if hasattr(real_values, "__iter__") else real_values,
+            tuple(predicted_values)
+            if hasattr(predicted_values, "__iter__")
+            else predicted_values,
         )
-        
+
         if cache_key not in self._metric_cache:
             self._metric_cache[cache_key] = metric_func(real_values, predicted_values)
-        
+
         return self._metric_cache[cache_key]
 
     def __call__(self) -> list[ConfusionMatrixResult]:
@@ -446,7 +452,7 @@ class ConfusionMatrix(Metric):
                 elif metric_name in ["false_positive_rate", "true_negative_rate"]:
                     metrics_dict[metric_name] = [metric(tn, fp)]
                 else:
-                    metrics_dict[metric_name] = [metric(tn=tn, fp=fp, fn=fn, tp=tp)]  # type: ignore[call-arg]
+                    metrics_dict[metric_name] = [metric(tn=tn, fp=fp, fn=fn, tp=tp)]
 
             result.append(
                 ConfusionMatrixResult(
@@ -517,13 +523,18 @@ class PerformanceMetric(Metric):
             self.metrics = metrics
         else:
             self.metrics = {metric.__name__: metric for metric in metrics}
-        
+
         self._metric_cache: dict[tuple, Any] = {}
-    
-    def _compute_cached_metric(self, metric_name: str, metric_func: Callable, 
-                              real_values: Any, predicted_values: Any) -> Any:
+
+    def _compute_cached_metric(
+        self,
+        metric_name: str,
+        metric_func: Callable,
+        real_values: Any,
+        predicted_values: Any,
+    ) -> Any:
         """Compute a metric with caching to avoid redundant calculations.
-        
+
         Parameters
         ----------
         metric_name : str
@@ -534,7 +545,7 @@ class PerformanceMetric(Metric):
             Real target values
         predicted_values : Any
             Predicted target values
-            
+
         Returns
         -------
         Any
@@ -542,13 +553,15 @@ class PerformanceMetric(Metric):
         """
         cache_key = (
             metric_name,
-            tuple(real_values) if hasattr(real_values, '__iter__') else real_values,
-            tuple(predicted_values) if hasattr(predicted_values, '__iter__') else predicted_values
+            tuple(real_values) if hasattr(real_values, "__iter__") else real_values,
+            tuple(predicted_values)
+            if hasattr(predicted_values, "__iter__")
+            else predicted_values,
         )
-        
+
         if cache_key not in self._metric_cache:
             self._metric_cache[cache_key] = metric_func(real_values, predicted_values)
-        
+
         return self._metric_cache[cache_key]
 
     def __call__(self) -> list[PerformanceMetricResult]:
@@ -677,9 +690,11 @@ class PerformanceMetric(Metric):
 
             metrics_dict = {}
             for metric_name, metric in self.metrics.items():
-                metrics_dict[metric_name] = [self._compute_cached_metric(
-                    metric_name, metric, real_values, predicted_values
-                )]
+                metrics_dict[metric_name] = [
+                    self._compute_cached_metric(
+                        metric_name, metric, real_values, predicted_values
+                    )
+                ]
 
             result_for_group = PerformanceMetricResult(
                 sensitive_group=group_sensitive, metrics=metrics_dict
@@ -689,7 +704,11 @@ class PerformanceMetric(Metric):
         return result
 
 
-class DemographicParityDifference(FairnessMetricDifference[Literal["demographic_parity_difference", "demographic_parity_ratio"]]):
+class DemographicParityDifference(
+    FairnessMetricDifference[
+        Literal["demographic_parity_difference", "demographic_parity_ratio"]
+    ]
+):
     """Calculate Demographic Parity Fairness Metric using "difference" to
     calculate the disparity between the different sensitive groups present
     in the sensitive feature.
@@ -751,7 +770,9 @@ class DemographicParityDifference(FairnessMetricDifference[Literal["demographic_
     def __init__(
         self,
         data: Dataset,
-        label: Literal["demographic_parity_difference", "demographic_parity_ratio"] = "demographic_parity_difference",
+        label: Literal[
+            "demographic_parity_difference", "demographic_parity_ratio"
+        ] = "demographic_parity_difference",
     ) -> None:
         super().__init__(
             data,
@@ -796,7 +817,11 @@ class DemographicParityDifference(FairnessMetricDifference[Literal["demographic_
         )
 
 
-class DisparateImpactDifference(FairnessMetricDifference[Literal["disparate_impact_difference", "disparate_impact_ratio"]]):
+class DisparateImpactDifference(
+    FairnessMetricDifference[
+        Literal["disparate_impact_difference", "disparate_impact_ratio"]
+    ]
+):
     """Calculate Disparate Impact Fairness Metric using "difference" to
     calculate the disparity between the different sensitive groups present
     in the sensitive feature.
@@ -858,7 +883,9 @@ class DisparateImpactDifference(FairnessMetricDifference[Literal["disparate_impa
     def __init__(
         self,
         data: Dataset,
-        label: Literal["disparate_impact_difference", "disparate_impact_ratio"] = "disparate_impact_difference",
+        label: Literal[
+            "disparate_impact_difference", "disparate_impact_ratio"
+        ] = "disparate_impact_difference",
     ) -> None:
         super().__init__(
             data,
@@ -903,7 +930,11 @@ class DisparateImpactDifference(FairnessMetricDifference[Literal["disparate_impa
         )
 
 
-class EqualOpportunityDifference(FairnessMetricDifference[Literal["equal_opportunity_difference", "equal_opportunity_ratio"]]):
+class EqualOpportunityDifference(
+    FairnessMetricDifference[
+        Literal["equal_opportunity_difference", "equal_opportunity_ratio"]
+    ]
+):
     """Calculate Equal Opportunity Fairness Metric using "difference" to
     calculate the disparity between the different sensitive groups present
     in the sensitive feature.
@@ -965,7 +996,9 @@ class EqualOpportunityDifference(FairnessMetricDifference[Literal["equal_opportu
     def __init__(
         self,
         data: Dataset,
-        label: Literal["equal_opportunity_difference", "equal_opportunity_ratio"] = "equal_opportunity_difference",
+        label: Literal[
+            "equal_opportunity_difference", "equal_opportunity_ratio"
+        ] = "equal_opportunity_difference",
     ) -> None:
         super().__init__(
             data,
@@ -1010,7 +1043,11 @@ class EqualOpportunityDifference(FairnessMetricDifference[Literal["equal_opportu
         )
 
 
-class FalsePositiveRateDifference(FairnessMetricDifference[Literal["false_positive_rate_difference", "false_positive_rate_ratio"]]):
+class FalsePositiveRateDifference(
+    FairnessMetricDifference[
+        Literal["false_positive_rate_difference", "false_positive_rate_ratio"]
+    ]
+):
     """Calculate False Positive Rate Parity Fairness Metric using "difference"
     to calculate the disparity between the different sensitive groups present
     in the sensitive feature.
@@ -1074,7 +1111,9 @@ class FalsePositiveRateDifference(FairnessMetricDifference[Literal["false_positi
     def __init__(
         self,
         data: Dataset,
-        label: Literal["false_positive_rate_difference", "false_positive_rate_ratio"] = "false_positive_rate_difference",
+        label: Literal[
+            "false_positive_rate_difference", "false_positive_rate_ratio"
+        ] = "false_positive_rate_difference",
     ) -> None:
         super().__init__(
             data,
@@ -1119,7 +1158,11 @@ class FalsePositiveRateDifference(FairnessMetricDifference[Literal["false_positi
         )
 
 
-class DemographicParityRatio(FairnessMetricRatio[Literal["demographic_parity_difference", "demographic_parity_ratio"]]):
+class DemographicParityRatio(
+    FairnessMetricRatio[
+        Literal["demographic_parity_difference", "demographic_parity_ratio"]
+    ]
+):
     """Calculate Demographic Parity Fairness Metric using "ratio" to calculate
     the disparity between the different sensitive groups present in the
     sensitive feature.
@@ -1178,7 +1221,9 @@ class DemographicParityRatio(FairnessMetricRatio[Literal["demographic_parity_dif
     def __init__(
         self,
         data: Dataset,
-        label: Literal["demographic_parity_difference", "demographic_parity_ratio"] = "demographic_parity_ratio",
+        label: Literal[
+            "demographic_parity_difference", "demographic_parity_ratio"
+        ] = "demographic_parity_ratio",
     ) -> None:
         super().__init__(
             data,
@@ -1222,7 +1267,11 @@ class DemographicParityRatio(FairnessMetricRatio[Literal["demographic_parity_dif
         )
 
 
-class DisparateImpactRatio(FairnessMetricRatio[Literal["disparate_impact_difference", "disparate_impact_ratio"]]):
+class DisparateImpactRatio(
+    FairnessMetricRatio[
+        Literal["disparate_impact_difference", "disparate_impact_ratio"]
+    ]
+):
     """Calculate Disparate Impact Fairness Metric using "ratio" to calculate
     the disparity between the different sensitive groups present in the
     sensitive feature.
@@ -1281,7 +1330,9 @@ class DisparateImpactRatio(FairnessMetricRatio[Literal["disparate_impact_differe
     def __init__(
         self,
         data: Dataset,
-        label: Literal["disparate_impact_difference", "disparate_impact_ratio"] = "disparate_impact_ratio",
+        label: Literal[
+            "disparate_impact_difference", "disparate_impact_ratio"
+        ] = "disparate_impact_ratio",
     ) -> None:
         super().__init__(
             data,
@@ -1325,7 +1376,11 @@ class DisparateImpactRatio(FairnessMetricRatio[Literal["disparate_impact_differe
         )
 
 
-class EqualOpportunityRatio(FairnessMetricRatio[Literal["equal_opportunity_difference", "equal_opportunity_ratio"]]):
+class EqualOpportunityRatio(
+    FairnessMetricRatio[
+        Literal["equal_opportunity_difference", "equal_opportunity_ratio"]
+    ]
+):
     """Calculate Equal Opportunity Fairness Metric using "ratio" to calculate
     the disparity between the different sensitive groups present in the
     sensitive feature.
@@ -1387,7 +1442,9 @@ class EqualOpportunityRatio(FairnessMetricRatio[Literal["equal_opportunity_diffe
     def __init__(
         self,
         data: Dataset,
-        label: Literal["equal_opportunity_difference", "equal_opportunity_ratio"] = "equal_opportunity_ratio",
+        label: Literal[
+            "equal_opportunity_difference", "equal_opportunity_ratio"
+        ] = "equal_opportunity_ratio",
     ) -> None:
         super().__init__(
             data,
@@ -1431,7 +1488,11 @@ class EqualOpportunityRatio(FairnessMetricRatio[Literal["equal_opportunity_diffe
         )
 
 
-class FalsePositiveRateRatio(FairnessMetricRatio[Literal["false_positive_rate_difference", "false_positive_rate_ratio"]]):
+class FalsePositiveRateRatio(
+    FairnessMetricRatio[
+        Literal["false_positive_rate_difference", "false_positive_rate_ratio"]
+    ]
+):
     """Calculate False Positive Rate Parity Fairness Metric using "ratio" to
     calculate the disparity between the different sensitive groups present
     in the sensitive feature.
@@ -1494,7 +1555,9 @@ class FalsePositiveRateRatio(FairnessMetricRatio[Literal["false_positive_rate_di
     def __init__(
         self,
         data: Dataset,
-        label: Literal["false_positive_rate_difference", "false_positive_rate_ratio"] = "false_positive_rate_ratio",
+        label: Literal[
+            "false_positive_rate_difference", "false_positive_rate_ratio"
+        ] = "false_positive_rate_ratio",
     ) -> None:
         super().__init__(
             data,
@@ -1629,7 +1692,6 @@ class EqualisedOddsDifference:
         tpr_diff = tpr.results
         fpr_diff = fpr.results
 
-        # After calling summary(), results are guaranteed to be populated
         assert tpr_diff is not None and fpr_diff is not None
         return tpr_diff, fpr_diff
 
@@ -1856,7 +1918,6 @@ class EqualisedOddsRatio:
         tpr_ratio = tpr.results
         fpr_ratio = fpr.results
 
-        # After calling summary(), results are guaranteed to be populated
         assert tpr_ratio is not None and fpr_ratio is not None
         return tpr_ratio, fpr_ratio
 

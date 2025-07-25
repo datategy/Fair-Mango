@@ -21,7 +21,7 @@ from fair_mango.typing import (
     SensitiveGroupTupleT,
 )
 
-LabelT = TypeVar('LabelT', bound=str)
+LabelT = TypeVar("LabelT", bound=str)
 
 
 def is_binary(y: pd.Series) -> bool:
@@ -325,7 +325,7 @@ class FairnessMetricDifference(ABC, Generic[LabelT]):
                 "Metric type not recognized. accepted values 'performance' or 'error'"
             )
 
-        self.result: dict 
+        self.result: dict
         self.ranking: dict | None = None
         self.results: list[DisparityResultDict] | None = None
 
