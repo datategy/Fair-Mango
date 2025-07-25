@@ -1,6 +1,5 @@
 from abc import ABC
 from itertools import chain, combinations
-from typing import cast
 
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.metrics.metrics import (
@@ -232,7 +231,7 @@ class SupersetFairnessMetrics(Superset):
 
             results.append(
                 SupersetFairnessSummaryResult(
-                    summaries=cast(dict[str, object], summaries),
+                    summaries=summaries,
                 )
             )
 
