@@ -1,0 +1,36 @@
+{
+  "basic_usage": {
+    "description": "Basic fairness analysis with single sensitive attribute",
+    "code": "\n# Load data\nimport pandas as pd\nfrom fair_mango.dataset.dataset import Dataset\nfrom fair_mango.metrics.superset import SupersetFairnessMetrics\n\ndf = pd.read_csv(\"heart_data.csv\")\n\n# Create dataset\ndataset = Dataset(\n    df=df,\n    sensitive=[\"Sex\"],\n    real_target=\"HeartDisease\",\n    predicted_target=\"HeartDiseasePred\",\n    positive_target=1\n)\n\n# Calculate fairness metrics\nfairness = SupersetFairnessMetrics(dataset)\nresults = fairness.rank()\n\n# Results contain rankings for each metric\nfor result in results:\n    print(f\"Sensitive attribute: {result['sensitive_group']}\")\n    for metric, rankings in result['rankings'].items():\n        print(f\"  {metric}:\")\n        for rank in rankings:\n            print(f\"    {rank['sensitive_group']}: {rank['score']:.4f}\")\n",
+    "expected_output_structure": {
+      "type": "list",
+      "items": {
+        "sensitive_group": "list of sensitive attribute names",
+        "rankings": {
+          "metric_name": [
+            {
+              "sensitive_group": "group values",
+              "score": "numeric score"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "multiple_sensitive": {
+    "description": "Analysis with multiple sensitive attributes",
+    "code": "\n# Multiple sensitive attributes\ndataset = Dataset(\n    df=df,\n    sensitive=[\"Sex\", \"ChestPainType\"],\n    real_target=\"HeartDisease\",\n    predicted_target=\"HeartDiseasePred\",\n    positive_target=1\n)\n\nfairness = SupersetFairnessMetrics(dataset)\nresults = fairness.rank()\n\n# Results will include individual and intersectional analysis\n# - Individual: Sex only, ChestPainType only\n# - Intersectional: Sex \u00d7 ChestPainType combinations\n"
+  },
+  "performance_metrics": {
+    "description": "Performance metrics analysis",
+    "code": "\nfrom fair_mango.metrics.superset import SupersetPerformanceMetrics\n\n# Performance metrics\nperformance = SupersetPerformanceMetrics(dataset)\nresults = performance.evaluate()\n\n# Available metrics: selection_rate, performance_metric, confusion_matrix\n"
+  },
+  "no_predictions": {
+    "description": "Fairness analysis without predictions (ground truth only)",
+    "code": "\n# Analyze fairness in ground truth labels\ndataset = Dataset(\n    df=df,\n    sensitive=[\"Sex\"],\n    real_target=\"HeartDisease\",\n    positive_target=1\n    # No predicted_target specified\n)\n\n# Only demographic parity metrics available\nfairness = SupersetFairnessMetrics(dataset)\nresults = fairness.rank()\n"
+  },
+  "different_positive_class": {
+    "description": "Using different positive class values",
+    "code": "\n# String positive class\ndataset = Dataset(\n    df=df,\n    sensitive=[\"Sex\"],\n    real_target=\"ExerciseAngina\",\n    predicted_target=\"ExerciseAnginaPred\",\n    positive_target=\"Y\"  # String value\n)\n\n# Boolean positive class\n# positive_target=True\n\n# Numeric positive class\n# positive_target=1\n"
+  }
+}
