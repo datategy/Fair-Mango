@@ -74,9 +74,9 @@ class Superset(ABC):
                 "'sensitive_group' attribute is required when data is pandas dataframe"
             )
 
-        pairs = chain.from_iterable(
+        pairs = list(chain.from_iterable(
             combinations(sensitive, r) for r in range(1, len(sensitive) + 1)
-        )
+        ))
 
         self.df = df
         self.sensitive = sensitive
