@@ -1,4 +1,4 @@
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from typing import Literal, TypeAlias, TypedDict
 
 import numpy as np
@@ -71,7 +71,6 @@ class FairnessSummaryResult:
     unprivileged_sensitive_group: SensitiveGroupT
 
 
-
 @dataclass
 class FairnessRatioSummaryResult:
     """Summary of a ratio-based fairness metric."""
@@ -81,14 +80,12 @@ class FairnessRatioSummaryResult:
     unprivileged_sensitive_group: SensitiveGroupT
 
 
-
 @dataclass
 class RankResult:
     """Individual rank result for a group."""
 
     sensitive_group: SensitiveGroupT
     score: float
-
 
 
 @dataclass
@@ -104,8 +101,8 @@ class SelectionRateResult(BaseMetricResult):
     """Result of selection rate for a single sensitive group."""
 
     data: float
-    selection_rate_in_data: float 
-    selection_rate_in_predictions: float 
+    selection_rate_in_data: float
+    selection_rate_in_predictions: float
 
 
 @dataclass
@@ -193,7 +190,6 @@ class FairnessRankingResult:
     rankings: list[RankResult]
 
 
-
 @dataclass
 class DemographicParitySummaryResult:
     """Summary result for Demographic Parity metrics."""
@@ -207,7 +203,6 @@ class DemographicParitySummaryResult:
     )
 
 
-
 @dataclass
 class DisparateImpactSummaryResult:
     """Summary result for Disparate Impact metrics."""
@@ -217,7 +212,6 @@ class DisparateImpactSummaryResult:
     label: Literal["disparate_impact_difference", "disparate_impact_ratio"]
     disparate_impact_difference: float | None = None
     disparate_impact_ratio: float | None = None
-
 
 
 @dataclass
@@ -233,7 +227,6 @@ class EqualOpportunitySummaryResult:
     )
 
 
-
 @dataclass
 class FalsePositiveRateSummaryResult:
     """Summary result for False Positive Rate metrics."""
@@ -247,7 +240,6 @@ class FalsePositiveRateSummaryResult:
     )
 
 
-
 @dataclass
 class EqualisedOddsSummaryResult:
     """Summary result for Equalised Odds metrics."""
@@ -258,14 +250,12 @@ class EqualisedOddsSummaryResult:
     equalised_odds_ratio: float | None = None
 
 
-
 @dataclass
 class SupersetFairnessRankingResult:
     """Result of fairness metric rankings for a sensitive group combination."""
 
     sensitive_group: SensitiveGroupT
     rankings: dict[str, list[RankResult]]
-
 
 
 @dataclass
@@ -280,7 +270,6 @@ class SupersetFairnessSummaryResult:
         | EqualisedOddsSummaryResult
         | FalsePositiveRateSummaryResult,
     ]
-
 
 
 @dataclass
@@ -318,4 +307,3 @@ class GroupData:
     sensitive_group: list[str] | np.ndarray
     data: pd.Series | np.ndarray | list[float] | None = None
     result: float | pd.Series | np.ndarray | list[float] | None = None
-

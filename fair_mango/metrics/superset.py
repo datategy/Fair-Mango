@@ -31,18 +31,19 @@ from fair_mango.typing import (
     SupersetPerformanceMetricsResult,
 )
 
-# Configure logger
 logger = logging.getLogger(__name__)
 
 
 class MetricCalculationError(Exception):
     """Raised when a metric calculation fails for a specific dataset pair."""
-    
+
     def __init__(self, metric_name: str, pair: str, original_error: Exception):
         self.metric_name = metric_name
         self.pair = pair
         self.original_error = original_error
-        super().__init__(f"Failed to calculate {metric_name} for {pair}: {original_error}")
+        super().__init__(
+            f"Failed to calculate {metric_name} for {pair}: {original_error}"
+        )
 
 
 class Superset(ABC):
@@ -88,9 +89,11 @@ class Superset(ABC):
                 "'sensitive_group' attribute is required when data is pandas dataframe"
             )
 
-        pairs = list(chain.from_iterable(
-            combinations(sensitive, r) for r in range(1, len(sensitive) + 1)
-        ))
+        pairs = list(
+            chain.from_iterable(
+                combinations(sensitive, r) for r in range(1, len(sensitive) + 1)
+            )
+        )
 
         self.df = df
         self.sensitive = sensitive
@@ -184,7 +187,9 @@ class SupersetFairnessMetrics(Superset):
                 except MetricCalculationError:
                     raise
                 except Exception as e:
-                    logger.warning("Could not calculate %s for %s: %s", metric_name, pair, e)
+                    logger.warning(
+                        "Could not calculate %s for %s: %s", metric_name, pair, e
+                    )
                     continue
 
             if self.predicted_target is not None:
@@ -195,7 +200,9 @@ class SupersetFairnessMetrics(Superset):
                     except MetricCalculationError:
                         raise
                     except Exception as e:
-                        logger.warning("Could not calculate %s for %s: %s", metric_name, pair, e)
+                        logger.warning(
+                            "Could not calculate %s for %s: %s", metric_name, pair, e
+                        )
                         continue
 
             results.append(
@@ -245,7 +252,9 @@ class SupersetFairnessMetrics(Superset):
                 except MetricCalculationError:
                     raise
                 except Exception as e:
-                    logger.warning("Could not calculate %s for %s: %s", metric_name, pair, e)
+                    logger.warning(
+                        "Could not calculate %s for %s: %s", metric_name, pair, e
+                    )
                     continue
 
             if self.predicted_target is not None:
@@ -256,7 +265,9 @@ class SupersetFairnessMetrics(Superset):
                     except MetricCalculationError:
                         raise
                     except Exception as e:
-                        logger.warning("Could not calculate %s for %s: %s", metric_name, pair, e)
+                        logger.warning(
+                            "Could not calculate %s for %s: %s", metric_name, pair, e
+                        )
                         continue
 
             results.append(
@@ -312,7 +323,9 @@ class SupersetFairnessMetrics(Superset):
                 except MetricCalculationError:
                     raise
                 except Exception as e:
-                    logger.warning("Could not calculate %s for %s: %s", metric_name, pair, e)
+                    logger.warning(
+                        "Could not calculate %s for %s: %s", metric_name, pair, e
+                    )
                     continue
 
             if self.predicted_target is not None:
@@ -324,7 +337,9 @@ class SupersetFairnessMetrics(Superset):
                     except MetricCalculationError:
                         raise
                     except Exception as e:
-                        logger.warning("Could not calculate %s for %s: %s", metric_name, pair, e)
+                        logger.warning(
+                            "Could not calculate %s for %s: %s", metric_name, pair, e
+                        )
                         continue
 
             results.append(
@@ -428,12 +443,12 @@ class SupersetPerformanceMetrics(Superset):
         ]
         """
         results = []
-        
+
         for pair in self.pairs:
             dataset = self._create_dataset_for_pair(pair)
             concatenated_results = self._initialize_base_results(dataset)
             self._process_metrics_for_dataset(dataset, concatenated_results)
-            
+
             results.append(
                 SupersetPerformanceMetricsResult(
                     sensitive_group=pair,
@@ -442,7 +457,7 @@ class SupersetPerformanceMetrics(Superset):
             )
 
         return results
-    
+
     def _create_dataset_for_pair(self, pair):
         """Create a Dataset instance for a given pair of sensitive attributes."""
         return Dataset(
@@ -452,19 +467,19 @@ class SupersetPerformanceMetrics(Superset):
             self.predicted_target,
             self.positive_target,
         )
-    
+
     def _initialize_base_results(self, dataset):
         """Initialize base results with selection rate data."""
         concatenated_results = SelectionRate(
             dataset,
             use_y_true=True,
         )()
-        
+
         for group_result in concatenated_results:
             group_result.selection_rate_in_data = group_result.data
-            
+
         return concatenated_results
-    
+
     def _process_metrics_for_dataset(self, dataset, concatenated_results):
         """Process all metrics for a given dataset and update concatenated results."""
         for metric in self.metrics:
@@ -472,27 +487,27 @@ class SupersetPerformanceMetrics(Superset):
                 self._process_selection_rate_metric(dataset, concatenated_results)
             else:
                 self._process_other_metric(metric, dataset, concatenated_results)
-    
+
     def _process_selection_rate_metric(self, dataset, concatenated_results):
         """Process SelectionRate metric specifically."""
         result = SelectionRate(
             dataset,
             use_y_true=False,
         )()
-        
+
         for group_result in result:
             group_result.selection_rate_in_predictions = group_result.data
-            
+
         for concatenated_result, res in zip(concatenated_results, result):
             self._merge_metric_results(concatenated_result, res)
-    
+
     def _process_other_metric(self, metric, dataset, concatenated_results):
         """Process non-SelectionRate metrics."""
         result = metric(dataset)()
-        
+
         for concatenated_result, res in zip(concatenated_results, result):
             self._merge_metric_results(concatenated_result, res)
-    
+
     def _merge_metric_results(self, concatenated_result, res):
         """Merge individual metric results into concatenated results."""
         if hasattr(res, "metrics"):
@@ -503,19 +518,16 @@ class SupersetPerformanceMetrics(Superset):
             )
         else:
             self._merge_other_attributes(concatenated_result, res)
-    
+
     def _merge_metrics_dict(self, concatenated_result, res):
         """Merge metrics dictionary into concatenated result."""
         for key, value in res.metrics.items():
             setattr(concatenated_result, key, value)
-    
+
     def _merge_other_attributes(self, concatenated_result, res):
         """Merge other attributes from result into concatenated result."""
         for attr_name in dir(res):
-            if (
-                not attr_name.startswith("_")
-                and attr_name != "sensitive_group"
-            ):
+            if not attr_name.startswith("_") and attr_name != "sensitive_group":
                 attr_value = getattr(res, attr_name)
                 if not callable(attr_value):
                     setattr(concatenated_result, attr_name, attr_value)
