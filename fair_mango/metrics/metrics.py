@@ -415,12 +415,11 @@ class ConfusionMatrix(Metric):
             fp = conf_matrix[0, 1]
 
             for metric_name, metric in self.metrics.items():
-                if metric_name in ["false_negative_rate", "true_positive_rate"]:
-                    metrics_dict[metric_name] = [metric(fn, tp)]
-                elif metric_name in ["false_positive_rate", "true_negative_rate"]:
-                    metrics_dict[metric_name] = [metric(tn, fp)]
-                else:
-                    metrics_dict[metric_name] = [metric(tn=tn, fp=fp, fn=fn, tp=tp)]
+                if metric_name not in metrics_dict:
+                    metrics_dict[metric_name] = []
+                metrics_dict[metric_name].append(
+                    metric(tn=tn, fp=fp, fn=fn, tp=tp)
+                )
 
             result.append(
                 ConfusionMatrixResult(
