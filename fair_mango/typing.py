@@ -86,7 +86,7 @@ class BaseMetricResult:
     """Base class for metric result types that can be used in disparity calculations."""
 
     sensitive_group: SensitiveGroupT
-    data: float | pd.Series | np.ndarray | list[float] | MetricsDict
+    data: float | MetricsDict
 
 
 @dataclass
