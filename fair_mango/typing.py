@@ -9,6 +9,9 @@ SensitiveGroupT: TypeAlias = list[str] | list[int] | list[bool] | list[str | int
 
 SensitiveGroupTupleT: TypeAlias = tuple[str | int | bool, ...]
 
+MetricsDict: TypeAlias = dict[str, list[float]]
+"""Mapping of metric name to list of metric values for different groups or samples."""
+
 
 @dataclass
 class DatasetTargetResult:
@@ -16,13 +19,6 @@ class DatasetTargetResult:
 
     sensitive_group: SensitiveGroupT
     data: pd.Series
-
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        return {
-            "sensitive_group": self.sensitive_group,
-            "data": self.data.tolist() if hasattr(self.data, "tolist") else self.data,
-        }
 
 
 @dataclass
@@ -71,15 +67,9 @@ class FairnessSummaryResult:
     """Summary of a difference-based fairness metric."""
 
     disparity: float
-    privileged_sensitive_group: SensitiveGroupT | None
-    unprivileged_sensitive_group: SensitiveGroupT | None
+    privileged_sensitive_group: SensitiveGroupT
+    unprivileged_sensitive_group: SensitiveGroupT
 
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        result: dict[str, object] = {"disparity": self.disparity}
-        result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
-        return result
 
 
 @dataclass
@@ -87,15 +77,9 @@ class FairnessRatioSummaryResult:
     """Summary of a ratio-based fairness metric."""
 
     ratio: float
-    privileged_sensitive_group: SensitiveGroupT | None
-    unprivileged_sensitive_group: SensitiveGroupT | None
+    privileged_sensitive_group: SensitiveGroupT
+    unprivileged_sensitive_group: SensitiveGroupT
 
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        result: dict[str, object] = {"ratio": self.ratio}
-        result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
-        return result
 
 
 @dataclass
@@ -105,9 +89,6 @@ class RankResult:
     sensitive_group: SensitiveGroupT
     score: float
 
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        return asdict(self)
 
 
 @dataclass
@@ -115,7 +96,7 @@ class BaseMetricResult:
     """Base class for metric result types that can be used in disparity calculations."""
 
     sensitive_group: SensitiveGroupT
-    data: float | pd.Series | np.ndarray | list[float]
+    data: float | pd.Series | np.ndarray | list[float] | MetricsDict
 
 
 @dataclass
@@ -123,20 +104,26 @@ class SelectionRateResult(BaseMetricResult):
     """Result of selection rate for a single sensitive group."""
 
     data: float
-    selection_rate_in_data: float | None = None
-    selection_rate_in_predictions: float | None = None
+    selection_rate_in_data: float 
+    selection_rate_in_predictions: float 
 
 
 @dataclass
-class PerformanceMetricResult:
+class PerformanceMetricResult(BaseMetricResult):
     """Result of performance metrics for a single sensitive group with dynamic metrics."""
 
-    sensitive_group: SensitiveGroupT
-    metrics: dict[str, list[float]]
+    metrics: MetricsDict | None = None
+
+    def __post_init__(self):
+        """Ensure metrics and data are synchronized."""
+        if self.metrics is not None and self.data is None:
+            self.data = self.metrics
+        elif self.data is not None and self.metrics is None:
+            self.metrics = self.data
 
     def __getattr__(self, name: str):
         """Allow attribute access to metric values."""
-        if name in self.metrics:
+        if self.metrics is not None and name in self.metrics:
             return self.metrics[name]
         raise AttributeError(
             f"'{self.__class__.__name__}' object has no attribute '{name}'"
@@ -144,15 +131,21 @@ class PerformanceMetricResult:
 
 
 @dataclass
-class ConfusionMatrixResult:
+class ConfusionMatrixResult(BaseMetricResult):
     """Result of confusion matrix metrics for a single sensitive group with dynamic metrics."""
 
-    sensitive_group: SensitiveGroupT
-    metrics: dict[str, list[float]]
+    metrics: MetricsDict | None = None
+
+    def __post_init__(self):
+        """Ensure metrics and data are synchronized."""
+        if self.metrics is not None and self.data is None:
+            self.data = self.metrics
+        elif self.data is not None and self.metrics is None:
+            self.metrics = self.data
 
     def __getattr__(self, name: str):
         """Allow attribute access to metric values."""
-        if name in self.metrics:
+        if self.metrics is not None and name in self.metrics:
             return self.metrics[name]
         raise AttributeError(
             f"'{self.__class__.__name__}' object has no attribute '{name}'"
@@ -199,9 +192,6 @@ class FairnessRankingResult:
 
     rankings: list[RankResult]
 
-    def to_dict(self) -> list[dict[str, object]]:
-        """Convert to dictionary format for backward compatibility."""
-        return [rank.to_dict() for rank in self.rankings]
 
 
 @dataclass
@@ -210,22 +200,12 @@ class DemographicParitySummaryResult:
 
     privileged_sensitive_group: SensitiveGroupT
     unprivileged_sensitive_group: SensitiveGroupT
-    demographic_parity_difference: float | None = None
-    demographic_parity_ratio: float | None = None
+    demographic_parity_difference: float
+    demographic_parity_ratio: float
     label: Literal["demographic_parity_difference", "demographic_parity_ratio"] = (
         "demographic_parity_difference"
     )
 
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        result: dict[str, object] = {}
-        if self.demographic_parity_difference is not None:
-            result[self.label] = self.demographic_parity_difference
-        elif self.demographic_parity_ratio is not None:
-            result[self.label] = self.demographic_parity_ratio
-        result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
-        return result
 
 
 @dataclass
@@ -234,22 +214,10 @@ class DisparateImpactSummaryResult:
 
     privileged_sensitive_group: SensitiveGroupT
     unprivileged_sensitive_group: SensitiveGroupT
+    label: Literal["disparate_impact_difference", "disparate_impact_ratio"]
     disparate_impact_difference: float | None = None
     disparate_impact_ratio: float | None = None
-    label: Literal["disparate_impact_difference", "disparate_impact_ratio"] = (
-        "disparate_impact_difference"
-    )
 
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        result: dict[str, object] = {}
-        if self.disparate_impact_difference is not None:
-            result[self.label] = self.disparate_impact_difference
-        elif self.disparate_impact_ratio is not None:
-            result[self.label] = self.disparate_impact_ratio
-        result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
-        return result
 
 
 @dataclass
@@ -264,16 +232,6 @@ class EqualOpportunitySummaryResult:
         "equal_opportunity_difference"
     )
 
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        result: dict[str, object] = {}
-        if self.equal_opportunity_difference is not None:
-            result[self.label] = self.equal_opportunity_difference
-        elif self.equal_opportunity_ratio is not None:
-            result[self.label] = self.equal_opportunity_ratio
-        result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
-        return result
 
 
 @dataclass
@@ -288,16 +246,6 @@ class FalsePositiveRateSummaryResult:
         "false_positive_rate_difference"
     )
 
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        result: dict[str, object] = {}
-        if self.false_positive_rate_difference is not None:
-            result[self.label] = self.false_positive_rate_difference
-        elif self.false_positive_rate_ratio is not None:
-            result[self.label] = self.false_positive_rate_ratio
-        result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
-        return result
 
 
 @dataclass
@@ -309,16 +257,6 @@ class EqualisedOddsSummaryResult:
     equalised_odds_difference: float | None = None
     equalised_odds_ratio: float | None = None
 
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        result: dict[str, object] = {}
-        if self.equalised_odds_difference is not None:
-            result["equalised_odds_difference"] = self.equalised_odds_difference
-        if self.equalised_odds_ratio is not None:
-            result["equalised_odds_ratio"] = self.equalised_odds_ratio
-        result["privileged_sensitive_group"] = self.privileged_sensitive_group
-        result["unprivileged_sensitive_group"] = self.unprivileged_sensitive_group
-        return result
 
 
 @dataclass
@@ -328,12 +266,6 @@ class SupersetFairnessRankingResult:
     sensitive_group: SensitiveGroupT
     rankings: dict[str, list[RankResult]]
 
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        return {
-            "sensitive_group": self.sensitive_group,
-            "rankings": {k: [r.to_dict() for r in v] for k, v in self.rankings.items()},
-        }
 
 
 @dataclass
@@ -349,17 +281,6 @@ class SupersetFairnessSummaryResult:
         | FalsePositiveRateSummaryResult,
     ]
 
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary format for backward compatibility."""
-        result: dict[str, object] = {"summaries": {}}
-        summaries_dict: dict[str, object] = {}
-        for key, value in self.summaries.items():
-            if hasattr(value, "to_dict"):
-                summaries_dict[key] = value.to_dict()
-            else:
-                summaries_dict[key] = value
-        result["summaries"] = summaries_dict
-        return result
 
 
 @dataclass
@@ -398,6 +319,3 @@ class GroupData:
     data: pd.Series | np.ndarray | list[float] | None = None
     result: float | pd.Series | np.ndarray | list[float] | None = None
 
-    def to_dict(self) -> dict[str, object]:
-        """Convert to dictionary for backward compatibility."""
-        return asdict(self)
