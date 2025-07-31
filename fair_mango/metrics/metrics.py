@@ -1240,35 +1240,15 @@ class DemographicParityRatio(
 
     def summary(self) -> DemographicParitySummaryResult:
         """Calculate the minimum ratio disparity and return summary."""
-        if self.results is None:
-            self.results = self._compute()
-
-        min_ratio = 1.0
-        privileged_sensitive_group: SensitiveGroupT
-        unprivileged_sensitive_group: SensitiveGroupT
-
-        for disparity_result in self.results:
-            ratio_value = disparity_result["disparity"]
-
-            if ratio_value > 1:
-                adjusted_ratio = 1 / ratio_value
-                temp_privileged = disparity_result["group_1"]
-                temp_unprivileged = disparity_result["group_2"]
-            else:
-                adjusted_ratio = ratio_value
-                temp_privileged = disparity_result["group_2"]
-                temp_unprivileged = disparity_result["group_1"]
-
-            if adjusted_ratio < min_ratio:
-                min_ratio = adjusted_ratio
-                privileged_sensitive_group = temp_privileged
-                unprivileged_sensitive_group = temp_unprivileged
-
+        from fair_mango.typing import FairnessRatioSummaryResult
+        base_summary = super().summary()
+        assert isinstance(base_summary, FairnessRatioSummaryResult)
+        
         return DemographicParitySummaryResult(
-            privileged_sensitive_group=privileged_sensitive_group,
-            unprivileged_sensitive_group=unprivileged_sensitive_group,
+            privileged_sensitive_group=base_summary.privileged_sensitive_group,
+            unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
             demographic_parity_difference=0.0,
-            demographic_parity_ratio=min_ratio,
+            demographic_parity_ratio=base_summary.ratio,
             label=self.label,
         )
 
@@ -1350,34 +1330,14 @@ class DisparateImpactRatio(
 
     def summary(self) -> DisparateImpactSummaryResult:
         """Calculate the minimum ratio disparity and return summary."""
-        if self.results is None:
-            self.results = self._compute()
-
-        min_ratio = 1.0
-        privileged_sensitive_group: SensitiveGroupT
-        unprivileged_sensitive_group: SensitiveGroupT
-
-        for disparity_result in self.results:
-            ratio_value = disparity_result["disparity"]
-
-            if ratio_value > 1:
-                adjusted_ratio = 1 / ratio_value
-                temp_privileged = disparity_result["group_1"]
-                temp_unprivileged = disparity_result["group_2"]
-            else:
-                adjusted_ratio = ratio_value
-                temp_privileged = disparity_result["group_2"]
-                temp_unprivileged = disparity_result["group_1"]
-
-            if adjusted_ratio < min_ratio:
-                min_ratio = adjusted_ratio
-                privileged_sensitive_group = temp_privileged
-                unprivileged_sensitive_group = temp_unprivileged
-
+        from fair_mango.typing import FairnessRatioSummaryResult
+        base_summary = super().summary()
+        assert isinstance(base_summary, FairnessRatioSummaryResult)
+        
         return DisparateImpactSummaryResult(
-            disparate_impact_ratio=min_ratio,
-            privileged_sensitive_group=privileged_sensitive_group,
-            unprivileged_sensitive_group=unprivileged_sensitive_group,
+            disparate_impact_ratio=base_summary.ratio,
+            privileged_sensitive_group=base_summary.privileged_sensitive_group,
+            unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
             label=self.label,
         )
 
@@ -1462,34 +1422,14 @@ class EqualOpportunityRatio(
 
     def summary(self) -> EqualOpportunitySummaryResult:
         """Calculate the minimum ratio disparity and return summary."""
-        if self.results is None:
-            self.results = self._compute()
-
-        min_ratio = 1.0
-        privileged_sensitive_group: SensitiveGroupT
-        unprivileged_sensitive_group: SensitiveGroupT
-
-        for disparity_result in self.results:
-            ratio_value = disparity_result["disparity"]
-
-            if ratio_value > 1:
-                adjusted_ratio = 1 / ratio_value
-                temp_privileged = disparity_result["group_1"]
-                temp_unprivileged = disparity_result["group_2"]
-            else:
-                adjusted_ratio = ratio_value
-                temp_privileged = disparity_result["group_2"]
-                temp_unprivileged = disparity_result["group_1"]
-
-            if adjusted_ratio < min_ratio:
-                min_ratio = adjusted_ratio
-                privileged_sensitive_group = temp_privileged
-                unprivileged_sensitive_group = temp_unprivileged
-
+        from fair_mango.typing import FairnessRatioSummaryResult
+        base_summary = super().summary()
+        assert isinstance(base_summary, FairnessRatioSummaryResult)
+        
         return EqualOpportunitySummaryResult(
-            equal_opportunity_ratio=min_ratio,
-            privileged_sensitive_group=privileged_sensitive_group,
-            unprivileged_sensitive_group=unprivileged_sensitive_group,
+            equal_opportunity_ratio=base_summary.ratio,
+            privileged_sensitive_group=base_summary.privileged_sensitive_group,
+            unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
             label=self.label,
         )
 
@@ -1575,34 +1515,14 @@ class FalsePositiveRateRatio(
 
     def summary(self) -> FalsePositiveRateSummaryResult:
         """Calculate the minimum ratio disparity and return summary."""
-        if self.results is None:
-            self.results = self._compute()
-
-        min_ratio = 1.0
-        privileged_sensitive_group: SensitiveGroupT
-        unprivileged_sensitive_group: SensitiveGroupT
-
-        for disparity_result in self.results:
-            ratio_value = disparity_result["disparity"]
-
-            if ratio_value > 1:
-                adjusted_ratio = 1 / ratio_value
-                temp_privileged = disparity_result["group_1"]
-                temp_unprivileged = disparity_result["group_2"]
-            else:
-                adjusted_ratio = ratio_value
-                temp_privileged = disparity_result["group_2"]
-                temp_unprivileged = disparity_result["group_1"]
-
-            if adjusted_ratio < min_ratio:
-                min_ratio = adjusted_ratio
-                privileged_sensitive_group = temp_privileged
-                unprivileged_sensitive_group = temp_unprivileged
-
+        from fair_mango.typing import FairnessRatioSummaryResult
+        base_summary = super().summary()
+        assert isinstance(base_summary, FairnessRatioSummaryResult)
+        
         return FalsePositiveRateSummaryResult(
-            false_positive_rate_ratio=min_ratio,
-            privileged_sensitive_group=privileged_sensitive_group,
-            unprivileged_sensitive_group=unprivileged_sensitive_group,
+            false_positive_rate_ratio=base_summary.ratio,
+            privileged_sensitive_group=base_summary.privileged_sensitive_group,
+            unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
             label=self.label,
         )
 
