@@ -1,5 +1,5 @@
 from collections.abc import Callable, Sequence
-from typing import Any, Literal
+from typing import Literal
 from fair_mango.typing import ConfusionMatrixResult
 
 import numpy as np
@@ -23,18 +23,21 @@ from fair_mango.metrics.base import (
     true_positive_rate,
 )
 from fair_mango.typing import (
-    ConfusionMatrixResult,
-    DemographicParitySummaryResult,
-    DisparateImpactSummaryResult,
+    DemographicParityDifferenceSummaryResult,
+    DemographicParityRatioSummaryResult,
+    DisparateImpactDifferenceSummaryResult,
+    DisparateImpactRatioSummaryResult,
     DisparityResultDict,
-    EqualOpportunitySummaryResult,
-    EqualisedOddsSummaryResult,
-    FalsePositiveRateSummaryResult,
+    EqualOpportunityDifferenceSummaryResult,
+    EqualOpportunityRatioSummaryResult,
+    EqualisedOddsDifferenceSummaryResult,
+    EqualisedOddsRatioSummaryResult,
+    FalsePositiveRateDifferenceSummaryResult,
+    FalsePositiveRateRatioSummaryResult,
     MetricsDict,
     PerformanceMetricResult,
     RankResult,
     SelectionRateResult,
-    SensitiveGroupT,
     SensitiveGroupOptionalT,
 )
 
@@ -286,8 +289,6 @@ class ConfusionMatrix(Metric):
         else:
             self.metrics = {metric.__name__: metric for metric in metrics}
 
-
-
     def __call__(self) -> list[ConfusionMatrixResult]:
         """Calculate the confusion matrix related metrics:
         - false positive rate.
@@ -492,8 +493,6 @@ class PerformanceMetric(Metric):
         else:
             self.metrics = {metric.__name__: metric for metric in metrics}
 
-
-
     def __call__(self) -> list[PerformanceMetricResult]:
         """Calculate performance related metrics:
         - accuracy.
@@ -620,9 +619,7 @@ class PerformanceMetric(Metric):
 
             metrics_dict = {}
             for metric_name, metric in self.metrics.items():
-                metrics_dict[metric_name] = [
-                    metric(real_values, predicted_values)
-                ]
+                metrics_dict[metric_name] = [metric(real_values, predicted_values)]
 
             result_for_group = PerformanceMetricResult(
                 sensitive_group=group_sensitive, data=metrics_dict
@@ -696,7 +693,9 @@ class DemographicParityDifference(
     def __init__(
         self,
         data: Dataset,
-        label: Literal["demographic_parity_difference"] = "demographic_parity_difference",
+        label: Literal[
+            "demographic_parity_difference"
+        ] = "demographic_parity_difference",
     ) -> None:
         super().__init__(
             data,
@@ -706,12 +705,12 @@ class DemographicParityDifference(
             use_y_true=True,
         )
 
-    def summary(self) -> DemographicParitySummaryResult:
+    def summary(self) -> DemographicParityDifferenceSummaryResult:
         """Return the demographic parity metric value.
 
         Returns
         -------
-        DemographicParitySummaryResult
+        DemographicParityDifferenceSummaryResult
             A summary result with demographic_parity_difference and group information.
         """
         if self.results is None:
@@ -733,12 +732,10 @@ class DemographicParityDifference(
                     privileged_sensitive_group = disparity_result["group_2"]
                     unprivileged_sensitive_group = disparity_result["group_1"]
 
-        return DemographicParitySummaryResult(
+        return DemographicParityDifferenceSummaryResult(
+            demographic_parity_difference=max_disparity,
             privileged_sensitive_group=privileged_sensitive_group,
             unprivileged_sensitive_group=unprivileged_sensitive_group,
-            demographic_parity_difference=max_disparity,
-            demographic_parity_ratio=None,
-            label=self.label,
         )
 
 
@@ -816,12 +813,12 @@ class DisparateImpactDifference(
             use_y_true=False,
         )
 
-    def summary(self) -> DisparateImpactSummaryResult:
+    def summary(self) -> DisparateImpactDifferenceSummaryResult:
         """Return the disparate impact metric value.
 
         Returns
         -------
-        DisparateImpactSummaryResult
+        DisparateImpactDifferenceSummaryResult
             A summary result with disparate_impact_difference and group information.
         """
         if self.results is None:
@@ -843,12 +840,10 @@ class DisparateImpactDifference(
                     privileged_sensitive_group = disparity_result["group_2"]
                     unprivileged_sensitive_group = disparity_result["group_1"]
 
-        return DisparateImpactSummaryResult(
+        return DisparateImpactDifferenceSummaryResult(
             disparate_impact_difference=max_disparity,
-            disparate_impact_ratio=None,
             privileged_sensitive_group=privileged_sensitive_group,
             unprivileged_sensitive_group=unprivileged_sensitive_group,
-            label=self.label,
         )
 
 
@@ -926,12 +921,12 @@ class EqualOpportunityDifference(
             metrics={"data": true_positive_rate},
         )
 
-    def summary(self) -> EqualOpportunitySummaryResult:
+    def summary(self) -> EqualOpportunityDifferenceSummaryResult:
         """Return the equal opportunity metric value.
 
         Returns
         -------
-        EqualOpportunitySummaryResult
+        EqualOpportunityDifferenceSummaryResult
             A summary result with equal_opportunity_difference and group information.
         """
         if self.results is None:
@@ -953,12 +948,10 @@ class EqualOpportunityDifference(
                     privileged_sensitive_group = disparity_result["group_2"]
                     unprivileged_sensitive_group = disparity_result["group_1"]
 
-        return EqualOpportunitySummaryResult(
+        return EqualOpportunityDifferenceSummaryResult(
             equal_opportunity_difference=max_disparity,
-            equal_opportunity_ratio=None,
             privileged_sensitive_group=privileged_sensitive_group,
             unprivileged_sensitive_group=unprivileged_sensitive_group,
-            label=self.label,
         )
 
 
@@ -1028,7 +1021,9 @@ class FalsePositiveRateDifference(
     def __init__(
         self,
         data: Dataset,
-        label: Literal["false_positive_rate_difference"] = "false_positive_rate_difference",
+        label: Literal[
+            "false_positive_rate_difference"
+        ] = "false_positive_rate_difference",
     ) -> None:
         super().__init__(
             data,
@@ -1038,12 +1033,12 @@ class FalsePositiveRateDifference(
             metrics={"data": false_positive_rate},
         )
 
-    def summary(self) -> FalsePositiveRateSummaryResult:
+    def summary(self) -> FalsePositiveRateDifferenceSummaryResult:
         """Return the false positive rate metric value.
 
         Returns
         -------
-        FalsePositiveRateSummaryResult
+        FalsePositiveRateDifferenceSummaryResult
             A summary result with false_positive_rate_difference and group information.
         """
         if self.results is None:
@@ -1065,12 +1060,10 @@ class FalsePositiveRateDifference(
                     privileged_sensitive_group = disparity_result["group_2"]
                     unprivileged_sensitive_group = disparity_result["group_1"]
 
-        return FalsePositiveRateSummaryResult(
+        return FalsePositiveRateDifferenceSummaryResult(
             false_positive_rate_difference=max_disparity,
-            false_positive_rate_ratio=None,
             privileged_sensitive_group=privileged_sensitive_group,
             unprivileged_sensitive_group=unprivileged_sensitive_group,
-            label=self.label,
         )
 
 
@@ -1143,19 +1136,17 @@ class DemographicParityRatio(FairnessMetricRatio[Literal["demographic_parity_rat
             use_y_true=True,
         )
 
-    def summary(self) -> DemographicParitySummaryResult:
+    def summary(self) -> DemographicParityRatioSummaryResult:
         """Calculate the minimum ratio disparity and return summary."""
         from fair_mango.typing import FairnessRatioSummaryResult
 
         base_summary = super().summary()
         assert isinstance(base_summary, FairnessRatioSummaryResult)
 
-        return DemographicParitySummaryResult(
+        return DemographicParityRatioSummaryResult(
+            demographic_parity_ratio=base_summary.ratio,
             privileged_sensitive_group=base_summary.privileged_sensitive_group,
             unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
-            demographic_parity_difference=None,
-            demographic_parity_ratio=base_summary.ratio,
-            label=self.label,
         )
 
 
@@ -1228,19 +1219,17 @@ class DisparateImpactRatio(FairnessMetricRatio[Literal["disparate_impact_ratio"]
             use_y_true=False,
         )
 
-    def summary(self) -> DisparateImpactSummaryResult:
+    def summary(self) -> DisparateImpactRatioSummaryResult:
         """Calculate the minimum ratio disparity and return summary."""
         from fair_mango.typing import FairnessRatioSummaryResult
 
         base_summary = super().summary()
         assert isinstance(base_summary, FairnessRatioSummaryResult)
 
-        return DisparateImpactSummaryResult(
-            disparate_impact_difference=None,
+        return DisparateImpactRatioSummaryResult(
             disparate_impact_ratio=base_summary.ratio,
             privileged_sensitive_group=base_summary.privileged_sensitive_group,
             unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
-            label=self.label,
         )
 
 
@@ -1316,19 +1305,17 @@ class EqualOpportunityRatio(FairnessMetricRatio[Literal["equal_opportunity_ratio
             metrics={"data": true_positive_rate},
         )
 
-    def summary(self) -> EqualOpportunitySummaryResult:
+    def summary(self) -> EqualOpportunityRatioSummaryResult:
         """Calculate the minimum ratio disparity and return summary."""
         from fair_mango.typing import FairnessRatioSummaryResult
 
         base_summary = super().summary()
         assert isinstance(base_summary, FairnessRatioSummaryResult)
 
-        return EqualOpportunitySummaryResult(
-            equal_opportunity_difference=None,
+        return EqualOpportunityRatioSummaryResult(
             equal_opportunity_ratio=base_summary.ratio,
             privileged_sensitive_group=base_summary.privileged_sensitive_group,
             unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
-            label=self.label,
         )
 
 
@@ -1405,19 +1392,17 @@ class FalsePositiveRateRatio(FairnessMetricRatio[Literal["false_positive_rate_ra
             metrics={"data": false_positive_rate},
         )
 
-    def summary(self) -> FalsePositiveRateSummaryResult:
+    def summary(self) -> FalsePositiveRateRatioSummaryResult:
         """Calculate the minimum ratio disparity and return summary."""
         from fair_mango.typing import FairnessRatioSummaryResult
 
         base_summary = super().summary()
         assert isinstance(base_summary, FairnessRatioSummaryResult)
 
-        return FalsePositiveRateSummaryResult(
-            false_positive_rate_difference=None,
+        return FalsePositiveRateRatioSummaryResult(
             false_positive_rate_ratio=base_summary.ratio,
             privileged_sensitive_group=base_summary.privileged_sensitive_group,
             unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
-            label=self.label,
         )
 
 
@@ -1515,7 +1500,7 @@ class EqualisedOddsDifference:
         assert tpr_diff is not None and fpr_diff is not None
         return tpr_diff, fpr_diff
 
-    def summary(self) -> EqualisedOddsSummaryResult:
+    def summary(self) -> EqualisedOddsDifferenceSummaryResult:
         """Return the Equalised Odds metric value, in other words the biggest
         disparity found in the True Positive Rate and False Positive Rate with
         specifying the priviliged and discriminated groups.
@@ -1557,9 +1542,8 @@ class EqualisedOddsDifference:
                     self.result[target]["privileged"] = fpr_result["group_1"]
                     self.result[target]["unprivileged"] = fpr_result["group_2"]
 
-        return EqualisedOddsSummaryResult(
+        return EqualisedOddsDifferenceSummaryResult(
             equalised_odds_difference=self.result[target][self.label],
-            equalised_odds_ratio=None,
             privileged_sensitive_group=self.result[target]["privileged"],
             unprivileged_sensitive_group=self.result[target]["unprivileged"],
         )
@@ -1742,7 +1726,7 @@ class EqualisedOddsRatio:
         assert tpr_ratio is not None and fpr_ratio is not None
         return tpr_ratio, fpr_ratio
 
-    def summary(self) -> EqualisedOddsSummaryResult:
+    def summary(self) -> EqualisedOddsRatioSummaryResult:
         """Return the Equalised Odds metric value, in other words the biggest
         disparity found in the True Positive Rate and False Positive Rate with
         specifying the priviliged and discriminated groups.
@@ -1794,8 +1778,7 @@ class EqualisedOddsRatio:
                     self.result[target]["privileged"] = fpr_result["group_1"]
                     self.result[target]["unprivileged"] = fpr_result["group_2"]
 
-        return EqualisedOddsSummaryResult(
-            equalised_odds_difference=None,
+        return EqualisedOddsRatioSummaryResult(
             equalised_odds_ratio=self.result[target][self.label],
             privileged_sensitive_group=self.result[target]["privileged"],
             unprivileged_sensitive_group=self.result[target]["unprivileged"],

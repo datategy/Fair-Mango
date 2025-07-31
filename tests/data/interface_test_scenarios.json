@@ -204,112 +204,94 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.3726567804180811,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "demographic_parity_difference": 0.3726567804180811,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.4100957078534742,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.4100957078534742,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.3619581918885117,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.3619581918885117,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.4219830636141608,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.4219830636141608
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.03816593886462882,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "equal_opportunity_difference": 0.03816593886462882,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.9609821428571428,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.9609821428571428,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.03816593886462882,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "equalised_odds_difference": 0.03816593886462882,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.8033707865168539,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.8033707865168539
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.005500117859668422,
                 "privileged_sensitive_group": [
                   "F"
                 ],
                 "unprivileged_sensitive_group": [
                   "M"
-                ],
-                "false_positive_rate_difference": 0.005500117859668422,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.8033707865168539,
                 "privileged_sensitive_group": [
                   "F"
                 ],
                 "unprivileged_sensitive_group": [
                   "M"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.8033707865168539,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -688,112 +670,94 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.6515942569457394,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "demographic_parity_difference": 0.6515942569457394,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.1755337973339625,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.1755337973339625,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.6417816520604139,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.6417816520604139,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.18378538609752484,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.18378538609752484
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.13469387755102047,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "TA"
-                ],
-                "equal_opportunity_difference": 0.13469387755102047,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.8632124352331606,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "TA"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.8632124352331606,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.13469387755102047,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "TA"
-                ],
-                "equalised_odds_difference": 0.13469387755102047,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.06615776081424936,
                 "privileged_sensitive_group": [
                   "NAP"
                 ],
                 "unprivileged_sensitive_group": [
                   "TA"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.06615776081424936
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.10775102759835585,
                 "privileged_sensitive_group": [
                   "TA"
                 ],
                 "unprivileged_sensitive_group": [
                   "NAP"
-                ],
-                "false_positive_rate_difference": 0.10775102759835585,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.06615776081424936,
                 "privileged_sensitive_group": [
                   "TA"
                 ],
                 "unprivileged_sensitive_group": [
                   "NAP"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.06615776081424936,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -1958,230 +1922,195 @@
           {
             "summaries": {
               "demographic_parity_difference": {
-                "privileged_sensitive_group": [
-                  "M"
-                ],
-                "unprivileged_sensitive_group": [
-                  "F"
-                ],
                 "demographic_parity_difference": 0.3726567804180811,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
-              },
-              "demographic_parity_ratio": {
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "demographic_parity_difference": null,
+                ]
+              },
+              "demographic_parity_ratio": {
                 "demographic_parity_ratio": 0.4100957078534742,
-                "label": "demographic_parity_ratio"
-              },
-              "disparate_impact_difference": {
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "label": "disparate_impact_difference",
+                ]
+              },
+              "disparate_impact_difference": {
                 "disparate_impact_difference": 0.3619581918885117,
-                "disparate_impact_ratio": null
+                "privileged_sensitive_group": [
+                  "M"
+                ],
+                "unprivileged_sensitive_group": [
+                  "F"
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.4219830636141608,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.4219830636141608
+                ]
               },
               "equal_opportunity_difference": {
-                "privileged_sensitive_group": [
-                  "M"
-                ],
-                "unprivileged_sensitive_group": [
-                  "F"
-                ],
                 "equal_opportunity_difference": 0.03816593886462882,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
-              },
-              "equal_opportunity_ratio": {
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "equal_opportunity_difference": null,
+                ]
+              },
+              "equal_opportunity_ratio": {
                 "equal_opportunity_ratio": 0.9609821428571428,
-                "label": "equal_opportunity_ratio"
-              },
-              "equalised_odds_difference": {
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
+                ]
+              },
+              "equalised_odds_difference": {
                 "equalised_odds_difference": 0.03816593886462882,
-                "equalised_odds_ratio": null
+                "privileged_sensitive_group": [
+                  "M"
+                ],
+                "unprivileged_sensitive_group": [
+                  "F"
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.8033707865168539,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.8033707865168539
+                ]
               },
               "false_positive_rate_difference": {
-                "privileged_sensitive_group": [
-                  "F"
-                ],
-                "unprivileged_sensitive_group": [
-                  "M"
-                ],
                 "false_positive_rate_difference": 0.005500117859668422,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
-              },
-              "false_positive_rate_ratio": {
                 "privileged_sensitive_group": [
                   "F"
                 ],
                 "unprivileged_sensitive_group": [
                   "M"
-                ],
-                "false_positive_rate_difference": null,
+                ]
+              },
+              "false_positive_rate_ratio": {
                 "false_positive_rate_ratio": 0.8033707865168539,
-                "label": "false_positive_rate_ratio"
+                "privileged_sensitive_group": [
+                  "F"
+                ],
+                "unprivileged_sensitive_group": [
+                  "M"
+                ]
               }
             }
           },
           {
             "summaries": {
               "demographic_parity_difference": {
-                "privileged_sensitive_group": [
-                  "ASY"
-                ],
-                "unprivileged_sensitive_group": [
-                  "ATA"
-                ],
                 "demographic_parity_difference": 0.6515942569457394,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                "privileged_sensitive_group": [
+                  "ASY"
+                ],
+                "unprivileged_sensitive_group": [
+                  "ATA"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.1755337973339625,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.1755337973339625,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.6417816520604139,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.6417816520604139,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.18378538609752484,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.18378538609752484
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.13469387755102047,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "TA"
-                ],
-                "equal_opportunity_difference": 0.13469387755102047,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.8632124352331606,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "TA"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.8632124352331606,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.13469387755102047,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "TA"
-                ],
-                "equalised_odds_difference": 0.13469387755102047,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.06615776081424936,
                 "privileged_sensitive_group": [
                   "NAP"
                 ],
                 "unprivileged_sensitive_group": [
                   "TA"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.06615776081424936
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.10775102759835585,
                 "privileged_sensitive_group": [
                   "TA"
                 ],
                 "unprivileged_sensitive_group": [
                   "NAP"
-                ],
-                "false_positive_rate_difference": 0.10775102759835585,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.06615776081424936,
                 "privileged_sensitive_group": [
                   "TA"
                 ],
                 "unprivileged_sensitive_group": [
                   "NAP"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.06615776081424936,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           },
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.7619718309859155,
                 "privileged_sensitive_group": [
                   "M",
                   "ASY"
@@ -2189,12 +2118,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "ATA"
-                ],
-                "demographic_parity_difference": 0.7619718309859155,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.08045325779036827,
                 "privileged_sensitive_group": [
                   "M",
                   "ASY"
@@ -2202,12 +2129,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "ATA"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.08045325779036827,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.7437771281778722,
                 "privileged_sensitive_group": [
                   "M",
                   "ASY"
@@ -2215,12 +2140,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "NAP"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.7437771281778722,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.09212304698059144,
                 "privileged_sensitive_group": [
                   "M",
                   "ASY"
@@ -2228,12 +2151,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "NAP"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.09212304698059144
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.33333333333333337,
                 "privileged_sensitive_group": [
                   "F",
                   "ATA"
@@ -2241,12 +2162,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "NAP"
-                ],
-                "equal_opportunity_difference": 0.33333333333333337,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.6666666666666666,
                 "privileged_sensitive_group": [
                   "F",
                   "ATA"
@@ -2254,12 +2173,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "NAP"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.6666666666666666,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.33333333333333337,
                 "privileged_sensitive_group": [
                   "F",
                   "ATA"
@@ -2267,11 +2184,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "NAP"
-                ],
-                "equalised_odds_difference": 0.33333333333333337,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "F",
                   "NAP"
@@ -2279,11 +2195,10 @@
                 "unprivileged_sensitive_group": [
                   "M",
                   "ASY"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.0
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.17647058823529413,
                 "privileged_sensitive_group": [
                   "M",
                   "TA"
@@ -2291,12 +2206,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "NAP"
-                ],
-                "false_positive_rate_difference": 0.17647058823529413,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "M",
                   "ASY"
@@ -2304,10 +2217,7 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "NAP"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.0,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -2623,96 +2533,78 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.22961586564230838,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "demographic_parity_difference": 0.22961586564230838,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.49246493112599515,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.49246493112599515,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.22961586564230838,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.22961586564230838,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.49246493112599515,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.49246493112599515
+                ]
               },
               "equal_opportunity_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "equal_opportunity_difference": 0.0,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equal_opportunity_ratio": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
-                "equal_opportunity_difference": null,
                 "equal_opportunity_ratio": 1.0,
-                "label": "equal_opportunity_ratio"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equalised_odds_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "equalised_odds_difference": 0.0,
-                "equalised_odds_ratio": null
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "F"
                 ],
                 "unprivileged_sensitive_group": [
                   "M"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.0
+                ]
               },
               "false_positive_rate_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "false_positive_rate_difference": 0.0,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.0,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -3091,96 +2983,78 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.5005244266268879,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "demographic_parity_difference": 0.5005244266268879,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.16410735485879996,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.16410735485879996,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.5005244266268879,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.5005244266268879,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.16410735485879996,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.16410735485879996
+                ]
               },
               "equal_opportunity_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "equal_opportunity_difference": 0.0,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equal_opportunity_ratio": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
-                "equal_opportunity_difference": null,
                 "equal_opportunity_ratio": 1.0,
-                "label": "equal_opportunity_ratio"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equalised_odds_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "equalised_odds_difference": 0.0,
-                "equalised_odds_ratio": null
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "NAP"
                 ],
                 "unprivileged_sensitive_group": [
                   "ASY"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.0
+                ]
               },
               "false_positive_rate_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "false_positive_rate_difference": 0.0,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "NAP"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.0,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -4344,198 +4218,163 @@
           {
             "summaries": {
               "demographic_parity_difference": {
-                "privileged_sensitive_group": [
-                  "M"
-                ],
-                "unprivileged_sensitive_group": [
-                  "F"
-                ],
                 "demographic_parity_difference": 0.22961586564230838,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
-              },
-              "demographic_parity_ratio": {
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "demographic_parity_difference": null,
+                ]
+              },
+              "demographic_parity_ratio": {
                 "demographic_parity_ratio": 0.49246493112599515,
-                "label": "demographic_parity_ratio"
-              },
-              "disparate_impact_difference": {
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "label": "disparate_impact_difference",
+                ]
+              },
+              "disparate_impact_difference": {
                 "disparate_impact_difference": 0.22961586564230838,
-                "disparate_impact_ratio": null
+                "privileged_sensitive_group": [
+                  "M"
+                ],
+                "unprivileged_sensitive_group": [
+                  "F"
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.49246493112599515,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.49246493112599515
+                ]
               },
               "equal_opportunity_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "equal_opportunity_difference": 0.0,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equal_opportunity_ratio": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
-                "equal_opportunity_difference": null,
                 "equal_opportunity_ratio": 1.0,
-                "label": "equal_opportunity_ratio"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equalised_odds_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "equalised_odds_difference": 0.0,
-                "equalised_odds_ratio": null
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "F"
                 ],
                 "unprivileged_sensitive_group": [
                   "M"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.0
+                ]
               },
               "false_positive_rate_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "false_positive_rate_difference": 0.0,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.0,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           },
           {
             "summaries": {
               "demographic_parity_difference": {
-                "privileged_sensitive_group": [
-                  "ASY"
-                ],
-                "unprivileged_sensitive_group": [
-                  "ATA"
-                ],
                 "demographic_parity_difference": 0.5005244266268879,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                "privileged_sensitive_group": [
+                  "ASY"
+                ],
+                "unprivileged_sensitive_group": [
+                  "ATA"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.16410735485879996,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.16410735485879996,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.5005244266268879,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.5005244266268879,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.16410735485879996,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "ATA"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.16410735485879996
+                ]
               },
               "equal_opportunity_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "equal_opportunity_difference": 0.0,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equal_opportunity_ratio": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
-                "equal_opportunity_difference": null,
                 "equal_opportunity_ratio": 1.0,
-                "label": "equal_opportunity_ratio"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equalised_odds_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "equalised_odds_difference": 0.0,
-                "equalised_odds_ratio": null
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "NAP"
                 ],
                 "unprivileged_sensitive_group": [
                   "ASY"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.0
+                ]
               },
               "false_positive_rate_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "false_positive_rate_difference": 0.0,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "ASY"
                 ],
                 "unprivileged_sensitive_group": [
                   "NAP"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.0,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           },
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.6197183098591549,
                 "privileged_sensitive_group": [
                   "M",
                   "ASY"
@@ -4543,12 +4382,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "TA"
-                ],
-                "demographic_parity_difference": 0.6197183098591549,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "M",
                   "ASY"
@@ -4556,12 +4393,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "TA"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.0,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.6197183098591549,
                 "privileged_sensitive_group": [
                   "M",
                   "ASY"
@@ -4569,12 +4404,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "TA"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.6197183098591549,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "M",
                   "ASY"
@@ -4582,32 +4415,25 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "TA"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.0
+                ]
               },
               "equal_opportunity_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "equal_opportunity_difference": 0.0,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equal_opportunity_ratio": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
-                "equal_opportunity_difference": null,
                 "equal_opportunity_ratio": 1.0,
-                "label": "equal_opportunity_ratio"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equalised_odds_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "equalised_odds_difference": 0.0,
-                "equalised_odds_ratio": null
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "M",
                   "NAP"
@@ -4615,18 +4441,15 @@
                 "unprivileged_sensitive_group": [
                   "M",
                   "ASY"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.0
+                ]
               },
               "false_positive_rate_difference": {
-                "privileged_sensitive_group": null,
-                "unprivileged_sensitive_group": null,
                 "false_positive_rate_difference": 0.0,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                "privileged_sensitive_group": null,
+                "unprivileged_sensitive_group": null
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "M",
                   "ASY"
@@ -4634,10 +4457,7 @@
                 "unprivileged_sensitive_group": [
                   "M",
                   "NAP"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.0,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -4953,112 +4773,94 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.09973404255319152,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "demographic_parity_difference": 0.09973404255319152,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.8549323017408124,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.8549323017408124,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.061170212765957466,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.061170212765957466,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.9021276595744679,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.9021276595744679
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.002331002331002363,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equal_opportunity_difference": 0.002331002331002363,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.9972527472527472,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.9972527472527472,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.027956989247311825,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equalised_odds_difference": 0.027956989247311825,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.8266666666666667,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.8266666666666667
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.027956989247311825,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "false_positive_rate_difference": 0.027956989247311825,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.8266666666666667,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.8266666666666667,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -5507,112 +5309,94 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.2216748768472907,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "demographic_parity_difference": 0.2216748768472907,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.7204968944099378,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.7204968944099378,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.24514633439582728,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.24514633439582728,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.6614645858343338,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.6614645858343338
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.15005853087503662,
                 "privileged_sensitive_group": [
                   "White"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equal_opportunity_difference": 0.15005853087503662,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.8276470588235294,
                 "privileged_sensitive_group": [
                   "White"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.8276470588235294,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.15005853087503662,
                 "privileged_sensitive_group": [
                   "White"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equalised_odds_difference": 0.15005853087503662,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.8108108108108109,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.8108108108108109
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.031531531531531515,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": 0.031531531531531515,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.8108108108108109,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.8108108108108109,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -5994,112 +5778,94 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.17031001589825123,
                 "privileged_sensitive_group": [
                   "31-45"
                 ],
                 "unprivileged_sensitive_group": [
                   "60+"
-                ],
-                "demographic_parity_difference": 0.17031001589825123,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.7509444928799767,
                 "privileged_sensitive_group": [
                   "31-45"
                 ],
                 "unprivileged_sensitive_group": [
                   "60+"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.7509444928799767,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.09181240063592999,
                 "privileged_sensitive_group": [
                   "31-45"
                 ],
                 "unprivileged_sensitive_group": [
                   "60+"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.09181240063592999,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.8548082966687619,
                 "privileged_sensitive_group": [
                   "31-45"
                 ],
                 "unprivileged_sensitive_group": [
                   "60+"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.8548082966687619
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.06140350877192979,
                 "privileged_sensitive_group": [
                   "60+"
                 ],
                 "unprivileged_sensitive_group": [
                   "46-60"
-                ],
-                "equal_opportunity_difference": 0.06140350877192979,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.9313725490196079,
                 "privileged_sensitive_group": [
                   "60+"
                 ],
                 "unprivileged_sensitive_group": [
                   "46-60"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.9313725490196079,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.09322365844104974,
                 "privileged_sensitive_group": [
                   "46-60"
                 ],
                 "unprivileged_sensitive_group": [
                   "18-30"
-                ],
-                "equalised_odds_difference": 0.09322365844104974,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.4826086956521739,
                 "privileged_sensitive_group": [
                   "46-60"
                 ],
                 "unprivileged_sensitive_group": [
                   "18-30"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.4826086956521739
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.09322365844104974,
                 "privileged_sensitive_group": [
                   "18-30"
                 ],
                 "unprivileged_sensitive_group": [
                   "46-60"
-                ],
-                "false_positive_rate_difference": 0.09322365844104974,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.4826086956521739,
                 "privileged_sensitive_group": [
                   "18-30"
                 ],
                 "unprivileged_sensitive_group": [
                   "46-60"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.4826086956521739,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -7486,230 +7252,195 @@
           {
             "summaries": {
               "demographic_parity_difference": {
-                "privileged_sensitive_group": [
-                  "Male"
-                ],
-                "unprivileged_sensitive_group": [
-                  "Female"
-                ],
                 "demographic_parity_difference": 0.09973404255319152,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
-              },
-              "demographic_parity_ratio": {
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "demographic_parity_difference": null,
+                ]
+              },
+              "demographic_parity_ratio": {
                 "demographic_parity_ratio": 0.8549323017408124,
-                "label": "demographic_parity_ratio"
-              },
-              "disparate_impact_difference": {
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "label": "disparate_impact_difference",
+                ]
+              },
+              "disparate_impact_difference": {
                 "disparate_impact_difference": 0.061170212765957466,
-                "disparate_impact_ratio": null
+                "privileged_sensitive_group": [
+                  "Male"
+                ],
+                "unprivileged_sensitive_group": [
+                  "Female"
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.9021276595744679,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.9021276595744679
+                ]
               },
               "equal_opportunity_difference": {
-                "privileged_sensitive_group": [
-                  "Male"
-                ],
-                "unprivileged_sensitive_group": [
-                  "Female"
-                ],
                 "equal_opportunity_difference": 0.002331002331002363,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
-              },
-              "equal_opportunity_ratio": {
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equal_opportunity_difference": null,
+                ]
+              },
+              "equal_opportunity_ratio": {
                 "equal_opportunity_ratio": 0.9972527472527472,
-                "label": "equal_opportunity_ratio"
-              },
-              "equalised_odds_difference": {
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
+                ]
+              },
+              "equalised_odds_difference": {
                 "equalised_odds_difference": 0.027956989247311825,
-                "equalised_odds_ratio": null
+                "privileged_sensitive_group": [
+                  "Male"
+                ],
+                "unprivileged_sensitive_group": [
+                  "Female"
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.8266666666666667,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.8266666666666667
+                ]
               },
               "false_positive_rate_difference": {
-                "privileged_sensitive_group": [
-                  "Female"
-                ],
-                "unprivileged_sensitive_group": [
-                  "Male"
-                ],
                 "false_positive_rate_difference": 0.027956989247311825,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
-              },
-              "false_positive_rate_ratio": {
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "false_positive_rate_difference": null,
+                ]
+              },
+              "false_positive_rate_ratio": {
                 "false_positive_rate_ratio": 0.8266666666666667,
-                "label": "false_positive_rate_ratio"
+                "privileged_sensitive_group": [
+                  "Female"
+                ],
+                "unprivileged_sensitive_group": [
+                  "Male"
+                ]
               }
             }
           },
           {
             "summaries": {
               "demographic_parity_difference": {
-                "privileged_sensitive_group": [
-                  "Other"
-                ],
-                "unprivileged_sensitive_group": [
-                  "Black"
-                ],
                 "demographic_parity_difference": 0.2216748768472907,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                "privileged_sensitive_group": [
+                  "Other"
+                ],
+                "unprivileged_sensitive_group": [
+                  "Black"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.7204968944099378,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.7204968944099378,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.24514633439582728,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.24514633439582728,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.6614645858343338,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.6614645858343338
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.15005853087503662,
                 "privileged_sensitive_group": [
                   "White"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equal_opportunity_difference": 0.15005853087503662,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.8276470588235294,
                 "privileged_sensitive_group": [
                   "White"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.8276470588235294,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.15005853087503662,
                 "privileged_sensitive_group": [
                   "White"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equalised_odds_difference": 0.15005853087503662,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.8108108108108109,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.8108108108108109
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.031531531531531515,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": 0.031531531531531515,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.8108108108108109,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.8108108108108109,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           },
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.3276119402985075,
                 "privileged_sensitive_group": [
                   "Male",
                   "Other"
@@ -7717,12 +7448,10 @@
                 "unprivileged_sensitive_group": [
                   "Female",
                   "Hispanic"
-                ],
-                "demographic_parity_difference": 0.3276119402985075,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.6145741878841088,
                 "privileged_sensitive_group": [
                   "Male",
                   "Other"
@@ -7730,12 +7459,10 @@
                 "unprivileged_sensitive_group": [
                   "Female",
                   "Hispanic"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.6145741878841088,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.2905405405405405,
                 "privileged_sensitive_group": [
                   "Male",
                   "Other"
@@ -7743,12 +7470,10 @@
                 "unprivileged_sensitive_group": [
                   "Male",
                   "Black"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.2905405405405405,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.6126126126126127,
                 "privileged_sensitive_group": [
                   "Male",
                   "Other"
@@ -7756,12 +7481,10 @@
                 "unprivileged_sensitive_group": [
                   "Male",
                   "Black"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.6126126126126127
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.33333333333333337,
                 "privileged_sensitive_group": [
                   "Female",
                   "Other"
@@ -7769,12 +7492,10 @@
                 "unprivileged_sensitive_group": [
                   "Female",
                   "Black"
-                ],
-                "equal_opportunity_difference": 0.33333333333333337,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.6666666666666666,
                 "privileged_sensitive_group": [
                   "Female",
                   "Other"
@@ -7782,12 +7503,10 @@
                 "unprivileged_sensitive_group": [
                   "Female",
                   "Black"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.6666666666666666,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.33333333333333337,
                 "privileged_sensitive_group": [
                   "Female",
                   "Other"
@@ -7795,11 +7514,10 @@
                 "unprivileged_sensitive_group": [
                   "Female",
                   "Black"
-                ],
-                "equalised_odds_difference": 0.33333333333333337,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "Female",
                   "Other"
@@ -7807,11 +7525,10 @@
                 "unprivileged_sensitive_group": [
                   "Male",
                   "White"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.0
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.3333333333333333,
                 "privileged_sensitive_group": [
                   "Male",
                   "Other"
@@ -7819,12 +7536,10 @@
                 "unprivileged_sensitive_group": [
                   "Female",
                   "Other"
-                ],
-                "false_positive_rate_difference": 0.3333333333333333,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "Male",
                   "White"
@@ -7832,10 +7547,7 @@
                 "unprivileged_sensitive_group": [
                   "Female",
                   "Other"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.0,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -8154,112 +7866,94 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.013427692658198986,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "demographic_parity_difference": 0.013427692658198986,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.9830845949630479,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.9830845949630479,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.0260651022384234,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.0260651022384234,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.9644525143461923,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.9644525143461923
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.03061717044017931,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "equal_opportunity_difference": 0.03061717044017931,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.9658330126971911,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.9658330126971911,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.038404088050314464,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "equalised_odds_difference": 0.038404088050314464,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.7345108695652174,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.7345108695652174
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.038404088050314464,
                 "privileged_sensitive_group": [
                   "F"
                 ],
                 "unprivileged_sensitive_group": [
                   "M"
-                ],
-                "false_positive_rate_difference": 0.038404088050314464,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.7345108695652174,
                 "privileged_sensitive_group": [
                   "F"
                 ],
                 "unprivileged_sensitive_group": [
                   "M"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.7345108695652174,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -8638,112 +8332,94 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.07082431634861308,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "demographic_parity_difference": 0.07082431634861308,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.9125576876366286,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.9125576876366286,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.046429274050757474,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.046429274050757474,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.9374337221633086,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.9374337221633086
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.04089635854341733,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Asian"
-                ],
-                "equal_opportunity_difference": 0.04089635854341733,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.9549382716049383,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Asian"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.9549382716049383,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.07142857142857142,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equalised_odds_difference": 0.07142857142857142,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.5714285714285714,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.5714285714285714
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.07142857142857142,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": 0.07142857142857142,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.5714285714285714,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.5714285714285714,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -9908,230 +9584,195 @@
           {
             "summaries": {
               "demographic_parity_difference": {
-                "privileged_sensitive_group": [
-                  "M"
-                ],
-                "unprivileged_sensitive_group": [
-                  "F"
-                ],
                 "demographic_parity_difference": 0.013427692658198986,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
-              },
-              "demographic_parity_ratio": {
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "demographic_parity_difference": null,
+                ]
+              },
+              "demographic_parity_ratio": {
                 "demographic_parity_ratio": 0.9830845949630479,
-                "label": "demographic_parity_ratio"
-              },
-              "disparate_impact_difference": {
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "label": "disparate_impact_difference",
+                ]
+              },
+              "disparate_impact_difference": {
                 "disparate_impact_difference": 0.0260651022384234,
-                "disparate_impact_ratio": null
+                "privileged_sensitive_group": [
+                  "M"
+                ],
+                "unprivileged_sensitive_group": [
+                  "F"
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.9644525143461923,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.9644525143461923
+                ]
               },
               "equal_opportunity_difference": {
-                "privileged_sensitive_group": [
-                  "M"
-                ],
-                "unprivileged_sensitive_group": [
-                  "F"
-                ],
                 "equal_opportunity_difference": 0.03061717044017931,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
-              },
-              "equal_opportunity_ratio": {
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "equal_opportunity_difference": null,
+                ]
+              },
+              "equal_opportunity_ratio": {
                 "equal_opportunity_ratio": 0.9658330126971911,
-                "label": "equal_opportunity_ratio"
-              },
-              "equalised_odds_difference": {
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
+                ]
+              },
+              "equalised_odds_difference": {
                 "equalised_odds_difference": 0.038404088050314464,
-                "equalised_odds_ratio": null
+                "privileged_sensitive_group": [
+                  "M"
+                ],
+                "unprivileged_sensitive_group": [
+                  "F"
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.7345108695652174,
                 "privileged_sensitive_group": [
                   "M"
                 ],
                 "unprivileged_sensitive_group": [
                   "F"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.7345108695652174
+                ]
               },
               "false_positive_rate_difference": {
-                "privileged_sensitive_group": [
-                  "F"
-                ],
-                "unprivileged_sensitive_group": [
-                  "M"
-                ],
                 "false_positive_rate_difference": 0.038404088050314464,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
-              },
-              "false_positive_rate_ratio": {
                 "privileged_sensitive_group": [
                   "F"
                 ],
                 "unprivileged_sensitive_group": [
                   "M"
-                ],
-                "false_positive_rate_difference": null,
+                ]
+              },
+              "false_positive_rate_ratio": {
                 "false_positive_rate_ratio": 0.7345108695652174,
-                "label": "false_positive_rate_ratio"
+                "privileged_sensitive_group": [
+                  "F"
+                ],
+                "unprivileged_sensitive_group": [
+                  "M"
+                ]
               }
             }
           },
           {
             "summaries": {
               "demographic_parity_difference": {
-                "privileged_sensitive_group": [
-                  "Black"
-                ],
-                "unprivileged_sensitive_group": [
-                  "Hispanic"
-                ],
                 "demographic_parity_difference": 0.07082431634861308,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                "privileged_sensitive_group": [
+                  "Black"
+                ],
+                "unprivileged_sensitive_group": [
+                  "Hispanic"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.9125576876366286,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.9125576876366286,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.046429274050757474,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.046429274050757474,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.9374337221633086,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.9374337221633086
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.04089635854341733,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Asian"
-                ],
-                "equal_opportunity_difference": 0.04089635854341733,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.9549382716049383,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Asian"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.9549382716049383,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.07142857142857142,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equalised_odds_difference": 0.07142857142857142,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.5714285714285714,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.5714285714285714
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.07142857142857142,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": 0.07142857142857142,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.5714285714285714,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.5714285714285714,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           },
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.10129870129870133,
                 "privileged_sensitive_group": [
                   "M",
                   "Asian"
@@ -10139,12 +9780,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "Hispanic"
-                ],
-                "demographic_parity_difference": 0.10129870129870133,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.8777429467084639,
                 "privileged_sensitive_group": [
                   "M",
                   "Asian"
@@ -10152,12 +9791,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "Hispanic"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.8777429467084639,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.0686182669789227,
                 "privileged_sensitive_group": [
                   "M",
                   "Asian"
@@ -10165,12 +9802,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "Asian"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.0686182669789227,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.9093721002165173,
                 "privileged_sensitive_group": [
                   "M",
                   "Asian"
@@ -10178,12 +9813,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "Asian"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.9093721002165173
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.08092705167173253,
                 "privileged_sensitive_group": [
                   "F",
                   "Hispanic"
@@ -10191,12 +9824,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "Asian"
-                ],
-                "equal_opportunity_difference": 0.08092705167173253,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.9111389236545682,
                 "privileged_sensitive_group": [
                   "F",
                   "Hispanic"
@@ -10204,12 +9835,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "Asian"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.9111389236545682,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.19047619047619047,
                 "privileged_sensitive_group": [
                   "M",
                   "Hispanic"
@@ -10217,11 +9846,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "Black"
-                ],
-                "equalised_odds_difference": 0.19047619047619047,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.2,
                 "privileged_sensitive_group": [
                   "M",
                   "Hispanic"
@@ -10229,11 +9857,10 @@
                 "unprivileged_sensitive_group": [
                   "F",
                   "Black"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.2
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.19047619047619047,
                 "privileged_sensitive_group": [
                   "F",
                   "Black"
@@ -10241,12 +9868,10 @@
                 "unprivileged_sensitive_group": [
                   "M",
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": 0.19047619047619047,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.2,
                 "privileged_sensitive_group": [
                   "F",
                   "Black"
@@ -10254,10 +9879,7 @@
                 "unprivileged_sensitive_group": [
                   "M",
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.2,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -10713,112 +10335,94 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.13520408163265307,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "demographic_parity_difference": 0.13520408163265307,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.7836734693877551,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.7836734693877551,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.1715561224489796,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.1715561224489796,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.723535457348407,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.723535457348407
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.07196969696969702,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "equal_opportunity_difference": 0.07196969696969702,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.9166666666666665,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.9166666666666665,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.15380952380952384,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equalised_odds_difference": 0.15380952380952384,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.4382608695652173,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.4382608695652173
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.15380952380952384,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "false_positive_rate_difference": 0.15380952380952384,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.4382608695652173,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.4382608695652173,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -11059,112 +10663,94 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.04979822437449555,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "demographic_parity_difference": 0.04979822437449555,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.910966810966811,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.910966810966811,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.04947538337368851,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.04947538337368851,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.9107324887141399,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.9107324887141399
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.07278391390540928,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equal_opportunity_difference": 0.07278391390540928,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.9142189586114818,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.9142189586114818,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.07278391390540928,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equalised_odds_difference": 0.07278391390540928,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.8095317725752508,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.8095317725752508
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.042531740104555654,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "false_positive_rate_difference": 0.042531740104555654,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.8095317725752508,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.8095317725752508,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -12327,230 +11913,195 @@
           {
             "summaries": {
               "demographic_parity_difference": {
-                "privileged_sensitive_group": [
-                  "Black"
-                ],
-                "unprivileged_sensitive_group": [
-                  "Other"
-                ],
                 "demographic_parity_difference": 0.13520408163265307,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
-              },
-              "demographic_parity_ratio": {
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "demographic_parity_difference": null,
+                ]
+              },
+              "demographic_parity_ratio": {
                 "demographic_parity_ratio": 0.7836734693877551,
-                "label": "demographic_parity_ratio"
-              },
-              "disparate_impact_difference": {
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "label": "disparate_impact_difference",
+                ]
+              },
+              "disparate_impact_difference": {
                 "disparate_impact_difference": 0.1715561224489796,
-                "disparate_impact_ratio": null
-              },
-              "disparate_impact_ratio": {
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.723535457348407
+                ]
               },
-              "equal_opportunity_difference": {
+              "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.723535457348407,
                 "privileged_sensitive_group": [
-                  "Hispanic"
+                  "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
+                ]
+              },
+              "equal_opportunity_difference": {
                 "equal_opportunity_difference": 0.07196969696969702,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
-              },
-              "equal_opportunity_ratio": {
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "equal_opportunity_difference": null,
+                ]
+              },
+              "equal_opportunity_ratio": {
                 "equal_opportunity_ratio": 0.9166666666666665,
-                "label": "equal_opportunity_ratio"
-              },
-              "equalised_odds_difference": {
                 "privileged_sensitive_group": [
-                  "Other"
+                  "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
-                  "Black"
-                ],
+                  "Other"
+                ]
+              },
+              "equalised_odds_difference": {
                 "equalised_odds_difference": 0.15380952380952384,
-                "equalised_odds_ratio": null
+                "privileged_sensitive_group": [
+                  "Other"
+                ],
+                "unprivileged_sensitive_group": [
+                  "Black"
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.4382608695652173,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Black"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.4382608695652173
+                ]
               },
               "false_positive_rate_difference": {
-                "privileged_sensitive_group": [
-                  "Black"
-                ],
-                "unprivileged_sensitive_group": [
-                  "Other"
-                ],
                 "false_positive_rate_difference": 0.15380952380952384,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
-              },
-              "false_positive_rate_ratio": {
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "false_positive_rate_difference": null,
+                ]
+              },
+              "false_positive_rate_ratio": {
                 "false_positive_rate_ratio": 0.4382608695652173,
-                "label": "false_positive_rate_ratio"
+                "privileged_sensitive_group": [
+                  "Black"
+                ],
+                "unprivileged_sensitive_group": [
+                  "Other"
+                ]
               }
             }
           },
           {
             "summaries": {
               "demographic_parity_difference": {
-                "privileged_sensitive_group": [
-                  "Male"
-                ],
-                "unprivileged_sensitive_group": [
-                  "Female"
-                ],
                 "demographic_parity_difference": 0.04979822437449555,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                "privileged_sensitive_group": [
+                  "Male"
+                ],
+                "unprivileged_sensitive_group": [
+                  "Female"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.910966810966811,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.910966810966811,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.04947538337368851,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.04947538337368851,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.9107324887141399,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.9107324887141399
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.07278391390540928,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equal_opportunity_difference": 0.07278391390540928,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.9142189586114818,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.9142189586114818,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.07278391390540928,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equalised_odds_difference": 0.07278391390540928,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.8095317725752508,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.8095317725752508
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.042531740104555654,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "false_positive_rate_difference": 0.042531740104555654,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.8095317725752508,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.8095317725752508,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           },
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.24092990489609023,
                 "privileged_sensitive_group": [
                   "Black",
                   "Male"
@@ -12558,12 +12109,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "demographic_parity_difference": 0.24092990489609023,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.6308688613059902,
                 "privileged_sensitive_group": [
                   "Black",
                   "Male"
@@ -12571,12 +12120,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.6308688613059902,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.22895385699189863,
                 "privileged_sensitive_group": [
                   "Black",
                   "Male"
@@ -12584,12 +12131,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.22895385699189863,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.6426608026388124,
                 "privileged_sensitive_group": [
                   "Black",
                   "Male"
@@ -12597,12 +12142,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.6426608026388124
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.1657142857142857,
                 "privileged_sensitive_group": [
                   "Hispanic",
                   "Male"
@@ -12610,12 +12153,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "equal_opportunity_difference": 0.1657142857142857,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.8116883116883117,
                 "privileged_sensitive_group": [
                   "Hispanic",
                   "Male"
@@ -12623,12 +12164,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.8116883116883117,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.24102564102564106,
                 "privileged_sensitive_group": [
                   "Other",
                   "Male"
@@ -12636,11 +12175,10 @@
                 "unprivileged_sensitive_group": [
                   "Black",
                   "Female"
-                ],
-                "equalised_odds_difference": 0.24102564102564106,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.21666666666666665,
                 "privileged_sensitive_group": [
                   "Other",
                   "Male"
@@ -12648,11 +12186,10 @@
                 "unprivileged_sensitive_group": [
                   "Black",
                   "Female"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.21666666666666665
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.24102564102564106,
                 "privileged_sensitive_group": [
                   "Black",
                   "Female"
@@ -12660,12 +12197,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Male"
-                ],
-                "false_positive_rate_difference": 0.24102564102564106,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.21666666666666665,
                 "privileged_sensitive_group": [
                   "Black",
                   "Female"
@@ -12673,10 +12208,7 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Male"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.21666666666666665,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -13224,112 +12756,94 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.0717080745341615,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "White"
-                ],
-                "demographic_parity_difference": 0.0717080745341615,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.8757533362031855,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "White"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.8757533362031855,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.07175472928897586,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.07175472928897586,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.8690476190476191,
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.8690476190476191
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.21150278293135438,
                 "privileged_sensitive_group": [
                   "Asian"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "equal_opportunity_difference": 0.21150278293135438,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.7747035573122529,
                 "privileged_sensitive_group": [
                   "Asian"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.7747035573122529,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.21150278293135438,
                 "privileged_sensitive_group": [
                   "Asian"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "equalised_odds_difference": 0.21150278293135438,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.13513513513513514,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.13513513513513514
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.17297297297297298,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": 0.17297297297297298,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.13513513513513514,
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.13513513513513514,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -13571,112 +13085,94 @@
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.03539712320200128,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "demographic_parity_difference": 0.03539712320200128,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.9348226623675724,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.9348226623675724,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.006128830519074424,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.006128830519074424,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.9880720545277507,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.9880720545277507
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.04120042742797225,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equal_opportunity_difference": 0.04120042742797225,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.9548467640365027,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.9548467640365027,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.04120042742797225,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equalised_odds_difference": 0.04120042742797225,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.9548467640365027,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.9548467640365027
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.001309806247528661,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "false_positive_rate_difference": 0.001309806247528661,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.9854913769504517,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.9854913769504517,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }
@@ -15061,230 +14557,195 @@
           {
             "summaries": {
               "demographic_parity_difference": {
-                "privileged_sensitive_group": [
-                  "Hispanic"
-                ],
-                "unprivileged_sensitive_group": [
-                  "White"
-                ],
                 "demographic_parity_difference": 0.0717080745341615,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
-              },
-              "demographic_parity_ratio": {
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "White"
-                ],
-                "demographic_parity_difference": null,
+                ]
+              },
+              "demographic_parity_ratio": {
                 "demographic_parity_ratio": 0.8757533362031855,
-                "label": "demographic_parity_ratio"
-              },
-              "disparate_impact_difference": {
                 "privileged_sensitive_group": [
-                  "Black"
+                  "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
-                  "Other"
-                ],
-                "label": "disparate_impact_difference",
+                  "White"
+                ]
+              },
+              "disparate_impact_difference": {
                 "disparate_impact_difference": 0.07175472928897586,
-                "disparate_impact_ratio": null
-              },
-              "disparate_impact_ratio": {
                 "privileged_sensitive_group": [
                   "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.8690476190476191
+                ]
               },
-              "equal_opportunity_difference": {
+              "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.8690476190476191,
                 "privileged_sensitive_group": [
-                  "Asian"
+                  "Black"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
+                ]
+              },
+              "equal_opportunity_difference": {
                 "equal_opportunity_difference": 0.21150278293135438,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
-              },
-              "equal_opportunity_ratio": {
                 "privileged_sensitive_group": [
                   "Asian"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "equal_opportunity_difference": null,
+                ]
+              },
+              "equal_opportunity_ratio": {
                 "equal_opportunity_ratio": 0.7747035573122529,
-                "label": "equal_opportunity_ratio"
-              },
-              "equalised_odds_difference": {
                 "privileged_sensitive_group": [
                   "Asian"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
+                ]
+              },
+              "equalised_odds_difference": {
                 "equalised_odds_difference": 0.21150278293135438,
-                "equalised_odds_ratio": null
+                "privileged_sensitive_group": [
+                  "Asian"
+                ],
+                "unprivileged_sensitive_group": [
+                  "Other"
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.13513513513513514,
                 "privileged_sensitive_group": [
                   "Hispanic"
                 ],
                 "unprivileged_sensitive_group": [
                   "Other"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.13513513513513514
+                ]
               },
               "false_positive_rate_difference": {
-                "privileged_sensitive_group": [
-                  "Other"
-                ],
-                "unprivileged_sensitive_group": [
-                  "Hispanic"
-                ],
                 "false_positive_rate_difference": 0.17297297297297298,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
-              },
-              "false_positive_rate_ratio": {
                 "privileged_sensitive_group": [
                   "Other"
                 ],
                 "unprivileged_sensitive_group": [
                   "Hispanic"
-                ],
-                "false_positive_rate_difference": null,
+                ]
+              },
+              "false_positive_rate_ratio": {
                 "false_positive_rate_ratio": 0.13513513513513514,
-                "label": "false_positive_rate_ratio"
+                "privileged_sensitive_group": [
+                  "Other"
+                ],
+                "unprivileged_sensitive_group": [
+                  "Hispanic"
+                ]
               }
             }
           },
           {
             "summaries": {
               "demographic_parity_difference": {
-                "privileged_sensitive_group": [
-                  "Female"
-                ],
-                "unprivileged_sensitive_group": [
-                  "Male"
-                ],
                 "demographic_parity_difference": 0.03539712320200128,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                "privileged_sensitive_group": [
+                  "Female"
+                ],
+                "unprivileged_sensitive_group": [
+                  "Male"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.9348226623675724,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.9348226623675724,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.006128830519074424,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.006128830519074424,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.9880720545277507,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.9880720545277507
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.04120042742797225,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equal_opportunity_difference": 0.04120042742797225,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.9548467640365027,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.9548467640365027,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.04120042742797225,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "equalised_odds_difference": 0.04120042742797225,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.9548467640365027,
                 "privileged_sensitive_group": [
                   "Female"
                 ],
                 "unprivileged_sensitive_group": [
                   "Male"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.9548467640365027
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.001309806247528661,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "false_positive_rate_difference": 0.001309806247528661,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.9854913769504517,
                 "privileged_sensitive_group": [
                   "Male"
                 ],
                 "unprivileged_sensitive_group": [
                   "Female"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.9854913769504517,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           },
           {
             "summaries": {
               "demographic_parity_difference": {
+                "demographic_parity_difference": 0.18764302059496574,
                 "privileged_sensitive_group": [
                   "Other",
                   "Male"
@@ -15292,12 +14753,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "demographic_parity_difference": 0.18764302059496574,
-                "demographic_parity_ratio": null,
-                "label": "demographic_parity_difference"
+                ]
               },
               "demographic_parity_ratio": {
+                "demographic_parity_ratio": 0.6917293233082705,
                 "privileged_sensitive_group": [
                   "Other",
                   "Male"
@@ -15305,12 +14764,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "demographic_parity_difference": null,
-                "demographic_parity_ratio": 0.6917293233082705,
-                "label": "demographic_parity_ratio"
+                ]
               },
               "disparate_impact_difference": {
+                "disparate_impact_difference": 0.13450292397660824,
                 "privileged_sensitive_group": [
                   "Black",
                   "Male"
@@ -15318,12 +14775,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "label": "disparate_impact_difference",
-                "disparate_impact_difference": 0.13450292397660824,
-                "disparate_impact_ratio": null
+                ]
               },
               "disparate_impact_ratio": {
+                "disparate_impact_ratio": 0.7578947368421052,
                 "privileged_sensitive_group": [
                   "Black",
                   "Male"
@@ -15331,12 +14786,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "label": "disparate_impact_ratio",
-                "disparate_impact_difference": null,
-                "disparate_impact_ratio": 0.7578947368421052
+                ]
               },
               "equal_opportunity_difference": {
+                "equal_opportunity_difference": 0.3446969696969697,
                 "privileged_sensitive_group": [
                   "Asian",
                   "Male"
@@ -15344,12 +14797,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "equal_opportunity_difference": 0.3446969696969697,
-                "equal_opportunity_ratio": null,
-                "label": "equal_opportunity_difference"
+                ]
               },
               "equal_opportunity_ratio": {
+                "equal_opportunity_ratio": 0.64453125,
                 "privileged_sensitive_group": [
                   "Asian",
                   "Male"
@@ -15357,12 +14808,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "equal_opportunity_difference": null,
-                "equal_opportunity_ratio": 0.64453125,
-                "label": "equal_opportunity_ratio"
+                ]
               },
               "equalised_odds_difference": {
+                "equalised_odds_difference": 0.3446969696969697,
                 "privileged_sensitive_group": [
                   "Asian",
                   "Male"
@@ -15370,11 +14819,10 @@
                 "unprivileged_sensitive_group": [
                   "Other",
                   "Female"
-                ],
-                "equalised_odds_difference": 0.3446969696969697,
-                "equalised_odds_ratio": null
+                ]
               },
               "equalised_odds_ratio": {
+                "equalised_odds_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "Hispanic",
                   "Female"
@@ -15382,11 +14830,10 @@
                 "unprivileged_sensitive_group": [
                   "White",
                   "Female"
-                ],
-                "equalised_odds_difference": null,
-                "equalised_odds_ratio": 0.0
+                ]
               },
               "false_positive_rate_difference": {
+                "false_positive_rate_difference": 0.2727272727272727,
                 "privileged_sensitive_group": [
                   "Other",
                   "Female"
@@ -15394,12 +14841,10 @@
                 "unprivileged_sensitive_group": [
                   "Hispanic",
                   "Female"
-                ],
-                "false_positive_rate_difference": 0.2727272727272727,
-                "false_positive_rate_ratio": null,
-                "label": "false_positive_rate_difference"
+                ]
               },
               "false_positive_rate_ratio": {
+                "false_positive_rate_ratio": 0.0,
                 "privileged_sensitive_group": [
                   "White",
                   "Female"
@@ -15407,10 +14852,7 @@
                 "unprivileged_sensitive_group": [
                   "Hispanic",
                   "Female"
-                ],
-                "false_positive_rate_difference": null,
-                "false_positive_rate_ratio": 0.0,
-                "label": "false_positive_rate_ratio"
+                ]
               }
             }
           }

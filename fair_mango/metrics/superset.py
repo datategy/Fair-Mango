@@ -20,11 +20,16 @@ from fair_mango.metrics.metrics import (
 )
 from fair_mango.metrics.constants import DEFAULT_BIAS_THRESHOLDS
 from fair_mango.typing import (
-    DemographicParitySummaryResult,
-    DisparateImpactSummaryResult,
-    EqualOpportunitySummaryResult,
-    EqualisedOddsSummaryResult,
-    FalsePositiveRateSummaryResult,
+    DemographicParityDifferenceSummaryResult,
+    DemographicParityRatioSummaryResult,
+    DisparateImpactDifferenceSummaryResult,
+    DisparateImpactRatioSummaryResult,
+    EqualOpportunityDifferenceSummaryResult,
+    EqualOpportunityRatioSummaryResult,
+    EqualisedOddsDifferenceSummaryResult,
+    EqualisedOddsRatioSummaryResult,
+    FalsePositiveRateDifferenceSummaryResult,
+    FalsePositiveRateRatioSummaryResult,
     SupersetBiasResult,
     SupersetFairnessRankingResult,
     SupersetFairnessSummaryResult,
@@ -238,11 +243,16 @@ class SupersetFairnessMetrics(Superset):
 
             summaries: dict[
                 str,
-                DemographicParitySummaryResult
-                | DisparateImpactSummaryResult
-                | EqualOpportunitySummaryResult
-                | EqualisedOddsSummaryResult
-                | FalsePositiveRateSummaryResult,
+                DemographicParityDifferenceSummaryResult
+                | DemographicParityRatioSummaryResult
+                | DisparateImpactDifferenceSummaryResult
+                | DisparateImpactRatioSummaryResult
+                | EqualOpportunityDifferenceSummaryResult
+                | EqualOpportunityRatioSummaryResult
+                | EqualisedOddsDifferenceSummaryResult
+                | EqualisedOddsRatioSummaryResult
+                | FalsePositiveRateDifferenceSummaryResult
+                | FalsePositiveRateRatioSummaryResult,
             ] = {}
 
             for metric_name, metric_class in self._dataset_metrics.items():
