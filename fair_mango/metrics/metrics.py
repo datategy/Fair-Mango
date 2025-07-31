@@ -710,7 +710,7 @@ class PerformanceMetric(Metric):
 
 class DemographicParityDifference(
     FairnessMetricDifference[
-        Literal["demographic_parity_difference", "demographic_parity_ratio"]
+        Literal["demographic_parity_difference"]
     ]
 ):
     """Calculate Demographic Parity Fairness Metric using "difference" to
@@ -775,8 +775,8 @@ class DemographicParityDifference(
         self,
         data: Dataset,
         label: Literal[
-            "demographic_parity_difference", "demographic_parity_ratio"
-        ] = "demographic_parity_difference",
+            "demographic_parity_difference"
+        ],
     ) -> None:
         super().__init__(
             data,
@@ -824,7 +824,7 @@ class DemographicParityDifference(
 
 class DisparateImpactDifference(
     FairnessMetricDifference[
-        Literal["disparate_impact_difference", "disparate_impact_ratio"]
+        Literal["disparate_impact_difference"]
     ]
 ):
     """Calculate Disparate Impact Fairness Metric using "difference" to
@@ -889,8 +889,8 @@ class DisparateImpactDifference(
         self,
         data: Dataset,
         label: Literal[
-            "disparate_impact_difference", "disparate_impact_ratio"
-        ] = "disparate_impact_difference",
+            "disparate_impact_difference"
+        ],
     ) -> None:
         super().__init__(
             data,
@@ -937,7 +937,7 @@ class DisparateImpactDifference(
 
 class EqualOpportunityDifference(
     FairnessMetricDifference[
-        Literal["equal_opportunity_difference", "equal_opportunity_ratio"]
+        Literal["equal_opportunity_difference"]
     ]
 ):
     """Calculate Equal Opportunity Fairness Metric using "difference" to
@@ -1002,8 +1002,8 @@ class EqualOpportunityDifference(
         self,
         data: Dataset,
         label: Literal[
-            "equal_opportunity_difference", "equal_opportunity_ratio"
-        ] = "equal_opportunity_difference",
+            "equal_opportunity_difference"
+        ],
     ) -> None:
         super().__init__(
             data,
@@ -1050,7 +1050,7 @@ class EqualOpportunityDifference(
 
 class FalsePositiveRateDifference(
     FairnessMetricDifference[
-        Literal["false_positive_rate_difference", "false_positive_rate_ratio"]
+        Literal["false_positive_rate_difference"]
     ]
 ):
     """Calculate False Positive Rate Parity Fairness Metric using "difference"
@@ -1117,8 +1117,8 @@ class FalsePositiveRateDifference(
         self,
         data: Dataset,
         label: Literal[
-            "false_positive_rate_difference", "false_positive_rate_ratio"
-        ] = "false_positive_rate_difference",
+            "false_positive_rate_difference"
+        ],
     ) -> None:
         super().__init__(
             data,
@@ -1165,7 +1165,7 @@ class FalsePositiveRateDifference(
 
 class DemographicParityRatio(
     FairnessMetricRatio[
-        Literal["demographic_parity_difference", "demographic_parity_ratio"]
+        Literal["demographic_parity_ratio"]
     ]
 ):
     """Calculate Demographic Parity Fairness Metric using "ratio" to calculate
@@ -1227,8 +1227,8 @@ class DemographicParityRatio(
         self,
         data: Dataset,
         label: Literal[
-            "demographic_parity_difference", "demographic_parity_ratio"
-        ] = "demographic_parity_ratio",
+            "demographic_parity_ratio"
+        ],
     ) -> None:
         super().__init__(
             data,
@@ -1275,7 +1275,7 @@ class DemographicParityRatio(
 
 class DisparateImpactRatio(
     FairnessMetricRatio[
-        Literal["disparate_impact_difference", "disparate_impact_ratio"]
+        Literal["disparate_impact_ratio"]
     ]
 ):
     """Calculate Disparate Impact Fairness Metric using "ratio" to calculate
@@ -1337,8 +1337,8 @@ class DisparateImpactRatio(
         self,
         data: Dataset,
         label: Literal[
-            "disparate_impact_difference", "disparate_impact_ratio"
-        ] = "disparate_impact_ratio",
+            "disparate_impact_ratio"
+        ],
     ) -> None:
         super().__init__(
             data,
@@ -1384,7 +1384,7 @@ class DisparateImpactRatio(
 
 class EqualOpportunityRatio(
     FairnessMetricRatio[
-        Literal["equal_opportunity_difference", "equal_opportunity_ratio"]
+        Literal["equal_opportunity_ratio"]
     ]
 ):
     """Calculate Equal Opportunity Fairness Metric using "ratio" to calculate
@@ -1449,8 +1449,8 @@ class EqualOpportunityRatio(
         self,
         data: Dataset,
         label: Literal[
-            "equal_opportunity_difference", "equal_opportunity_ratio"
-        ] = "equal_opportunity_ratio",
+            "equal_opportunity_ratio"
+        ],
     ) -> None:
         super().__init__(
             data,
@@ -1496,7 +1496,7 @@ class EqualOpportunityRatio(
 
 class FalsePositiveRateRatio(
     FairnessMetricRatio[
-        Literal["false_positive_rate_difference", "false_positive_rate_ratio"]
+        Literal["false_positive_rate_ratio"]
     ]
 ):
     """Calculate False Positive Rate Parity Fairness Metric using "ratio" to
@@ -1562,8 +1562,8 @@ class FalsePositiveRateRatio(
         self,
         data: Dataset,
         label: Literal[
-            "false_positive_rate_difference", "false_positive_rate_ratio"
-        ] = "false_positive_rate_ratio",
+            "false_positive_rate_ratio"
+        ],
     ) -> None:
         super().__init__(
             data,
@@ -1691,8 +1691,8 @@ class EqualisedOddsDifference:
         tuple[list[dict], list[dict]]
             A tuple with two lists of DisparityResult dictionaries.
         """
-        tpr = EqualOpportunityDifference(self.data)
-        fpr = FalsePositiveRateDifference(self.data)
+        tpr = EqualOpportunityDifference(self.data, "equal_opportunity_difference")
+        fpr = FalsePositiveRateDifference(self.data, "false_positive_rate_difference")
         tpr.summary()
         fpr.summary()
         tpr_diff = tpr.results
@@ -1917,8 +1917,8 @@ class EqualisedOddsRatio:
         tuple[list[dict], list[dict]]
             A tuple with two lists of DisparityResult dictionaries.
         """
-        tpr = EqualOpportunityRatio(self.data)
-        fpr = FalsePositiveRateRatio(self.data)
+        tpr = EqualOpportunityRatio(self.data, "equal_opportunity_ratio")
+        fpr = FalsePositiveRateRatio(self.data, "false_positive_rate_ratio")
         tpr.summary()
         fpr.summary()
         tpr_ratio = tpr.results
