@@ -1,5 +1,6 @@
 from collections.abc import Callable, Sequence
 from typing import Any, Literal
+from fair_mango.typing import ConfusionMatrixResult
 
 import numpy as np
 from sklearn.metrics import (
@@ -34,6 +35,7 @@ from fair_mango.typing import (
     RankResult,
     SelectionRateResult,
     SensitiveGroupT,
+    SensitiveGroupOptionalT,
 )
 
 
@@ -433,7 +435,6 @@ class ConfusionMatrix(Metric):
             ]
         )
         """
-        from fair_mango.typing import ConfusionMatrixResult
 
         result = []
         for real_group, predicted_group in zip(
@@ -462,7 +463,6 @@ class ConfusionMatrix(Metric):
                 ConfusionMatrixResult(
                     sensitive_group=group_sensitive,
                     data=metrics_dict,
-                    metrics=metrics_dict,
                 )
             )
 
@@ -703,7 +703,7 @@ class PerformanceMetric(Metric):
                 ]
 
             result_for_group = PerformanceMetricResult(
-                sensitive_group=group_sensitive, data=metrics_dict, metrics=metrics_dict
+                sensitive_group=group_sensitive, data=metrics_dict
             )
             result.append(result_for_group)
 
@@ -774,7 +774,7 @@ class DemographicParityDifference(
     def __init__(
         self,
         data: Dataset,
-        label: Literal["demographic_parity_difference"],
+        label: Literal["demographic_parity_difference"] = "demographic_parity_difference",
     ) -> None:
         super().__init__(
             data,
@@ -796,8 +796,8 @@ class DemographicParityDifference(
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: SensitiveGroupT
-        unprivileged_sensitive_group: SensitiveGroupT
+        privileged_sensitive_group: SensitiveGroupOptionalT = None
+        unprivileged_sensitive_group: SensitiveGroupOptionalT = None
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -815,7 +815,7 @@ class DemographicParityDifference(
             privileged_sensitive_group=privileged_sensitive_group,
             unprivileged_sensitive_group=unprivileged_sensitive_group,
             demographic_parity_difference=max_disparity,
-            demographic_parity_ratio=0.0,
+            demographic_parity_ratio=None,
             label=self.label,
         )
 
@@ -884,7 +884,7 @@ class DisparateImpactDifference(
     def __init__(
         self,
         data: Dataset,
-        label: Literal["disparate_impact_difference"],
+        label: Literal["disparate_impact_difference"] = "disparate_impact_difference",
     ) -> None:
         super().__init__(
             data,
@@ -906,8 +906,8 @@ class DisparateImpactDifference(
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: SensitiveGroupT
-        unprivileged_sensitive_group: SensitiveGroupT
+        privileged_sensitive_group: SensitiveGroupOptionalT = None
+        unprivileged_sensitive_group: SensitiveGroupOptionalT = None
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -923,6 +923,7 @@ class DisparateImpactDifference(
 
         return DisparateImpactSummaryResult(
             disparate_impact_difference=max_disparity,
+            disparate_impact_ratio=None,
             privileged_sensitive_group=privileged_sensitive_group,
             unprivileged_sensitive_group=unprivileged_sensitive_group,
             label=self.label,
@@ -993,7 +994,7 @@ class EqualOpportunityDifference(
     def __init__(
         self,
         data: Dataset,
-        label: Literal["equal_opportunity_difference"],
+        label: Literal["equal_opportunity_difference"] = "equal_opportunity_difference",
     ) -> None:
         super().__init__(
             data,
@@ -1015,8 +1016,8 @@ class EqualOpportunityDifference(
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: SensitiveGroupT
-        unprivileged_sensitive_group: SensitiveGroupT
+        privileged_sensitive_group: SensitiveGroupOptionalT = None
+        unprivileged_sensitive_group: SensitiveGroupOptionalT = None
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -1032,6 +1033,7 @@ class EqualOpportunityDifference(
 
         return EqualOpportunitySummaryResult(
             equal_opportunity_difference=max_disparity,
+            equal_opportunity_ratio=None,
             privileged_sensitive_group=privileged_sensitive_group,
             unprivileged_sensitive_group=unprivileged_sensitive_group,
             label=self.label,
@@ -1104,7 +1106,7 @@ class FalsePositiveRateDifference(
     def __init__(
         self,
         data: Dataset,
-        label: Literal["false_positive_rate_difference"],
+        label: Literal["false_positive_rate_difference"] = "false_positive_rate_difference",
     ) -> None:
         super().__init__(
             data,
@@ -1126,8 +1128,8 @@ class FalsePositiveRateDifference(
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: SensitiveGroupT
-        unprivileged_sensitive_group: SensitiveGroupT
+        privileged_sensitive_group: SensitiveGroupOptionalT = None
+        unprivileged_sensitive_group: SensitiveGroupOptionalT = None
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -1143,6 +1145,7 @@ class FalsePositiveRateDifference(
 
         return FalsePositiveRateSummaryResult(
             false_positive_rate_difference=max_disparity,
+            false_positive_rate_ratio=None,
             privileged_sensitive_group=privileged_sensitive_group,
             unprivileged_sensitive_group=unprivileged_sensitive_group,
             label=self.label,
@@ -1208,7 +1211,7 @@ class DemographicParityRatio(FairnessMetricRatio[Literal["demographic_parity_rat
     def __init__(
         self,
         data: Dataset,
-        label: Literal["demographic_parity_ratio"],
+        label: Literal["demographic_parity_ratio"] = "demographic_parity_ratio",
     ) -> None:
         super().__init__(
             data,
@@ -1228,7 +1231,7 @@ class DemographicParityRatio(FairnessMetricRatio[Literal["demographic_parity_rat
         return DemographicParitySummaryResult(
             privileged_sensitive_group=base_summary.privileged_sensitive_group,
             unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
-            demographic_parity_difference=0.0,
+            demographic_parity_difference=None,
             demographic_parity_ratio=base_summary.ratio,
             label=self.label,
         )
@@ -1293,7 +1296,7 @@ class DisparateImpactRatio(FairnessMetricRatio[Literal["disparate_impact_ratio"]
     def __init__(
         self,
         data: Dataset,
-        label: Literal["disparate_impact_ratio"],
+        label: Literal["disparate_impact_ratio"] = "disparate_impact_ratio",
     ) -> None:
         super().__init__(
             data,
@@ -1311,6 +1314,7 @@ class DisparateImpactRatio(FairnessMetricRatio[Literal["disparate_impact_ratio"]
         assert isinstance(base_summary, FairnessRatioSummaryResult)
 
         return DisparateImpactSummaryResult(
+            disparate_impact_difference=None,
             disparate_impact_ratio=base_summary.ratio,
             privileged_sensitive_group=base_summary.privileged_sensitive_group,
             unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
@@ -1380,7 +1384,7 @@ class EqualOpportunityRatio(FairnessMetricRatio[Literal["equal_opportunity_ratio
     def __init__(
         self,
         data: Dataset,
-        label: Literal["equal_opportunity_ratio"],
+        label: Literal["equal_opportunity_ratio"] = "equal_opportunity_ratio",
     ) -> None:
         super().__init__(
             data,
@@ -1398,6 +1402,7 @@ class EqualOpportunityRatio(FairnessMetricRatio[Literal["equal_opportunity_ratio
         assert isinstance(base_summary, FairnessRatioSummaryResult)
 
         return EqualOpportunitySummaryResult(
+            equal_opportunity_difference=None,
             equal_opportunity_ratio=base_summary.ratio,
             privileged_sensitive_group=base_summary.privileged_sensitive_group,
             unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
@@ -1468,7 +1473,7 @@ class FalsePositiveRateRatio(FairnessMetricRatio[Literal["false_positive_rate_ra
     def __init__(
         self,
         data: Dataset,
-        label: Literal["false_positive_rate_ratio"],
+        label: Literal["false_positive_rate_ratio"] = "false_positive_rate_ratio",
     ) -> None:
         super().__init__(
             data,
@@ -1486,6 +1491,7 @@ class FalsePositiveRateRatio(FairnessMetricRatio[Literal["false_positive_rate_ra
         assert isinstance(base_summary, FairnessRatioSummaryResult)
 
         return FalsePositiveRateSummaryResult(
+            false_positive_rate_difference=None,
             false_positive_rate_ratio=base_summary.ratio,
             privileged_sensitive_group=base_summary.privileged_sensitive_group,
             unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
@@ -1631,6 +1637,7 @@ class EqualisedOddsDifference:
 
         return EqualisedOddsSummaryResult(
             equalised_odds_difference=self.result[target][self.label],
+            equalised_odds_ratio=None,
             privileged_sensitive_group=self.result[target]["privileged"],
             unprivileged_sensitive_group=self.result[target]["unprivileged"],
         )
@@ -1866,6 +1873,7 @@ class EqualisedOddsRatio:
                     self.result[target]["unprivileged"] = fpr_result["group_2"]
 
         return EqualisedOddsSummaryResult(
+            equalised_odds_difference=None,
             equalised_odds_ratio=self.result[target][self.label],
             privileged_sensitive_group=self.result[target]["privileged"],
             unprivileged_sensitive_group=self.result[target]["unprivileged"],

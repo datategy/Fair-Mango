@@ -1,0 +1,75 @@
+{
+  "fairness_metrics": {
+    "demographic_parity_difference": {
+      "description": "Difference in positive prediction rates between groups",
+      "formula": "P(\u0176=1|A=a) - P(\u0176=1|A=b)",
+      "interpretation": {
+        "range": "[-1, 1]",
+        "fair_value": "0",
+        "positive_values": "Group a has higher positive prediction rate",
+        "negative_values": "Group b has higher positive prediction rate"
+      },
+      "use_case": "Ensures equal treatment regardless of sensitive attribute"
+    },
+    "demographic_parity_ratio": {
+      "description": "Ratio of positive prediction rates between groups",
+      "formula": "P(\u0176=1|A=a) / P(\u0176=1|A=b)",
+      "interpretation": {
+        "range": "[0, \u221e]",
+        "fair_value": "1",
+        "values_gt_1": "Group a has higher positive prediction rate",
+        "values_lt_1": "Group b has higher positive prediction rate"
+      }
+    },
+    "equal_opportunity_difference": {
+      "description": "Difference in true positive rates between groups",
+      "formula": "P(\u0176=1|Y=1,A=a) - P(\u0176=1|Y=1,A=b)",
+      "interpretation": {
+        "range": "[-1, 1]",
+        "fair_value": "0",
+        "meaning": "Equal opportunity for positive outcomes"
+      }
+    },
+    "equalised_odds_difference": {
+      "description": "Difference in both TPR and FPR between groups",
+      "interpretation": {
+        "meaning": "Equal accuracy across groups",
+        "fair_value": "0 for both TPR and FPR differences"
+      }
+    },
+    "disparate_impact_ratio": {
+      "description": "Ratio of positive outcomes in actual labels",
+      "formula": "P(Y=1|A=a) / P(Y=1|A=b)",
+      "interpretation": {
+        "legal_threshold": "0.8 (80% rule)",
+        "fair_value": "1"
+      }
+    }
+  },
+  "performance_metrics": {
+    "accuracy": {
+      "description": "Proportion of correct predictions",
+      "formula": "(TP + TN) / (TP + TN + FP + FN)",
+      "range": "[0, 1]",
+      "best_value": "1"
+    },
+    "precision": {
+      "description": "Proportion of positive predictions that are correct",
+      "formula": "TP / (TP + FP)",
+      "range": "[0, 1]",
+      "best_value": "1"
+    },
+    "recall": {
+      "description": "Proportion of actual positives correctly identified",
+      "formula": "TP / (TP + FN)",
+      "range": "[0, 1]",
+      "best_value": "1"
+    },
+    "f1_score": {
+      "description": "Harmonic mean of precision and recall",
+      "formula": "2 * (precision * recall) / (precision + recall)",
+      "range": "[0, 1]",
+      "best_value": "1"
+    }
+  }
+}
