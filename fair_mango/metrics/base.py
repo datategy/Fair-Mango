@@ -19,6 +19,7 @@ from fair_mango.typing import (
     RankResult,
     SensitiveGroupT,
     SensitiveGroupTupleT,
+    SensitiveGroupOptionalT,
 )
 
 LabelT = TypeVar("LabelT", bound=str)
@@ -409,8 +410,8 @@ class FairnessMetricDifference(ABC, Generic[LabelT]):
             self.results = self._compute()
 
         max_disparity = 0.0
-        privileged_sensitive_group: SensitiveGroupT
-        unprivileged_sensitive_group: SensitiveGroupT
+        privileged_sensitive_group: SensitiveGroupOptionalT = None
+        unprivileged_sensitive_group: SensitiveGroupOptionalT = None
 
         for disparity_result in self.results:
             abs_disparity = abs(disparity_result["disparity"])
@@ -619,8 +620,8 @@ class FairnessMetricRatio(ABC, Generic[LabelT]):
             self.results = self._compute()
 
         min_ratio = 1.0
-        privileged_sensitive_group: SensitiveGroupT
-        unprivileged_sensitive_group: SensitiveGroupT
+        privileged_sensitive_group: SensitiveGroupOptionalT = None
+        unprivileged_sensitive_group: SensitiveGroupOptionalT = None
 
         for disparity_result in self.results:
             ratio_value = disparity_result["disparity"]

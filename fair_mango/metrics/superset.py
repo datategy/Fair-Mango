@@ -510,7 +510,7 @@ class SupersetPerformanceMetrics(Superset):
 
     def _merge_metric_results(self, concatenated_result, res):
         """Merge individual metric results into concatenated results."""
-        if hasattr(res, "metrics"):
+        if hasattr(res, "data") and isinstance(res.data, dict):
             self._merge_metrics_dict(concatenated_result, res)
         elif hasattr(res, "selection_rate_in_predictions"):
             concatenated_result.selection_rate_in_predictions = (
@@ -521,7 +521,7 @@ class SupersetPerformanceMetrics(Superset):
 
     def _merge_metrics_dict(self, concatenated_result, res):
         """Merge metrics dictionary into concatenated result."""
-        for key, value in res.metrics.items():
+        for key, value in res.data.items():
             setattr(concatenated_result, key, value)
 
     def _merge_other_attributes(self, concatenated_result, res):
