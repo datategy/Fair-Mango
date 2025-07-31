@@ -8,16 +8,21 @@ import pandas as pd
 
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.typing import (
-    DemographicParitySummaryResult,
-    DisparateImpactSummaryResult,
+    DemographicParityDifferenceSummaryResult,
+    DemographicParityRatioSummaryResult,
+    DisparateImpactDifferenceSummaryResult,
+    DisparateImpactRatioSummaryResult,
     DisparityResultDict,
-    EqualOpportunitySummaryResult,
-    FalsePositiveRateSummaryResult,
+    EqualOpportunityDifferenceSummaryResult,
+    EqualOpportunityRatioSummaryResult,
+    EqualisedOddsDifferenceSummaryResult,
+    EqualisedOddsRatioSummaryResult,
+    FalsePositiveRateDifferenceSummaryResult,
+    FalsePositiveRateRatioSummaryResult,
     FairnessRatioSummaryResult,
     FairnessSummaryResult,
     BaseMetricResult,
     RankResult,
-    SensitiveGroupT,
     SensitiveGroupTupleT,
     SensitiveGroupOptionalT,
 )
@@ -385,10 +390,11 @@ class FairnessMetricDifference(ABC, Generic[LabelT]):
         self,
     ) -> (
         FairnessSummaryResult
-        | DemographicParitySummaryResult
-        | DisparateImpactSummaryResult
-        | EqualOpportunitySummaryResult
-        | FalsePositiveRateSummaryResult
+        | DemographicParityDifferenceSummaryResult
+        | DisparateImpactDifferenceSummaryResult
+        | EqualOpportunityDifferenceSummaryResult
+        | FalsePositiveRateDifferenceSummaryResult
+        | EqualisedOddsDifferenceSummaryResult
     ):
         """Return the fairness metric value, in other words the biggest
         disparity found with specifying the privileged and discriminated
@@ -594,10 +600,11 @@ class FairnessMetricRatio(ABC, Generic[LabelT]):
         self,
     ) -> (
         FairnessRatioSummaryResult
-        | DemographicParitySummaryResult
-        | DisparateImpactSummaryResult
-        | EqualOpportunitySummaryResult
-        | FalsePositiveRateSummaryResult
+        | DemographicParityRatioSummaryResult
+        | DisparateImpactRatioSummaryResult
+        | EqualOpportunityRatioSummaryResult
+        | FalsePositiveRateRatioSummaryResult
+        | EqualisedOddsRatioSummaryResult
     ):
         """Return the fairness metric value, in other words the biggest
             disparity found with specifying the privileged and discriminated

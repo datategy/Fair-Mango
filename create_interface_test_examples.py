@@ -58,9 +58,6 @@ def _clean_infinite_values(obj: Any) -> Any:
         return obj
 
 
-
-
-
 def create_interface_test_scenarios() -> list[dict[str, Any]]:
     """
     Create comprehensive test scenarios for the interface.
@@ -284,7 +281,11 @@ def create_single_scenario(
                 for result in performance_results:  # Include all combinations
                     clean_result = {"data_length": len(result.data)}
                     # Clean sensitive_group representation (removed key and values fields)
-                    clean_result["sensitive_group"] = list(result.sensitive_group) if isinstance(result.sensitive_group, (list, tuple)) else [str(result.sensitive_group)]
+                    clean_result["sensitive_group"] = (
+                        list(result.sensitive_group)
+                        if isinstance(result.sensitive_group, (list, tuple))
+                        else [str(result.sensitive_group)]
+                    )
 
                     clean_performance_results.append(clean_result)
 
