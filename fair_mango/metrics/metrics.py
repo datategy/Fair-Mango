@@ -29,6 +29,7 @@ from fair_mango.typing import (
     EqualOpportunitySummaryResult,
     EqualisedOddsSummaryResult,
     FalsePositiveRateSummaryResult,
+    MetricsDict,
     PerformanceMetricResult,
     RankResult,
     SelectionRateResult,
@@ -201,7 +202,10 @@ class SelectionRate(Metric):
             y_group = group.data
             result.append(
                 SelectionRateResult(
-                    sensitive_group=group_sensitive, data=float(y_group.mean())
+                    sensitive_group=group_sensitive, 
+                    data=float(y_group.mean()),
+                    selection_rate_in_data=float(y_group.mean()),
+                    selection_rate_in_predictions=float(y_group.mean())
                 )
             )
 
@@ -438,7 +442,7 @@ class ConfusionMatrix(Metric):
             group_sensitive = real_group.sensitive_group
             real_values = real_group.data
             predicted_values = predicted_group.data
-            metrics_dict: dict[str, list[float]] = {}
+            metrics_dict: MetricsDict = {}
 
             conf_matrix = confusion_matrix(real_values, predicted_values, labels=[0, 1])
             tn = conf_matrix[0, 0]
@@ -456,7 +460,7 @@ class ConfusionMatrix(Metric):
 
             result.append(
                 ConfusionMatrixResult(
-                    sensitive_group=group_sensitive, metrics=metrics_dict
+                    sensitive_group=group_sensitive, data=metrics_dict, metrics=metrics_dict
                 )
             )
 
@@ -697,7 +701,7 @@ class PerformanceMetric(Metric):
                 ]
 
             result_for_group = PerformanceMetricResult(
-                sensitive_group=group_sensitive, metrics=metrics_dict
+                sensitive_group=group_sensitive, data=metrics_dict, metrics=metrics_dict
             )
             result.append(result_for_group)
 
@@ -810,9 +814,10 @@ class DemographicParityDifference(
                     unprivileged_sensitive_group = disparity_result["group_1"]
 
         return DemographicParitySummaryResult(
-            demographic_parity_difference=max_disparity,
             privileged_sensitive_group=privileged_sensitive_group,
             unprivileged_sensitive_group=unprivileged_sensitive_group,
+            demographic_parity_difference=max_disparity,
+            demographic_parity_ratio=0.0,
             label=self.label,
         )
 
@@ -1260,9 +1265,10 @@ class DemographicParityRatio(
                 unprivileged_sensitive_group = temp_unprivileged
 
         return DemographicParitySummaryResult(
-            demographic_parity_ratio=min_ratio,
             privileged_sensitive_group=privileged_sensitive_group,
             unprivileged_sensitive_group=unprivileged_sensitive_group,
+            demographic_parity_difference=0.0,
+            demographic_parity_ratio=min_ratio,
             label=self.label,
         )
 

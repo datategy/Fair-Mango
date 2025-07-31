@@ -249,17 +249,31 @@ def calculate_disparity(
         grp_i = rec_i.sensitive_group
         grp_j = rec_j.sensitive_group
 
-        data_i = rec_i.data
-        data_j = rec_j.data
 
-        def _to_float(x: Any) -> float:
-            if isinstance(x, pd.Series):
-                return float(x.iloc[0] if len(x) == 1 else x.mean())
-            if isinstance(x, (list, np.ndarray)):
-                return float(x[0] if len(x) == 1 else np.mean(x))
-            return float(x)
+        def _to_float(result: BaseMetricResult) -> float:
+            """Convert BaseMetricResult to a single float value."""
+            data = result.data
+            
+            if data is None and hasattr(result, 'metrics') and result.metrics is not None:
+                data = result.metrics
+                
+            if data is None:
+                raise ValueError(f"No data available for result: {result}")
+                
+            if isinstance(data, dict):
+                if 'accuracy' in data:
+                    values = data['accuracy']
+                    return float(values[0] if isinstance(values, list) and len(values) == 1 else np.mean(values) if isinstance(values, list) else values)
+                else:
+                    first_key = next(iter(data))
+                    values = data[first_key]
+                    return float(values[0] if isinstance(values, list) and len(values) == 1 else np.mean(values) if isinstance(values, list) else values)
+            elif isinstance(data, (pd.Series, list, np.ndarray)):
+                return float(data[0] if len(data) == 1 else np.mean(data))
+            else:
+                return float(data)
 
-        a, b = _to_float(data_i), _to_float(data_j)
+        a, b = _to_float(rec_i), _to_float(rec_j)
         disp = a - b if method == "difference" else a / b if b != 0 else float("inf")
 
         disparities.append(
