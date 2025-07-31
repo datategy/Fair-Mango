@@ -1,3 +1,4 @@
+import logging
 from abc import ABC
 from itertools import chain, combinations
 
@@ -29,6 +30,19 @@ from fair_mango.typing import (
     SupersetFairnessSummaryResult,
     SupersetPerformanceMetricsResult,
 )
+
+# Configure logger
+logger = logging.getLogger(__name__)
+
+
+class MetricCalculationError(Exception):
+    """Raised when a metric calculation fails for a specific dataset pair."""
+    
+    def __init__(self, metric_name: str, pair: str, original_error: Exception):
+        self.metric_name = metric_name
+        self.pair = pair
+        self.original_error = original_error
+        super().__init__(f"Failed to calculate {metric_name} for {pair}: {original_error}")
 
 
 class Superset(ABC):
@@ -167,8 +181,10 @@ class SupersetFairnessMetrics(Superset):
                 try:
                     metric = metric_class(dataset)
                     rankings[metric_name] = metric.rank()
+                except MetricCalculationError:
+                    raise
                 except Exception as e:
-                    print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
+                    logger.warning("Could not calculate %s for %s: %s", metric_name, pair, e)
                     continue
 
             if self.predicted_target is not None:
@@ -176,10 +192,10 @@ class SupersetFairnessMetrics(Superset):
                     try:
                         metric = metric_class(dataset)
                         rankings[metric_name] = metric.rank()
+                    except MetricCalculationError:
+                        raise
                     except Exception as e:
-                        print(
-                            f"Warning: Could not calculate {metric_name} for {pair}: {e}"
-                        )
+                        logger.warning("Could not calculate %s for %s: %s", metric_name, pair, e)
                         continue
 
             results.append(
@@ -226,8 +242,10 @@ class SupersetFairnessMetrics(Superset):
                 try:
                     metric = metric_class(dataset)
                     summaries[metric_name] = metric.summary()
+                except MetricCalculationError:
+                    raise
                 except Exception as e:
-                    print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
+                    logger.warning("Could not calculate %s for %s: %s", metric_name, pair, e)
                     continue
 
             if self.predicted_target is not None:
@@ -235,10 +253,10 @@ class SupersetFairnessMetrics(Superset):
                     try:
                         metric = metric_class(dataset)
                         summaries[metric_name] = metric.summary()
+                    except MetricCalculationError:
+                        raise
                     except Exception as e:
-                        print(
-                            f"Warning: Could not calculate {metric_name} for {pair}: {e}"
-                        )
+                        logger.warning("Could not calculate %s for %s: %s", metric_name, pair, e)
                         continue
 
             results.append(
@@ -291,8 +309,10 @@ class SupersetFairnessMetrics(Superset):
                     metric = metric_class(dataset)
                     threshold = effective_thresholds[metric_name]
                     bias_results[metric_name] = metric.is_biased(threshold)
+                except MetricCalculationError:
+                    raise
                 except Exception as e:
-                    print(f"Warning: Could not calculate {metric_name} for {pair}: {e}")
+                    logger.warning("Could not calculate %s for %s: %s", metric_name, pair, e)
                     continue
 
             if self.predicted_target is not None:
@@ -301,10 +321,10 @@ class SupersetFairnessMetrics(Superset):
                         metric = metric_class(dataset)
                         threshold = effective_thresholds[metric_name]
                         bias_results[metric_name] = metric.is_biased(threshold)
+                    except MetricCalculationError:
+                        raise
                     except Exception as e:
-                        print(
-                            f"Warning: Could not calculate {metric_name} for {pair}: {e}"
-                        )
+                        logger.warning("Could not calculate %s for %s: %s", metric_name, pair, e)
                         continue
 
             results.append(

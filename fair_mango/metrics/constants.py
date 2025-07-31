@@ -1,6 +1,5 @@
 """Constants for fairness metrics."""
 
-# Default thresholds for bias detection
 DEFAULT_BIAS_THRESHOLDS = {
     "demographic_parity_difference": 0.1,
     "disparate_impact_difference": 0.1,
