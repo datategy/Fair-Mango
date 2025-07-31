@@ -6,6 +6,7 @@ import pandas as pd
 
 
 SensitiveGroupT: TypeAlias = list[str] | list[int] | list[bool] | list[str | int | bool] 
+SensitiveGroupOptionalT: TypeAlias = SensitiveGroupT | None
 
 SensitiveGroupTupleT: TypeAlias = tuple[str | int | bool, ...]
 
@@ -37,13 +38,6 @@ class DatasetGroupResult:
     data: pd.DataFrame
 
 
-@dataclass
-class MetricResult:
-    """Result of a metric for a single sensitive group."""
-
-    sensitive_group: SensitiveGroupT
-    result: float
-
 
 @dataclass
 class DisparityResult:
@@ -67,8 +61,8 @@ class FairnessSummaryResult:
     """Summary of a difference-based fairness metric."""
 
     disparity: float
-    privileged_sensitive_group: SensitiveGroupT
-    unprivileged_sensitive_group: SensitiveGroupT
+    privileged_sensitive_group: SensitiveGroupOptionalT
+    unprivileged_sensitive_group: SensitiveGroupOptionalT
 
 
 @dataclass
@@ -76,8 +70,8 @@ class FairnessRatioSummaryResult:
     """Summary of a ratio-based fairness metric."""
 
     ratio: float
-    privileged_sensitive_group: SensitiveGroupT
-    unprivileged_sensitive_group: SensitiveGroupT
+    privileged_sensitive_group: SensitiveGroupOptionalT
+    unprivileged_sensitive_group: SensitiveGroupOptionalT
 
 
 @dataclass
@@ -194,10 +188,10 @@ class FairnessRankingResult:
 class DemographicParitySummaryResult:
     """Summary result for Demographic Parity metrics."""
 
-    privileged_sensitive_group: SensitiveGroupT
-    unprivileged_sensitive_group: SensitiveGroupT
-    demographic_parity_difference: float
-    demographic_parity_ratio: float
+    privileged_sensitive_group: SensitiveGroupOptionalT
+    unprivileged_sensitive_group: SensitiveGroupOptionalT
+    demographic_parity_difference: float | None
+    demographic_parity_ratio: float | None
     label: Literal["demographic_parity_difference", "demographic_parity_ratio"] = (
         "demographic_parity_difference"
     )
@@ -207,8 +201,8 @@ class DemographicParitySummaryResult:
 class DisparateImpactSummaryResult:
     """Summary result for Disparate Impact metrics."""
 
-    privileged_sensitive_group: SensitiveGroupT
-    unprivileged_sensitive_group: SensitiveGroupT
+    privileged_sensitive_group: SensitiveGroupOptionalT
+    unprivileged_sensitive_group: SensitiveGroupOptionalT
     label: Literal["disparate_impact_difference", "disparate_impact_ratio"]
     disparate_impact_difference: float | None = None
     disparate_impact_ratio: float | None = None
@@ -218,8 +212,8 @@ class DisparateImpactSummaryResult:
 class EqualOpportunitySummaryResult:
     """Summary result for Equal Opportunity metrics."""
 
-    privileged_sensitive_group: SensitiveGroupT
-    unprivileged_sensitive_group: SensitiveGroupT
+    privileged_sensitive_group: SensitiveGroupOptionalT
+    unprivileged_sensitive_group: SensitiveGroupOptionalT
     equal_opportunity_difference: float | None = None
     equal_opportunity_ratio: float | None = None
     label: Literal["equal_opportunity_difference", "equal_opportunity_ratio"] = (
@@ -231,8 +225,8 @@ class EqualOpportunitySummaryResult:
 class FalsePositiveRateSummaryResult:
     """Summary result for False Positive Rate metrics."""
 
-    privileged_sensitive_group: SensitiveGroupT
-    unprivileged_sensitive_group: SensitiveGroupT
+    privileged_sensitive_group: SensitiveGroupOptionalT
+    unprivileged_sensitive_group: SensitiveGroupOptionalT
     false_positive_rate_difference: float | None = None
     false_positive_rate_ratio: float | None = None
     label: Literal["false_positive_rate_difference", "false_positive_rate_ratio"] = (

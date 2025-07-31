@@ -394,8 +394,8 @@ class Dataset:
 
         Returns
         -------
-        list[MetricResult]
-            List of MetricResult dictionaries with standardized structure.
+        list[DatasetTargetResult]
+            List of DatasetTargetResult dictionaries with standardized structure.
 
         Examples
         --------
@@ -576,8 +576,8 @@ class Dataset:
 
         Returns
         -------
-        list[MetricResult]
-            List of MetricResult dictionaries with standardized structure.
+        list[DatasetTargetResult]
+            List of DatasetTargetResult dictionaries with standardized structure.
 
         Examples
         --------
