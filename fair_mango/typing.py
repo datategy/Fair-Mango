@@ -6,7 +6,7 @@ import pandas as pd
 
 
 SensitiveGroupT: TypeAlias = list[str] | list[int] | list[bool] | list[str | int | bool]
-SensitiveGroupOptionalT: TypeAlias = SensitiveGroupT | None
+SensitiveGroupOptionalT: TypeAlias = SensitiveGroupT | None # when sensitive group identification is not possible (one group or all groups have identical scores).
 
 SensitiveGroupTupleT: TypeAlias = tuple[str | int | bool, ...]
 
@@ -326,12 +326,12 @@ class GroupData:
     ----------
     sensitive_group : list[str] | np.ndarray
         Labels identifying the sensitive group.
-    data : pd.Series | np.ndarray | list[float] | None
+    data : pd.Series | np.ndarray | list[float]
         Raw per-record metric values (present for some helpers).
-    result : float | pd.Series | np.ndarray | list[float] | None
+    result : float | pd.Series | np.ndarray | list[float]
         Pre-computed score for the group (present for others).
     """
 
     sensitive_group: list[str] | np.ndarray
-    data: pd.Series | np.ndarray | list[float] | None = None
-    result: float | pd.Series | np.ndarray | list[float] | None = None
+    data: pd.Series | np.ndarray | list[float]
+    result: float | pd.Series | np.ndarray | list[float]
