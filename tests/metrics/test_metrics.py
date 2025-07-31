@@ -346,7 +346,7 @@ dpd_expected_result_6 = [
 )
 def test_demographic_parity_difference(
     data: Dataset,
-    label: Literal["demographic_parity_difference", "demographic_parity_ratio"],
+    label: Literal["demographic_parity_difference"],
     threshold: float,
     expected_result: tuple[dict, list[dict], bool],
 ):
@@ -450,7 +450,7 @@ dpr_expected_result_6 = [
 )
 def test_demographic_parity_ratio(
     data: Dataset,
-    label: Literal["demographic_parity_difference", "demographic_parity_ratio"],
+    label: Literal["demographic_parity_ratio"],
     threshold: float,
     expected_result: Sequence[dict[str, dict]],
 ):
@@ -539,7 +539,7 @@ did_expected_result_6 = [
 )
 def test_disparate_impact_difference(
     data: Dataset,
-    label: Literal["disparate_impact_difference", "disparate_impact_ratio"],
+    label: Literal["disparate_impact_difference"],
     threshold: float,
     expected_result: Sequence[dict[str, dict]] | AbstractContextManager,
 ):
@@ -643,7 +643,7 @@ dir_expected_result_6 = [
 )
 def test_disparate_impact_ratio(
     data: Dataset,
-    label: Literal["disparate_impact_difference", "disparate_impact_ratio"],
+    label: Literal["disparate_impact_ratio"],
     threshold: float,
     expected_result: Sequence[dict[str, dict]] | AbstractContextManager,
 ):
@@ -737,7 +737,7 @@ eod_expected_result_6 = [
 )
 def test_equal_opportunity_difference(
     data: Dataset,
-    label: Literal["equal_opportunity_difference", "equal_opportunity_ratio"],
+    label: Literal["equal_opportunity_difference"],
     threshold: float,
     expected_result: tuple[dict, list[dict], bool],
 ):
@@ -831,7 +831,7 @@ eor_expected_result_6 = [
 )
 def test_equal_opportuinity_ratio(
     data: Dataset,
-    label: Literal["equal_opportunity_difference", "equal_opportunity_ratio"],
+    label: Literal["equal_opportunity_ratio"],
     threshold: float,
     expected_result: tuple[dict, list[dict], bool] | AbstractContextManager,
 ):
