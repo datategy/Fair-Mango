@@ -202,10 +202,10 @@ class SelectionRate(Metric):
             y_group = group.data
             result.append(
                 SelectionRateResult(
-                    sensitive_group=group_sensitive, 
+                    sensitive_group=group_sensitive,
                     data=float(y_group.mean()),
                     selection_rate_in_data=float(y_group.mean()),
-                    selection_rate_in_predictions=float(y_group.mean())
+                    selection_rate_in_predictions=float(y_group.mean()),
                 )
             )
 
@@ -460,7 +460,9 @@ class ConfusionMatrix(Metric):
 
             result.append(
                 ConfusionMatrixResult(
-                    sensitive_group=group_sensitive, data=metrics_dict, metrics=metrics_dict
+                    sensitive_group=group_sensitive,
+                    data=metrics_dict,
+                    metrics=metrics_dict,
                 )
             )
 
@@ -709,9 +711,7 @@ class PerformanceMetric(Metric):
 
 
 class DemographicParityDifference(
-    FairnessMetricDifference[
-        Literal["demographic_parity_difference"]
-    ]
+    FairnessMetricDifference[Literal["demographic_parity_difference"]]
 ):
     """Calculate Demographic Parity Fairness Metric using "difference" to
     calculate the disparity between the different sensitive groups present
@@ -774,9 +774,7 @@ class DemographicParityDifference(
     def __init__(
         self,
         data: Dataset,
-        label: Literal[
-            "demographic_parity_difference"
-        ],
+        label: Literal["demographic_parity_difference"],
     ) -> None:
         super().__init__(
             data,
@@ -823,9 +821,7 @@ class DemographicParityDifference(
 
 
 class DisparateImpactDifference(
-    FairnessMetricDifference[
-        Literal["disparate_impact_difference"]
-    ]
+    FairnessMetricDifference[Literal["disparate_impact_difference"]]
 ):
     """Calculate Disparate Impact Fairness Metric using "difference" to
     calculate the disparity between the different sensitive groups present
@@ -888,9 +884,7 @@ class DisparateImpactDifference(
     def __init__(
         self,
         data: Dataset,
-        label: Literal[
-            "disparate_impact_difference"
-        ],
+        label: Literal["disparate_impact_difference"],
     ) -> None:
         super().__init__(
             data,
@@ -936,9 +930,7 @@ class DisparateImpactDifference(
 
 
 class EqualOpportunityDifference(
-    FairnessMetricDifference[
-        Literal["equal_opportunity_difference"]
-    ]
+    FairnessMetricDifference[Literal["equal_opportunity_difference"]]
 ):
     """Calculate Equal Opportunity Fairness Metric using "difference" to
     calculate the disparity between the different sensitive groups present
@@ -1001,9 +993,7 @@ class EqualOpportunityDifference(
     def __init__(
         self,
         data: Dataset,
-        label: Literal[
-            "equal_opportunity_difference"
-        ],
+        label: Literal["equal_opportunity_difference"],
     ) -> None:
         super().__init__(
             data,
@@ -1049,9 +1039,7 @@ class EqualOpportunityDifference(
 
 
 class FalsePositiveRateDifference(
-    FairnessMetricDifference[
-        Literal["false_positive_rate_difference"]
-    ]
+    FairnessMetricDifference[Literal["false_positive_rate_difference"]]
 ):
     """Calculate False Positive Rate Parity Fairness Metric using "difference"
     to calculate the disparity between the different sensitive groups present
@@ -1116,9 +1104,7 @@ class FalsePositiveRateDifference(
     def __init__(
         self,
         data: Dataset,
-        label: Literal[
-            "false_positive_rate_difference"
-        ],
+        label: Literal["false_positive_rate_difference"],
     ) -> None:
         super().__init__(
             data,
@@ -1163,11 +1149,7 @@ class FalsePositiveRateDifference(
         )
 
 
-class DemographicParityRatio(
-    FairnessMetricRatio[
-        Literal["demographic_parity_ratio"]
-    ]
-):
+class DemographicParityRatio(FairnessMetricRatio[Literal["demographic_parity_ratio"]]):
     """Calculate Demographic Parity Fairness Metric using "ratio" to calculate
     the disparity between the different sensitive groups present in the
     sensitive feature.
@@ -1226,9 +1208,7 @@ class DemographicParityRatio(
     def __init__(
         self,
         data: Dataset,
-        label: Literal[
-            "demographic_parity_ratio"
-        ],
+        label: Literal["demographic_parity_ratio"],
     ) -> None:
         super().__init__(
             data,
@@ -1241,9 +1221,10 @@ class DemographicParityRatio(
     def summary(self) -> DemographicParitySummaryResult:
         """Calculate the minimum ratio disparity and return summary."""
         from fair_mango.typing import FairnessRatioSummaryResult
+
         base_summary = super().summary()
         assert isinstance(base_summary, FairnessRatioSummaryResult)
-        
+
         return DemographicParitySummaryResult(
             privileged_sensitive_group=base_summary.privileged_sensitive_group,
             unprivileged_sensitive_group=base_summary.unprivileged_sensitive_group,
@@ -1253,11 +1234,7 @@ class DemographicParityRatio(
         )
 
 
-class DisparateImpactRatio(
-    FairnessMetricRatio[
-        Literal["disparate_impact_ratio"]
-    ]
-):
+class DisparateImpactRatio(FairnessMetricRatio[Literal["disparate_impact_ratio"]]):
     """Calculate Disparate Impact Fairness Metric using "ratio" to calculate
     the disparity between the different sensitive groups present in the
     sensitive feature.
@@ -1316,9 +1293,7 @@ class DisparateImpactRatio(
     def __init__(
         self,
         data: Dataset,
-        label: Literal[
-            "disparate_impact_ratio"
-        ],
+        label: Literal["disparate_impact_ratio"],
     ) -> None:
         super().__init__(
             data,
@@ -1331,9 +1306,10 @@ class DisparateImpactRatio(
     def summary(self) -> DisparateImpactSummaryResult:
         """Calculate the minimum ratio disparity and return summary."""
         from fair_mango.typing import FairnessRatioSummaryResult
+
         base_summary = super().summary()
         assert isinstance(base_summary, FairnessRatioSummaryResult)
-        
+
         return DisparateImpactSummaryResult(
             disparate_impact_ratio=base_summary.ratio,
             privileged_sensitive_group=base_summary.privileged_sensitive_group,
@@ -1342,11 +1318,7 @@ class DisparateImpactRatio(
         )
 
 
-class EqualOpportunityRatio(
-    FairnessMetricRatio[
-        Literal["equal_opportunity_ratio"]
-    ]
-):
+class EqualOpportunityRatio(FairnessMetricRatio[Literal["equal_opportunity_ratio"]]):
     """Calculate Equal Opportunity Fairness Metric using "ratio" to calculate
     the disparity between the different sensitive groups present in the
     sensitive feature.
@@ -1408,9 +1380,7 @@ class EqualOpportunityRatio(
     def __init__(
         self,
         data: Dataset,
-        label: Literal[
-            "equal_opportunity_ratio"
-        ],
+        label: Literal["equal_opportunity_ratio"],
     ) -> None:
         super().__init__(
             data,
@@ -1423,9 +1393,10 @@ class EqualOpportunityRatio(
     def summary(self) -> EqualOpportunitySummaryResult:
         """Calculate the minimum ratio disparity and return summary."""
         from fair_mango.typing import FairnessRatioSummaryResult
+
         base_summary = super().summary()
         assert isinstance(base_summary, FairnessRatioSummaryResult)
-        
+
         return EqualOpportunitySummaryResult(
             equal_opportunity_ratio=base_summary.ratio,
             privileged_sensitive_group=base_summary.privileged_sensitive_group,
@@ -1434,11 +1405,7 @@ class EqualOpportunityRatio(
         )
 
 
-class FalsePositiveRateRatio(
-    FairnessMetricRatio[
-        Literal["false_positive_rate_ratio"]
-    ]
-):
+class FalsePositiveRateRatio(FairnessMetricRatio[Literal["false_positive_rate_ratio"]]):
     """Calculate False Positive Rate Parity Fairness Metric using "ratio" to
     calculate the disparity between the different sensitive groups present
     in the sensitive feature.
@@ -1501,9 +1468,7 @@ class FalsePositiveRateRatio(
     def __init__(
         self,
         data: Dataset,
-        label: Literal[
-            "false_positive_rate_ratio"
-        ],
+        label: Literal["false_positive_rate_ratio"],
     ) -> None:
         super().__init__(
             data,
@@ -1516,9 +1481,10 @@ class FalsePositiveRateRatio(
     def summary(self) -> FalsePositiveRateSummaryResult:
         """Calculate the minimum ratio disparity and return summary."""
         from fair_mango.typing import FairnessRatioSummaryResult
+
         base_summary = super().summary()
         assert isinstance(base_summary, FairnessRatioSummaryResult)
-        
+
         return FalsePositiveRateSummaryResult(
             false_positive_rate_ratio=base_summary.ratio,
             privileged_sensitive_group=base_summary.privileged_sensitive_group,

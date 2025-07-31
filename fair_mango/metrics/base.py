@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections.abc import Hashable
 from itertools import combinations
-from typing import Any, Generic, Literal, TypeVar
+from typing import Generic, Literal, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -249,25 +249,40 @@ def calculate_disparity(
         grp_i = rec_i.sensitive_group
         grp_j = rec_j.sensitive_group
 
-
         def _to_float(result: BaseMetricResult) -> float:
             """Convert BaseMetricResult to a single float value."""
             data = result.data
-            
-            if data is None and hasattr(result, 'metrics') and result.metrics is not None:
+
+            if (
+                data is None
+                and hasattr(result, "metrics")
+                and result.metrics is not None
+            ):
                 data = result.metrics
-                
+
             if data is None:
                 raise ValueError(f"No data available for result: {result}")
-                
+
             if isinstance(data, dict):
-                if 'accuracy' in data:
-                    values = data['accuracy']
-                    return float(values[0] if isinstance(values, list) and len(values) == 1 else np.mean(values) if isinstance(values, list) else values)
+                if "accuracy" in data:
+                    values = data["accuracy"]
+                    return float(
+                        values[0]
+                        if isinstance(values, list) and len(values) == 1
+                        else np.mean(values)
+                        if isinstance(values, list)
+                        else values
+                    )
                 else:
                     first_key = next(iter(data))
                     values = data[first_key]
-                    return float(values[0] if isinstance(values, list) and len(values) == 1 else np.mean(values) if isinstance(values, list) else values)
+                    return float(
+                        values[0]
+                        if isinstance(values, list) and len(values) == 1
+                        else np.mean(values)
+                        if isinstance(values, list)
+                        else values
+                    )
             elif isinstance(data, (pd.Series, list, np.ndarray)):
                 return float(data[0] if len(data) == 1 else np.mean(data))
             else:

@@ -836,7 +836,7 @@ def test_equal_opportuinity_ratio(
     expected_result: tuple[dict, list[dict], bool] | AbstractContextManager,
 ):
     if not isinstance(expected_result, AbstractContextManager):
-        eor = EqualOpportunityRatio(data, label)        
+        eor = EqualOpportunityRatio(data, label)
         is_biased = eor.is_biased(threshold)
         assert is_biased == expected_result[2]
     else:
