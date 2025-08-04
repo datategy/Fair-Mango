@@ -6,7 +6,9 @@ import pandas as pd
 
 
 SensitiveGroupT: TypeAlias = list[str] | list[int] | list[bool] | list[str | int | bool]
-SensitiveGroupOptionalT: TypeAlias = SensitiveGroupT | None # when sensitive group identification is not possible (one group or all groups have identical scores).
+SensitiveGroupOptionalT: TypeAlias = (
+    SensitiveGroupT | None
+)  # when sensitive group identification is not possible (one group or all groups have identical scores).
 
 SensitiveGroupTupleT: TypeAlias = tuple[str | int | bool, ...]
 
