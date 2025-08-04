@@ -8,17 +8,7 @@ import pandas as pd
 
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.typing import (
-    DemographicParityDifferenceSummaryResult,
-    DemographicParityRatioSummaryResult,
-    DisparateImpactDifferenceSummaryResult,
-    DisparateImpactRatioSummaryResult,
     DisparityResultDict,
-    EqualOpportunityDifferenceSummaryResult,
-    EqualOpportunityRatioSummaryResult,
-    EqualisedOddsDifferenceSummaryResult,
-    EqualisedOddsRatioSummaryResult,
-    FalsePositiveRateDifferenceSummaryResult,
-    FalsePositiveRateRatioSummaryResult,
     FairnessRatioSummaryResult,
     FairnessSummaryResult,
     BaseMetricResult,
@@ -388,14 +378,7 @@ class FairnessMetricDifference(ABC, Generic[LabelT]):
 
     def summary(
         self,
-    ) -> (
-        FairnessSummaryResult
-        | DemographicParityDifferenceSummaryResult
-        | DisparateImpactDifferenceSummaryResult
-        | EqualOpportunityDifferenceSummaryResult
-        | FalsePositiveRateDifferenceSummaryResult
-        | EqualisedOddsDifferenceSummaryResult
-    ):
+    ) -> FairnessSummaryResult:
         """Return the fairness metric value, in other words the biggest
         disparity found with specifying the privileged and discriminated
         groups.
@@ -598,14 +581,7 @@ class FairnessMetricRatio(ABC, Generic[LabelT]):
 
     def summary(
         self,
-    ) -> (
-        FairnessRatioSummaryResult
-        | DemographicParityRatioSummaryResult
-        | DisparateImpactRatioSummaryResult
-        | EqualOpportunityRatioSummaryResult
-        | FalsePositiveRateRatioSummaryResult
-        | EqualisedOddsRatioSummaryResult
-    ):
+    ) -> FairnessRatioSummaryResult:
         """Return the fairness metric value, in other words the biggest
             disparity found with specifying the privileged and discriminated
             groups.

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TypeAlias, TypedDict
+from typing import Literal, TypeAlias, TypedDict
 
 import numpy as np
 import pandas as pd
@@ -57,6 +57,43 @@ class DisparityResultDict(TypedDict):
     disparity: float
 
 
+@dataclass
+class FairnessSummaryDifferenceResult:
+    """Summary of a difference-based fairness metric when unfair."""
+
+    difference: float
+    privileged_sensitive_group: SensitiveGroupT
+    unprivileged_sensitive_group: SensitiveGroupT
+
+
+@dataclass
+class FairnessSummaryDifferenceFairResult:
+    """Summary of a difference-based fairness metric when fair."""
+
+    difference: Literal[0]
+    privileged_sensitive_group: None
+    unprivileged_sensitive_group: None
+
+
+@dataclass
+class FairnessSummaryRatioResult:
+    """Summary of a ratio-based fairness metric when unfair."""
+
+    ratio: float
+    privileged_sensitive_group: SensitiveGroupT
+    unprivileged_sensitive_group: SensitiveGroupT
+
+
+@dataclass
+class FairnessSummaryRatioFairResult:
+    """Summary of a ratio-based fairness metric when fair."""
+
+    ratio: Literal[1]
+    privileged_sensitive_group: None
+    unprivileged_sensitive_group: None
+
+
+# Legacy classes for backward compatibility
 @dataclass
 class FairnessSummaryResult:
     """Summary of a difference-based fairness metric."""
@@ -186,96 +223,6 @@ class FairnessRankingResult:
 
 
 @dataclass
-class DemographicParityDifferenceSummaryResult:
-    """Summary result for Demographic Parity difference metrics."""
-
-    demographic_parity_difference: float
-    privileged_sensitive_group: SensitiveGroupOptionalT
-    unprivileged_sensitive_group: SensitiveGroupOptionalT
-
-
-@dataclass
-class DemographicParityRatioSummaryResult:
-    """Summary result for Demographic Parity ratio metrics."""
-
-    demographic_parity_ratio: float
-    privileged_sensitive_group: SensitiveGroupOptionalT
-    unprivileged_sensitive_group: SensitiveGroupOptionalT
-
-
-@dataclass
-class DisparateImpactDifferenceSummaryResult:
-    """Summary result for Disparate Impact difference metrics."""
-
-    disparate_impact_difference: float
-    privileged_sensitive_group: SensitiveGroupOptionalT
-    unprivileged_sensitive_group: SensitiveGroupOptionalT
-
-
-@dataclass
-class DisparateImpactRatioSummaryResult:
-    """Summary result for Disparate Impact ratio metrics."""
-
-    disparate_impact_ratio: float
-    privileged_sensitive_group: SensitiveGroupOptionalT
-    unprivileged_sensitive_group: SensitiveGroupOptionalT
-
-
-@dataclass
-class EqualOpportunityDifferenceSummaryResult:
-    """Summary result for Equal Opportunity difference metrics."""
-
-    equal_opportunity_difference: float
-    privileged_sensitive_group: SensitiveGroupOptionalT
-    unprivileged_sensitive_group: SensitiveGroupOptionalT
-
-
-@dataclass
-class EqualOpportunityRatioSummaryResult:
-    """Summary result for Equal Opportunity ratio metrics."""
-
-    equal_opportunity_ratio: float
-    privileged_sensitive_group: SensitiveGroupOptionalT
-    unprivileged_sensitive_group: SensitiveGroupOptionalT
-
-
-@dataclass
-class FalsePositiveRateDifferenceSummaryResult:
-    """Summary result for False Positive Rate difference metrics."""
-
-    false_positive_rate_difference: float
-    privileged_sensitive_group: SensitiveGroupOptionalT
-    unprivileged_sensitive_group: SensitiveGroupOptionalT
-
-
-@dataclass
-class FalsePositiveRateRatioSummaryResult:
-    """Summary result for False Positive Rate ratio metrics."""
-
-    false_positive_rate_ratio: float
-    privileged_sensitive_group: SensitiveGroupOptionalT
-    unprivileged_sensitive_group: SensitiveGroupOptionalT
-
-
-@dataclass
-class EqualisedOddsDifferenceSummaryResult:
-    """Summary result for Equalised Odds difference metrics."""
-
-    equalised_odds_difference: float
-    privileged_sensitive_group: SensitiveGroupOptionalT
-    unprivileged_sensitive_group: SensitiveGroupOptionalT
-
-
-@dataclass
-class EqualisedOddsRatioSummaryResult:
-    """Summary result for Equalised Odds ratio metrics."""
-
-    equalised_odds_ratio: float
-    privileged_sensitive_group: SensitiveGroupOptionalT
-    unprivileged_sensitive_group: SensitiveGroupOptionalT
-
-
-@dataclass
 class SupersetFairnessRankingResult:
     """Result of fairness metric rankings for a sensitive group combination."""
 
@@ -289,16 +236,7 @@ class SupersetFairnessSummaryResult:
 
     summaries: dict[
         str,
-        DemographicParityDifferenceSummaryResult
-        | DemographicParityRatioSummaryResult
-        | DisparateImpactDifferenceSummaryResult
-        | DisparateImpactRatioSummaryResult
-        | EqualOpportunityDifferenceSummaryResult
-        | EqualOpportunityRatioSummaryResult
-        | EqualisedOddsDifferenceSummaryResult
-        | EqualisedOddsRatioSummaryResult
-        | FalsePositiveRateDifferenceSummaryResult
-        | FalsePositiveRateRatioSummaryResult,
+        FairnessSummaryResult | FairnessRatioSummaryResult,
     ]
 
 
