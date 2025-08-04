@@ -10,6 +10,7 @@ from fair_mango.dataset.dataset import (
     check_column_existence_in_df,
     validate_columns,
 )
+from fair_mango.typing import DatasetGroupResult, DatasetTargetResult
 
 df = pd.read_csv("tests/data/heart_data.csv")
 
@@ -166,7 +167,7 @@ def test_get_data_for_all_groups(
     results = dataset.get_data_for_all_groups()
     assert isinstance(results, list)
     for i, result in enumerate(results):
-        assert hasattr(result, "sensitive_group") and hasattr(result, "data")
+        assert isinstance(result, DatasetGroupResult)
         for group, expected_group in zip(result.sensitive_group, sensitive_groups[i]):
             assert group == expected_group
         assert isinstance(result.data, pd.DataFrame)
@@ -225,7 +226,7 @@ def test_get_real_target_for_all_groups(
     results = dataset.get_real_target_for_all_groups()
     assert isinstance(results, list)
     for i, result in enumerate(results):
-        assert hasattr(result, "sensitive_group") and hasattr(result, "data")
+        assert isinstance(result, DatasetTargetResult)
         for group, expected_group in zip(result.sensitive_group, sensitive_groups[i]):
             assert group == expected_group
         assert isinstance(result.data, expected_data_type)
@@ -280,7 +281,7 @@ def test_get_predicted_target_for_all_groups(
         results = dataset.get_predicted_target_for_all_groups()
         assert isinstance(results, list)
         for i, result in enumerate(results):
-            assert hasattr(result, "sensitive_group") and hasattr(result, "data")
+            assert isinstance(result, DatasetTargetResult)
             for group, expected_group in zip(
                 result.sensitive_group, sensitive_groups[i]
             ):
