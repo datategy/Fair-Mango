@@ -417,9 +417,7 @@ class ConfusionMatrix(Metric):
             for metric_name, metric in self.metrics.items():
                 if metric_name not in metrics_dict:
                     metrics_dict[metric_name] = []
-                metrics_dict[metric_name].append(
-                    metric(tn=tn, fp=fp, fn=fn, tp=tp)
-                )
+                metrics_dict[metric_name].append(metric(tn=tn, fp=fp, fn=fn, tp=tp))
 
             result.append(
                 ConfusionMatrixResult(
