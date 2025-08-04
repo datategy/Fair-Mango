@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 
-import matplotlib.pyplot as plt
 import pandas as pd
 
 from fair_mango.typing import DatasetGroupResult, DatasetTargetResult
@@ -184,7 +183,6 @@ class Dataset:
         self.groups_data: list[DatasetGroupResult] = []
         self.groups_real_target: list[DatasetTargetResult] | None = None
         self.groups_predicted_target: list[DatasetTargetResult] | None = None
-        plt.style.use("fivethirtyeight")
 
     def get_data_for_all_groups(self) -> list[DatasetGroupResult]:
         """Retrieve data corresponding to each sensitive group present in
