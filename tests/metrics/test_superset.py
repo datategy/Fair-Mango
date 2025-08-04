@@ -9,6 +9,10 @@ from fair_mango.metrics.superset import (
     SupersetFairnessMetrics,
     SupersetPerformanceMetrics,
 )
+from fair_mango.typing import (
+    SupersetFairnessRankingResult,
+    SupersetPerformanceMetricsResult,
+)
 
 df = pd.read_csv("tests/data/heart_data.csv")
 
@@ -159,8 +163,7 @@ def test_super_set_fairness_metrics(
     assert len(results) == len(expected_results)
 
     for result, expected_result in zip(results, expected_results):
-        assert hasattr(result, "sensitive_group")
-        assert hasattr(result, "rankings")
+        assert isinstance(result, SupersetFairnessRankingResult)
         assert isinstance(result.sensitive_group, list)
         assert isinstance(result.rankings, dict)
 
@@ -259,8 +262,7 @@ def test_super_set_performance_metrics(
         assert len(results) == len(expected_results)
 
         for result, expected_result in zip(results, expected_results):
-            assert hasattr(result, "sensitive_group")
-            assert hasattr(result, "data")
+            assert isinstance(result, SupersetPerformanceMetricsResult)
             assert isinstance(result.sensitive_group, tuple)
             assert isinstance(result.data, list)
 
