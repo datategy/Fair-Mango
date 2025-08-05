@@ -20,10 +20,12 @@ from fair_mango.metrics.metrics import (
 )
 from fair_mango.metrics.constants import DEFAULT_BIAS_THRESHOLDS
 from fair_mango.typing import (
+    BaseMetricResult,
     FairnessSummaryDifferenceResult,
     FairnessSummaryDifferenceFairResult,
     FairnessSummaryRatioResult,
     FairnessSummaryRatioFairResult,
+    SelectionRateResult,
     SupersetBiasResult,
     SupersetFairnessRankingResult,
     SupersetFairnessSummaryResult,
@@ -396,7 +398,7 @@ class SupersetPerformanceMetrics(Superset):
 
         return results
 
-    def _create_dataset_for_pair(self, pair):
+    def _create_dataset_for_pair(self, pair: tuple[str, ...]) -> Dataset:
         """Create a Dataset instance for a given pair of sensitive attributes."""
         return Dataset(
             self.df,
@@ -406,7 +408,7 @@ class SupersetPerformanceMetrics(Superset):
             self.positive_target,
         )
 
-    def _initialize_base_results(self, dataset):
+    def _initialize_base_results(self, dataset: Dataset) -> list[SelectionRateResult]:
         """Initialize base results with selection rate data."""
         concatenated_results = SelectionRate(
             dataset,
@@ -418,7 +420,9 @@ class SupersetPerformanceMetrics(Superset):
 
         return concatenated_results
 
-    def _process_metrics_for_dataset(self, dataset, concatenated_results):
+    def _process_metrics_for_dataset(
+        self, dataset: Dataset, concatenated_results: list[SelectionRateResult]
+    ) -> None:
         """Process all metrics for a given dataset and update concatenated results."""
         for metric in self.metrics:
             if metric is SelectionRate:
@@ -426,7 +430,9 @@ class SupersetPerformanceMetrics(Superset):
             else:
                 self._process_other_metric(metric, dataset, concatenated_results)
 
-    def _process_selection_rate_metric(self, dataset, concatenated_results):
+    def _process_selection_rate_metric(
+        self, dataset: Dataset, concatenated_results: list[SelectionRateResult]
+    ) -> None:
         """Process SelectionRate metric specifically."""
         result = SelectionRate(
             dataset,
@@ -439,14 +445,21 @@ class SupersetPerformanceMetrics(Superset):
         for concatenated_result, res in zip(concatenated_results, result):
             self._merge_metric_results(concatenated_result, res)
 
-    def _process_other_metric(self, metric, dataset, concatenated_results):
+    def _process_other_metric(
+        self,
+        metric: type,
+        dataset: Dataset,
+        concatenated_results: list[SelectionRateResult],
+    ) -> None:
         """Process non-SelectionRate metrics."""
         result = metric(dataset)()
 
         for concatenated_result, res in zip(concatenated_results, result):
             self._merge_metric_results(concatenated_result, res)
 
-    def _merge_metric_results(self, concatenated_result, res):
+    def _merge_metric_results(
+        self, concatenated_result: SelectionRateResult, res: BaseMetricResult
+    ) -> None:
         """Merge individual metric results into concatenated results."""
         if hasattr(res, "data") and isinstance(res.data, dict):
             self._merge_metrics_dict(concatenated_result, res)
@@ -457,12 +470,17 @@ class SupersetPerformanceMetrics(Superset):
         else:
             self._merge_other_attributes(concatenated_result, res)
 
-    def _merge_metrics_dict(self, concatenated_result, res):
+    def _merge_metrics_dict(
+        self, concatenated_result: SelectionRateResult, res: BaseMetricResult
+    ) -> None:
         """Merge metrics dictionary into concatenated result."""
-        for key, value in res.data.items():
-            setattr(concatenated_result, key, value)
+        if isinstance(res.data, dict):
+            for key, value in res.data.items():
+                setattr(concatenated_result, key, value)
 
-    def _merge_other_attributes(self, concatenated_result, res):
+    def _merge_other_attributes(
+        self, concatenated_result: SelectionRateResult, res: BaseMetricResult
+    ) -> None:
         """Merge other attributes from result into concatenated result."""
         for attr_name in dir(res):
             if not attr_name.startswith("_") and attr_name != "sensitive_group":
