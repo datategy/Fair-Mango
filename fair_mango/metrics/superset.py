@@ -91,6 +91,16 @@ class Superset(ABC):
         self.positive_target = positive_target
         self.pairs = pairs
 
+    def _create_dataset_for_pair(self, pair: tuple[str, ...]) -> Dataset:
+        """Create a Dataset instance for a given pair of sensitive attributes."""
+        return Dataset(
+            self.df,
+            pair,
+            self.real_target,
+            self.predicted_target,
+            self.positive_target,
+        )
+
 
 class SupersetFairnessMetrics(Superset):
     """Calculate fairness metrics score for all combinations of sensitive
@@ -159,13 +169,7 @@ class SupersetFairnessMetrics(Superset):
         results = []
 
         for pair in self.pairs:
-            dataset = Dataset(
-                self.df,
-                list(pair),
-                self.real_target,
-                self.predicted_target,
-                self.positive_target,
-            )
+            dataset = self._create_dataset_for_pair(pair)
 
             rankings = {}
 
@@ -201,13 +205,7 @@ class SupersetFairnessMetrics(Superset):
         results = []
 
         for pair in self.pairs:
-            dataset = Dataset(
-                self.df,
-                list(pair),
-                self.real_target,
-                self.predicted_target,
-                self.positive_target,
-            )
+            dataset = self._create_dataset_for_pair(pair)
 
             summaries: dict[
                 str,
@@ -261,13 +259,7 @@ class SupersetFairnessMetrics(Superset):
         results = []
 
         for pair in self.pairs:
-            dataset = Dataset(
-                self.df,
-                list(pair),
-                self.real_target,
-                self.predicted_target,
-                self.positive_target,
-            )
+            dataset = self._create_dataset_for_pair(pair)
 
             bias_results = {}
 
@@ -397,16 +389,6 @@ class SupersetPerformanceMetrics(Superset):
             )
 
         return results
-
-    def _create_dataset_for_pair(self, pair: tuple[str, ...]) -> Dataset:
-        """Create a Dataset instance for a given pair of sensitive attributes."""
-        return Dataset(
-            self.df,
-            pair,
-            self.real_target,
-            self.predicted_target,
-            self.positive_target,
-        )
 
     def _initialize_base_results(self, dataset: Dataset) -> list[SelectionRateResult]:
         """Initialize base results with selection rate data."""
