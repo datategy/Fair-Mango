@@ -20,8 +20,10 @@ from fair_mango.metrics.metrics import (
 )
 from fair_mango.metrics.constants import DEFAULT_BIAS_THRESHOLDS
 from fair_mango.typing import (
-    FairnessSummaryResult,
-    FairnessRatioSummaryResult,
+    FairnessSummaryDifferenceResult,
+    FairnessSummaryDifferenceFairResult,
+    FairnessSummaryRatioResult,
+    FairnessSummaryRatioFairResult,
     SupersetBiasResult,
     SupersetFairnessRankingResult,
     SupersetFairnessSummaryResult,
@@ -229,7 +231,10 @@ class SupersetFairnessMetrics(Superset):
 
             summaries: dict[
                 str,
-                FairnessSummaryResult | FairnessRatioSummaryResult,
+                FairnessSummaryDifferenceResult
+                | FairnessSummaryDifferenceFairResult
+                | FairnessSummaryRatioResult
+                | FairnessSummaryRatioFairResult,
             ] = {}
 
             for metric_name, metric_class in self._dataset_metrics.items():
