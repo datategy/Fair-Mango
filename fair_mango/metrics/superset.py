@@ -185,8 +185,6 @@ class SupersetFairnessMetrics(Superset):
                     rankings[metric_name] = metric.rank()
                 except MetricCalculationError:
                     raise
-                except Exception as e:
-                    raise MetricCalculationError(metric_name, str(pair), e)
 
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
@@ -195,8 +193,6 @@ class SupersetFairnessMetrics(Superset):
                         rankings[metric_name] = metric.rank()
                     except MetricCalculationError:
                         raise
-                    except Exception as e:
-                        raise MetricCalculationError(metric_name, str(pair), e)
 
             results.append(
                 SupersetFairnessRankingResult(
@@ -243,8 +239,6 @@ class SupersetFairnessMetrics(Superset):
                     summaries[metric_name] = metric.summary()
                 except MetricCalculationError:
                     raise
-                except Exception as e:
-                    raise MetricCalculationError(metric_name, str(pair), e)
 
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
@@ -253,8 +247,6 @@ class SupersetFairnessMetrics(Superset):
                         summaries[metric_name] = metric.summary()
                     except MetricCalculationError:
                         raise
-                    except Exception as e:
-                        raise MetricCalculationError(metric_name, str(pair), e)
 
             results.append(
                 SupersetFairnessSummaryResult(
@@ -308,8 +300,6 @@ class SupersetFairnessMetrics(Superset):
                     bias_results[metric_name] = metric.is_biased(threshold)
                 except MetricCalculationError:
                     raise
-                except Exception as e:
-                    raise MetricCalculationError(metric_name, str(pair), e)
 
             if self.predicted_target is not None:
                 for metric_name, metric_class in self._model_metrics.items():
@@ -319,8 +309,6 @@ class SupersetFairnessMetrics(Superset):
                         bias_results[metric_name] = metric.is_biased(threshold)
                     except MetricCalculationError:
                         raise
-                    except Exception as e:
-                        raise MetricCalculationError(metric_name, str(pair), e)
 
             results.append(
                 SupersetBiasResult(
