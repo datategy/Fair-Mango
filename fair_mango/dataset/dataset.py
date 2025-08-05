@@ -71,7 +71,7 @@ def validate_columns(
         )
 
 
-def convert_to_list(variable: Sequence[str] | str) -> Sequence[str]:
+def convert_to_list(variable: Sequence[str] | str) -> list[str]:
     """Convert a variable of type str to a list.
 
     Parameters
@@ -81,13 +81,13 @@ def convert_to_list(variable: Sequence[str] | str) -> Sequence[str]:
 
     Returns
     -------
-    Sequence
-        Sequence of the values (not str).
+    list[str]
+        List of the values.
     """
     if isinstance(variable, str):
         return [variable]
     else:
-        return variable
+        return list(variable)
 
 
 def df_filtration(
@@ -163,18 +163,18 @@ class Dataset:
         self.df = df.copy()
         self.shape = df.shape
         self.positive_target = positive_target
-        if isinstance(sensitive, str):
+        if len(self.sensitive) == 1:
             self.groups = (
-                df[[sensitive]]
-                .groupby([sensitive])
+                df[self.sensitive]
+                .groupby(self.sensitive)
                 .size()
                 .reset_index(name="Count")
                 .sort_values("Count", ascending=False)
             )
         else:
             self.groups = (
-                df[sensitive]
-                .groupby(list(sensitive))
+                df[self.sensitive]
+                .groupby(list(self.sensitive))
                 .size()
                 .reset_index(name="Count")
                 .sort_values("Count", ascending=False)

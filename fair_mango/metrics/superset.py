@@ -402,7 +402,7 @@ class SupersetPerformanceMetrics(Superset):
         """Create a Dataset instance for a given pair of sensitive attributes."""
         return Dataset(
             self.df,
-            list(pair),
+            pair,
             self.real_target,
             self.predicted_target,
             self.positive_target,
