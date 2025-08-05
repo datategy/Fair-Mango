@@ -93,25 +93,6 @@ class FairnessSummaryRatioFairResult:
     unprivileged_sensitive_group: None
 
 
-# Legacy classes for backward compatibility
-@dataclass
-class FairnessSummaryResult:
-    """Summary of a difference-based fairness metric."""
-
-    disparity: float
-    privileged_sensitive_group: SensitiveGroupOptionalT
-    unprivileged_sensitive_group: SensitiveGroupOptionalT
-
-
-@dataclass
-class FairnessRatioSummaryResult:
-    """Summary of a ratio-based fairness metric."""
-
-    ratio: float
-    privileged_sensitive_group: SensitiveGroupOptionalT
-    unprivileged_sensitive_group: SensitiveGroupOptionalT
-
-
 @dataclass
 class RankResult:
     """Individual rank result for a group."""
@@ -141,19 +122,10 @@ class SelectionRateResult(BaseMetricResult):
 class PerformanceMetricResult(BaseMetricResult):
     """Result of performance metrics for a single sensitive group with dynamic metrics."""
 
-    metrics: MetricsDict | None = None
-
-    def __post_init__(self):
-        """Ensure metrics and data are synchronized."""
-        if self.metrics is not None and self.data is None:
-            self.data = self.metrics
-        elif self.data is not None and self.metrics is None:
-            self.metrics = self.data
-
     def __getattr__(self, name: str):
         """Allow attribute access to metric values."""
-        if self.metrics is not None and name in self.metrics:
-            return self.metrics[name]
+        if isinstance(self.data, dict) and name in self.data:
+            return self.data[name]
         raise AttributeError(
             f"'{self.__class__.__name__}' object has no attribute '{name}'"
         )
@@ -163,19 +135,10 @@ class PerformanceMetricResult(BaseMetricResult):
 class ConfusionMatrixResult(BaseMetricResult):
     """Result of confusion matrix metrics for a single sensitive group with dynamic metrics."""
 
-    metrics: MetricsDict | None = None
-
-    def __post_init__(self):
-        """Ensure metrics and data are synchronized."""
-        if self.metrics is not None and self.data is None:
-            self.data = self.metrics
-        elif self.data is not None and self.metrics is None:
-            self.metrics = self.data
-
     def __getattr__(self, name: str):
         """Allow attribute access to metric values."""
-        if self.metrics is not None and name in self.metrics:
-            return self.metrics[name]
+        if isinstance(self.data, dict) and name in self.data:
+            return self.data[name]
         raise AttributeError(
             f"'{self.__class__.__name__}' object has no attribute '{name}'"
         )
@@ -236,7 +199,10 @@ class SupersetFairnessSummaryResult:
 
     summaries: dict[
         str,
-        FairnessSummaryResult | FairnessRatioSummaryResult,
+        FairnessSummaryDifferenceResult
+        | FairnessSummaryDifferenceFairResult
+        | FairnessSummaryRatioResult
+        | FairnessSummaryRatioFairResult,
     ]
 
 

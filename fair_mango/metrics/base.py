@@ -9,8 +9,10 @@ import pandas as pd
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.typing import (
     DisparityResultDict,
-    FairnessRatioSummaryResult,
-    FairnessSummaryResult,
+    FairnessSummaryDifferenceResult,
+    FairnessSummaryDifferenceFairResult,
+    FairnessSummaryRatioResult,
+    FairnessSummaryRatioFairResult,
     BaseMetricResult,
     RankResult,
     SensitiveGroupTupleT,
@@ -378,16 +380,16 @@ class FairnessMetricDifference(ABC, Generic[LabelT]):
 
     def summary(
         self,
-    ) -> FairnessSummaryResult:
+    ) -> FairnessSummaryDifferenceResult | FairnessSummaryDifferenceFairResult:
         """Return the fairness metric value, in other words the biggest
         disparity found with specifying the privileged and discriminated
         groups.
 
         Returns
         -------
-        FairnessSummaryResult
+        FairnessSummaryDifferenceResult | FairnessSummaryDifferenceFairResult
             A single summary result with:
-            - disparity: The maximum absolute disparity value found.
+            - difference: The maximum absolute difference value found.
             - privileged_sensitive_group: List of strings identifying the privileged group.
                 None if no group could be determined (e.g., if there is only one group
                 or all groups have identical scores).
@@ -414,11 +416,21 @@ class FairnessMetricDifference(ABC, Generic[LabelT]):
                     privileged_sensitive_group = disparity_result["group_2"]
                     unprivileged_sensitive_group = disparity_result["group_1"]
 
-        return FairnessSummaryResult(
-            disparity=max_disparity,
-            privileged_sensitive_group=privileged_sensitive_group,
-            unprivileged_sensitive_group=unprivileged_sensitive_group,
-        )
+        if max_disparity == 0:
+            return FairnessSummaryDifferenceFairResult(
+                difference=0,
+                privileged_sensitive_group=None,
+                unprivileged_sensitive_group=None,
+            )
+        else:
+            # At this point, both groups must be non-None since max_disparity > 0
+            assert privileged_sensitive_group is not None
+            assert unprivileged_sensitive_group is not None
+            return FairnessSummaryDifferenceResult(
+                difference=max_disparity,
+                privileged_sensitive_group=privileged_sensitive_group,
+                unprivileged_sensitive_group=unprivileged_sensitive_group,
+            )
 
     def rank(self) -> list[RankResult]:
         """Assign a score to every sensitive group present in the sensitive
@@ -581,14 +593,14 @@ class FairnessMetricRatio(ABC, Generic[LabelT]):
 
     def summary(
         self,
-    ) -> FairnessRatioSummaryResult:
+    ) -> FairnessSummaryRatioResult | FairnessSummaryRatioFairResult:
         """Return the fairness metric value, in other words the biggest
             disparity found with specifying the privileged and discriminated
             groups.
 
             Returns
             -------
-            FairnessRatioSummaryResult
+            FairnessSummaryRatioResult | FairnessSummaryRatioFairResult
                 A single summary result with:
         ratio : float
             The minimum ratio value found (closest to 0).
@@ -623,11 +635,21 @@ class FairnessMetricRatio(ABC, Generic[LabelT]):
                 privileged_sensitive_group = temp_privileged
                 unprivileged_sensitive_group = temp_unprivileged
 
-        return FairnessRatioSummaryResult(
-            ratio=min_ratio,
-            privileged_sensitive_group=privileged_sensitive_group,
-            unprivileged_sensitive_group=unprivileged_sensitive_group,
-        )
+        if min_ratio == 1:
+            return FairnessSummaryRatioFairResult(
+                ratio=1,
+                privileged_sensitive_group=None,
+                unprivileged_sensitive_group=None,
+            )
+        else:
+            # At this point, both groups must be non-None since min_ratio < 1
+            assert privileged_sensitive_group is not None
+            assert unprivileged_sensitive_group is not None
+            return FairnessSummaryRatioResult(
+                ratio=min_ratio,
+                privileged_sensitive_group=privileged_sensitive_group,
+                unprivileged_sensitive_group=unprivileged_sensitive_group,
+            )
 
     def rank(self) -> list[RankResult]:
         """Assign a score to every sensitive group present in the sensitive
