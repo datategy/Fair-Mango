@@ -472,10 +472,10 @@ class PerformanceMetric(Metric):
         if metrics is None:
             self.metrics = {
                 "accuracy": accuracy_score,
-                "balanced accuracy": balanced_accuracy_score,
+                "balanced_accuracy": balanced_accuracy_score,
                 "precision": precision_score,
                 "recall": recall_score,
-                "f1-score": f1_score,
+                "f1_score": f1_score,
             }
         elif isinstance(metrics, dict):
             if "sensitive_group" in metrics:

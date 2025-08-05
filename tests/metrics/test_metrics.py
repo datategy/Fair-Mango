@@ -849,18 +849,18 @@ performancemetrics_expected_result_2 = [
     {
         "sensitive_group": np.array(["M"], dtype=object),
         "accuracy": [0.9779310344827586],
-        "balanced accuracy": [0.9778470143761346],
+        "balanced_accuracy": [0.9778470143761346],
         "precision": [0.986784140969163],
         "recall": [0.9781659388646288],
-        "f1-score": [0.9824561403508771],
+        "f1_score": [0.9824561403508771],
     },
     {
         "sensitive_group": np.array(["F"], dtype=object),
         "accuracy": [0.9637305699481865],
-        "balanced accuracy": [0.956013986013986],
+        "balanced_accuracy": [0.956013986013986],
         "precision": [0.9215686274509803],
         "recall": [0.94],
-        "f1-score": [0.9306930693069307],
+        "f1_score": [0.9306930693069307],
     },
 ]
 

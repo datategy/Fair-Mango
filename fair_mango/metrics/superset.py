@@ -21,11 +21,11 @@ from fair_mango.metrics.metrics import (
 from fair_mango.metrics.constants import DEFAULT_BIAS_THRESHOLDS
 from fair_mango.typing import (
     BaseMetricResult,
+    CombinedPerformanceResult,
     FairnessSummaryDifferenceResult,
     FairnessSummaryDifferenceFairResult,
     FairnessSummaryRatioResult,
     FairnessSummaryRatioFairResult,
-    SelectionRateResult,
     SupersetBiasResult,
     SupersetFairnessRankingResult,
     SupersetFairnessSummaryResult,
@@ -378,94 +378,75 @@ class SupersetPerformanceMetrics(Superset):
 
         for pair in self.pairs:
             dataset = self._create_dataset_for_pair(pair)
-            concatenated_results = self._initialize_base_results(dataset)
-            self._process_metrics_for_dataset(dataset, concatenated_results)
+            combined_results = self._initialize_base_results(dataset)
+            self._process_metrics_for_dataset(dataset, combined_results)
 
             results.append(
                 SupersetPerformanceMetricsResult(
                     sensitive_group=pair,
-                    data=concatenated_results,
+                    data=combined_results,
                 )
             )
 
         return results
 
-    def _initialize_base_results(self, dataset: Dataset) -> list[SelectionRateResult]:
+    def _initialize_base_results(
+        self, dataset: Dataset
+    ) -> list[CombinedPerformanceResult]:
         """Initialize base results with selection rate data."""
-        concatenated_results = SelectionRate(
-            dataset,
-            use_y_true=True,
-        )()
+        selection_rate_data = SelectionRate(dataset, use_y_true=True)()
+        selection_rate_predictions = SelectionRate(dataset, use_y_true=False)()
 
-        for group_result in concatenated_results:
-            group_result.selection_rate_in_data = group_result.data
+        combined_results = []
+        for data_result, pred_result in zip(
+            selection_rate_data, selection_rate_predictions
+        ):
+            combined_result = CombinedPerformanceResult(
+                sensitive_group=data_result.sensitive_group,
+                data=pred_result.data,
+                selection_rate_in_data=data_result.data,
+                selection_rate_in_predictions=pred_result.data,
+            )
+            combined_results.append(combined_result)
 
-        return concatenated_results
+        return combined_results
 
     def _process_metrics_for_dataset(
-        self, dataset: Dataset, concatenated_results: list[SelectionRateResult]
+        self, dataset: Dataset, combined_results: list[CombinedPerformanceResult]
     ) -> None:
-        """Process all metrics for a given dataset and update concatenated results."""
+        """Process all metrics for a given dataset and update combined results."""
         for metric in self.metrics:
-            if metric is SelectionRate:
-                self._process_selection_rate_metric(dataset, concatenated_results)
-            else:
-                self._process_other_metric(metric, dataset, concatenated_results)
+            if metric is not SelectionRate:
+                self._process_metric(metric, dataset, combined_results)
 
-    def _process_selection_rate_metric(
-        self, dataset: Dataset, concatenated_results: list[SelectionRateResult]
-    ) -> None:
-        """Process SelectionRate metric specifically."""
-        result = SelectionRate(
-            dataset,
-            use_y_true=False,
-        )()
-
-        for group_result in result:
-            group_result.selection_rate_in_predictions = group_result.data
-
-        for concatenated_result, res in zip(concatenated_results, result):
-            self._merge_metric_results(concatenated_result, res)
-
-    def _process_other_metric(
+    def _process_metric(
         self,
         metric: type,
         dataset: Dataset,
-        concatenated_results: list[SelectionRateResult],
+        combined_results: list[CombinedPerformanceResult],
     ) -> None:
-        """Process non-SelectionRate metrics."""
-        result = metric(dataset)()
+        """Process a specific metric and update combined results."""
+        try:
+            metric_results = metric(dataset)()
 
-        for concatenated_result, res in zip(concatenated_results, result):
-            self._merge_metric_results(concatenated_result, res)
+            for combined_result, metric_result in zip(combined_results, metric_results):
+                self._update_combined_result(combined_result, metric_result)
+        except Exception as e:
+            logger.warning(f"Failed to process metric {metric.__name__}: {e}")
 
-    def _merge_metric_results(
-        self, concatenated_result: SelectionRateResult, res: BaseMetricResult
+    def _update_combined_result(
+        self,
+        combined_result: CombinedPerformanceResult,
+        metric_result: BaseMetricResult,
     ) -> None:
-        """Merge individual metric results into concatenated results."""
-        if hasattr(res, "data") and isinstance(res.data, dict):
-            self._merge_metrics_dict(concatenated_result, res)
-        elif hasattr(res, "selection_rate_in_predictions"):
-            concatenated_result.selection_rate_in_predictions = (
-                res.selection_rate_in_predictions
-            )
-        else:
-            self._merge_other_attributes(concatenated_result, res)
+        """Update a CombinedPerformanceResult with data from a metric result."""
+        if hasattr(metric_result, "data") and isinstance(metric_result.data, dict):
+            for key, value in metric_result.data.items():
+                if isinstance(value, list) and len(value) == 1:
+                    final_value: float | None = value[0]
+                elif isinstance(value, list):
+                    final_value = value[0] if value else None
+                else:
+                    final_value = value
 
-    def _merge_metrics_dict(
-        self, concatenated_result: SelectionRateResult, res: BaseMetricResult
-    ) -> None:
-        """Merge metrics dictionary into concatenated result."""
-        if isinstance(res.data, dict):
-            for key, value in res.data.items():
-                setattr(concatenated_result, key, value)
-
-    def _merge_other_attributes(
-        self, concatenated_result: SelectionRateResult, res: BaseMetricResult
-    ) -> None:
-        """Merge other attributes from result into concatenated result."""
-        for attr_name in dir(res):
-            if not attr_name.startswith("_") and attr_name != "sensitive_group":
-                attr_value = getattr(res, attr_name)
-                if not callable(attr_value):
-                    setattr(concatenated_result, attr_name, attr_value)
+                setattr(combined_result, key, final_value)
