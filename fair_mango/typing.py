@@ -119,6 +119,32 @@ class SelectionRateResult(BaseMetricResult):
 
 
 @dataclass
+class CombinedPerformanceResult(BaseMetricResult):
+    """Unified result containing all performance metrics for a sensitive group."""
+
+    selection_rate_in_data: float
+    selection_rate_in_predictions: float
+
+    accuracy: float | None = None
+    balanced_accuracy: float | None = None
+    precision: float | None = None
+    recall: float | None = None
+    f1_score: float | None = None
+
+    false_negative_rate: float | None = None
+    false_positive_rate: float | None = None
+    true_negative_rate: float | None = None
+    true_positive_rate: float | None = None
+
+    specificity: float | None = None
+    negative_predictive_value: float | None = None
+
+    def __post_init__(self):
+        """Set data field to selection_rate_in_predictions."""
+        self.data = self.selection_rate_in_predictions
+
+
+@dataclass
 class PerformanceMetricResult(BaseMetricResult):
     """Result of performance metrics for a single sensitive group with dynamic metrics."""
 
@@ -219,7 +245,7 @@ class SupersetPerformanceMetricsResult:
     """Result container for superset performance metrics."""
 
     sensitive_group: tuple[str, ...]
-    data: list[SelectionRateResult]
+    data: list[CombinedPerformanceResult]
 
 
 @dataclass

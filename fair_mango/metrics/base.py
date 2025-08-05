@@ -581,8 +581,7 @@ class FairnessMetricRatio(ABC, Generic[LabelT]):
             - disparity: The ratio value between groups
         """
 
-        filtered_kwargs = {k: v for k, v in self.metric_kwargs.items()}
-        metric = self.metric(self.data, **filtered_kwargs)
+        metric = self.metric(self.data, **self.metric_kwargs)
         metric_result = metric()
 
         self.metric_results = metric_result
