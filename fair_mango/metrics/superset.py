@@ -139,11 +139,39 @@ class SupersetFairnessMetrics(Superset):
     ) -> None:
         super().__init__(data)
 
-        self._dataset_metrics: dict[str, type] = {
+        self._dataset_metrics: dict[
+            str,
+            type[
+                DemographicParityRatio
+                | DisparateImpactDifference
+                | DisparateImpactRatio
+                | EqualOpportunityDifference
+                | EqualOpportunityRatio
+                | EqualisedOddsDifference
+                | EqualisedOddsRatio
+                | FalsePositiveRateDifference
+                | FalsePositiveRateRatio
+                | DemographicParityDifference
+            ],
+        ] = {
             "demographic_parity_difference": DemographicParityDifference,
         }
 
-        self._model_metrics: dict[str, type] = {
+        self._model_metrics: dict[
+            str,
+            type[
+                DemographicParityRatio
+                | DisparateImpactDifference
+                | DisparateImpactRatio
+                | EqualOpportunityDifference
+                | EqualOpportunityRatio
+                | EqualisedOddsDifference
+                | EqualisedOddsRatio
+                | FalsePositiveRateDifference
+                | FalsePositiveRateRatio
+                | DemographicParityDifference
+            ],
+        ] = {
             "demographic_parity_ratio": DemographicParityRatio,
             "disparate_impact_difference": DisparateImpactDifference,
             "disparate_impact_ratio": DisparateImpactRatio,
@@ -403,9 +431,17 @@ class SupersetPerformanceMetrics(Superset):
         ):
             combined_result = CombinedPerformanceResult(
                 sensitive_group=data_result.sensitive_group,
-                data=pred_result.data,
                 selection_rate_in_data=data_result.data,
                 selection_rate_in_predictions=pred_result.data,
+                accuracy=0.0,
+                balanced_accuracy=0.0,
+                precision=0.0,
+                recall=0.0,
+                f1_score=0.0,
+                false_negative_rate=0.0,
+                false_positive_rate=0.0,
+                true_negative_rate=0.0,
+                true_positive_rate=0.0,
             )
             combined_results.append(combined_result)
 
@@ -437,7 +473,9 @@ class SupersetPerformanceMetrics(Superset):
         metric_result: BaseMetricResult,
     ) -> None:
         """Update a CombinedPerformanceResult with data from a metric result."""
-        if isinstance(metric_result.data, dict):
+        if isinstance(metric_result, BaseMetricResult) and isinstance(
+            metric_result.data, dict
+        ):
             for key, value in metric_result.data.items():
                 if isinstance(value, list):
                     final_value = value[0]
