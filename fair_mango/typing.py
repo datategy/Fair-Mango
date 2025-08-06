@@ -148,26 +148,14 @@ class CombinedPerformanceResult(BaseMetricResult):
 class PerformanceMetricResult(BaseMetricResult):
     """Result of performance metrics for a single sensitive group with dynamic metrics."""
 
-    def __getattr__(self, name: str):
-        """Allow attribute access to metric values."""
-        if isinstance(self.data, dict) and name in self.data:
-            return self.data[name]
-        raise AttributeError(
-            f"'{self.__class__.__name__}' object has no attribute '{name}'"
-        )
+    data: MetricsDict
 
 
 @dataclass
 class ConfusionMatrixResult(BaseMetricResult):
     """Result of confusion matrix metrics for a single sensitive group with dynamic metrics."""
 
-    def __getattr__(self, name: str):
-        """Allow attribute access to metric values."""
-        if isinstance(self.data, dict) and name in self.data:
-            return self.data[name]
-        raise AttributeError(
-            f"'{self.__class__.__name__}' object has no attribute '{name}'"
-        )
+    data: MetricsDict
 
 
 @dataclass
