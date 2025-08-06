@@ -252,7 +252,7 @@ def test_confusionmatrix(
             )
             for key in expected_result[i].keys():
                 if key != "sensitive_group":
-                    res_values = getattr(res, key)
+                    res_values = res.data[key]
                     for val, expected_val in zip(
                         res_values, expected_result[i][key], strict=True
                     ):
@@ -1026,7 +1026,7 @@ def test_performancemetrics(
             )
             for key in expected_result[i].keys():
                 if key != "sensitive_group":
-                    res_value = getattr(res, key)
+                    res_value = res.data[key]
                     if isinstance(res_value[0], object):
                         try:
                             assert np.all(res_value == expected_result[i][key])

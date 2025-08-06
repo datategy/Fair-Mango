@@ -426,13 +426,10 @@ class SupersetPerformanceMetrics(Superset):
         combined_results: list[CombinedPerformanceResult],
     ) -> None:
         """Process a specific metric and update combined results."""
-        try:
-            metric_results = metric(dataset)()
+        metric_results = metric(dataset)()
 
-            for combined_result, metric_result in zip(combined_results, metric_results):
-                self._update_combined_result(combined_result, metric_result)
-        except Exception as e:
-            logger.warning(f"Failed to process metric {metric.__name__}: {e}")
+        for combined_result, metric_result in zip(combined_results, metric_results):
+            self._update_combined_result(combined_result, metric_result)
 
     def _update_combined_result(
         self,
@@ -440,12 +437,10 @@ class SupersetPerformanceMetrics(Superset):
         metric_result: BaseMetricResult,
     ) -> None:
         """Update a CombinedPerformanceResult with data from a metric result."""
-        if hasattr(metric_result, "data") and isinstance(metric_result.data, dict):
+        if isinstance(metric_result.data, dict):
             for key, value in metric_result.data.items():
-                if isinstance(value, list) and len(value) == 1:
-                    final_value: float | None = value[0]
-                elif isinstance(value, list):
-                    final_value = value[0] if value else None
+                if isinstance(value, list):
+                    final_value = value[0]
                 else:
                     final_value = value
 
