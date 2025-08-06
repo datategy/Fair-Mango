@@ -140,7 +140,9 @@ class CombinedPerformanceResult(BaseMetricResult):
     negative_predictive_value: float | None = None
 
     def __post_init__(self):
-        """Set data field to selection_rate_in_predictions."""
+        """Maintaining compatibility with BaseMetricResult by providing the specific
+        selection rate value for the combined performance result.
+        """
         self.data = self.selection_rate_in_predictions
 
 
