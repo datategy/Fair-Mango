@@ -199,12 +199,43 @@ class SelectionRate(Metric):
         for group in target_by_group:
             group_sensitive = group.sensitive_group
             y_group = group.data
+
+            if self.data.real_target is not None:
+                real_target_group = next(
+                    (
+                        g
+                        for g in self.real_target_by_group
+                        if g.sensitive_group == group_sensitive
+                    ),
+                    None,
+                )
+                selection_rate_in_data = (
+                    float(real_target_group.data.mean()) if real_target_group else 0.0
+                )
+            else:
+                selection_rate_in_data = 0.0
+
+            if self.data.predicted_target is not None:
+                pred_target_group = next(
+                    (
+                        g
+                        for g in self.predicted_target_by_group
+                        if g.sensitive_group == group_sensitive
+                    ),
+                    None,
+                )
+                selection_rate_in_predictions = (
+                    float(pred_target_group.data.mean()) if pred_target_group else 0.0
+                )
+            else:
+                selection_rate_in_predictions = 0.0
+
             result.append(
                 SelectionRateResult(
                     sensitive_group=group_sensitive,
                     data=float(y_group.mean()),
-                    selection_rate_in_data=float(y_group.mean()),
-                    selection_rate_in_predictions=float(y_group.mean()),
+                    selection_rate_in_data=selection_rate_in_data,
+                    selection_rate_in_predictions=selection_rate_in_predictions,
                 )
             )
 

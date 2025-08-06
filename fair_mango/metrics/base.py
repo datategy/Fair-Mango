@@ -14,6 +14,7 @@ from fair_mango.typing import (
     FairnessSummaryRatioResult,
     FairnessSummaryRatioFairResult,
     BaseMetricResult,
+    CombinedPerformanceResult,
     RankResult,
     SensitiveGroupTupleT,
     SensitiveGroupOptionalT,
@@ -247,9 +248,17 @@ def calculate_disparity(
         grp_i = rec_i.sensitive_group
         grp_j = rec_j.sensitive_group
 
-        def _to_float(result: BaseMetricResult) -> float:
-            """Convert BaseMetricResult to a single float value."""
-            data = result.data
+        def _to_float(result) -> float:
+            """Convert metric result to a single float value."""
+            if isinstance(result, CombinedPerformanceResult):
+                return float(result.selection_rate_in_predictions)
+
+            if isinstance(result, BaseMetricResult):
+                data = result.data
+            else:
+                raise ValueError(
+                    f"Unsupported result type: {type(result)}. Expected BaseMetricResult or CombinedPerformanceResult."
+                )
 
             if (
                 data is None
