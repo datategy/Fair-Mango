@@ -153,40 +153,6 @@ class ConfusionMatrixResult(BaseMetricResult):
 
 
 @dataclass
-class DetailedPerformanceMetricsResult:
-    """A collection of all performance metrics for a single sensitive group."""
-
-    sensitive_group: SensitiveGroupT
-    selection_rate_in_data: float
-    selection_rate_in_predictions: float
-    accuracy: float
-    balanced_accuracy: float
-    precision: float
-    recall: float
-    f1_score: float
-    false_negative_rate: float
-    false_positive_rate: float
-    true_negative_rate: float
-    true_positive_rate: float
-
-
-@dataclass
-class SupersetFairnessRank:
-    """Result of a superset fairness ranking."""
-
-    sensitive_attributes: list[str]
-    rank: list[RankResult]
-
-
-@dataclass
-class SupersetPerformanceEvaluation:
-    """Result of a superset performance evaluation."""
-
-    sensitive_attributes: list[str]
-    results: list[DetailedPerformanceMetricsResult]
-
-
-@dataclass
 class FairnessRankingResult:
     """Result container for fairness metric rankings."""
 

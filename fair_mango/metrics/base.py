@@ -260,36 +260,10 @@ def calculate_disparity(
                     f"Unsupported result type: {type(result)}. Expected BaseMetricResult or CombinedPerformanceResult."
                 )
 
-            if (
-                data is None
-                and hasattr(result, "metrics")
-                and result.metrics is not None
-            ):
-                data = result.metrics
-
-            if data is None:
-                raise ValueError(f"No data available for result: {result}")
-
             if isinstance(data, dict):
-                if "accuracy" in data:
-                    values = data["accuracy"]
-                    return float(
-                        values[0]
-                        if isinstance(values, list) and len(values) == 1
-                        else np.mean(values)
-                        if isinstance(values, list)
-                        else values
-                    )
-                else:
-                    first_key = next(iter(data))
-                    values = data[first_key]
-                    return float(
-                        values[0]
-                        if isinstance(values, list) and len(values) == 1
-                        else np.mean(values)
-                        if isinstance(values, list)
-                        else values
-                    )
+                first_key = next(iter(data))
+                values = data[first_key]
+                return float(np.mean(values) if isinstance(values, list) else values)
             elif isinstance(data, (pd.Series, list, np.ndarray)):
                 return float(data[0] if len(data) == 1 else np.mean(data))
             else:
