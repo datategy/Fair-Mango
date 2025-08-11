@@ -272,7 +272,7 @@ def calculate_disparity(
         a, b = _to_float(rec_i), _to_float(rec_j)
         if method == "difference":
             disp = a - b
-        else:  # method == "ratio"
+        else:
             if b == 0:
                 disp = 1.0 if a == 0 else float("inf")
             else:
@@ -438,7 +438,7 @@ class FairnessMetricDifference(ABC, Generic[LabelT]):
         if self.results is None:
             self.results = self._compute()
 
-        group_scores: dict[tuple, float] = {}
+        group_disparities: dict[tuple, list[float]] = {}
 
         for disparity_result in self.results:
             group_1 = disparity_result["group_1"]
@@ -448,15 +448,19 @@ class FairnessMetricDifference(ABC, Generic[LabelT]):
             group_1_tuple: SensitiveGroupTupleT = tuple(group_1)
             group_2_tuple: SensitiveGroupTupleT = tuple(group_2)
 
-            if group_1_tuple not in group_scores:
-                group_scores[group_1_tuple] = difference
-            if group_2_tuple not in group_scores:
-                group_scores[group_2_tuple] = -difference
+            if group_1_tuple not in group_disparities:
+                group_disparities[group_1_tuple] = []
+            group_disparities[group_1_tuple].append(difference)
+
+            if group_2_tuple not in group_disparities:
+                group_disparities[group_2_tuple] = []
+            group_disparities[group_2_tuple].append(-difference)
 
         ranking_list = []
-        for group_tuple, score in group_scores.items():
+        for group_tuple, disparities in group_disparities.items():
+            average_score = sum(disparities) / len(disparities)
             ranking_list.append(
-                RankResult(sensitive_group=list(group_tuple), score=score)
+                RankResult(sensitive_group=list(group_tuple), score=average_score)
             )
 
         ranking_list.sort(
@@ -656,7 +660,7 @@ class FairnessMetricRatio(ABC, Generic[LabelT]):
         if self.results is None:
             self.results = self._compute()
 
-        group_scores: dict[tuple, float] = {}
+        group_ratios: dict[tuple, list[float]] = {}
 
         for disparity_result in self.results:
             group_1 = disparity_result["group_1"]
@@ -666,22 +670,31 @@ class FairnessMetricRatio(ABC, Generic[LabelT]):
             group_1_tuple: SensitiveGroupTupleT = tuple(group_1)
             group_2_tuple: SensitiveGroupTupleT = tuple(group_2)
 
-            if group_1_tuple not in group_scores:
-                group_scores[group_1_tuple] = ratio
-            if group_2_tuple not in group_scores:
-                group_scores[group_2_tuple] = (
-                    1.0 / ratio if ratio != 0 else float("inf")
-                )
+            if group_1_tuple not in group_ratios:
+                group_ratios[group_1_tuple] = []
+            group_ratios[group_1_tuple].append(ratio)
+
+            if group_2_tuple not in group_ratios:
+                group_ratios[group_2_tuple] = []
+            inverse_ratio = 1.0 / ratio if ratio != 0 else float("inf")
+            group_ratios[group_2_tuple].append(inverse_ratio)
 
         ranking_list = []
-        for group_tuple, score in group_scores.items():
+        for group_tuple, ratios in group_ratios.items():
+            finite_ratios = [r for r in ratios if r != float("inf")]
+            if finite_ratios:
+                average_score = sum(finite_ratios) / len(finite_ratios)
+            else:
+                average_score = float("inf")
             ranking_list.append(
-                RankResult(sensitive_group=list(group_tuple), score=float(score))
+                RankResult(
+                    sensitive_group=list(group_tuple), score=float(average_score)
+                )
             )
 
         ranking_list.sort(
             key=lambda x: float(x.score)
-            if isinstance(x.score, (int, float, str))
+            if isinstance(x.score, (int, float, str)) and x.score != float("inf")
             else 0.0
         )
 
