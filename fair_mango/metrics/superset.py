@@ -351,7 +351,7 @@ class SupersetPerformanceMetrics(Superset):
         Returns
         -------
         list[SupersetPerformanceMetricsResult]
-            A list of SupersetPerformanceMetricsResult dictionaries, , each containing the sensitive attributes
+            A list of SupersetPerformanceMetricsResult dictionaries, each containing the sensitive attributes
             considered and their corresponding performance evaluation metric
             results.
 
