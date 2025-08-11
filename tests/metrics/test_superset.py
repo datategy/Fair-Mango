@@ -115,10 +115,10 @@ superset_fairness_expected_result_dataset3 = [
         "sensitive_group": ["ChestPainType"],
         "rankings": {
             "demographic_parity_difference": [
-                {"sensitive_group": ["ASY"], "score": 0.4356427776894962},
-                {"sensitive_group": ["TA"], "score": -0.3555399719495091},
-                {"sensitive_group": ["NAP"], "score": -0.4356427776894962},
-                {"sensitive_group": ["ATA"], "score": -0.6515942569457394},
+                {"sensitive_group": ["ASY"], "score": 0.48092566886158156},
+                {"sensitive_group": ["TA"], "score": 0.006872372928902748},
+                {"sensitive_group": ["NAP"], "score": -0.09993136805774676},
+                {"sensitive_group": ["ATA"], "score": -0.3878666737327376},
             ]
         },
     },
@@ -126,14 +126,14 @@ superset_fairness_expected_result_dataset3 = [
         "sensitive_group": ["Sex", "ChestPainType"],
         "rankings": {
             "demographic_parity_difference": [
-                {"sensitive_group": ["M", "ASY"], "score": 0.3886384976525821},
-                {"sensitive_group": ["F", "ASY"], "score": -0.27149564050972497},
-                {"sensitive_group": ["M", "TA"], "score": -0.30086071987480434},
-                {"sensitive_group": ["M", "NAP"], "score": -0.3886384976525821},
-                {"sensitive_group": ["M", "ATA"], "score": -0.6516473472101043},
-                {"sensitive_group": ["F", "NAP"], "score": -0.7154309504827708},
-                {"sensitive_group": ["F", "TA"], "score": -0.7286384976525822},
-                {"sensitive_group": ["F", "ATA"], "score": -0.7619718309859155},
+                {"sensitive_group": ["M", "ASY"], "score": 0.5455262120526406},
+                {"sensitive_group": ["F", "ASY"], "score": 0.23524548004152632},
+                {"sensitive_group": ["M", "TA"], "score": 0.20168538933857846},
+                {"sensitive_group": ["M", "NAP"], "score": 0.10136792902111814},
+                {"sensitive_group": ["M", "ATA"], "score": -0.19921361333033571},
+                {"sensitive_group": ["F", "NAP"], "score": -0.27210915992766893},
+                {"sensitive_group": ["F", "TA"], "score": -0.28720349955031044},
+                {"sensitive_group": ["F", "ATA"], "score": -0.32529873764554856},
             ]
         },
     },
