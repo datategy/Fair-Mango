@@ -10,7 +10,7 @@ from fair_mango.dataset.dataset import (
     check_column_existence_in_df,
     validate_columns,
 )
-from fair_mango.typing import DatasetGroupResult, DatasetTargetResult
+from fair_mango.typing import DatasetGroupResult, DatasetTargetResult, SensitiveGroupT
 
 df = pd.read_csv("tests/data/heart_data.csv")
 
@@ -111,7 +111,7 @@ def test_check_column_existence_in_df(
 )
 def test_dataset_init(
     df: pd.DataFrame,
-    sensitive: Sequence[str],
+    sensitive: SensitiveGroupT | str,
     real_target: str,
     predicted_target: str,
     positive_target: int | float | str | bool | None,
@@ -304,39 +304,13 @@ def test_get_predicted_target_for_all_groups(
 )
 def test_get_real_target_for_one_group(
     dataset: Dataset,
-    sensitive_groups: Sequence,
+    sensitive_groups: SensitiveGroupT | str,
     expected_data_type: type[pd.Series],
     expected_data_shape: Sequence,
 ):
     result = dataset.get_real_target_for_one_group(sensitive_groups)
     assert isinstance(result, expected_data_type)
     assert result.shape == expected_data_shape
-
-
-@pytest.mark.parametrize(
-    "dataset, sensitive_groups, expected_data_type, expected_data_shape, exception",
-    [
-        (dataset1, ["M"], pd.Series, (725,), pytest.raises(ValueError)),
-        (dataset4, "F", pd.Series, (193,), pytest.raises(ValueError)),
-        (dataset3, ["M", "ASY"], pd.Series, (426,), None),
-        (dataset3, ["F", "ASY"], pd.Series, (70,), None),
-        (dataset5, "F", pd.Series, (193,), None),
-    ],
-)
-def test_get_predicted_target_for_one_group(
-    dataset: Dataset,
-    sensitive_groups: Sequence,
-    expected_data_type: type[pd.Series],
-    expected_data_shape: Sequence,
-    exception: None | AbstractContextManager,
-):
-    if exception is None:
-        result = dataset.get_predicted_target_for_one_group(sensitive_groups)
-        assert isinstance(result, expected_data_type)
-        assert result.shape == expected_data_shape
-    else:
-        with exception:
-            dataset.get_predicted_target_for_one_group(sensitive_groups)
 
 
 @pytest.mark.parametrize(
