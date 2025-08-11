@@ -224,7 +224,7 @@ def calculate_disparity(
     result_per_groups : list[BaseMetricResult],
         List of metric result objects with the sensitive group and the corresponding
         score data.
-    method :Literal["difference", "ratio"]
+    method : Literal["difference", "ratio"]
         Method used to calculate the disparity. Either 'difference' or 'ratio'.
 
     Returns
