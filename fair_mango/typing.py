@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Literal, TypeAlias, TypedDict
 
-import numpy as np
 import pandas as pd
 
 
@@ -187,24 +186,3 @@ class SupersetPerformanceMetricsResult:
 
     sensitive_group: tuple[str, ...]
     data: list[CombinedPerformanceResult]
-
-
-@dataclass
-class GroupData:
-    """
-    Data structure produced by helper functions such as
-    `Dataset.get_*_for_all_groups`.
-
-    Attributes
-    ----------
-    sensitive_group : list[str] | np.ndarray
-        Labels identifying the sensitive group.
-    data : pd.Series | np.ndarray | list[float]
-        Raw per-record metric values (present for some helpers).
-    result : float | pd.Series | np.ndarray | list[float]
-        Pre-computed score for the group (present for others).
-    """
-
-    sensitive_group: list[str] | np.ndarray
-    data: pd.Series | np.ndarray | list[float]
-    result: float | pd.Series | np.ndarray | list[float]
