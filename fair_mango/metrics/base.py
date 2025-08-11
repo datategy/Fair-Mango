@@ -270,7 +270,13 @@ def calculate_disparity(
                 return float(data)
 
         a, b = _to_float(rec_i), _to_float(rec_j)
-        disp = a - b if method == "difference" else a / b if b != 0 else float("inf")
+        if method == "difference":
+            disp = a - b
+        else:  # method == "ratio"
+            if b == 0:
+                disp = 1.0 if a == 0 else float("inf")
+            else:
+                disp = a / b
 
         disparities.append(
             {
