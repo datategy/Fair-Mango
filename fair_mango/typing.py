@@ -153,13 +153,6 @@ class ConfusionMatrixResult(BaseMetricResult):
 
 
 @dataclass
-class FairnessRankingResult:
-    """Result container for fairness metric rankings."""
-
-    rankings: list[RankResult]
-
-
-@dataclass
 class SupersetFairnessRankingResult:
     """Result of fairness metric rankings for a sensitive group combination."""
 
