@@ -2,7 +2,7 @@ from collections.abc import Sequence
 
 import pandas as pd
 
-from fair_mango.typing import DatasetGroupResult, DatasetTargetResult
+from fair_mango.typing import DatasetGroupResult, DatasetTargetResult, SensitiveGroupT
 
 
 def check_column_existence_in_df(df: pd.DataFrame, columns: Sequence[str]) -> None:
@@ -71,23 +71,23 @@ def validate_columns(
         )
 
 
-def convert_to_list(variable: Sequence[str] | str) -> list[str]:
-    """Convert a variable of type str to a list.
+def convert_to_list(variable: SensitiveGroupT | str) -> list[str]:
+    """Convert a variable of type str or SensitiveGroupT to a list of strings.
 
     Parameters
     ----------
-    variable : Sequence[str]
-        Sequence of values.
+    variable : SensitiveGroupT | str
+        Sequence of values or a single string value.
 
     Returns
     -------
     list[str]
-        List of the values.
+        List of the values converted to strings.
     """
     if isinstance(variable, str):
         return [variable]
     else:
-        return list(variable)
+        return [str(item) for item in variable]
 
 
 def df_filtration(
@@ -147,7 +147,7 @@ class Dataset:
     def __init__(
         self,
         df: pd.DataFrame,
-        sensitive: Sequence[str] | str,
+        sensitive: SensitiveGroupT | str,
         real_target: str,
         predicted_target: str | None = None,
         positive_target: int | float | str | bool | None = None,
@@ -477,7 +477,7 @@ class Dataset:
         return self.groups_real_target
 
     def get_real_target_for_one_group(
-        self, sensitive_group: Sequence[str] | str
+        self, sensitive_group: SensitiveGroupT | str
     ) -> pd.Series:
         """Retrieve the real target corresponding to a specific sensitive
         group present in the sensitive features.
@@ -663,7 +663,7 @@ class Dataset:
         return self.groups_predicted_target
 
     def get_predicted_target_for_one_group(
-        self, sensitive_group: Sequence[str] | str
+        self, sensitive_group: SensitiveGroupT | str
     ) -> pd.Series:
         """Retrieve the predicted target corresponding to a specific sensitive
         group present in the sensitive features.

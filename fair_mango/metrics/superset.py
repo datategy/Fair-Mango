@@ -95,7 +95,7 @@ class Superset(ABC):
         """Create a Dataset instance for a given pair of sensitive attributes."""
         return Dataset(
             self.df,
-            pair,
+            list(pair),
             self.real_target,
             self.predicted_target,
             self.positive_target,
