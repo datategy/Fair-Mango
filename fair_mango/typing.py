@@ -4,7 +4,16 @@ from typing import Literal, TypeAlias, TypedDict
 import pandas as pd
 
 
-SensitiveGroupT: TypeAlias = list[str] | list[int] | list[bool] | list[str | int | bool]
+SensitiveGroupT: TypeAlias = (
+    list[str]
+    | list[int]
+    | list[bool]
+    | list[str | int | bool]
+    | tuple[str, ...]
+    | tuple[int, ...]
+    | tuple[bool, ...]
+    | tuple[str | int | bool, ...]
+)
 SensitiveGroupOptionalT: TypeAlias = (
     SensitiveGroupT | None
 )  # when sensitive group identification is not possible (one group or all groups have identical scores).
