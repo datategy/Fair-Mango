@@ -18,6 +18,8 @@ SensitiveGroupOptionalT: TypeAlias = (
     SensitiveGroupT | None
 )  # when sensitive group identification is not possible (one group or all groups have identical scores).
 
+SensitiveAttributeT: TypeAlias = list[str] | tuple[str, ...]
+
 SensitiveGroupTupleT: TypeAlias = tuple[str | int | bool, ...]
 
 MetricsDict: TypeAlias = dict[str, list[float]]
@@ -162,9 +164,9 @@ class ConfusionMatrixResult(BaseMetricResult):
 
 @dataclass
 class SupersetFairnessRankingResult:
-    """Result of fairness metric rankings for a sensitive group combination."""
+    """Result of fairness metric rankings for a sensitive attribute combination."""
 
-    sensitive_attributes: SensitiveGroupT
+    sensitive_attributes: SensitiveAttributeT
     rankings: dict[str, list[RankResult]]
 
 
@@ -172,7 +174,7 @@ class SupersetFairnessRankingResult:
 class SupersetFairnessSummaryResult:
     """Result of fairness summary evaluation for a superset."""
 
-    sensitive_attributes: SensitiveGroupT
+    sensitive_attributes: SensitiveAttributeT
     summaries: dict[
         str,
         FairnessSummaryDifferenceResult
@@ -184,9 +186,9 @@ class SupersetFairnessSummaryResult:
 
 @dataclass
 class SupersetBiasResult:
-    """Result of bias determination for a sensitive group combination."""
+    """Result of bias determination for a sensitive attribute combination."""
 
-    sensitive_attributes: SensitiveGroupT
+    sensitive_attributes: SensitiveAttributeT
     bias_results: dict[str, bool]
 
 
@@ -194,5 +196,5 @@ class SupersetBiasResult:
 class SupersetPerformanceMetricsResult:
     """Result container for superset performance metrics."""
 
-    sensitive_attributes: tuple[str, ...]
+    sensitive_attributes: SensitiveAttributeT
     data: list[CombinedPerformanceResult]
