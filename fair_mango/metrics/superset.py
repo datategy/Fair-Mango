@@ -75,7 +75,7 @@ class Superset(ABC):
             predicted_target = None
         if sensitive is None:
             raise AttributeError(
-                "'sensitive_attributes' attribute is required when data is pandas dataframe"
+                "'sensitive_group' attribute is required when data is pandas dataframe"
             )
 
         pairs = list(
