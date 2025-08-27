@@ -75,7 +75,7 @@ class Superset(ABC):
             predicted_target = None
         if sensitive is None:
             raise AttributeError(
-                "'sensitive_group' attribute is required when data is pandas dataframe"
+                "'sensitive_attributes' attribute is required when data is pandas dataframe"
             )
 
         pairs = list(
@@ -191,7 +191,7 @@ class SupersetFairnessMetrics(Superset):
         -------
         list[SupersetFairnessRankingResult]
             A list of SupersetFairnessRankingResult objects, each containing:
-            - sensitive_group: List of sensitive attribute names for this combination
+            - sensitive_attributes: List of sensitive attribute names for this combination
             - rankings: Dictionary mapping metric names to their ranking results
         """
         results = []
@@ -212,7 +212,7 @@ class SupersetFairnessMetrics(Superset):
 
             results.append(
                 SupersetFairnessRankingResult(
-                    sensitive_group=list(pair),
+                    sensitive_attributes=list(pair),
                     rankings=rankings,
                 )
             )
@@ -227,7 +227,7 @@ class SupersetFairnessMetrics(Superset):
         -------
         list[SupersetFairnessSummaryResult]
             A list of SupersetFairnessSummaryResult objects, each containing:
-            - sensitive_group: List of sensitive attribute names for this combination
+            - sensitive_attributes: List of sensitive attribute names for this combination
             - summaries: Dictionary mapping metric names to their summary results
         """
         results = []
@@ -254,6 +254,7 @@ class SupersetFairnessMetrics(Superset):
 
             results.append(
                 SupersetFairnessSummaryResult(
+                    sensitive_attributes=list(pair),
                     summaries=summaries,
                 )
             )
@@ -276,7 +277,7 @@ class SupersetFairnessMetrics(Superset):
         -------
         list[SupersetBiasResult]
             A list of SupersetBiasResult objects, each containing:
-            - sensitive_group: List of sensitive attribute names for this combination
+            - sensitive_attributes: List of sensitive attribute names for this combination
             - bias_results: Dictionary mapping metric names to their bias decisions
         """
         if thresholds is None:
@@ -304,7 +305,7 @@ class SupersetFairnessMetrics(Superset):
 
             results.append(
                 SupersetBiasResult(
-                    sensitive_group=list(pair),
+                    sensitive_attributes=list(pair),
                     bias_results=bias_results,
                 )
             )
@@ -371,7 +372,7 @@ class SupersetPerformanceMetrics(Superset):
         ... )
         >>> result
         [
-            {'sensitive_group': ('gender',),
+            {'sensitive_attributes': ('gender',),
             'result': (['real_churn'],
             [
                 {
@@ -411,7 +412,7 @@ class SupersetPerformanceMetrics(Superset):
 
             results.append(
                 SupersetPerformanceMetricsResult(
-                    sensitive_group=pair,
+                    sensitive_attributes=pair,
                     data=combined_results,
                 )
             )
