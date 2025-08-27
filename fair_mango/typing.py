@@ -164,7 +164,7 @@ class ConfusionMatrixResult(BaseMetricResult):
 class SupersetFairnessRankingResult:
     """Result of fairness metric rankings for a sensitive group combination."""
 
-    sensitive_group: SensitiveGroupT
+    sensitive_attributes: SensitiveGroupT
     rankings: dict[str, list[RankResult]]
 
 
@@ -172,6 +172,7 @@ class SupersetFairnessRankingResult:
 class SupersetFairnessSummaryResult:
     """Result of fairness summary evaluation for a superset."""
 
+    sensitive_attributes: SensitiveGroupT
     summaries: dict[
         str,
         FairnessSummaryDifferenceResult
@@ -185,7 +186,7 @@ class SupersetFairnessSummaryResult:
 class SupersetBiasResult:
     """Result of bias determination for a sensitive group combination."""
 
-    sensitive_group: SensitiveGroupT
+    sensitive_attributes: SensitiveGroupT
     bias_results: dict[str, bool]
 
 
@@ -193,5 +194,5 @@ class SupersetBiasResult:
 class SupersetPerformanceMetricsResult:
     """Result container for superset performance metrics."""
 
-    sensitive_group: tuple[str, ...]
+    sensitive_attributes: tuple[str, ...]
     data: list[CombinedPerformanceResult]
