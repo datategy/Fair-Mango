@@ -7,7 +7,7 @@ name = "fair-mango"
 dynamic = ["version"]
 dependencies = [
   "numpy>=1.19.5",
-  "pandas>=1.13.1",
+  "pandas~=1.5",
   "scikit-learn>=1.1.3",
 ]
 requires-python = ">=3.10"
