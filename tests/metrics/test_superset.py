@@ -43,7 +43,7 @@ dataset6 = Dataset(
 
 superset_fairness_expected_result_dataset1 = [
     {
-        "sensitive_group": ["Sex"],
+        "sensitive_attributes": ["Sex"],
         "rankings": {
             "demographic_parity_difference": [
                 {"sensitive_group": ["M"], "score": 0.3726567804180811},
@@ -55,7 +55,7 @@ superset_fairness_expected_result_dataset1 = [
 
 superset_fairness_expected_result_dataset2 = [
     {
-        "sensitive_group": ["Sex"],
+        "sensitive_attributes": ["Sex"],
         "rankings": {
             "demographic_parity_difference": [
                 {"sensitive_group": ["M"], "score": 0.3726567804180811},
@@ -103,7 +103,7 @@ superset_fairness_expected_result_dataset2 = [
 
 superset_fairness_expected_result_dataset3 = [
     {
-        "sensitive_group": ["Sex"],
+        "sensitive_attributes": ["Sex"],
         "rankings": {
             "demographic_parity_difference": [
                 {"sensitive_group": ["M"], "score": 0.3726567804180811},
@@ -112,7 +112,7 @@ superset_fairness_expected_result_dataset3 = [
         },
     },
     {
-        "sensitive_group": ["ChestPainType"],
+        "sensitive_attributes": ["ChestPainType"],
         "rankings": {
             "demographic_parity_difference": [
                 {"sensitive_group": ["ASY"], "score": 0.48092566886158156},
@@ -123,7 +123,7 @@ superset_fairness_expected_result_dataset3 = [
         },
     },
     {
-        "sensitive_group": ["Sex", "ChestPainType"],
+        "sensitive_attributes": ["Sex", "ChestPainType"],
         "rankings": {
             "demographic_parity_difference": [
                 {"sensitive_group": ["M", "ASY"], "score": 0.5455262120526406},
@@ -164,10 +164,10 @@ def test_super_set_fairness_metrics(
 
     for result, expected_result in zip(results, expected_results):
         assert isinstance(result, SupersetFairnessRankingResult)
-        assert isinstance(result.sensitive_group, list)
+        assert isinstance(result.sensitive_attributes, list)
         assert isinstance(result.rankings, dict)
 
-        assert result.sensitive_group == expected_result["sensitive_group"]
+        assert result.sensitive_attributes == expected_result["sensitive_attributes"]
 
         for metric_name, expected_metric_results in expected_result["rankings"].items():
             if metric_name in result.rankings:
@@ -197,7 +197,7 @@ def test_super_set_fairness_metrics(
 
 super_set_performance_metrics_expected_result_2 = [
     {
-        "sensitive_group": ("Sex",),
+        "sensitive_attributes": ("Sex",),
         "data": [
             {
                 "sensitive_group": np.array(["M"], dtype=object),
@@ -263,10 +263,10 @@ def test_super_set_performance_metrics(
 
         for result, expected_result in zip(results, expected_results):
             assert isinstance(result, SupersetPerformanceMetricsResult)
-            assert isinstance(result.sensitive_group, tuple)
+            assert isinstance(result.sensitive_attributes, tuple)
             assert isinstance(result.data, list)
 
-            assert result.sensitive_group == expected_result["sensitive_group"]
+            assert result.sensitive_attributes == expected_result["sensitive_attributes"]
 
             result_list = result.data
             expected_result_list = expected_result["data"]
