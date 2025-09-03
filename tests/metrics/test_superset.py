@@ -170,10 +170,10 @@ def test_super_set_fairness_metrics(
 
     for result, expected_result in zip(results, expected_results):
         assert isinstance(result, SupersetFairnessRankingResult)
-        assert isinstance(result.sensitive_attributes, list)
+        assert isinstance(result.sensitive_attributes, tuple)
         assert isinstance(result.rankings, dict)
 
-        assert result.sensitive_attributes == expected_result["sensitive_attributes"]
+        assert result.sensitive_attributes == tuple(expected_result["sensitive_attributes"])
 
         for metric_name, expected_metric_results in expected_result["rankings"].items():
             if metric_name in result.rankings:
@@ -296,7 +296,7 @@ def test_super_set_performance_metrics(
             assert isinstance(result.sensitive_attributes, tuple)
             assert isinstance(result.data, list)
 
-            assert result.sensitive_attributes == expected_result["sensitive_attributes"]
+            assert result.sensitive_attributes == tuple(expected_result["sensitive_attributes"])
 
             result_list = result.data
             expected_result_list = expected_result["data"]
