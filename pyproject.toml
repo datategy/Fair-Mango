@@ -6,8 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "fair-mango"
 dynamic = ["version"]
 dependencies = [
-  "numpy>=1.19.5",
-  "pandas~=1.5",
+  "numpy",
+  "pandas",
   "scikit-learn>=1.1.3",
 ]
 requires-python = ">=3.10"
@@ -43,6 +43,14 @@ Changelog = "https://github.com/datategy/Fair-Mango/blob/main/CHANGELOG.md"
 [project.optional-dependencies]
 dev = [
     "twine",
+]
+old-pandas = [
+    "pandas<2.2.0",
+    "numpy<2.0",
+]
+new-pandas = [
+    "pandas>=2.2.0",
+    "numpy>=2.0",
 ]
 
 [tool.setuptools.dynamic]
