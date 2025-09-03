@@ -16,6 +16,12 @@ from fair_mango.typing import (
 
 df = pd.read_csv("tests/data/heart_data.csv")
 
+df_multiclass = pd.DataFrame({
+    'sensitive': ['A', 'A', 'B', 'B', 'A', 'B', 'A', 'B'],
+    'real_target': ['cat', 'dog', 'cat', 'dog', 'cat', 'bird', 'dog', 'bird'],
+    'pred_target': ['cat', 'cat', 'dog', 'dog', 'cat', 'bird', 'dog', 'cat'],
+})
+
 dataset1 = Dataset(df, ["Sex"], "HeartDisease")
 
 dataset2 = Dataset(df, ["Sex"], "HeartDisease", "HeartDiseasePred")
@@ -194,6 +200,30 @@ def test_super_set_fairness_metrics(
                         f"Score mismatch for {expected_key}: expected {expected_score}, got {actual_score}"
                     )
 
+def test_super_set_fairness_metrics_multiclass():
+    """
+    Tests SupersetFairnessMetrics with a multi-class target.
+    """
+    dataset = Dataset(
+        df=df_multiclass,
+        sensitive=['sensitive'],
+        real_target='real_target',
+        predicted_target='pred_target'
+    )
+    
+    super_set_fairness_metrics = SupersetFairnessMetrics(dataset)
+    results = super_set_fairness_metrics.rank()
+    
+    assert isinstance(results, list)
+    assert len(results) == 3 
+    
+    classes_of_interest = {res.positive_outcome for res in results}
+    assert classes_of_interest == {'cat', 'dog', 'bird'}
+
+    for result in results:
+        assert isinstance(result, SupersetFairnessRankingResult)
+        assert result.sensitive_attributes == ('sensitive',)
+
 
 super_set_performance_metrics_expected_result_2 = [
     {
@@ -311,3 +341,27 @@ def test_super_set_performance_metrics(
             SupersetPerformanceMetrics(
                 data,
             ).evaluate()
+
+def test_super_set_performance_metrics_multiclass():
+    """
+    Tests SupersetPerformanceMetrics with a multi-class target.
+    """
+    dataset = Dataset(
+        df=df_multiclass,
+        sensitive=['sensitive'],
+        real_target='real_target',
+        predicted_target='pred_target'
+    )
+    
+    super_set_performance_metrics = SupersetPerformanceMetrics(dataset)
+    results = super_set_performance_metrics.evaluate()
+    
+    assert isinstance(results, list)
+    assert len(results) == 3
+    
+    classes_of_interest = {res.positive_outcome for res in results}
+    assert classes_of_interest == {'cat', 'dog', 'bird'}
+
+    for result in results:
+        assert isinstance(result, SupersetPerformanceMetricsResult)
+        assert result.sensitive_attributes == ('sensitive',)

@@ -168,6 +168,7 @@ class SupersetFairnessRankingResult:
 
     sensitive_attributes: SensitiveAttributeT
     rankings: dict[str, list[RankResult]]
+    positive_outcome: str | None = None
 
 
 @dataclass
@@ -182,6 +183,7 @@ class SupersetFairnessSummaryResult:
         | FairnessSummaryRatioResult
         | FairnessSummaryRatioFairResult,
     ]
+    positive_outcome: str | None = None
 
 
 @dataclass
@@ -190,6 +192,7 @@ class SupersetBiasResult:
 
     sensitive_attributes: SensitiveAttributeT
     bias_results: dict[str, bool]
+    positive_outcome: str | None = None
 
 
 @dataclass
@@ -198,4 +201,5 @@ class SupersetPerformanceMetricsResult:
 
     sensitive_attributes: SensitiveAttributeT
     data: list[CombinedPerformanceResult]
+    positive_outcome: str | None = None
     
