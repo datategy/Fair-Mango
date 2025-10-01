@@ -8,16 +8,16 @@ import pandas as pd
 
 from fair_mango.dataset.dataset import Dataset
 from fair_mango.typing import (
-    DisparityResultDict,
-    FairnessSummaryDifferenceResult,
-    FairnessSummaryDifferenceFairResult,
-    FairnessSummaryRatioResult,
-    FairnessSummaryRatioFairResult,
     BaseMetricResult,
     CombinedPerformanceResult,
+    DisparityResultDict,
+    FairnessSummaryDifferenceFairResult,
+    FairnessSummaryDifferenceResult,
+    FairnessSummaryRatioFairResult,
+    FairnessSummaryRatioResult,
     RankResult,
-    SensitiveGroupTupleT,
     SensitiveGroupOptionalT,
+    SensitiveGroupTupleT,
 )
 
 LabelT = TypeVar("LabelT", bound=str)
@@ -270,11 +270,26 @@ def calculate_disparity(
                 return float(data)
 
         a, b = _to_float(rec_i), _to_float(rec_j)
+
         if method == "difference":
+            # # Ensure a is the larger value for consistent disparity calculation
+            # # that way, the difference will always be >= 0
+            if b > a:
+                a, b = b, a
+                grp_i, grp_j = grp_j, grp_i
+
             disp = a - b
         else:
-            if b == 0:
-                disp = 1.0 if a == 0 else float("inf")
+            # Ensure b is the larger value for consistent disparity calculation
+            # that way, the ratio will always be <= 1
+            if a > b:
+                a, b = b, a
+                grp_i, grp_j = grp_j, grp_i
+
+            if a == b:
+                disp = 1.0
+            elif b == 0:
+                disp = float("inf")
             else:
                 disp = a / b
 
@@ -394,14 +409,16 @@ class FairnessMetricDifference(ABC, Generic[LabelT]):
         unprivileged_sensitive_group: SensitiveGroupOptionalT = None
 
         for disparity_result in self.results:
-            abs_disparity = abs(disparity_result["disparity"])
+            disparity = disparity_result["disparity"]
+            abs_disparity = abs(disparity)
 
             if abs_disparity > max_disparity:
                 max_disparity = abs_disparity
-                if disparity_result["disparity"] > 0:
+                if disparity > 0:
                     privileged_sensitive_group = disparity_result["group_1"]
                     unprivileged_sensitive_group = disparity_result["group_2"]
                 else:
+                    # in case disparity is negative, we swap the two groups to make it positive again
                     privileged_sensitive_group = disparity_result["group_2"]
                     unprivileged_sensitive_group = disparity_result["group_1"]
 
