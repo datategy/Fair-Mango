@@ -4,7 +4,8 @@ import pandas as pd
 import pytest
 
 from fair_mango.dataset.dataset import Dataset
-from fair_mango.metrics.base import encode_target, is_binary
+from fair_mango.metrics.base import calculate_disparity, encode_target, is_binary
+from fair_mango.typing import BaseMetricResult, DisparityResultDict
 
 df = pd.read_csv("tests/data/heart_data.csv")
 
@@ -63,3 +64,93 @@ def test_encode_target(
     else:
         with expected_result:
             encode_target(data, col)
+
+
+@pytest.mark.parametrize(
+    "data, method, expected_result",
+    [
+        (
+            [
+                BaseMetricResult(["A"], 0),
+                BaseMetricResult(["B"], 0),
+                BaseMetricResult(["C"], 0),
+            ],
+            "difference",
+            [
+                {"group_1": ["A"], "group_2": ["B"], "disparity": 0},
+                {"group_1": ["A"], "group_2": ["C"], "disparity": 0},
+                {"group_1": ["B"], "group_2": ["C"], "disparity": 0},
+            ],
+        ),
+        (
+            [
+                BaseMetricResult(["A"], 0),
+                BaseMetricResult(["B"], 0),
+                BaseMetricResult(["C"], 0),
+            ],
+            "ratio",
+            [
+                {"group_1": ["A"], "group_2": ["B"], "disparity": 1},
+                {"group_1": ["A"], "group_2": ["C"], "disparity": 1},
+                {"group_1": ["B"], "group_2": ["C"], "disparity": 1},
+            ],
+        ),
+        (
+            [
+                BaseMetricResult(["A"], 2),
+                BaseMetricResult(["B"], 1),
+                BaseMetricResult(["C"], 0),
+            ],
+            "difference",
+            [
+                {"group_1": ["A"], "group_2": ["B"], "disparity": 1},
+                {"group_1": ["A"], "group_2": ["C"], "disparity": 2},
+                {"group_1": ["B"], "group_2": ["C"], "disparity": 1},
+            ],
+        ),
+        # check that changing the order will not change the results
+        (
+            [
+                BaseMetricResult(["C"], 0),
+                BaseMetricResult(["B"], 1),
+                BaseMetricResult(["A"], 2),
+            ],
+            "difference",
+            [
+                {"group_1": ["B"], "group_2": ["C"], "disparity": 1},
+                {"group_1": ["A"], "group_2": ["C"], "disparity": 2},
+                {"group_1": ["A"], "group_2": ["B"], "disparity": 1},
+            ],
+        ),
+        # check that ratio disparity is always < 1
+        (
+            [
+                BaseMetricResult(["C"], 0),
+                BaseMetricResult(["B"], 1),
+                BaseMetricResult(["A"], 2),
+            ],
+            "ratio",
+            [
+                {"group_1": ["C"], "group_2": ["B"], "disparity": 0},
+                {"group_1": ["C"], "group_2": ["A"], "disparity": 0},
+                {"group_1": ["B"], "group_2": ["A"], "disparity": 0.5},
+            ],
+        ),
+        # check that changing the order results in the same results
+        (
+            [
+                BaseMetricResult(["A"], 2),
+                BaseMetricResult(["B"], 1),
+                BaseMetricResult(["C"], 0.1),
+            ],
+            "ratio",
+            [
+                {"group_1": ["B"], "group_2": ["A"], "disparity": 0.5},
+                {"group_1": ["C"], "group_2": ["A"], "disparity": 0.05},
+                {"group_1": ["C"], "group_2": ["B"], "disparity": 0.1},
+            ],
+        ),
+    ],
+)
+def test_calculate_disparity(data, method, expected_result: DisparityResultDict):
+    assert calculate_disparity(data, method) == expected_result
