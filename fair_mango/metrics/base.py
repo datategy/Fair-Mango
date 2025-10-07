@@ -272,8 +272,8 @@ def calculate_disparity(
         a, b = _to_float(rec_i), _to_float(rec_j)
 
         if method == "difference":
-            # # Ensure a is the larger value for consistent disparity calculation
-            # # that way, the difference will always be >= 0
+            # Ensure a is the larger value for consistent disparity calculation
+            # that way, the difference will always be >= 0
             if b > a:
                 a, b = b, a
                 grp_i, grp_j = grp_j, grp_i
