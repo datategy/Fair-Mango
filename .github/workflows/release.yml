@@ -1,27 +1,29 @@
 name: release
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "v*"
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.x"
+          cache: pip
 
       - name: Build release distributions
         run: |
-          # NOTE: put your own distribution build steps here.
+          python -m pip install --upgrade pip
           python -m pip install build
           python -m build
 
       - name: Upload distributions
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: release-dists
           path: dist/
@@ -41,10 +43,10 @@ jobs:
 
     steps:
       - name: Retrieve release distributions
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: release-dists
           path: dist/
 
       - name: Publish release distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@6f7e8d9c0b1a2c3d4e5f6a7b8c9d0e1f2a3b4c5d
+        uses: pypa/gh-action-pypi-publish@release/v1
