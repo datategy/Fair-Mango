@@ -39,7 +39,7 @@ jobs:
 
     environment:
       name: pypi
-      url: https://pypi.org/p/Fair-Mango
+      url: https://pypi.org/p/fair-mango
 
     steps:
       - name: Retrieve release distributions
